@@ -1,0 +1,14 @@
+{
+  "name": "dank-times-bot",
+  "version": "1.0.0",
+  "description": "A bot for Telegram that keeps score of dank times. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Agadar",
+  "license": "ISC",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.27.1"
+  }
+}
