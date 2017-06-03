@@ -3,7 +3,6 @@
 const TelegramBot = require('node-telegram-bot-api');
 const token = '';
 const bot = new TelegramBot(token, {polling: true});
-const dankTimes = new Map();  // Registered dank times.
 const chats = new Map(); // All the scores of all the chats.
 const commands = new Map(); // All the available settings of this bot.
 
