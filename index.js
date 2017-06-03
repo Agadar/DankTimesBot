@@ -235,3 +235,7 @@ function newCommand(name, description, _function) {
   bot.onText(command.regex, command._function);
   return command;
 }
+
+module.exports.newUser = newUser;
+module.exports.newChat = newChat;
+module.exports.newDankTime = newDankTime;
