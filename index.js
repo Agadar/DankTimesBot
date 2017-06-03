@@ -7,12 +7,12 @@ const chats = new Map(); // All the scores of all the chats.
 const commands = new Map(); // All the available settings of this bot.
 
 // Available commands.
-newCommand('/start', 'Starts keeping track of scores', (msg) => callFunctionIfUserIsAdmin(msg, startChat));
-newCommand('/reset', 'Resets the scores', (msg) => callFunctionIfUserIsAdmin(msg, resetChat));
+newCommand('/start', 'Starts keeping track of scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
+newCommand('/reset', 'Resets the scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
 newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));
 newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
 newCommand('/help', 'Shows the available commands', (msg) => help(msg));
-newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute]', (msg, match) => addTime(msg, match));
+newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
 
 /** Activated on any message. Checks for dank times. */
 bot.on('message', (msg) => {
@@ -55,16 +55,16 @@ bot.on('message', (msg) => {
  * Calls the specified function, but only if the calling user is
  * an admin in his chat, or it is a private chat.
  * @param {any} msg The message object from the Telegram api.
- * @param {function} _function The function to call, expected to have a single 'chat' parameter.
+ * @param {function} _function The function to call. Should have parameters msg, match, chat.
  */
-function callFunctionIfUserIsAdmin(msg, _function) {
+function callFunctionIfUserIsAdmin(msg, match, _function) {
 
   // Get the right chat.
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
 
   // Only groups have admins, so if this chat isn't a group, continue straight to callback.
   if (msg.chat.type !== 'group') {
-    _function(chat);
+    _function(msg, match, chat);
     return;
   }
 
@@ -75,7 +75,7 @@ function callFunctionIfUserIsAdmin(msg, _function) {
     // Check to ensure user is admin. If not, post message.
     for (const admin of admins) {
       if (admin.user.id === msg.from.id) {
-        _function(chat);
+        _function(msg, match, chat);
         return;
       }
     }
@@ -89,9 +89,11 @@ function callFunctionIfUserIsAdmin(msg, _function) {
 /**
  * Starts the specified chat so that it records dank time shoutouts.
  * Only prints a warning if the chat is already running.
+ * @param {any} msg The message object from the Telegram api.
+ * @param {any[]} match The regex matched object from the Telegram api.
  * @param {Chat} chat The chat to start.
  */
-function startChat(chat) {
+function startChat(msg, match, chat) {
   if (chat.running) {
     bot.sendMessage(chat.id, 'DankTimesBot is already running!');
   } else {
@@ -102,9 +104,11 @@ function startChat(chat) {
 
 /**
  * Resets the scores of the specified chat.
+ * @param {any} msg The message object from the Telegram api.
+ * @param {any[]} match The regex matched object from the Telegram api.
  * @param {Chat} chat The chat to reset. 
  */
-function resetChat(chat) {
+function resetChat(msg, match, chat) {
   for (const user of chat.users) {
     user[1].score = 0;
     user[1].called = false;
@@ -159,8 +163,9 @@ function help(msg) {
  * Adds a new dank time to the chat identified in the msg object.
  * @param {any} msg The message object from the Telegram api.
  * @param {any[]} match The regex matched object from the Telegram api.
+ * @param {Chat} chat The chat to add a dank time to.
  */
-function addTime(msg, match) {
+function addTime(msg, match, chat) {
 
   // Split string and ensure it contains at least 4 items.
   const split = match.input.split(' ');
@@ -183,8 +188,8 @@ function addTime(msg, match) {
   }
 
   // Subscribe new dank time for the chat.
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
   newDankTime(split[1], hour, minute, chat);
+  bot.sendMessage(msg.chat.id, 'Registered the new dank time!');
 }
 
 /**
