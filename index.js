@@ -15,15 +15,10 @@ newDankTime('1111', 11, 11);
 newDankTime('2222', 22, 22);
 
 // Available commands.
-commands.set(/^\/start$/, (msg) => callFunctionIfUserIsAdmin(msg, startChat));
-commands.set(/^\/reset$/, (msg) => callFunctionIfUserIsAdmin(msg, resetChat));
-commands.set(/^\/settings$/, (msg) => chatSettings(msg));
-commands.set(/^\/leaderboard$/, (msg) => leaderBoard(msg));
-
-// Register available commands with Telegram bot.
-for (const command of commands) {
-  bot.onText(command[0], command[1]);
-}
+newCommand('/start', 'Starts keeping track of scores', (msg) => callFunctionIfUserIsAdmin(msg, startChat));
+newCommand('/reset', 'Resets the scores', (msg) => callFunctionIfUserIsAdmin(msg, resetChat));
+newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));
+newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
 
 /** Activated on any message. Checks for dank times. */
 bot.on('message', (msg) => {
@@ -103,7 +98,7 @@ function callFunctionIfUserIsAdmin(msg, callMe) {
 /**
  * Starts the specified chat so that it records dank time shoutouts.
  * Only prints a warning if the chat is already running.
- * @param {chat} chat The chat to start.
+ * @param {Chat} chat The chat to start.
  */
 function startChat(chat) {
   if (chat.running) {
@@ -116,7 +111,7 @@ function startChat(chat) {
 
 /**
  * Resets the scores of the specified chat.
- * @param {chat} chat The chat to reset. 
+ * @param {Chat} chat The chat to reset. 
  */
 function resetChat(chat) {
   for (const user of chat.users) {
@@ -158,21 +153,15 @@ function leaderBoard(msg) {
 }
 
 /**
- * Debugging function for checking 'chats' contents.
+ * Prints the available commands to the chat identified in the msg object.
+ * @param {any} msg The message object from the Telegram api.
  */
-function printChats() {
-  let log = '---- DEBUG INFO ---\n\n';
-  for (const chat of chats) {
-    log += '- chat id: ' + chat[1].id + '\n';
-    log += '  lastTime: ' + chat[1].lastTime + '\n';
-    for (const user of chat[1].users) {
-      log += '\t- user id: ' + user[1].id + '\n';
-      log += '\t  name: ' + user[1].name + '\n';
-      log += '\t  score: ' + user[1].score + '\n';
-      log += '\t  called: ' + user[1].called + '\n';
-    }
+function help(msg) {
+  let help;
+  for (const command of commands) {
+
   }
-  console.info(log);
+  return help;
 }
 
 /**
@@ -184,7 +173,8 @@ function printChats() {
  * - called: Whether the user already called the current dank time.
  * @param {number} id The user's unique Telegram id.
  * @param {string} name The user's Telegram name.
- * @param {chat} chat The chat to which the user belongs.
+ * @param {Chat} chat The chat to which the user belongs.
+ * @return {User} New user.
  */
 function newUser(id, name, chat) {
   const user = {id: id, name: name, score: 0, called: false};
@@ -200,6 +190,7 @@ function newUser(id, name, chat) {
  * - lastTime: The current dank time being shouted out;
  * - running: Whether this bot is running for this chat.
  * @param {number} id The chat's unique Telegram id.
+ * @return {Chat} New chat.
  */
 function newChat(id) {
   const chat = {id: id, users: new Map(), lastTime: undefined, running: false};
@@ -216,9 +207,30 @@ function newChat(id) {
  * @param {string} shoutout The string to shout to get the point.
  * @param {number} hour The hour to shout at.
  * @param {number} minute The minute to shout at.
+ * @return {DankTime} New dank time.
  */
 function newDankTime(shoutout, hour, minute) {
   const dankTime = {shoutout: shoutout, hour: hour, minute: minute};
   dankTimes.set(shoutout, dankTime);
   return dankTime;
+}
+
+/**
+ * Creates a new bot command, places it in 'commands', and registers it with the Telegram bot.
+ * It has the following fields:
+ * - name: The name of the command, e.g. '/start';
+ * - regex: The regex of the command, derived from 'name';
+ * - description: Brief description of the command;
+ * - _function: The function which this command calls.
+ * @param {string} name The name of the command, e.g. '/start'.
+ * @param {string} description Brief description of the command.
+ * @param {function} _function The function which this command calls.
+ * @return {Command} New command.
+ */
+function newCommand(name, description, _function) {
+  const regex = RegExp('^' + name + '$');
+  const command = {name: name, regex: regex, description: description, _function: _function};
+  commands.set(name, command);
+  bot.onText(command.regex, command._function);
+  return command;
 }
