@@ -229,7 +229,7 @@ function newDankTime(shoutout, hour, minute) {
  * @return {Command} New command.
  */
 function newCommand(name, description, _function) {
-  const regex = RegExp('^' + name + '$');
+  const regex = RegExp(name + '(@DankTimesBot|)');
   const command = {name: name, regex: regex, description: description, _function: _function};
   commands.set(name, command);
   bot.onText(command.regex, command._function);
