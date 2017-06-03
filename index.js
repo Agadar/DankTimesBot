@@ -5,6 +5,7 @@ const token = '';
 const bot = new TelegramBot(token, {polling: true});
 const dankTimes = new Map();  // Registered dank times.
 const chats = new Map(); // All the scores of all the chats.
+const commands = new Map(); // All the available settings of this bot.
 
 // Default values for dankTimes.
 newDankTime('1337', 13, 37);
@@ -13,44 +14,16 @@ newDankTime('420', 16, 20);
 newDankTime('1111', 11, 11);
 newDankTime('2222', 22, 22);
 
-/**
- * Starts the DankTimesBot in the calling chat. Only usable for admins.
- */
-bot.onText(/^\/start$/, (msg, match) => {
-  callFunctionIfUserIsAdmin(msg, startChat);
-});
+// Available commands.
+commands.set(/^\/start$/, (msg) => callFunctionIfUserIsAdmin(msg, startChat));
+commands.set(/^\/reset$/, (msg) => callFunctionIfUserIsAdmin(msg, resetChat));
+commands.set(/^\/settings$/, (msg) => chatSettings(msg));
+commands.set(/^\/leaderboard$/, (msg) => leaderBoard(msg));
 
-/**
- * Resets the DankTimesBot in the calling chat. Only usable for admins.
- */
-bot.onText(/^\/reset$/, (msg, match) => {
-  callFunctionIfUserIsAdmin(msg, resetChat);
-});
-
-/** '/settings' command. Prints the registered dank times and other settings. */
-bot.onText(/^\/settings$/, (msg, match) => {
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
-  let settings = 'Status: ' + (chat.running ? 'running' : 'not running');
-  settings += ';\nDank times:';
-  for (const time of dankTimes) {
-    settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ";    magical word: " + time[0] + ";";
-  }
-  bot.sendMessage(msg.chat.id, settings);
-});
-
-/** '/leaderboard' command. Prints the leaderboard. */
-bot.onText(/^\/leaderboard$/, (msg, match) => {
-
-  // Get the chat, creating it if needed.
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
-
-  // Build a string to send from the chat's user list.
-  let leaderboard = 'Leaderboard:';
-  for (const user of chat.users) {
-    leaderboard += "\n" + user[1].name + ": " + user[1].score;
-  }
-  bot.sendMessage(msg.chat.id, leaderboard);
-});
+// Register available commands with Telegram bot.
+for (const command of commands) {
+  bot.onText(command[0], command[1]);
+}
 
 /** Activated on any message. Checks for dank times. */
 bot.on('message', (msg) => {
@@ -95,7 +68,7 @@ bot.on('message', (msg) => {
 /**
  * Calls the specified function, but only if the calling user is
  * an admin in his chat, or it is a private chat.
- * @param {*} msg The message object from the Telegram api.
+ * @param {any} msg The message object from the Telegram api.
  * @param {function} callMe The function to call, expected to have a single 'chat' parameter.
  */
 function callFunctionIfUserIsAdmin(msg, callMe) {
@@ -151,6 +124,37 @@ function resetChat(chat) {
     user[1].called = false;
   }
   bot.sendMessage(chat.id, 'Leaderboard has been reset!');
+}
+
+/**
+ * Prints the current settings of the chat identified in the msg object.
+ * @param {any} msg The message object from the Telegram api.
+ */
+function chatSettings(msg) {
+  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
+  let settings = 'Status: ' + (chat.running ? 'running' : 'not running');
+  settings += ';\nDank times:';
+  for (const time of dankTimes) {
+    settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ";    magical word: " + time[0] + ";";
+  }
+  bot.sendMessage(msg.chat.id, settings);
+}
+
+/**
+ * Prints the leaderboard of the chat identified in the msg object.
+ * @param {any} msg The message object from the Telegram api.
+ */
+function leaderBoard(msg) {
+
+  // Get the chat, creating it if needed.
+  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
+
+  // Build a string to send from the chat's user list.
+  let leaderboard = 'Leaderboard:';
+  for (const user of chat.users) {
+    leaderboard += "\n" + user[1].name + ": " + user[1].score;
+  }
+  bot.sendMessage(msg.chat.id, leaderboard);
 }
 
 /**
