@@ -8,6 +8,10 @@
   },
   "author": "Agadar",
   "license": "ISC",
+  "repository": {
+      "type": "git",
+      "url": "git://github.com/Agadar/DankTimesBot.git"
+  },
   "dependencies": {
     "node-telegram-bot-api": "^0.27.1"
   }
