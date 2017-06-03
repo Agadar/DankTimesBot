@@ -65,16 +65,16 @@ bot.on('message', (msg) => {
  * Calls the specified function, but only if the calling user is
  * an admin in his chat, or it is a private chat.
  * @param {any} msg The message object from the Telegram api.
- * @param {function} callMe The function to call, expected to have a single 'chat' parameter.
+ * @param {function} _function The function to call, expected to have a single 'chat' parameter.
  */
-function callFunctionIfUserIsAdmin(msg, callMe) {
+function callFunctionIfUserIsAdmin(msg, _function) {
 
   // Get the right chat.
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
 
   // Only groups have admins, so if this chat isn't a group, continue straight to callback.
   if (msg.chat.type !== 'group') {
-    callMe(chat);
+    _function(chat);
     return;
   }
 
@@ -85,7 +85,7 @@ function callFunctionIfUserIsAdmin(msg, callMe) {
     // Check to ensure user is admin. If not, post message.
     for (const admin of admins) {
       if (admin.user.id === msg.from.id) {
-        callMe(chat);
+        _function(chat);
         return;
       }
     }
@@ -236,6 +236,7 @@ function newCommand(name, description, _function) {
   return command;
 }
 
+// Exports for unit testing.
 module.exports.newUser = newUser;
 module.exports.newChat = newChat;
 module.exports.newDankTime = newDankTime;
