@@ -110,11 +110,13 @@ function startChat(msg, match, chat) {
  * @param {Chat} chat The chat to reset. 
  */
 function resetChat(msg, match, chat) {
+  let message = 'Leaderboard has been reset! Final score:\n';
   for (const user of chat.users) {
+    message += "\n" + user[1].name + ":    " + user[1].score;
     user[1].score = 0;
     user[1].called = false;
   }
-  bot.sendMessage(chat.id, 'Leaderboard has been reset!');
+  bot.sendMessage(chat.id, message);
 }
 
 /**
@@ -141,7 +143,7 @@ function leaderBoard(msg) {
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
 
   // Build a string to send from the chat's user list.
-  let leaderboard = 'Leaderboard:';
+  let leaderboard = 'Leaderboard:\n';
   for (const user of chat.users) {
     leaderboard += "\n" + user[1].name + ":    " + user[1].score;
   }
