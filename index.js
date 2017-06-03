@@ -113,13 +113,13 @@ function startChat(msg, match, chat) {
  * @param {Chat} chat The chat to reset. 
  */
 function resetChat(msg, match, chat) {
-  let message = 'Leaderboard has been reset! Final score:\n';
+  let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
   for (const user of chat.users) {
     message += "\n" + user[1].name + ":    " + user[1].score;
     user[1].score = 0;
     user[1].called = false;
   }
-  bot.sendMessage(chat.id, message);
+  bot.sendMessage(chat.id, message, {parse_mode: 'HTML'});
 }
 
 /**
@@ -128,12 +128,12 @@ function resetChat(msg, match, chat) {
  */
 function chatSettings(msg) {
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
-  let settings = 'Status:    ' + (chat.running ? 'running' : 'not running');
-  settings += ';\nDank times:';
+  let settings = '<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
+  settings += '\n<b>Dank times:</b>';
   for (const time of chat.dankTimes) {
-    settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
+    settings += "\ntime: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
   }
-  bot.sendMessage(msg.chat.id, settings);
+  bot.sendMessage(msg.chat.id, settings, {parse_mode: 'HTML'});
 }
 
 /**
@@ -146,11 +146,11 @@ function leaderBoard(msg) {
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
 
   // Build a string to send from the chat's user list.
-  let leaderboard = 'Leaderboard:\n';
+  let leaderboard = '<b>Leaderboard:</b>';
   for (const user of chat.users) {
     leaderboard += "\n" + user[1].name + ":    " + user[1].score;
   }
-  bot.sendMessage(msg.chat.id, leaderboard);
+  bot.sendMessage(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
 }
 
 /**
@@ -158,11 +158,11 @@ function leaderBoard(msg) {
  * @param {any} msg The message object from the Telegram api.
  */
 function help(msg) {
-  let help = 'Available commands:';
+  let help = '<b>Available commands:</b>';
   for (const command of commands) {
     help += '\n' + command[0] + '    ' + command[1].description;
   }
-  bot.sendMessage(msg.chat.id, help);
+  bot.sendMessage(msg.chat.id, help, {parse_mode: 'HTML'});
 }
 
 /**
