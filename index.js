@@ -46,13 +46,15 @@ bot.onText(/^\/start$/, (msg, match) => {
 
 });
 
-/** '/times' command. Prints the registered dank times. */
-bot.onText(/^\/times$/, (msg, match) => {
-  let times = 'Dank times:';
+/** '/settings' command. Prints the registered dank times. */
+bot.onText(/^\/settings$/, (msg, match) => {
+  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
+  let settings = 'Status: ' + (chat.running ? 'running' : 'not running');
+  settings += ';\n\nDank times:';
   for (const time of dankTimes) {
-    times += "\n" + time[0] + " - " + time[1].hour + ":" + time[1].minute + ":00";
+    settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ";    magical word: " + time[0] + ";";
   }
-  bot.sendMessage(msg.chat.id, times);
+  bot.sendMessage(msg.chat.id, settings);
 });
 
 /** '/leaderboard' command. Prints the leaderboard. */
@@ -119,7 +121,7 @@ function handleStartCallback(chat) {
     bot.sendMessage(chat.id, 'DankTimesBot is already running!');
   } else {
     chat.running = true;
-    bot.sendMessage(chat.id, 'DankTimesBot is now running!');
+    bot.sendMessage(chat.id, 'DankTimesBot is now running! Type ');
   }
 }
 
