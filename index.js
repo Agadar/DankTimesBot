@@ -1,12 +1,15 @@
 'use strict';
 
+// Imports.
 const TelegramBot = require('node-telegram-bot-api');
-const token = '';
-const bot = new TelegramBot(token, {polling: true});
+const fs = require('fs'); // For reading the file containing the API key.
+
+// Global variables.
+const bot = new TelegramBot(fs.readFileSync('./DankTimesBot.api', 'utf8'), {polling: true});
 const chats = new Map(); // All the scores of all the chats.
 const commands = new Map(); // All the available settings of this bot.
 
-// Available commands.
+// Register available commands.
 newCommand('/start', 'Starts keeping track of scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
 newCommand('/reset', 'Resets the scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
 newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));

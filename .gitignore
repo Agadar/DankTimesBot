@@ -1,3 +1,6 @@
+# File containing API key
+DankTimesBot.api
+
 # Logs
 logs
 *.log
