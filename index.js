@@ -64,7 +64,7 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
 
   // Only groups have admins, so if this chat isn't a group, continue straight to callback.
-  if (msg.chat.type !== 'group') {
+  if (msg.chat.type === 'private') {
     _function(msg, match, chat);
     return;
   }
@@ -80,10 +80,10 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
         return;
       }
     }
-    bot.sendMessage(chat.id, 'This option is only available to admins.');
+    bot.sendMessage(chat.id, 'This option is only available to admins!');
   }).catch(reason => {
-    console.info('Failed to retrieve admin list.\n' + reason);
-    bot.sendMessage('Failed to retrieve admin list. See server console.');
+    console.error('Failed to retrieve admin list!\n' + reason);
+    bot.sendMessage('Failed to retrieve admin list! See server console.');
   });
 }
 
