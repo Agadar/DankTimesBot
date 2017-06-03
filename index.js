@@ -7,35 +7,26 @@ const dankTimes = new Map();  // Registered dank times.
 const chats = new Map(); // All the scores of all the chats.
 const commands = new Map(); // All the available settings of this bot.
 
-// Default values for dankTimes.
-newDankTime('1337', 13, 37);
-newDankTime('1234', 12, 34);
-newDankTime('420', 16, 20);
-newDankTime('1111', 11, 11);
-newDankTime('2222', 22, 22);
-
 // Available commands.
 newCommand('/start', 'Starts keeping track of scores', (msg) => callFunctionIfUserIsAdmin(msg, startChat));
 newCommand('/reset', 'Resets the scores', (msg) => callFunctionIfUserIsAdmin(msg, resetChat));
 newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));
 newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
 newCommand('/help', 'Shows the available commands', (msg) => help(msg));
+newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute]', (msg, match) => addTime(msg, match));
 
 /** Activated on any message. Checks for dank times. */
 bot.on('message', (msg) => {
 
-  // If the dank time don't exist, give up.
-  if (!dankTimes.has(msg.text)) { 
-    return;
-  }
+  // Get the chat, creating it if needed.
+  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id)
 
-  // Get the chat, creating it if needed. If it is not running, then abort.
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
-  if (chat.running) {
+  // If the chat is running and the dank time exists, continue.
+  if (chat.running && chat.dankTimes.has(msg.text)) {
 
     // Get user, shouted dank time, and server time.
     const user = chat.users.has(msg.from.id) ? chat.users.get(msg.from.id) : newUser(msg.from.id, msg.from.username, chat);
-    const dankTime = dankTimes.get(msg.text);
+    const dankTime = chat.dankTimes.get(msg.text);
     const serverDate = new Date();
     
     // If the times match...
@@ -130,7 +121,7 @@ function chatSettings(msg) {
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
   let settings = 'Status:    ' + (chat.running ? 'running' : 'not running');
   settings += ';\nDank times:';
-  for (const time of dankTimes) {
+  for (const time of chat.dankTimes) {
     settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ";    magical word: " + time[0] + ";";
   }
   bot.sendMessage(msg.chat.id, settings);
@@ -166,6 +157,38 @@ function help(msg) {
 }
 
 /**
+ * Adds a new dank time to the chat identified in the msg object.
+ * @param {any} msg The message object from the Telegram api.
+ * @param {any[]} match The regex matched object from the Telegram api.
+ */
+function addTime(msg, match) {
+
+  // Split string and ensure it contains at least 4 items.
+  const split = match.input.split(' ');
+  if (split.length < 4) {
+    bot.sendMessage(msg.chat.id, 'Not enough arguments! Format: /add_time [text] [hour] [minute]');
+    return;
+  }
+
+  // Identify arguments and validate them.
+  const shoutout = split[1];
+  const hour = Number(split[2]);
+  if (hour === NaN || hour < 0 || hour > 23 || hour % 1 !== 0) {
+    bot.sendMessage(msg.chat.id, 'The hour must be a whole number between 0 and 23.');
+    return;
+  }
+  const minute = Number(split[3]);
+  if (minute === NaN || minute < 0 || minute > 59 || minute % 1 !== 0) {
+    bot.sendMessage(msg.chat.id, 'The minute must be a whole number between 0 and 59.');
+    return;
+  }
+
+  // Subscribe new dank time for the chat.
+  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
+  newDankTime(split[1], hour, minute, chat);
+}
+
+/**
  * Creates a new user object and places it in the supplied chat's users map. 
  * It has the following fields:
  * - id: The user's unique Telegram id;
@@ -184,23 +207,26 @@ function newUser(id, name, chat) {
 }
 
 /**
- * Creates a new chat object and places it in 'chats'. 
+ * Creates a new chat object with default dank times, and places it in 'chats'. 
  * It has the following fields:
  * - id: The chat's unique Telegram id;
  * - users: A map with the users, indexed by user id's;
  * - lastTime: The current dank time being shouted out;
- * - running: Whether this bot is running for this chat.
+ * - running: Whether this bot is running for this chat;
+ * - dankTimes: The dank times known in this chat.
  * @param {number} id The chat's unique Telegram id.
  * @return {Chat} New chat.
  */
 function newChat(id) {
-  const chat = {id: id, users: new Map(), lastTime: undefined, running: false};
+  const chat = {id: id, users: new Map(), lastTime: undefined, running: false, dankTimes: new Map()};
+  newDankTime('1337', 13, 37, chat);
+  newDankTime('420', 16, 20, chat);
   chats.set(id, chat);
   return chat;
 }
 
 /**
- * Creates a new dank time object and places it in 'dankTimes'.
+ * Creates a new dank time object and places it in the supplied chat's dank times.
  * It has the following fields:
  * - shoutout: The string to shout to get the point;
  * - hour: The hour to shout at;
@@ -210,9 +236,9 @@ function newChat(id) {
  * @param {number} minute The minute to shout at.
  * @return {DankTime} New dank time.
  */
-function newDankTime(shoutout, hour, minute) {
+function newDankTime(shoutout, hour, minute, chat) {
   const dankTime = {shoutout: shoutout, hour: hour, minute: minute};
-  dankTimes.set(shoutout, dankTime);
+  chat.dankTimes.set(shoutout, dankTime);
   return dankTime;
 }
 
