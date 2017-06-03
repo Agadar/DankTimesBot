@@ -15,7 +15,7 @@ newCommand('/reset', 'Resets the scores', (msg, match) => callFunctionIfUserIsAd
 newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));
 newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
 newCommand('/help', 'Shows the available commands', (msg) => help(msg));
-newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
+newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute] [points]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
 newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
 
 /** Activated on any message. Checks for dank times. */
@@ -36,21 +36,21 @@ bot.on('message', (msg) => {
     if (serverDate.getHours() === dankTime.hour && (serverDate.getMinutes() === dankTime.minute 
       || new Date(msg.date * 1000).getMinutes() === dankTime.minute)) {
       
-      if (chat.lastTime !== dankTime.shoutout) {  // If cache needs resetting, do so and award point.
+      if (chat.lastTime !== dankTime.shoutout) {  // If cache needs resetting, do so and award points.
         for (const chatUser of chat.users) {
           chatUser[1].called = false;
         }
         chat.lastTime = dankTime.shoutout;
-        user.score++;
+        user.score += dankTime.points;
         user.called = true;
-      } else if (user.called) { // Else if user already called this time, remove point.
-        user.score--;
+      } else if (user.called) { // Else if user already called this time, remove points.
+        user.score -= dankTime.points;
       } else {  // Else, award point.
-        user.score++;
+        user.score += dankTime.points;
         user.called = true;
       }
     } else {
-      user.score--;
+      user.score -= dankTime.points;
     }
   }
 });
@@ -131,7 +131,7 @@ function chatSettings(msg) {
   let settings = 'Status:    ' + (chat.running ? 'running' : 'not running');
   settings += ';\nDank times:';
   for (const time of chat.dankTimes) {
-    settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ";    magical word: " + time[0] + ";";
+    settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
   }
   bot.sendMessage(msg.chat.id, settings);
 }
@@ -175,13 +175,12 @@ function addTime(msg, match, chat) {
 
   // Split string and ensure it contains at least 4 items.
   const split = match.input.split(' ');
-  if (split.length < 4) {
-    bot.sendMessage(msg.chat.id, 'Not enough arguments! Format: /add_time [text] [hour] [minute]');
+  if (split.length < 5) {
+    bot.sendMessage(msg.chat.id, 'Not enough arguments! Format: /add_time [text] [hour] [minute] [points]');
     return;
   }
 
   // Identify arguments and validate them.
-  const shoutout = split[1];
   const hour = Number(split[2]);
   if (hour === NaN || hour < 0 || hour > 23 || hour % 1 !== 0) {
     bot.sendMessage(msg.chat.id, 'The hour must be a whole number between 0 and 23!');
@@ -192,9 +191,14 @@ function addTime(msg, match, chat) {
     bot.sendMessage(msg.chat.id, 'The minute must be a whole number between 0 and 59!');
     return;
   }
+  const points = Number(split[4]);
+  if (points === NaN || points < 1 || points % 1 !== 0) {
+    bot.sendMessage(msg.chat.id, 'The points must be a whole number greater than 0!');
+    return;
+  }
 
   // Subscribe new dank time for the chat.
-  newDankTime(split[1], hour, minute, chat);
+  newDankTime(split[1], hour, minute, points, chat);
   bot.sendMessage(msg.chat.id, 'Added the new time!');
 }
 
@@ -249,8 +253,8 @@ function newUser(id, name, chat) {
  */
 function newChat(id) {
   const chat = {id: id, users: new Map(), lastTime: undefined, running: false, dankTimes: new Map()};
-  newDankTime('1337', 13, 37, chat);
-  newDankTime('420', 16, 20, chat);
+  newDankTime('1337', 13, 37, 5, chat);
+  newDankTime('420', 16, 20, 5, chat);
   chats.set(id, chat);
   return chat;
 }
@@ -260,14 +264,16 @@ function newChat(id) {
  * It has the following fields:
  * - shoutout: The string to shout to get the point;
  * - hour: The hour to shout at;
- * - minute: The minute to shout at.
+ * - minute: The minute to shout at;
+ * - points: The amount of points the time is worth.
  * @param {string} shoutout The string to shout to get the point.
  * @param {number} hour The hour to shout at.
  * @param {number} minute The minute to shout at.
+ * @param {number} points The amount of points the time is worth.
  * @return {DankTime} New dank time.
  */
-function newDankTime(shoutout, hour, minute, chat) {
-  const dankTime = {shoutout: shoutout, hour: hour, minute: minute};
+function newDankTime(shoutout, hour, minute, points, chat) {
+  const dankTime = {shoutout: shoutout, hour: hour, minute: minute, points: points};
   chat.dankTimes.set(shoutout, dankTime);
   return dankTime;
 }
