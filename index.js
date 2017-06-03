@@ -119,3 +119,7 @@ function newChat(id) {
 function newDankTime(shoutout, hour, minute) {
   return {shoutout: shoutout, hour: hour, minute: minute};
 }
+
+module.exports.newUser = newUser;
+module.exports.newChat = newChat;
+module.exports.newDankTime = newDankTime;
