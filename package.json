@@ -1,13 +1,13 @@
 {
   "name": "dank-times-bot",
   "version": "1.0.0",
-  "description": "A bot for Telegram that keeps score of dank times. ",
+  "description": "This Telegram bot keeps track of 'dank' times such as 13:37 and 04:20, and awards points to users who call them out.",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
   "author": "Agadar",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/Agadar/DankTimesBot.git"
