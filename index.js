@@ -13,6 +13,7 @@ newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg)
 newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
 newCommand('/help', 'Shows the available commands', (msg) => help(msg));
 newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
+newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
 
 /** Activated on any message. Checks for dank times. */
 bot.on('message', (msg) => {
@@ -160,7 +161,7 @@ function help(msg) {
 }
 
 /**
- * Adds a new dank time to the chat identified in the msg object.
+ * Adds a new dank time to the chat.
  * @param {any} msg The message object from the Telegram api.
  * @param {any[]} match The regex matched object from the Telegram api.
  * @param {Chat} chat The chat to add a dank time to.
@@ -178,18 +179,38 @@ function addTime(msg, match, chat) {
   const shoutout = split[1];
   const hour = Number(split[2]);
   if (hour === NaN || hour < 0 || hour > 23 || hour % 1 !== 0) {
-    bot.sendMessage(msg.chat.id, 'The hour must be a whole number between 0 and 23.');
+    bot.sendMessage(msg.chat.id, 'The hour must be a whole number between 0 and 23!');
     return;
   }
   const minute = Number(split[3]);
   if (minute === NaN || minute < 0 || minute > 59 || minute % 1 !== 0) {
-    bot.sendMessage(msg.chat.id, 'The minute must be a whole number between 0 and 59.');
+    bot.sendMessage(msg.chat.id, 'The minute must be a whole number between 0 and 59!');
     return;
   }
 
   // Subscribe new dank time for the chat.
   newDankTime(split[1], hour, minute, chat);
-  bot.sendMessage(msg.chat.id, 'Registered the new dank time!');
+  bot.sendMessage(msg.chat.id, 'Added the new time!');
+}
+
+/**
+ * Removes a dank time from the chat.
+ * @param {any} msg The message object from the Telegram api.
+ * @param {any[]} match The regex matched object from the Telegram api.
+ * @param {Chat} chat The chat to remove a dank time from.
+ */
+function removeTime(msg, match, chat) {
+
+  // Split string and ensure it contains at least 1 item.
+  const split = match.input.split(' ');
+  if (split.length < 2) {
+    bot.sendMessage(msg.chat.id, 'Not enough arguments! Format: /remove_time [text]');
+    return;
+  }
+
+  // Remove the time from the chat.
+  chat.dankTimes.delete(split[1]);
+  bot.sendMessage(msg.chat.id, 'Removed the time!');
 }
 
 /**
