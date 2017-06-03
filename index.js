@@ -17,40 +17,21 @@ newDankTime('2222', 22, 22);
  * Starts the DankTimesBot in the calling chat. Only usable for admins.
  */
 bot.onText(/^\/start$/, (msg, match) => {
-
-  // Get the chat, creating it if needed. Only continue if it is in running mode.
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
-
-  // Only groups have admins, so if this chat isn't a group, continue straight to callback.
-  if (msg.chat.type !== 'group') {
-    handleStartCallback(chat);
-    return;
-  }
-
-  // Else if this chat is a group, then we must make sure the user is an admin.
-  const promise = bot.getChatAdministrators(msg.chat.id);  
-  promise.then(admins => {
-
-    // Check to ensure user is admin. If not, post message.
-    for (const admin of admins) {
-      if (admin.user.id === msg.from.id) {
-        handleStartCallback(chat);
-        return;
-      }
-    }
-    bot.sendMessage(msg.chat.id, 'This option is only available to admins.');
-  }).catch(reason => {
-    console.info('Failed to retrieve admin list.\n' + reason);
-    bot.sendMessage('Failed to retrieve admin list. See server console.');
-  });
-
+  callFunctionIfUserIsAdmin(msg, startChat);
 });
 
-/** '/settings' command. Prints the registered dank times. */
+/**
+ * Resets the DankTimesBot in the calling chat. Only usable for admins.
+ */
+bot.onText(/^\/reset$/, (msg, match) => {
+  callFunctionIfUserIsAdmin(msg, resetChat);
+});
+
+/** '/settings' command. Prints the registered dank times and other settings. */
 bot.onText(/^\/settings$/, (msg, match) => {
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
   let settings = 'Status: ' + (chat.running ? 'running' : 'not running');
-  settings += ';\n\nDank times:';
+  settings += ';\nDank times:';
   for (const time of dankTimes) {
     settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ";    magical word: " + time[0] + ";";
   }
@@ -112,17 +93,64 @@ bot.on('message', (msg) => {
 });
 
 /**
+ * Calls the specified function, but only if the calling user is
+ * an admin in his chat, or it is a private chat.
+ * @param {*} msg The message object from the Telegram api.
+ * @param {function} callMe The function to call, expected to have a single 'chat' parameter.
+ */
+function callFunctionIfUserIsAdmin(msg, callMe) {
+
+  // Get the right chat.
+  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
+
+  // Only groups have admins, so if this chat isn't a group, continue straight to callback.
+  if (msg.chat.type !== 'group') {
+    callMe(chat);
+    return;
+  }
+
+  // Else if this chat is a group, then we must make sure the user is an admin.
+  const promise = bot.getChatAdministrators(chat.id);  
+  promise.then(admins => {
+
+    // Check to ensure user is admin. If not, post message.
+    for (const admin of admins) {
+      if (admin.user.id === msg.from.id) {
+        callMe(chat);
+        return;
+      }
+    }
+    bot.sendMessage(chat.id, 'This option is only available to admins.');
+  }).catch(reason => {
+    console.info('Failed to retrieve admin list.\n' + reason);
+    bot.sendMessage('Failed to retrieve admin list. See server console.');
+  });
+}
+
+/**
  * Starts the specified chat so that it records dank time shoutouts.
  * Only prints a warning if the chat is already running.
  * @param {chat} chat The chat to start.
  */
-function handleStartCallback(chat) {
+function startChat(chat) {
   if (chat.running) {
     bot.sendMessage(chat.id, 'DankTimesBot is already running!');
   } else {
     chat.running = true;
-    bot.sendMessage(chat.id, 'DankTimesBot is now running! Type ');
+    bot.sendMessage(chat.id, 'DankTimesBot is now running!');
   }
+}
+
+/**
+ * Resets the scores of the specified chat.
+ * @param {chat} chat The chat to reset. 
+ */
+function resetChat(chat) {
+  for (const user of chat.users) {
+    user[1].score = 0;
+    user[1].called = false;
+  }
+  bot.sendMessage(chat.id, 'Leaderboard has been reset!');
 }
 
 /**
