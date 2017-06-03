@@ -2,6 +2,6 @@ FROM alpine:3.6
 
 WORKDIR /src
 ADD . .
-RUN apk update && apk add --update nodejs nodejs-npm && npm install
+RUN apk update && apk add --update nodejs nodejs-npm && cd /src && npm install
 
 ENTRYPOINT ["node", "/src/index.js"]
