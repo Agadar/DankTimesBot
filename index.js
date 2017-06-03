@@ -19,6 +19,7 @@ newCommand('/start', 'Starts keeping track of scores', (msg) => callFunctionIfUs
 newCommand('/reset', 'Resets the scores', (msg) => callFunctionIfUserIsAdmin(msg, resetChat));
 newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));
 newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
+newCommand('/help', 'Shows the available commands', (msg) => help(msg));
 
 /** Activated on any message. Checks for dank times. */
 bot.on('message', (msg) => {
@@ -105,7 +106,7 @@ function startChat(chat) {
     bot.sendMessage(chat.id, 'DankTimesBot is already running!');
   } else {
     chat.running = true;
-    bot.sendMessage(chat.id, 'DankTimesBot is now running!');
+    bot.sendMessage(chat.id, 'DankTimesBot is now running! Hit \'/help\' for available commands.');
   }
 }
 
@@ -127,7 +128,7 @@ function resetChat(chat) {
  */
 function chatSettings(msg) {
   const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
-  let settings = 'Status: ' + (chat.running ? 'running' : 'not running');
+  let settings = 'Status:    ' + (chat.running ? 'running' : 'not running');
   settings += ';\nDank times:';
   for (const time of dankTimes) {
     settings += "\n    time: " + time[1].hour + ":" + time[1].minute + ";    magical word: " + time[0] + ";";
@@ -147,7 +148,7 @@ function leaderBoard(msg) {
   // Build a string to send from the chat's user list.
   let leaderboard = 'Leaderboard:';
   for (const user of chat.users) {
-    leaderboard += "\n" + user[1].name + ": " + user[1].score;
+    leaderboard += "\n" + user[1].name + ":    " + user[1].score;
   }
   bot.sendMessage(msg.chat.id, leaderboard);
 }
@@ -157,11 +158,11 @@ function leaderBoard(msg) {
  * @param {any} msg The message object from the Telegram api.
  */
 function help(msg) {
-  let help;
+  let help = 'Available commands:';
   for (const command of commands) {
-
+    help += '\n' + command[0] + '    ' + command[1].description;
   }
-  return help;
+  bot.sendMessage(msg.chat.id, help);
 }
 
 /**
