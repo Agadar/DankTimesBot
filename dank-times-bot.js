@@ -5,12 +5,13 @@ const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs'); // For reading the file containing the API key.
 
 // Global variables.
-const API_KEY  = fs.readFileSync('./dank-times-bot.key', 'utf8').replace(/\n$/,''); // fn appends 0D\LF after reading with fs.
-const bot      = new TelegramBot(API_KEY, {polling: true});
-const chats    = new Map();                                                       // All the scores of all the chats.
-const commands = new Map();                                                       // All the available settings of this bot.
+const API_KEY       = fs.readFileSync('./dank-times-bot.key', 'utf8').replace(/\n$/,''); // fn appends 0D\LF after reading with fs.
+const bot           = new TelegramBot(API_KEY, {polling: true});
+const dataFilePath  = './dank-times-bot.data';
+const chats         = loadChatsFromFile(dataFilePath); // All the scores of all the chats, loaded from data file.
+const commands      = new Map(); // All the available settings of this bot.
 
-// Register available commands.
+// Register available Telegram bot commands.
 newCommand('/start', 'Starts keeping track of scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
 newCommand('/reset', 'Resets the scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
 newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));
@@ -18,6 +19,12 @@ newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
 newCommand('/help', 'Shows the available commands', (msg) => help(msg));
 newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute] [points]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
 newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
+
+// Schedule NodeJS timer to persist chats map to file every hour.
+setInterval(function() {
+  console.info('Persisted DankTimesBot data to ' + dataFilePath);
+  saveChatsToFile(dataFilePath, chats);
+}, 60 * 60 * 1000);
 
 /** Activated on any message. Checks for dank times. */
 bot.on('message', (msg) => {
@@ -297,6 +304,69 @@ function newCommand(name, description, _function) {
   commands.set(name, command);
   bot.onText(command.regex, command._function);
   return command;
+}
+
+/**
+ * Parses the JSON data in the file to a Map of Chat objects.
+ * @param {string} filePath Path to the data file.
+ * @return {Map} Map containing Chat objects.
+ */
+function loadChatsFromFile(filePath) {
+  const chats = new Map();
+  
+  // If the data file exists, load and parse the data to an object.
+  if (fs.existsSync(filePath)) {
+    const chatsRaw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    
+    // We want to parse the arrays to proper maps, so let's do that.
+    for (const chat of chatsRaw) {
+      const users = new Map();
+      const dankTimes = new Map();
+
+      // User array to map.
+      for (const user of chat.users) {
+        users.set(user.id, user);
+      }
+
+      // DankTimes array to map.
+      for (const dankTime of chat.dankTimes) {
+        dankTimes.set(dankTime.shoutout, dankTime);
+      }
+
+      // Override fields and add to map.
+      chat.users = users;
+      chat.dankTimes = dankTimes;
+      chats.set(chat.id, chat);
+    }
+  }
+  return chats;
+}
+
+/**
+ * Parses a Map of Chat objects to JSON and saves it to a file.
+ * @param {string} filePath Path to the data file.
+ * @param {Map} chat Map containing Chat objects.
+ */
+function saveChatsToFile(filePath, chat) {
+  fs.writeFileSync(filePath, JSON.stringify(chat, mapReplacer));
+}
+
+/**
+ * Used by JSON.stringify(...) for parsing maps to arrays, because
+ * it can't handle maps.
+ * @param {any} key The key of the map field.
+ * @param {any} value The map to be converted to an array.
+ * @return {any[]} The array representation of the map.
+ */
+function mapReplacer(key, value) {
+  if (value instanceof Map) {
+    const array = [];
+    for (const entry of value) {
+      array.push(entry[1]);
+    }
+    return array;
+  }
+  return value;
 }
 
 // Exports for unit testing.
