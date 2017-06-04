@@ -5,9 +5,10 @@ const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs'); // For reading the file containing the API key.
 
 // Global variables.
-const bot = new TelegramBot(fs.readFileSync('./DankTimesBot.api', 'utf8'), {polling: true});
-const chats = new Map(); // All the scores of all the chats.
-const commands = new Map(); // All the available settings of this bot.
+const API_KEY  = fs.readFileSync('./DankTimesBot.api', 'utf8').replace(/\n$/,''); // fn appends 0D\LF after reading with fs.
+const bot      = new TelegramBot(API_KEY, {polling: true});
+const chats    = new Map();                                                       // All the scores of all the chats.
+const commands = new Map();                                                       // All the available settings of this bot.
 
 // Register available commands.
 newCommand('/start', 'Starts keeping track of scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
