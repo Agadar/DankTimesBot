@@ -1,5 +1,11 @@
-# File containing API key
+# Old file containing API key
 DankTimesBot.api
+
+# New file containing API key
+dank-times-bot.key
+
+# File containing persisted application data
+dank-times-bot.data
 
 # Logs
 logs

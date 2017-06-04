@@ -4,4 +4,4 @@ WORKDIR /src
 ADD . .
 RUN apk update && apk add --update nodejs nodejs-npm && cd /src && npm install
 
-ENTRYPOINT ["node", "/src/index.js"]
+ENTRYPOINT ["node", "/src/dank-times-bot.js"]
