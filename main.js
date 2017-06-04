@@ -19,9 +19,8 @@ newCommand('/help', 'Shows the available commands', (msg) => help(msg));
 newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute] [points]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
 newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
 
-// Schedule NodeJS timer to persist chats map to file every hour.
+// Schedule NodeJS timer to persist chats map to file every X minutes.
 setInterval(function() {
-  console.info('Persisted DankTimesBot data to ' + SETTINGS.dataFilePath);
   fileIO.saveChatsToFile(SETTINGS.dataFilePath, CHATS);
 }, SETTINGS.persistence_rate * 60 * 1000);
 
@@ -61,6 +60,10 @@ BOT.on('message', (msg) => {
     }
   }
 });
+
+
+// --------------------FUNCTIONS CALLED BY TELEGRAM BOT COMMANDS-------------------- //
+
 
 /**
  * Calls the specified function, but only if the calling user is
@@ -228,6 +231,10 @@ function removeTime(msg, match, chat) {
   chat.dankTimes.delete(split[1]);
   BOT.sendMessage(msg.chat.id, 'Removed the time!');
 }
+
+
+// --------------------OBJECT FACTORIES-------------------- //
+
 
 /**
  * Creates a new user object and places it in the supplied chat's users map. 
