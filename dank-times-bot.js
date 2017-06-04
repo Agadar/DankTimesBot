@@ -2,14 +2,13 @@
 
 // Imports.
 const TelegramBot = require('node-telegram-bot-api');
-const fs = require('fs'); // For reading the file containing the API key.
+const fileIO = require('./file-io.js');
 
 // Global variables.
-const API_KEY       = fs.readFileSync('./dank-times-bot.key', 'utf8').replace(/\n$/,''); // fn appends 0D\LF after reading with fs.
-const bot           = new TelegramBot(API_KEY, {polling: true});
-const dataFilePath  = './dank-times-bot.data';
-const chats         = loadChatsFromFile(dataFilePath); // All the scores of all the chats, loaded from data file.
-const commands      = new Map(); // All the available settings of this bot.
+const SETTINGS      = fileIO.loadSettingsFromFile('./dank-times-bot.settings');
+const CHATS         = fileIO.loadChatsFromFile(SETTINGS.dataFilePath); // All the scores of all the chats, loaded from data file.
+const BOT           = new TelegramBot(SETTINGS.apiKey, {polling: true});
+const COMMANDS      = new Map(); // All the available settings of this bot.
 
 // Register available Telegram bot commands.
 newCommand('/start', 'Starts keeping track of scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
@@ -22,15 +21,15 @@ newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) =
 
 // Schedule NodeJS timer to persist chats map to file every hour.
 setInterval(function() {
-  console.info('Persisted DankTimesBot data to ' + dataFilePath);
-  saveChatsToFile(dataFilePath, chats);
-}, 60 * 60 * 1000);
+  console.info('Persisted DankTimesBot data to ' + SETTINGS.dataFilePath);
+  fileIO.saveChatsToFile(SETTINGS.dataFilePath, CHATS);
+}, SETTINGS.persistence_rate * 60 * 1000);
 
 /** Activated on any message. Checks for dank times. */
-bot.on('message', (msg) => {
+BOT.on('message', (msg) => {
 
   // Get the chat, creating it if needed.
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id)
+  const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id)
 
   // If the chat is running and the dank time exists, continue.
   if (chat.running && chat.dankTimes.has(msg.text)) {
@@ -72,7 +71,7 @@ bot.on('message', (msg) => {
 function callFunctionIfUserIsAdmin(msg, match, _function) {
 
   // Get the right chat.
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
+  const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
 
   // Only groups have admins, so if this chat isn't a group, continue straight to callback.
   if (msg.chat.type === 'private') {
@@ -81,7 +80,7 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
   }
 
   // Else if this chat is a group, then we must make sure the user is an admin.
-  const promise = bot.getChatAdministrators(chat.id);  
+  const promise = BOT.getChatAdministrators(chat.id);  
   promise.then(admins => {
 
     // Check to ensure user is admin. If not, post message.
@@ -91,10 +90,10 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
         return;
       }
     }
-    bot.sendMessage(chat.id, 'This option is only available to admins!');
+    BOT.sendMessage(chat.id, 'This option is only available to admins!');
   }).catch(reason => {
     console.error('Failed to retrieve admin list!\n' + reason);
-    bot.sendMessage('Failed to retrieve admin list! See server console.');
+    BOT.sendMessage('Failed to retrieve admin list! See server console.');
   });
 }
 
@@ -107,10 +106,10 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
  */
 function startChat(msg, match, chat) {
   if (chat.running) {
-    bot.sendMessage(chat.id, 'DankTimesBot is already running!');
+    BOT.sendMessage(chat.id, 'DankTimesBot is already running!');
   } else {
     chat.running = true;
-    bot.sendMessage(chat.id, 'DankTimesBot is now running! Hit \'/help\' for available commands.');
+    BOT.sendMessage(chat.id, 'DankTimesBot is now running! Hit \'/help\' for available commands.');
   }
 }
 
@@ -127,7 +126,7 @@ function resetChat(msg, match, chat) {
     user[1].score = 0;
     user[1].called = false;
   }
-  bot.sendMessage(chat.id, message, {parse_mode: 'HTML'});
+  BOT.sendMessage(chat.id, message, {parse_mode: 'HTML'});
 }
 
 /**
@@ -135,13 +134,13 @@ function resetChat(msg, match, chat) {
  * @param {any} msg The message object from the Telegram api.
  */
 function chatSettings(msg) {
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
+  const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
   let settings = '<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
   settings += '\n<b>Dank times:</b>';
   for (const time of chat.dankTimes) {
     settings += "\ntime: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
   }
-  bot.sendMessage(msg.chat.id, settings, {parse_mode: 'HTML'});
+  BOT.sendMessage(msg.chat.id, settings, {parse_mode: 'HTML'});
 }
 
 /**
@@ -151,14 +150,14 @@ function chatSettings(msg) {
 function leaderBoard(msg) {
 
   // Get the chat, creating it if needed.
-  const chat = chats.has(msg.chat.id) ? chats.get(msg.chat.id) : newChat(msg.chat.id);
+  const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
 
   // Build a string to send from the chat's user list.
   let leaderboard = '<b>Leaderboard:</b>';
   for (const user of chat.users) {
     leaderboard += "\n" + user[1].name + ":    " + user[1].score;
   }
-  bot.sendMessage(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
+  BOT.sendMessage(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
 }
 
 /**
@@ -167,10 +166,10 @@ function leaderBoard(msg) {
  */
 function help(msg) {
   let help = '<b>Available commands:</b>';
-  for (const command of commands) {
+  for (const command of COMMANDS) {
     help += '\n' + command[0] + '    ' + command[1].description;
   }
-  bot.sendMessage(msg.chat.id, help, {parse_mode: 'HTML'});
+  BOT.sendMessage(msg.chat.id, help, {parse_mode: 'HTML'});
 }
 
 /**
@@ -184,30 +183,30 @@ function addTime(msg, match, chat) {
   // Split string and ensure it contains at least 4 items.
   const split = match.input.split(' ');
   if (split.length < 5) {
-    bot.sendMessage(msg.chat.id, 'Not enough arguments! Format: /add_time [text] [hour] [minute] [points]');
+    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /add_time [text] [hour] [minute] [points]');
     return;
   }
 
   // Identify arguments and validate them.
   const hour = Number(split[2]);
   if (hour === NaN || hour < 0 || hour > 23 || hour % 1 !== 0) {
-    bot.sendMessage(msg.chat.id, 'The hour must be a whole number between 0 and 23!');
+    BOT.sendMessage(msg.chat.id, 'The hour must be a whole number between 0 and 23!');
     return;
   }
   const minute = Number(split[3]);
   if (minute === NaN || minute < 0 || minute > 59 || minute % 1 !== 0) {
-    bot.sendMessage(msg.chat.id, 'The minute must be a whole number between 0 and 59!');
+    BOT.sendMessage(msg.chat.id, 'The minute must be a whole number between 0 and 59!');
     return;
   }
   const points = Number(split[4]);
   if (points === NaN || points < 1 || points % 1 !== 0) {
-    bot.sendMessage(msg.chat.id, 'The points must be a whole number greater than 0!');
+    BOT.sendMessage(msg.chat.id, 'The points must be a whole number greater than 0!');
     return;
   }
 
   // Subscribe new dank time for the chat.
   newDankTime(split[1], hour, minute, points, chat);
-  bot.sendMessage(msg.chat.id, 'Added the new time!');
+  BOT.sendMessage(msg.chat.id, 'Added the new time!');
 }
 
 /**
@@ -221,13 +220,13 @@ function removeTime(msg, match, chat) {
   // Split string and ensure it contains at least 1 item.
   const split = match.input.split(' ');
   if (split.length < 2) {
-    bot.sendMessage(msg.chat.id, 'Not enough arguments! Format: /remove_time [text]');
+    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /remove_time [text]');
     return;
   }
 
   // Remove the time from the chat.
   chat.dankTimes.delete(split[1]);
-  bot.sendMessage(msg.chat.id, 'Removed the time!');
+  BOT.sendMessage(msg.chat.id, 'Removed the time!');
 }
 
 /**
@@ -263,7 +262,7 @@ function newChat(id) {
   const chat = {id: id, users: new Map(), lastTime: undefined, running: false, dankTimes: new Map()};
   newDankTime('1337', 13, 37, 5, chat);
   newDankTime('420', 16, 20, 5, chat);
-  chats.set(id, chat);
+  CHATS.set(id, chat);
   return chat;
 }
 
@@ -301,75 +300,7 @@ function newDankTime(shoutout, hour, minute, points, chat) {
 function newCommand(name, description, _function) {
   const regex = RegExp(name + '(@DankTimesBot|)');
   const command = {name: name, regex: regex, description: description, _function: _function};
-  commands.set(name, command);
-  bot.onText(command.regex, command._function);
+  COMMANDS.set(name, command);
+  BOT.onText(command.regex, command._function);
   return command;
 }
-
-/**
- * Parses the JSON data in the file to a Map of Chat objects.
- * @param {string} filePath Path to the data file.
- * @return {Map} Map containing Chat objects.
- */
-function loadChatsFromFile(filePath) {
-  const chats = new Map();
-  
-  // If the data file exists, load and parse the data to an object.
-  if (fs.existsSync(filePath)) {
-    const chatsRaw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    
-    // We want to parse the arrays to proper maps, so let's do that.
-    for (const chat of chatsRaw) {
-      const users = new Map();
-      const dankTimes = new Map();
-
-      // User array to map.
-      for (const user of chat.users) {
-        users.set(user.id, user);
-      }
-
-      // DankTimes array to map.
-      for (const dankTime of chat.dankTimes) {
-        dankTimes.set(dankTime.shoutout, dankTime);
-      }
-
-      // Override fields and add to map.
-      chat.users = users;
-      chat.dankTimes = dankTimes;
-      chats.set(chat.id, chat);
-    }
-  }
-  return chats;
-}
-
-/**
- * Parses a Map of Chat objects to JSON and saves it to a file.
- * @param {string} filePath Path to the data file.
- * @param {Map} chat Map containing Chat objects.
- */
-function saveChatsToFile(filePath, chat) {
-  fs.writeFileSync(filePath, JSON.stringify(chat, mapReplacer));
-}
-
-/**
- * Used by JSON.stringify(...) for parsing maps to arrays, because
- * it can't handle maps.
- * @param {any} key The key of the map field.
- * @param {any} value The map to be converted to an array.
- * @return {any[]} The array representation of the map.
- */
-function mapReplacer(key, value) {
-  if (value instanceof Map) {
-    const array = [];
-    for (const entry of value) {
-      array.push(entry[1]);
-    }
-    return array;
-  }
-  return value;
-}
-
-// Exports for unit testing.
-module.exports.newUser = newUser;
-module.exports.newChat = newChat;
-module.exports.newDankTime = newDankTime;
