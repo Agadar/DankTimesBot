@@ -1,7 +1,7 @@
 var assert=require('assert')
 var fs = require('fs');
 var vm = require('vm');
-var DankTimesBot = require('../index.js');
+var DankTimesBot = require('../main.js');
 
 /********************
  * NEWUSER FUNCTION *
