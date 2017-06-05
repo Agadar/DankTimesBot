@@ -13,13 +13,13 @@ const COMMANDS      = new Map(); // All the available settings of this bot.
 
 // Register available Telegram bot commands.
 newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute] [points]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
-newCommand('/help', 'Shows the available commands', (msg) => help(msg));
-newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
+newCommand('/help', 'Shows the available commands.', (msg) => help(msg));
+newCommand('/leaderboard', 'Shows the leaderboard.', (msg) => leaderBoard(msg));
 newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
-newCommand('/reset', 'Resets the scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
-newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));
+newCommand('/reset', 'Resets the scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
+newCommand('/settings', 'Shows the current settings.', (msg) => chatSettings(msg));
 newCommand('/set_timezone', 'Sets the time zone. Format: [timezone]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setTimezone));
-newCommand('/start', 'Starts keeping track of scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
+newCommand('/start', 'Starts keeping track of scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
 
 // Schedule NodeJS timer to persist chats map to file every X minutes.
 setInterval(function() {
@@ -126,11 +126,13 @@ function startChat(msg, match, chat) {
  * @param {Chat} chat The chat to reset. 
  */
 function resetChat(msg, match, chat) {
+  const users = usersMapToSortedArray(chat.users);
   let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
-  for (const user of chat.users) {
-    message += "\n" + user[1].name + ":    " + user[1].score;
-    user[1].score = 0;
-    user[1].called = false;
+
+  for (const user of users) {
+    message += "\n" + user.name + ":    " + user.score;
+    user.score = 0;
+    user.called = false;
   }
   BOT.sendMessage(chat.id, message, {parse_mode: 'HTML'});
 }
@@ -158,11 +160,12 @@ function leaderBoard(msg) {
 
   // Get the chat, creating it if needed.
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
+  const users = usersMapToSortedArray(chat.users);
 
   // Build a string to send from the chat's user list.
   let leaderboard = '<b>Leaderboard:</b>';
-  for (const user of chat.users) {
-    leaderboard += "\n" + user[1].name + ":    " + user[1].score;
+  for (const user of users) {
+    leaderboard += "\n" + user.name + ":    " + user.score;
   }
   BOT.sendMessage(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
 }
@@ -347,6 +350,37 @@ function newCommand(name, description, _function) {
   COMMANDS.set(name, command);
   BOT.onText(command.regex, command._function);
   return command;
+}
+
+// --------------------UTIL-------------------- //
+
+/**
+ * Converts a map of users to an array of users, ordered by user scores.
+ * @param {Map} users
+ * @return {User[]}
+ */
+function usersMapToSortedArray(users) {
+  const array = [];
+  for (const user of users) {
+    array.push(user[1]);
+  }
+  array.sort(compareUsers);
+  return array;
+}
+
+/**
+ * Compares two users, primarily via their scores. Used for sorting collections.
+ * @param {User} user1
+ * @param {User} user2
+ */
+function compareUsers(user1, user2) {
+  if (user1.score > user2.score) {
+    return -1;
+  }
+  if (user1.score === user2.score) {
+    return user1.name <= user2.name ? -1 : 1;
+  }
+  return 1;
 }
 
 // Inform server.
