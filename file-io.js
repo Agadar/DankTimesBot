@@ -23,12 +23,11 @@ module.exports.saveChatsToFile = saveChatsToFile;
  * then a new one with default values is created.
  * It should have the following fields:
  * - apiKey: The Telegram API key;
- * - persistenceRate: The rate in minutes at which data should be persisted to the data file;
- * - timezone: The timezone the Telegram users are expected to be in.
+ * - persistenceRate: The rate in minutes at which data should be persisted to the data file.
  * @return {Settings} The settings.
  */
 function loadSettingsFromFile() {
-  const settings = {apiKey: '', persistenceRate: 60, timezone: 'Europe/Amsterdam'}; // Default settings.
+  const settings = {apiKey: '', persistenceRate: 60}; // Default settings.
 
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {

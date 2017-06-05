@@ -3,7 +3,7 @@
 // Imports.
 const TelegramBot = require('node-telegram-bot-api'); // JS client library for Telegram API.
 const fileIO = require('./file-io.js'); // Custom script for file I/O related stuff.
-const time = require('time'); // NodeJS library for working with timezones.
+const time = require('time')(Date); // NodeJS library for working with timezones.
 
 // Global variables.
 const SETTINGS      = fileIO.loadSettingsFromFile();
@@ -19,6 +19,7 @@ newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
 newCommand('/help', 'Shows the available commands', (msg) => help(msg));
 newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute] [points]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
 newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
+newCommand('/set_timezone', 'Sets the time zone. Format: [timezone]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setTimezone));
 
 // Schedule NodeJS timer to persist chats map to file every X minutes.
 setInterval(function() {
@@ -37,8 +38,8 @@ BOT.on('message', (msg) => {
     // Get user, shouted dank time, and server time.
     const user = chat.users.has(msg.from.id) ? chat.users.get(msg.from.id) : newUser(msg.from.id, msg.from.username, chat);
     const dankTime = chat.dankTimes.get(msg.text);
-    const serverDate = new time.Date();
-    serverDate.setTimezone(SETTINGS.timezone);
+    const serverDate = new Date();
+    serverDate.setTimezone(chat.timezone);
 
     // If the times match...
     if (serverDate.getHours() === dankTime.hour && (serverDate.getMinutes() === dankTime.minute 
@@ -141,6 +142,7 @@ function resetChat(msg, match, chat) {
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
   let settings = '<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
+  settings += '\n<b>Time zone:</b> ' + chat.timezone;
   settings += '\n<b>Dank times:</b>';
   for (const time of chat.dankTimes) {
     settings += "\ntime: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
@@ -234,6 +236,35 @@ function removeTime(msg, match, chat) {
   BOT.sendMessage(msg.chat.id, 'Removed the time!');
 }
 
+/**
+ * Updated the chat's time zone.
+ * @param {any} msg The message object from the Telegram api.
+ * @param {any[]} match The regex matched object from the Telegram api.
+ * @param {Chat} chat The chat to remove a dank time from.
+ */
+function setTimezone(msg, match, chat) {
+
+  // Split string and ensure it contains at least 1 item.
+  const split = match.input.split(' ');
+  if (split.length < 2) {
+    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_timezone [timezone]');
+    return;
+  }
+
+  // Validate the date.
+  try {
+    const date = new Date();
+    date.setTimezone(split[1]);
+  } catch (err) {
+    BOT.sendMessage(msg.chat.id, 'Invalid time zone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
+    return;
+  }
+
+  // Update the time zone.
+  chat.timezone = split[1];
+  BOT.sendMessage(msg.chat.id, 'Updated the time zone!');
+}
+
 
 // --------------------OBJECT FACTORIES-------------------- //
 
@@ -263,14 +294,18 @@ function newUser(id, name, chat) {
  * - users: A map with the users, indexed by user id's;
  * - lastTime: The current dank time being shouted out;
  * - running: Whether this bot is running for this chat;
- * - dankTimes: The dank times known in this chat.
+ * - dankTimes: The dank times known in this chat. Contains a few default ones;
+ * - timezone: The timezone the users are in. 'Europe/Amsterdam' by default.
  * @param {number} id The chat's unique Telegram id.
  * @return {Chat} New chat.
  */
 function newChat(id) {
-  const chat = {id: id, users: new Map(), lastTime: undefined, running: false, dankTimes: new Map()};
-  newDankTime('1337', 13, 37, 5, chat);
-  newDankTime('420', 16, 20, 5, chat);
+  const chat = {id: id, users: new Map(), lastTime: undefined, running: false, dankTimes: new Map(), timezone: 'Europe/Amsterdam'};
+  newDankTime('1337', 13, 37, 10, chat);
+  newDankTime('420', 16, 20, 10, chat);
+  newDankTime('1234', 12, 34, 5, chat);
+  newDankTime('1111', 11, 11, 5, chat);
+  newDankTime('2222', 22, 22, 5, chat);
   CHATS.set(id, chat);
   return chat;
 }
