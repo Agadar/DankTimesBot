@@ -1,8 +1,9 @@
 'use strict';
 
 // Imports.
-const TelegramBot = require('node-telegram-bot-api');
-const fileIO = require('./file-io.js');
+const TelegramBot = require('node-telegram-bot-api'); // JS client library for Telegram API.
+const fileIO = require('./file-io.js'); // Custom script for file I/O related stuff.
+const time = require('time'); // NodeJS library for working with timezones.
 
 // Global variables.
 const SETTINGS      = fileIO.loadSettingsFromFile('./dank-times-bot.settings');
@@ -22,7 +23,7 @@ newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) =
 // Schedule NodeJS timer to persist chats map to file every X minutes.
 setInterval(function() {
   fileIO.saveChatsToFile(SETTINGS.dataFilePath, CHATS);
-}, SETTINGS.persistence_rate * 60 * 1000);
+}, SETTINGS.persistenceRate * 60 * 1000);
 
 /** Activated on any message. Checks for dank times. */
 BOT.on('message', (msg) => {
@@ -36,8 +37,9 @@ BOT.on('message', (msg) => {
     // Get user, shouted dank time, and server time.
     const user = chat.users.has(msg.from.id) ? chat.users.get(msg.from.id) : newUser(msg.from.id, msg.from.username, chat);
     const dankTime = chat.dankTimes.get(msg.text);
-    const serverDate = new Date();
-    
+    const serverDate = new time.Date();
+    serverDate.setTimezone(SETTINGS.timezone);
+
     // If the times match...
     if (serverDate.getHours() === dankTime.hour && (serverDate.getMinutes() === dankTime.minute 
       || new Date(msg.date * 1000).getMinutes() === dankTime.minute)) {

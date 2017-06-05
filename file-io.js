@@ -23,34 +23,20 @@ module.exports.saveChatsToFile = saveChatsToFile;
  * @return {object} {apiKey: string, persistence_rate: number, dataFilePath: string}
  */
 function loadSettingsFromFile(filePath) {
+  const settings = {apiKey: '', persistenceRate: 60, dataFilePath: './dank-times-bot.data', timezone: 'Europe/Amsterdam'}; // Default settings.
+
+  // If there is a settings file, load its valid values into settings obj.
   if (fs.existsSync(filePath)) {
-    const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-    // Make sure the object has all the required properties.
-    let saveAnew = false;
-    if (!settings.hasOwnProperty('apiKey')) {
-      settings.apiKey = '';
-      saveAnew = true;
+    const settingsFromFile = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    for (const property in settingsFromFile) {
+      if (settingsFromFile.hasOwnProperty(property) && settings.hasOwnProperty(property)) {
+        settings[property] = settingsFromFile[property];
+      }
     }
-    if (!settings.hasOwnProperty('persistence_rate') || settings.persistence_rate === NaN) {
-      settings.persistence_rate = 60;
-      saveAnew = true;
-    }
-    if (!settings.hasOwnProperty('dataFilePath')) {
-      settings.dataFilePath = './dank-times-bot.data';
-      saveAnew = true;
-    }
-
-    // If required, save anew the settings to the file.
-    if (saveAnew) {
-      fs.writeFileSync(filePath, JSON.stringify(settings, null, '\t'));
-    }
-    return settings;
-  } else {
-    const settings = {apiKey: '', persistence_rate: 60, dataFilePath: './dank-times-bot.data'};
-    fs.writeFileSync(filePath, JSON.stringify(settings, null, '\t'));
-    return settings;
   }
+  // Always write the file back to correct any mistakes in it.
+  fs.writeFileSync(filePath, JSON.stringify(settings, null, '\t'));
+  return settings;
 }
 
 /**
