@@ -7,6 +7,12 @@
 // Imports.
 const fs = require('fs'); // For working with files.
 
+// Constants.
+const DATA_FOLDER = './data';
+const BACKUP_PATH = DATA_FOLDER + '/backup.json';
+const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
+const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
+
 // Exports.
 module.exports.loadSettingsFromFile = loadSettingsFromFile;
 module.exports.loadChatsFromFile = loadChatsFromFile;
@@ -18,17 +24,20 @@ module.exports.saveChatsToFile = saveChatsToFile;
  * It should have the following fields:
  * - apiKey: The Telegram API key;
  * - persistenceRate: The rate in minutes at which data should be persisted to the data file;
- * - dataFilePath: The path to the data file;
  * - timezone: The timezone the Telegram users are expected to be in.
- * @param {string} filePath Path to the settings file.
- * @return {object} {apiKey: string, persistence_rate: number, dataFilePath: string}
+ * @return {Settings} The settings.
  */
-function loadSettingsFromFile(filePath) {
-  const settings = {apiKey: '', persistenceRate: 60, dataFilePath: './dank-times-bot.data', timezone: 'Europe/Amsterdam'}; // Default settings.
+function loadSettingsFromFile() {
+  const settings = {apiKey: '', persistenceRate: 60, timezone: 'Europe/Amsterdam'}; // Default settings.
+
+  // Create the data folder if it doesn't exist yet.
+  if (!fs.existsSync(DATA_FOLDER)) {
+    fs.mkdirSync(DATA_FOLDER);
+  }
 
   // If there is a settings file, load its valid values into settings obj.
-  if (fs.existsSync(filePath)) {
-    const settingsFromFile = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  if (fs.existsSync(SETTINGS_PATH)) {
+    const settingsFromFile = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8'));
     for (const property in settingsFromFile) {
       if (settingsFromFile.hasOwnProperty(property) && settings.hasOwnProperty(property) && settingsFromFile[property]) {
         settings[property] = settingsFromFile[property];
@@ -38,29 +47,34 @@ function loadSettingsFromFile(filePath) {
 
   // If there was an undefined/empty API key in the settings file, try retrieve it from env.
   if (!settings.apiKey) {
-    settings.apiKey = process.env.DANK_TIMES_BOT_API_KEY;
+    settings.apiKey = process.env[API_KEY_ENV];
     if (!settings.apiKey) {
-      console.error('No Telegram API key was found, not in the settings file nor in the environment variable \'DANK_TIMES_BOT_API_KEY\'! Exiting...');
+      console.error('No Telegram API key was found, not in the settings file nor in the environment variable \'' + API_KEY_ENV + '\'! Exiting...');
+      fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, '\t'));
       process.exit(-1);
     }
   }
 
   // Always write the file back to correct any mistakes in it.
-  fs.writeFileSync(filePath, JSON.stringify(settings, null, '\t'));
+  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, '\t'));
   return settings;
 }
 
 /**
  * Parses the JSON data in the file to a Map of Chat objects.
- * @param {string} filePath Path to the data file.
  * @return {Map} Map containing Chat objects.
  */
-function loadChatsFromFile(filePath) {
+function loadChatsFromFile() {
   const chats = new Map();
+
+  // Create the data folder if it doesn't exist yet.
+  if (!fs.existsSync(DATA_FOLDER)) {
+    fs.mkdirSync(DATA_FOLDER);
+  }
   
   // If the data file exists, load and parse the data to an object.
-  if (fs.existsSync(filePath)) {
-    const chatsRaw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  if (fs.existsSync(BACKUP_PATH)) {
+    const chatsRaw = JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8'));
     
     // We want to parse the arrays to proper maps, so let's do that.
     for (const chat of chatsRaw) {
@@ -88,11 +102,16 @@ function loadChatsFromFile(filePath) {
 
 /**
  * Parses a Map of Chat objects to JSON and saves it to a file.
- * @param {string} filePath Path to the data file.
  * @param {Map} chat Map containing Chat objects.
  */
-function saveChatsToFile(filePath, chat) {
-  fs.writeFileSync(filePath, JSON.stringify(chat, mapReplacer, '\t'));
+function saveChatsToFile(chat) {
+  // Create the data folder if it doesn't exist yet.
+  if (!fs.existsSync(DATA_FOLDER)) {
+    fs.mkdirSync(DATA_FOLDER);
+  }
+
+  // Write to backup file.
+  fs.writeFileSync(BACKUP_PATH, JSON.stringify(chat, mapReplacer, '\t'));
 }
 
 /**

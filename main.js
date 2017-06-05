@@ -6,8 +6,8 @@ const fileIO = require('./file-io.js'); // Custom script for file I/O related st
 const time = require('time'); // NodeJS library for working with timezones.
 
 // Global variables.
-const SETTINGS      = fileIO.loadSettingsFromFile('./dank-times-bot.settings');
-const CHATS         = fileIO.loadChatsFromFile(SETTINGS.dataFilePath); // All the scores of all the chats, loaded from data file.
+const SETTINGS      = fileIO.loadSettingsFromFile();
+const CHATS         = fileIO.loadChatsFromFile(); // All the scores of all the chats, loaded from data file.
 const BOT           = new TelegramBot(SETTINGS.apiKey, {polling: true});
 const COMMANDS      = new Map(); // All the available settings of this bot.
 
@@ -22,7 +22,7 @@ newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) =
 
 // Schedule NodeJS timer to persist chats map to file every X minutes.
 setInterval(function() {
-  fileIO.saveChatsToFile(SETTINGS.dataFilePath, CHATS);
+  fileIO.saveChatsToFile(CHATS);
 }, SETTINGS.persistenceRate * 60 * 1000);
 
 /** Activated on any message. Checks for dank times. */

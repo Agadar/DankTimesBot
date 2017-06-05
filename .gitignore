@@ -1,12 +1,11 @@
-# Old files containing API key
+# Old files
 DankTimesBot.api
 dank-times-bot.key
-
-# File containing persisted application data
 dank-times-bot.data
-
-# File containing bot settings
 dank-times-bot.settings
+
+# Folder containing application data
+data
 
 # Logs
 logs
