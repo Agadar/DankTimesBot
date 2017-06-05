@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Exposes file i/o related functions for DankTimesBot.
+ * Exposes file I/O related functions for DankTimesBot.
  */
 
 // Imports.
@@ -17,8 +17,9 @@ module.exports.saveChatsToFile = saveChatsToFile;
  * then a new one with default values is created.
  * It should have the following fields:
  * - apiKey: The Telegram API key;
- * - persistence_rate: The rate in minutes at which data should be persisted to the data file;
- * - dataFilePath: The path to the data file.
+ * - persistenceRate: The rate in minutes at which data should be persisted to the data file;
+ * - dataFilePath: The path to the data file;
+ * - timezone: The timezone the Telegram users are expected to be in.
  * @param {string} filePath Path to the settings file.
  * @return {object} {apiKey: string, persistence_rate: number, dataFilePath: string}
  */
@@ -29,11 +30,21 @@ function loadSettingsFromFile(filePath) {
   if (fs.existsSync(filePath)) {
     const settingsFromFile = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     for (const property in settingsFromFile) {
-      if (settingsFromFile.hasOwnProperty(property) && settings.hasOwnProperty(property)) {
+      if (settingsFromFile.hasOwnProperty(property) && settings.hasOwnProperty(property) && settingsFromFile[property]) {
         settings[property] = settingsFromFile[property];
       }
     }
   }
+
+  // If there was an undefined/empty API key in the settings file, try retrieve it from env.
+  if (!settings.apiKey) {
+    settings.apiKey = process.env.DANK_TIMES_BOT_API_KEY;
+    if (!settings.apiKey) {
+      console.error('No Telegram API key was found, not in the settings file nor in the environment variable \'DANK_TIMES_BOT_API_KEY\'! Exiting...');
+      process.exit(-1);
+    }
+  }
+
   // Always write the file back to correct any mistakes in it.
   fs.writeFileSync(filePath, JSON.stringify(settings, null, '\t'));
   return settings;

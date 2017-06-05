@@ -313,3 +313,6 @@ function newCommand(name, description, _function) {
   BOT.onText(command.regex, command._function);
   return command;
 }
+
+// Inform server.
+console.info("DankTimesBot is now running!");
