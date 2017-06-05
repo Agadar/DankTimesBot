@@ -12,14 +12,14 @@ const BOT           = new TelegramBot(SETTINGS.apiKey, {polling: true});
 const COMMANDS      = new Map(); // All the available settings of this bot.
 
 // Register available Telegram bot commands.
-newCommand('/start', 'Starts keeping track of scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
+newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute] [points]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
+newCommand('/help', 'Shows the available commands', (msg) => help(msg));
+newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
+newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
 newCommand('/reset', 'Resets the scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
 newCommand('/settings', 'Shows the current settings', (msg) => chatSettings(msg));
-newCommand('/leaderboard', 'Shows the leaderboard', (msg) => leaderBoard(msg));
-newCommand('/help', 'Shows the available commands', (msg) => help(msg));
-newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute] [points]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
-newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
 newCommand('/set_timezone', 'Sets the time zone. Format: [timezone]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setTimezone));
+newCommand('/start', 'Starts keeping track of scores', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
 
 // Schedule NodeJS timer to persist chats map to file every X minutes.
 setInterval(function() {
