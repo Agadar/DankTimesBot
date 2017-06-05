@@ -1,7 +1,5 @@
-FROM alpine:3.6
-
+FROM node:8.0.0
 WORKDIR /src
 ADD . .
-RUN apk update && apk add --update nodejs nodejs-npm && cd /src && npm install
-
+RUN cd /src && npm install
 ENTRYPOINT ["node", "/src/main.js"]
