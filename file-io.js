@@ -137,3 +137,6 @@ function mapReplacer(key, value) {
   }
   return value;
 }
+
+// Temporary to delete backup file, so that it doesn't crash on next commit. REMOVE THIS NEXT NEXT COMMIT!
+fs.unlinkSync(BACKUP_PATH);
