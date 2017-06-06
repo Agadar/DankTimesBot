@@ -307,7 +307,7 @@ function setDailyRandomTimes(msg, match, chat) {
   // Split string and ensure it contains at least 1 item.
   const split = match.input.split(' ');
   if (split.length < 2) {
-    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_times [number]');
+    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_frequency [number]');
     return;
   }
 
@@ -334,7 +334,7 @@ function setDailyRandomTimesPoints(msg, match, chat) {
   // Split string and ensure it contains at least 1 item.
   const split = match.input.split(' ');
   if (split.length < 2) {
-    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_times_points [number]');
+    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_points [number]');
     return;
   }
 
