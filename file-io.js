@@ -79,6 +79,7 @@ function loadChatsFromFile() {
     for (const chat of chatsRaw) {
       const users = new Map();
       const dankTimes = new Map();
+      const randomDankTimes = new Map();
 
       // User array to map.
       for (const user of chat.users) {
@@ -90,9 +91,15 @@ function loadChatsFromFile() {
         dankTimes.set(dankTime.shoutout, dankTime);
       }
 
+      // Random DankTimes array to map.
+      for (const randomDankTime of chat.randomDankTimes) {
+        randomDankTimes.set(randomDankTime.shoutout, randomDankTime);
+      }
+
       // Override fields and add to map.
       chat.users = users;
       chat.dankTimes = dankTimes;
+      chat.randomDankTimes = randomDankTimes;
       chats.set(chat.id, chat);
     }
   }

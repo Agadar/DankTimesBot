@@ -13,6 +13,7 @@
     "url": "git://github.com/Agadar/DankTimesBot.git"
   },
   "dependencies": {
+    "cron": "^1.2.1",
     "node-telegram-bot-api": "^0.27.1",
     "time": "^0.12.0"
   },

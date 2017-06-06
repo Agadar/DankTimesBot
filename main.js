@@ -4,6 +4,7 @@
 const TelegramBot = require('node-telegram-bot-api'); // JS client library for Telegram API.
 const fileIO = require('./file-io.js'); // Custom script for file I/O related stuff.
 const time = require('time')(Date); // NodeJS library for working with timezones.
+const cron = require('cron'); // NodeJS library for scheduling daily random dank time generations.
 
 // Global variables.
 const SETTINGS      = fileIO.loadSettingsFromFile();
@@ -18,6 +19,8 @@ newCommand('/leaderboard', 'Shows the leaderboard.', (msg) => leaderBoard(msg));
 newCommand('/remove_time', 'Removes a dank time. Format: [text]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
 newCommand('/reset', 'Resets the scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
 newCommand('/settings', 'Shows the current settings.', (msg) => chatSettings(msg));
+newCommand('/set_daily_random_frequency', 'Sets the number of random dank times per day. Format: [number]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setDailyRandomTimes));
+newCommand('/set_daily_random_points', 'Sets the points for random daily dank times. Format: [number]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setDailyRandomTimesPoints));
 newCommand('/set_timezone', 'Sets the time zone. Format: [timezone]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setTimezone));
 newCommand('/start', 'Starts keeping track of scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
 
@@ -33,36 +36,59 @@ BOT.on('message', (msg) => {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id)
 
   // If the chat is running and the dank time exists, continue.
-  if (chat.running && chat.dankTimes.has(msg.text)) {
+  if (chat.running) {
+    const dankTime = chat.dankTimes.has(msg.text) ? chat.dankTimes.get(msg.text) : chat.randomDankTimes.get(msg.text);
+    if (dankTime) {
 
-    // Get user, shouted dank time, and server time.
-    const user = chat.users.has(msg.from.id) ? chat.users.get(msg.from.id) : newUser(msg.from.id, msg.from.username, chat);
-    const dankTime = chat.dankTimes.get(msg.text);
-    const serverDate = new Date();
-    serverDate.setTimezone(chat.timezone);
+      // Get user, shouted dank time, and server time.
+      const user = chat.users.has(msg.from.id) ? chat.users.get(msg.from.id) : newUser(msg.from.id, msg.from.username, chat);
+      const serverDate = new Date();
+      serverDate.setTimezone(chat.timezone);
 
-    // If the times match...
-    if (serverDate.getHours() === dankTime.hour && (serverDate.getMinutes() === dankTime.minute 
-      || new Date(msg.date * 1000).getMinutes() === dankTime.minute)) {
-      
-      if (chat.lastTime !== dankTime.shoutout) {  // If cache needs resetting, do so and award points.
-        for (const chatUser of chat.users) {
-          chatUser[1].called = false;
+      // If the times match...
+      if (serverDate.getHours() === dankTime.hour && (serverDate.getMinutes() === dankTime.minute 
+        || new Date(msg.date * 1000).getMinutes() === dankTime.minute)) {
+        
+        if (chat.lastTime !== dankTime.shoutout) {  // If cache needs resetting, do so and award points.
+          for (const chatUser of chat.users) {
+            chatUser[1].called = false;
+          }
+          chat.lastTime = dankTime.shoutout;
+          user.score += dankTime.points;
+          user.called = true;
+        } else if (user.called) { // Else if user already called this time, remove points.
+          user.score -= dankTime.points;
+        } else {  // Else, award point.
+          user.score += dankTime.points;
+          user.called = true;
         }
-        chat.lastTime = dankTime.shoutout;
-        user.score += dankTime.points;
-        user.called = true;
-      } else if (user.called) { // Else if user already called this time, remove points.
+      } else {
         user.score -= dankTime.points;
-      } else {  // Else, award point.
-        user.score += dankTime.points;
-        user.called = true;
       }
-    } else {
-      user.score -= dankTime.points;
     }
   }
 });
+
+/** Generates random dank times daily for all chats at 00:00:00. */
+new cron.CronJob('0 0 * * * *', function() {
+  console.info('Generating random dank times for all chats!');
+
+  for (const chat of CHATS) {    
+    chat[1].randomDankTimes.clear();
+
+    for (let i = 0; i < chat[1].numberOfRandomTimes; i++) {    
+      const time = newRandomDankTime(chat[1]);
+
+      // Schedule cron job that informs the chat when the time has come.
+      const date = new Date(); 
+      date.setHours(time.hour);
+      date.setMinutes(time.minute);
+      new cron.CronJob(date, function() {
+        BOT.sendMessage(chat[1].id, 'Surprise dank time! Type\'' + time.shoutout + '\' for points!');
+      }, null, true, time.currentTimezone);
+    }
+  }
+}, null, true, time.currentTimezone);
 
 
 // --------------------FUNCTIONS CALLED BY TELEGRAM BOT COMMANDS-------------------- //
@@ -143,12 +169,14 @@ function resetChat(msg, match, chat) {
  */
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  let settings = '<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
-  settings += '\n<b>Time zone:</b> ' + chat.timezone;
-  settings += '\n<b>Dank times:</b>';
+  let settings = '<b>Dank times:</b>';
   for (const time of chat.dankTimes) {
     settings += "\ntime: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
   }
+  settings += '\n<b>Random dank times per day: </b>' + chat.numberOfRandomTimes;
+  settings += '\n<b>Random dank times points: </b>' + chat.pointsPerRandomTime;
+  settings += '\n<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
+  settings += '\n<b>Time zone:</b> ' + chat.timezone;
   BOT.sendMessage(msg.chat.id, settings, {parse_mode: 'HTML'});
 }
 
@@ -268,6 +296,60 @@ function setTimezone(msg, match, chat) {
   BOT.sendMessage(msg.chat.id, 'Updated the time zone!');
 }
 
+/**
+ * Sets the number of random dank times per day for the chat.
+ * @param {any} msg The message object from the Telegram api.
+ * @param {any[]} match The regex matched object from the Telegram api.
+ * @param {Chat} chat The chat to set the daily random times frequency of.
+ */
+function setDailyRandomTimes(msg, match, chat) {
+
+  // Split string and ensure it contains at least 1 item.
+  const split = match.input.split(' ');
+  if (split.length < 2) {
+    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_times [number]');
+    return;
+  }
+
+  // Identify arguments and validate them.
+  const frequency = Number(split[1]);
+  if (frequency === NaN || frequency < 0 || frequency % 1 !== 0) {
+    BOT.sendMessage(msg.chat.id, 'The frequency must be a whole number greater or equal to 0!');
+    return;
+  }
+
+  // Do the update.
+  chat.numberOfRandomTimes = frequency;
+  BOT.sendMessage(msg.chat.id, 'Updated the number of random dank times per day!');
+}
+
+/**
+ * Sets the points for random daily dank times for the chat.
+ * @param {any} msg The message object from the Telegram api.
+ * @param {any[]} match The regex matched object from the Telegram api.
+ * @param {Chat} chat The chat to set the daily random time points of.
+ */
+function setDailyRandomTimesPoints(msg, match, chat) {
+
+  // Split string and ensure it contains at least 1 item.
+  const split = match.input.split(' ');
+  if (split.length < 2) {
+    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_times_points [number]');
+    return;
+  }
+
+  // Identify arguments and validate them.
+  const points = Number(split[1]);
+  if (points === NaN || points <= 0 || points % 1 !== 0) {
+    BOT.sendMessage(msg.chat.id, 'The points must be a whole number greater than 0!');
+    return;
+  }
+
+  // Do the update.
+  chat.pointsPerRandomTime = points;
+  BOT.sendMessage(msg.chat.id, 'Updated the points for random daily dank times!');
+}
+
 
 // --------------------OBJECT FACTORIES-------------------- //
 
@@ -298,12 +380,16 @@ function newUser(id, name, chat) {
  * - lastTime: The current dank time being shouted out;
  * - running: Whether this bot is running for this chat;
  * - dankTimes: The dank times known in this chat. Contains a few default ones;
+ * - randomDankTimes: The daily randomly generated dank times in this chat;
+ * - numberOfRandomTimes: The number of randomly generated dank times to generate each day;
+ * - pointsPerRandomTime: The number of points each randomly generated dank time is worth;
  * - timezone: The timezone the users are in. 'Europe/Amsterdam' by default.
  * @param {number} id The chat's unique Telegram id.
  * @return {Chat} New chat.
  */
 function newChat(id) {
-  const chat = {id: id, users: new Map(), lastTime: undefined, running: false, dankTimes: new Map(), timezone: 'Europe/Amsterdam'};
+  const chat = {id: id, users: new Map(), lastTime: undefined, running: false, dankTimes: new Map(),
+    randomDankTimes: new Map(), numberOfRandomTimes: 1, pointsPerRandomTime: 10, timezone: 'Europe/Amsterdam'};
   newDankTime('1337', 13, 37, 10, chat);
   newDankTime('420', 16, 20, 10, chat);
   newDankTime('1234', 12, 34, 5, chat);
@@ -324,12 +410,31 @@ function newChat(id) {
  * @param {number} hour The hour to shout at.
  * @param {number} minute The minute to shout at.
  * @param {number} points The amount of points the time is worth.
+ * @param {Chat} chat The chat to place the dank times in.
  * @return {DankTime} New dank time.
  */
 function newDankTime(shoutout, hour, minute, points, chat) {
   const dankTime = {shoutout: shoutout, hour: hour, minute: minute, points: points};
   chat.dankTimes.set(shoutout, dankTime);
   return dankTime;
+}
+
+/**
+ * Creates a new random daily dank time object and places it in the supplied chat's random dank times.
+ * It has the following fields:
+ * - shoutout: The string to shout to get the point;
+ * - hour: The hour to shout at;
+ * - minute: The minute to shout at;
+ * - points: The amount of points the time is worth.
+ * @param {Chat} chat The chat to place the random dank times in.
+ */
+function newRandomDankTime(chat) {
+  const hour = Math.floor(Math.random() * 23);
+  const minute = Math.floor(Math.random() * 59);
+  const text = hour.toString() + minute.toString();
+  const randomDankTime = {shoutout: text, hour: hour, minute: minute, points: chat.pointsPerRandomTime};
+  chat.randomDankTimes.set(text, randomDankTime);
+  return randomDankTime;
 }
 
 /**
