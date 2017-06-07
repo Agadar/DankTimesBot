@@ -84,6 +84,11 @@ function loadChatsFromFile() {
       // User array to map.
       for (const user of chat.users) {
         users.set(user.id, user);
+
+        // Temporary verification for user.lastScoreChange field
+        if (!user.lastScoreChange) {
+          user.lastScoreChange = 0;
+        }
       }
 
       // DankTimes array to map.

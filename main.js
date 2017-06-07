@@ -56,15 +56,19 @@ BOT.on('message', (msg) => {
           }
           chat.lastTime = dankTime.shoutout;
           user.score += dankTime.points;
+          user.lastScoreChange += dankTime.points;
           user.called = true;
         } else if (user.called) { // Else if user already called this time, remove points.
           user.score -= dankTime.points;
+          user.lastScoreChange -= dankTime.points;
         } else {  // Else, award point.
           user.score += dankTime.points;
+          user.lastScoreChange += dankTime.points;
           user.called = true;
         }
       } else {
         user.score -= dankTime.points;
+        user.lastScoreChange -= dankTime.points;
       }
     }
   }
@@ -89,7 +93,7 @@ new cron.CronJob('0 0 * * * *', function() {
 
       // Schedule cron job that informs the chat when the time has come.
       new cron.CronJob(date, function() {
-        BOT.sendMessage(chat[1].id, 'Surprise dank time! Type\'' + time.shoutout + '\' for points!');
+        BOT.sendMessage(chat[1].id, 'Surprise dank time! Type \'' + time.shoutout + '\' for points!');
       }, null, true);
     }
   }
@@ -161,9 +165,11 @@ function resetChat(msg, match, chat) {
   let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
 
   for (const user of users) {
-    message += "\n" + user.name + ":    " + user.score;
+    const scoreChange = (user.lastScoreChange > 0 ? '(+' + user.lastScoreChange + ')' : (user.lastScoreChange < 0 ? '(' + user.lastScoreChange + ')' : ''));
+    message += '\n' + user.name + ':    ' + user.score + ' ' + scoreChange;
     user.score = 0;
     user.called = false;
+    user.lastScoreChange = 0;
   }
   BOT.sendMessage(chat.id, message, {parse_mode: 'HTML'});
 }
@@ -198,7 +204,9 @@ function leaderBoard(msg) {
   // Build a string to send from the chat's user list.
   let leaderboard = '<b>Leaderboard:</b>';
   for (const user of users) {
-    leaderboard += "\n" + user.name + ":    " + user.score;
+   const scoreChange = (user.lastScoreChange > 0 ? '(+' + user.lastScoreChange + ')' : (user.lastScoreChange < 0 ? '(' + user.lastScoreChange + ')' : ''));
+    leaderboard += '\n' + user.name + ':    ' + user.score + ' ' + scoreChange;
+    user.lastScoreChange = 0;
   }
   BOT.sendMessage(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
 }
@@ -365,14 +373,15 @@ function setDailyRandomTimesPoints(msg, match, chat) {
  * - id: The user's unique Telegram id;
  * - name: The user's Telegram name;
  * - score: The user's score, starting at 0;
- * - called: Whether the user already called the current dank time.
+ * - called: Whether the user already called the current dank time;
+ * - lastScoreChange The user's last score change, reset with every leaderboard.
  * @param {number} id The user's unique Telegram id.
  * @param {string} name The user's Telegram name.
  * @param {Chat} chat The chat to which the user belongs.
  * @return {User} New user.
  */
 function newUser(id, name, chat) {
-  const user = {id: id, name: name, score: 0, called: false};
+  const user = {id: id, name: name, score: 0, called: false, lastScoreChange: 0};
   chat.users.set(id, user);
   return user;
 }
