@@ -93,7 +93,7 @@ new cron.CronJob('0 0 * * * *', function() {
 
       // Schedule cron job that informs the chat when the time has come.
       new cron.CronJob(date, function() {
-        BOT.sendMessage(chat[1].id, 'Surprise dank time! Type \'' + time.shoutout + '\' for points!');
+        sendMessageOnFailRemoveChat(chat[1].id, 'Surprise dank time! Type \'' + time.shoutout + '\' for points!');
       }, null, true);
     }
   }
@@ -131,10 +131,10 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
         return;
       }
     }
-    BOT.sendMessage(chat.id, 'This option is only available to admins!');
+    sendMessageOnFailRemoveChat(chat.id, 'This option is only available to admins!');
   }).catch(reason => {
     console.error('Failed to retrieve admin list!\n' + reason);
-    BOT.sendMessage('Failed to retrieve admin list! See server console.');
+    sendMessageOnFailRemoveChat('Failed to retrieve admin list! See server console.');
   });
 }
 
@@ -147,10 +147,10 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
  */
 function startChat(msg, match, chat) {
   if (chat.running) {
-    BOT.sendMessage(chat.id, 'DankTimesBot is already running!');
+    sendMessageOnFailRemoveChat(chat.id, 'DankTimesBot is already running!');
   } else {
     chat.running = true;
-    BOT.sendMessage(chat.id, 'DankTimesBot is now running! Hit \'/help\' for available commands.');
+    sendMessageOnFailRemoveChat(chat.id, 'DankTimesBot is now running! Hit \'/help\' for available commands.');
   }
 }
 
@@ -171,7 +171,7 @@ function resetChat(msg, match, chat) {
     user.called = false;
     user.lastScoreChange = 0;
   }
-  BOT.sendMessage(chat.id, message, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(chat.id, message, {parse_mode: 'HTML'});
 }
 
 /**
@@ -188,7 +188,7 @@ function chatSettings(msg) {
   settings += '\n<b>Random dank times points: </b>' + chat.pointsPerRandomTime;
   settings += '\n<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
   settings += '\n<b>Time zone:</b> ' + chat.timezone;
-  BOT.sendMessage(msg.chat.id, settings, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(msg.chat.id, settings, {parse_mode: 'HTML'});
 }
 
 /**
@@ -208,7 +208,7 @@ function leaderBoard(msg) {
     leaderboard += '\n' + user.name + ':    ' + user.score + ' ' + scoreChange;
     user.lastScoreChange = 0;
   }
-  BOT.sendMessage(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
 }
 
 /**
@@ -220,7 +220,7 @@ function help(msg) {
   for (const command of COMMANDS) {
     help += '\n' + command[0] + '    ' + command[1].description;
   }
-  BOT.sendMessage(msg.chat.id, help, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(msg.chat.id, help, {parse_mode: 'HTML'});
 }
 
 /**
@@ -234,24 +234,24 @@ function addTime(msg, match, chat) {
   // Split string and ensure it contains at least 4 items.
   const split = match.input.split(' ');
   if (split.length < 5) {
-    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /add_time [text] [hour] [minute] [points]');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Not enough arguments! Format: /add_time [text] [hour] [minute] [points]');
     return;
   }
 
   // Identify arguments and validate them.
   const hour = Number(split[2]);
   if (hour === NaN || hour < 0 || hour > 23 || hour % 1 !== 0) {
-    BOT.sendMessage(msg.chat.id, 'The hour must be a whole number between 0 and 23!');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'The hour must be a whole number between 0 and 23!');
     return;
   }
   const minute = Number(split[3]);
   if (minute === NaN || minute < 0 || minute > 59 || minute % 1 !== 0) {
-    BOT.sendMessage(msg.chat.id, 'The minute must be a whole number between 0 and 59!');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'The minute must be a whole number between 0 and 59!');
     return;
   }
   const points = Number(split[4]);
   if (points === NaN || points < 1 || points % 1 !== 0) {
-    BOT.sendMessage(msg.chat.id, 'The points must be a whole number greater than 0!');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'The points must be a whole number greater than 0!');
     return;
   }
 
@@ -271,13 +271,13 @@ function removeTime(msg, match, chat) {
   // Split string and ensure it contains at least 1 item.
   const split = match.input.split(' ');
   if (split.length < 2) {
-    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /remove_time [text]');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Not enough arguments! Format: /remove_time [text]');
     return;
   }
 
   // Remove the time from the chat.
   chat.dankTimes.delete(split[1]);
-  BOT.sendMessage(msg.chat.id, 'Removed the time!');
+  sendMessageOnFailRemoveChat(msg.chat.id, 'Removed the time!');
 }
 
 /**
@@ -291,7 +291,7 @@ function setTimezone(msg, match, chat) {
   // Split string and ensure it contains at least 1 item.
   const split = match.input.split(' ');
   if (split.length < 2) {
-    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_timezone [timezone]');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Not enough arguments! Format: /set_timezone [timezone]');
     return;
   }
 
@@ -300,13 +300,13 @@ function setTimezone(msg, match, chat) {
     const date = new Date();
     date.setTimezone(split[1]);
   } catch (err) {
-    BOT.sendMessage(msg.chat.id, 'Invalid time zone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Invalid time zone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
     return;
   }
 
   // Update the time zone.
   chat.timezone = split[1];
-  BOT.sendMessage(msg.chat.id, 'Updated the time zone!');
+  sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the time zone!');
 }
 
 /**
@@ -320,20 +320,20 @@ function setDailyRandomTimes(msg, match, chat) {
   // Split string and ensure it contains at least 1 item.
   const split = match.input.split(' ');
   if (split.length < 2) {
-    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_frequency [number]');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_frequency [number]');
     return;
   }
 
   // Identify arguments and validate them.
   const frequency = Number(split[1]);
   if (frequency === NaN || frequency < 0 || frequency % 1 !== 0) {
-    BOT.sendMessage(msg.chat.id, 'The frequency must be a whole number greater or equal to 0!');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'The frequency must be a whole number greater or equal to 0!');
     return;
   }
 
   // Do the update.
   chat.numberOfRandomTimes = frequency;
-  BOT.sendMessage(msg.chat.id, 'Updated the number of random dank times per day!');
+  sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the number of random dank times per day!');
 }
 
 /**
@@ -347,20 +347,20 @@ function setDailyRandomTimesPoints(msg, match, chat) {
   // Split string and ensure it contains at least 1 item.
   const split = match.input.split(' ');
   if (split.length < 2) {
-    BOT.sendMessage(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_points [number]');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Not enough arguments! Format: /set_daily_random_points [number]');
     return;
   }
 
   // Identify arguments and validate them.
   const points = Number(split[1]);
   if (points === NaN || points <= 0 || points % 1 !== 0) {
-    BOT.sendMessage(msg.chat.id, 'The points must be a whole number greater than 0!');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'The points must be a whole number greater than 0!');
     return;
   }
 
   // Do the update.
   chat.pointsPerRandomTime = points;
-  BOT.sendMessage(msg.chat.id, 'Updated the points for random daily dank times!');
+  sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the points for random daily dank times!');
 }
 
 
@@ -454,6 +454,21 @@ function newCommand(name, description, _function) {
 }
 
 // --------------------UTIL-------------------- //
+
+/**
+ * Attempts to send a message to the chat. If a 403 error is returned, then the
+ * chat data is removed because that means the chat removed the bot.
+ * @param {number} chatId The chat to send the message to.
+ * @param {string} msg The message to send.
+ */
+function sendMessageOnFailRemoveChat(chatId, msg, options) {
+  BOT.sendMessage(chatId, msg, options).catch(reason => {
+    if (reason.response.statusCode === 403) {
+      CHATS.delete(chatId);
+      console.info('Chat with id ' + chatId + ' removed the bot, removed chat data in revenge.');
+    }
+  });
+}
 
 /**
  * Converts a map of users to an array of users, ordered by user scores.
