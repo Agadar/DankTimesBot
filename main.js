@@ -79,22 +79,26 @@ new cron.CronJob('0 0 * * * *', function() {
   console.info('Generating random dank times for all chats!');
 
   for (const chat of CHATS) {    
-    chat[1].randomDankTimes.clear();
-    for (let i = 0; i < chat[1].numberOfRandomTimes; i++) {
+    if (chat[1].running) {
+      chat[1].randomDankTimes.clear();
+      for (let i = 0; i < chat[1].numberOfRandomTimes; i++) {
 
-      // Generate random dank time.
-      const date = new Date();
-      date.setHours(date.getHours() + Math.floor(Math.random() * 23));
-      date.setMinutes(Math.floor(Math.random() * 59));
-      date.setTimezone(chat[1].timezone);
-      const shoutout = date.getHours().toString() + date.getMinutes().toString();
-      const time = {shoutout: shoutout, hour: date.getHours(), minute: date.getMinutes(), points: chat[1].pointsPerRandomTime};
-      chat[1].randomDankTimes.set(shoutout, time);
+        // Generate random dank time.
+        const date = new Date();
+        date.setHours(date.getHours() + Math.floor(Math.random() * 23));
+        date.setMinutes(Math.floor(Math.random() * 59));
+        date.setTimezone(chat[1].timezone);
+        const shoutout = date.getHours().toString() + date.getMinutes().toString();
+        const time = {shoutout: shoutout, hour: date.getHours(), minute: date.getMinutes(), points: chat[1].pointsPerRandomTime};
+        chat[1].randomDankTimes.set(shoutout, time);
 
-      // Schedule cron job that informs the chat when the time has come.
-      new cron.CronJob(date, function() {
-        sendMessageOnFailRemoveChat(chat[1].id, 'Surprise dank time! Type \'' + time.shoutout + '\' for points!');
-      }, null, true);
+        // Schedule cron job that informs the chat when the time has come.
+        new cron.CronJob(date, function() {
+          if (chat[1].running) {
+            sendMessageOnFailRemoveChat(chat[1].id, 'Surprise dank time! Type \'' + time.shoutout + '\' for points!');
+          }
+        }, null, true);
+      }
     }
   }
 }, null, true);
