@@ -261,7 +261,7 @@ function addTime(msg, match, chat) {
 
   // Subscribe new dank time for the chat.
   newDankTime(split[1], hour, minute, points, chat);
-  BOT.sendMessage(msg.chat.id, 'Added the new time!');
+  sendMessageOnFailRemoveChat(msg.chat.id, 'Added the new time!');
 }
 
 /**
