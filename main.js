@@ -38,6 +38,7 @@ BOT.on('message', (msg) => {
   // If the chat is running and the dank time exists, continue.
   if (chat.running) {
     const dankTime = chat.dankTimes.has(msg.text) ? chat.dankTimes.get(msg.text) : chat.randomDankTimes.get(msg.text);
+    
     if (dankTime) {
 
       // Get user, shouted dank time, and server time.
@@ -75,20 +76,24 @@ new cron.CronJob('0 0 * * * *', function() {
 
   for (const chat of CHATS) {    
     chat[1].randomDankTimes.clear();
+    for (let i = 0; i < chat[1].numberOfRandomTimes; i++) {
 
-    for (let i = 0; i < chat[1].numberOfRandomTimes; i++) {    
-      const time = newRandomDankTime(chat[1]);
+      // Generate random dank time.
+      const date = new Date();
+      date.setHours(date.getHours() + Math.floor(Math.random() * 23));
+      date.setMinutes(Math.floor(Math.random() * 59));
+      date.setTimezone(chat[1].timezone);
+      const shoutout = date.getHours().toString() + date.getMinutes().toString();
+      const time = {shoutout: shoutout, hour: date.getHours(), minute: date.getMinutes(), points: chat[1].pointsPerRandomTime};
+      chat[1].randomDankTimes.set(shoutout, time);
 
       // Schedule cron job that informs the chat when the time has come.
-      const date = new Date(); 
-      date.setHours(time.hour);
-      date.setMinutes(time.minute);
       new cron.CronJob(date, function() {
         BOT.sendMessage(chat[1].id, 'Surprise dank time! Type\'' + time.shoutout + '\' for points!');
-      }, null, true, time.currentTimezone);
+      }, null, true);
     }
   }
-}, null, true, time.currentTimezone);
+}, null, true);
 
 
 // --------------------FUNCTIONS CALLED BY TELEGRAM BOT COMMANDS-------------------- //
@@ -417,24 +422,6 @@ function newDankTime(shoutout, hour, minute, points, chat) {
   const dankTime = {shoutout: shoutout, hour: hour, minute: minute, points: points};
   chat.dankTimes.set(shoutout, dankTime);
   return dankTime;
-}
-
-/**
- * Creates a new random daily dank time object and places it in the supplied chat's random dank times.
- * It has the following fields:
- * - shoutout: The string to shout to get the point;
- * - hour: The hour to shout at;
- * - minute: The minute to shout at;
- * - points: The amount of points the time is worth.
- * @param {Chat} chat The chat to place the random dank times in.
- */
-function newRandomDankTime(chat) {
-  const hour = Math.floor(Math.random() * 23);
-  const minute = Math.floor(Math.random() * 59);
-  const text = hour.toString() + minute.toString();
-  const randomDankTime = {shoutout: text, hour: hour, minute: minute, points: chat.pointsPerRandomTime};
-  chat.randomDankTimes.set(text, randomDankTime);
-  return randomDankTime;
 }
 
 /**
