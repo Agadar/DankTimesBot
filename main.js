@@ -75,7 +75,7 @@ BOT.on('message', (msg) => {
 });
 
 /** Generates random dank times daily for all chats at 00:00:00. */
-new cron.CronJob('0 0 * * * *', function() {
+new cron.CronJob('0 0 0 * * *', function() {
   console.info('Generating random dank times for all chats!');
 
   for (const chat of CHATS) {    
