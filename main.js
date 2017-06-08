@@ -7,6 +7,7 @@ const time = require('time')(Date); // NodeJS library for working with timezones
 const cron = require('cron'); // NodeJS library for scheduling daily random dank time generations.
 
 // Global variables.
+const VERSION       = '1.0.0';
 const SETTINGS      = fileIO.loadSettingsFromFile();
 const CHATS         = fileIO.loadChatsFromFile(); // All the scores of all the chats, loaded from data file.
 const BOT           = new TelegramBot(SETTINGS.apiKey, {polling: true});
@@ -188,10 +189,11 @@ function chatSettings(msg) {
   for (const time of chat.dankTimes) {
     settings += "\ntime: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
   }
-  settings += '\n<b>Random dank times per day: </b>' + chat.numberOfRandomTimes;
-  settings += '\n<b>Random dank times points: </b>' + chat.pointsPerRandomTime;
+  settings += '\n<b>Random dank times per day:</b> ' + chat.numberOfRandomTimes;
+  settings += '\n<b>Random dank times points:</b> ' + chat.pointsPerRandomTime;
   settings += '\n<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
   settings += '\n<b>Time zone:</b> ' + chat.timezone;
+  settings += '\n<b>Version:</b> ' + VERSION;
   sendMessageOnFailRemoveChat(msg.chat.id, settings, {parse_mode: 'HTML'});
 }
 
