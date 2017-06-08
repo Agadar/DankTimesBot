@@ -191,6 +191,7 @@ function chatSettings(msg) {
   }
   settings += '\n<b>Random dank times per day:</b> ' + chat.numberOfRandomTimes;
   settings += '\n<b>Random dank times points:</b> ' + chat.pointsPerRandomTime;
+  settings += '\n<b>Server time:</b> ' + (new Date()).toLocaleString();
   settings += '\n<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
   settings += '\n<b>Time zone:</b> ' + chat.timezone;
   settings += '\n<b>Version:</b> ' + VERSION;
