@@ -166,7 +166,7 @@ function startChat(msg, match, chat) {
  * @param {Chat} chat The chat to reset. 
  */
 function resetChat(msg, match, chat) {
-  const users = usersMapToSortedArray(chat.users);
+  const users = mapToSortedArray(chat.users, compareUsers);
   let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
 
   for (const user of users) {
@@ -185,15 +185,17 @@ function resetChat(msg, match, chat) {
  */
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
+  const dankTimes = mapToSortedArray(chat.dankTimes, compareDankTimes);
+
   let settings = '\n<b>Chat time zone:</b> ' + chat.timezone;
   settings += '\n<b>Dank times:</b>';
-  for (const time of chat.dankTimes) {
-    settings += "\ntime: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
+  for (const time of dankTimes) {
+    settings += "\ntime: " + time.hour + ":" + time.minute + ":00    word: '" + time.shoutout + "'    points: " + time.points;
   }
   settings += '\n<b>Random dank times per day:</b> ' + chat.numberOfRandomTimes;
-  settings += '\n<b>Random dank times points:</b> ' + chat.pointsPerRandomTime;
+  settings += '\n<b>Random dank time points:</b> ' + chat.pointsPerRandomTime;
   settings += '\n<b>Server time:</b> ' + new Date();
-  settings += '\n<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
+  settings += '\n<b>Status:</b> ' + (chat.running ? 'running' : 'awaiting start');
   settings += '\n<b>Version:</b> ' + VERSION;
   sendMessageOnFailRemoveChat(msg.chat.id, settings, {parse_mode: 'HTML'});
 }
@@ -206,7 +208,7 @@ function leaderBoard(msg) {
 
   // Get the chat, creating it if needed.
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  const users = usersMapToSortedArray(chat.users);
+  const users = mapToSortedArray(chat.users, compareUsers);
 
   // Build a string to send from the chat's user list.
   let leaderboard = '<b>Leaderboard:</b>';
@@ -478,16 +480,17 @@ function sendMessageOnFailRemoveChat(chatId, msg, options) {
 }
 
 /**
- * Converts a map of users to an array of users, ordered by user scores.
- * @param {Map} users
- * @return {User[]}
+ * Converts a map to a sorted array, using the specified comparator.
+ * @param {Map} map
+ * @param {function} comparator
+ * @return {any[]}
  */
-function usersMapToSortedArray(users) {
+function mapToSortedArray(map, comparator) {
   const array = [];
-  for (const user of users) {
-    array.push(user[1]);
+  for (const entry of map) {
+    array.push(entry[1]);
   }
-  array.sort(compareUsers);
+  array.sort(comparator);
   return array;
 }
 
@@ -502,6 +505,26 @@ function compareUsers(user1, user2) {
   }
   if (user1.score === user2.score) {
     return user1.name <= user2.name ? -1 : 1;
+  }
+  return 1;
+}
+
+/**
+ * Compares two dank times, primarily via their hour and minute. Used for sorting collections.
+ * @param {DankTime} time1 
+ * @param {DankTime} time2 
+ */
+function compareDankTimes(time1, time2) {
+  if (time1.hour < time2.hour) {
+    return -1;
+  }
+  if (time1.hour === time2.hour) {
+    if (time1.minute < time2.minute) {
+      return -1;
+    }
+    if (time1.minute === time2.minute) {
+      return time1.shoutout > time2.shoutout;
+    }
   }
   return 1;
 }
