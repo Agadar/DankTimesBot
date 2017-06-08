@@ -185,15 +185,15 @@ function resetChat(msg, match, chat) {
  */
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  let settings = '<b>Dank times:</b>';
+  let settings = '\n<b>Chat time zone:</b> ' + chat.timezone;
+  settings += '\n<b>Dank times:</b>';
   for (const time of chat.dankTimes) {
     settings += "\ntime: " + time[1].hour + ":" + time[1].minute + ":00    word: '" + time[0] + "'    points: " + time[1].points;
   }
   settings += '\n<b>Random dank times per day:</b> ' + chat.numberOfRandomTimes;
   settings += '\n<b>Random dank times points:</b> ' + chat.pointsPerRandomTime;
-  settings += '\n<b>Server time:</b> ' + (new Date()).toLocaleString();
+  settings += '\n<b>Server time:</b> ' + new Date();
   settings += '\n<b>Status:</b> ' + (chat.running ? 'running' : 'not running');
-  settings += '\n<b>Time zone:</b> ' + chat.timezone;
   settings += '\n<b>Version:</b> ' + VERSION;
   sendMessageOnFailRemoveChat(msg.chat.id, settings, {parse_mode: 'HTML'});
 }
