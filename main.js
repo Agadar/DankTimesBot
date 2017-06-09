@@ -3,6 +3,7 @@
 // Imports.
 const TelegramBot = require('node-telegram-bot-api'); // JS client library for Telegram API.
 const fileIO = require('./file-io.js'); // Custom script for file I/O related stuff.
+const util = require('./util.js');
 const time = require('time')(Date); // NodeJS library for working with timezones.
 const cron = require('cron'); // NodeJS library for scheduling daily random dank time generations.
 
@@ -166,7 +167,7 @@ function startChat(msg, match, chat) {
  * @param {Chat} chat The chat to reset. 
  */
 function resetChat(msg, match, chat) {
-  const users = mapToSortedArray(chat.users, compareUsers);
+  const users = util.mapToSortedArray(chat.users, util.compareUsers);
   let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
 
   for (const user of users) {
@@ -185,7 +186,7 @@ function resetChat(msg, match, chat) {
  */
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  const dankTimes = mapToSortedArray(chat.dankTimes, compareDankTimes);
+  const dankTimes = util.mapToSortedArray(chat.dankTimes, util.compareDankTimes);
 
   let settings = '\n<b>Chat time zone:</b> ' + chat.timezone;
   settings += '\n<b>Dank times:</b>';
@@ -208,7 +209,7 @@ function leaderBoard(msg) {
 
   // Get the chat, creating it if needed.
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  const users = mapToSortedArray(chat.users, compareUsers);
+  const users = util.mapToSortedArray(chat.users, util.compareUsers);
 
   // Build a string to send from the chat's user list.
   let leaderboard = '<b>Leaderboard:</b>';
@@ -462,8 +463,6 @@ function newCommand(name, description, _function) {
   return command;
 }
 
-// --------------------UTIL-------------------- //
-
 /**
  * Attempts to send a message to the chat. If a 403 error is returned, then the
  * chat data is removed because that means the chat removed the bot.
@@ -477,56 +476,6 @@ function sendMessageOnFailRemoveChat(chatId, msg, options) {
       console.info('Chat with id ' + chatId + ' removed the bot, removed chat data in revenge.');
     }
   });
-}
-
-/**
- * Converts a map to a sorted array, using the specified comparator.
- * @param {Map} map
- * @param {function} comparator
- * @return {any[]}
- */
-function mapToSortedArray(map, comparator) {
-  const array = [];
-  for (const entry of map) {
-    array.push(entry[1]);
-  }
-  array.sort(comparator);
-  return array;
-}
-
-/**
- * Compares two users, primarily via their scores. Used for sorting collections.
- * @param {User} user1
- * @param {User} user2
- */
-function compareUsers(user1, user2) {
-  if (user1.score > user2.score) {
-    return -1;
-  }
-  if (user1.score === user2.score) {
-    return user1.name <= user2.name ? -1 : 1;
-  }
-  return 1;
-}
-
-/**
- * Compares two dank times, primarily via their hour and minute. Used for sorting collections.
- * @param {DankTime} time1 
- * @param {DankTime} time2 
- */
-function compareDankTimes(time1, time2) {
-  if (time1.hour < time2.hour) {
-    return -1;
-  }
-  if (time1.hour === time2.hour) {
-    if (time1.minute < time2.minute) {
-      return -1;
-    }
-    if (time1.minute === time2.minute) {
-      return time1.shoutout > time2.shoutout;
-    }
-  }
-  return 1;
 }
 
 // Inform server.
