@@ -8,7 +8,7 @@ const time = require('time')(Date); // NodeJS library for working with timezones
 const cron = require('cron'); // NodeJS library for scheduling daily random dank time generations.
 
 // Global variables.
-const VERSION       = '1.0.0';
+const VERSION       = '1.1.0';
 const SETTINGS      = fileIO.loadSettingsFromFile();
 const CHATS         = fileIO.loadChatsFromFile(); // All the scores of all the chats, loaded from data file.
 const BOT           = new TelegramBot(SETTINGS.apiKey, {polling: true});
@@ -39,6 +39,7 @@ BOT.on('message', (msg) => {
 
   // If the chat is running and the dank time exists, continue.
   if (chat.running) {
+    msg.text = util.cleanText(msg.text);  // Clean me, senpai (づ｡◕‿‿◕｡)づ
     const dankTime = chat.dankTimes.has(msg.text) ? chat.dankTimes.get(msg.text) : chat.randomDankTimes.get(msg.text);
     
     if (dankTime) {
