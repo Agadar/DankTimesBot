@@ -58,9 +58,10 @@ BOT.on('message', (msg) => {
             chatUser[1].called = false;
           }
           chat.lastTime = dankTime.shoutout;
-          user.score += dankTime.points;
-          user.lastScoreChange += dankTime.points;
-          user.called = true;
+          // Player is the first one calling this dank time. Award double points.
+          user.score            += dankTime.points * 2;
+          user.lastScoreChange  += dankTime.points * 2;
+          user.called            = true;
         } else if (user.called) { // Else if user already called this time, remove points.
           user.score -= dankTime.points;
           user.lastScoreChange -= dankTime.points;
