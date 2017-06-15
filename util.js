@@ -79,6 +79,14 @@ function compareDankTimes(time1, time2) {
   return 1;
 }
 
+/**
+ * Prepends any arbitrary string with a 0 and extracts the last two characters which are then returned.
+ * "0"   => "00"
+ * "1"   => "01"
+ * "12"  => "12"
+ * "122" => "22"
+ * @param {num} Number to prepend 0 to.
+ */
 function padNumber(num)
 {
     return ("0" + num).slice(-2);
