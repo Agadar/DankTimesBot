@@ -92,7 +92,7 @@ new cron.CronJob('0 0 0 * * *', function() {
         date.setHours(date.getHours() + Math.floor(Math.random() * 23));
         date.setMinutes(Math.floor(Math.random() * 59));
         date.setTimezone(chat[1].timezone);
-        const shoutout = date.getHours().toString() + date.getMinutes().toString();
+        const shoutout = util.padNumber(date.getHours().toString()) + util.padNumber(date.getMinutes().toString());
         const time = {shoutout: shoutout, hour: date.getHours(), minute: date.getMinutes(), points: chat[1].pointsPerRandomTime};
         chat[1].randomDankTimes.set(shoutout, time);
 
