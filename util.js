@@ -9,6 +9,7 @@ module.exports.mapToSortedArray = mapToSortedArray;
 module.exports.compareUsers = compareUsers;
 module.exports.compareDankTimes = compareDankTimes;
 module.exports.cleanText = cleanText;
+module.exports.padNumber = padNumber;
 
 /**
  * Removes from the text the characters with unicodes 65039 and 8419.
@@ -76,4 +77,9 @@ function compareDankTimes(time1, time2) {
     }
   }
   return 1;
+}
+
+function padNumber(num)
+{
+    return ("0" + num).slice(-2);
 }
