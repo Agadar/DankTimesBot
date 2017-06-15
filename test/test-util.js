@@ -29,3 +29,19 @@ describe('padNumber(msg)', function(msg) {
         });
     });
 });
+
+describe('compareDankTimes(time1, time2)', function(time1, time2) {
+    var tests = [
+        { args: [ { shoutout: "", hour: 13, minute: 37, points: 0 }, { shoutout: "", hour: 13, minute: 37, points: 0 } ], expected: ("">"") },
+        { args: [ { shoutout: "", hour: 10, minute: 0, points: 0 }, {shoutout: "", hour: 9, minute: 10, points: 0} ], expected: 1 },
+        { args: [ { shoutout: "", hour: 16, minute: 0, points: 0 }, {shoutout: "", hour: 17, minute: 5, points: 0} ], expected: -1 },
+        { args: [ { shoutout: "", hour: 15, minute: 30, points: 0 }, { shoutout: "", hour: 15, minute: 20, points:0 } ], expected: 1 },
+        { args: [ { shoutout: "", hour: 15, minute: 15, points: 0 }, { shoutout: "", hour: 15, minute: 30, points: 0 } ], expected: -1 }
+    ];
+
+    tests.forEach(function(test) {
+        it('Should compare correctly.', function() {
+            assert.deepEqual(test.expected, Utility.compareDankTimes(test.args[0], test.args[1]));
+        });
+    });
+});
