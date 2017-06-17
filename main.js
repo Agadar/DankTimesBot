@@ -193,7 +193,7 @@ function chatSettings(msg) {
   let settings = '\n<b>Chat time zone:</b> ' + chat.timezone;
   settings += '\n<b>Dank times:</b>';
   for (const time of dankTimes) {
-    settings += "\ntime: " + time.hour + ":" + time.minute + ":00    word: '" + time.shoutout + "'    points: " + time.points;
+    settings += "\ntime: " + util.padNumber(time.hour) + ":" + util.padNumber(time.minute) + ":00    word: '" + time.shoutout + "'    points: " + time.points;
   }
   settings += '\n<b>Random dank times per day:</b> ' + chat.numberOfRandomTimes;
   settings += '\n<b>Random dank time points:</b> ' + chat.pointsPerRandomTime;
