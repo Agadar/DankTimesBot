@@ -1,18 +1,19 @@
 'use strict';
 
 // Imports.
-const TelegramBot = require('node-telegram-bot-api'); // JS client library for Telegram API.
-const fileIO = require('./file-io.js'); // Custom script for file I/O related stuff.
-const util = require('./util.js');
-const time = require('time')(Date); // NodeJS library for working with timezones.
-const cron = require('cron'); // NodeJS library for scheduling daily random dank time generations.
+const TelegramBot = require('node-telegram-bot-api'); // Client library for Telegram API.
+const fileIO      = require('./file-io.js');          // Custom script for file I/O related stuff.
+const util        = require('./util.js');             // Custom script containing global utility functions.
+const time        = require('time')(Date);            // NodeJS library for working with timezones.
+const cron        = require('cron');                  // NodeJS library for scheduling cron jobs.
+const nodeCleanup = require('node-cleanup');          // NodeJS library for running code on program exit.
 
 // Global variables.
-const VERSION       = '1.1.0';
-const SETTINGS      = fileIO.loadSettingsFromFile();
-const CHATS         = fileIO.loadChatsFromFile(); // All the scores of all the chats, loaded from data file.
-const BOT           = new TelegramBot(SETTINGS.apiKey, {polling: true});
-const COMMANDS      = new Map(); // All the available settings of this bot.
+const VERSION   = '1.1.0';
+const SETTINGS  = fileIO.loadSettingsFromFile();
+const CHATS     = fileIO.loadChatsFromFile(); // All the scores of all the chats, loaded from data file.
+const BOT       = new TelegramBot(SETTINGS.apiKey, { polling: true });
+const COMMANDS  = new Map(); // All the available settings of this bot.
 
 // Register available Telegram bot commands.
 newCommand('/add_time', 'Adds a dank time. Format: [text] [hour] [minute] [points]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
@@ -26,10 +27,17 @@ newCommand('/set_daily_random_points', 'Sets the points for random daily dank ti
 newCommand('/set_timezone', 'Sets the time zone. Format: [timezone]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setTimezone));
 newCommand('/start', 'Starts keeping track of scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
 
-// Schedule NodeJS timer to persist chats map to file every X minutes.
+// Schedule to persist chats map to file every X minutes.
 setInterval(function() {
   fileIO.saveChatsToFile(CHATS);
+  console.info('Persisted data to file.');
 }, SETTINGS.persistenceRate * 60 * 1000);
+
+// Schedule to persist chats map to file on program exit.
+nodeCleanup(function(exitCode, signal) {
+  console.info('Persisting data to file before exiting...');
+  fileIO.saveChatsToFile(CHATS);
+});
 
 /** Activated on any message. Checks for dank times. */
 BOT.on('message', (msg) => {
@@ -481,4 +489,4 @@ function sendMessageOnFailRemoveChat(chatId, msg, options) {
 }
 
 // Inform server.
-console.info("DankTimesBot is now running!");
+console.info("DankTimesBot is now running...");
