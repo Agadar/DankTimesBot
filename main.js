@@ -92,7 +92,7 @@ new cron.CronJob('0 0 0 * * *', function() {
         date.setHours(date.getHours() + Math.floor(Math.random() * 23));
         date.setMinutes(Math.floor(Math.random() * 59));
         date.setTimezone(chat[1].timezone);
-        const shoutout = date.getHours().toString() + date.getMinutes().toString();
+        const shoutout = util.padNumber(date.getHours().toString()) + util.padNumber(date.getMinutes().toString());
         const time = {shoutout: shoutout, hour: date.getHours(), minute: date.getMinutes(), points: chat[1].pointsPerRandomTime};
         chat[1].randomDankTimes.set(shoutout, time);
 
@@ -193,7 +193,7 @@ function chatSettings(msg) {
   let settings = '\n<b>Chat time zone:</b> ' + chat.timezone;
   settings += '\n<b>Dank times:</b>';
   for (const time of dankTimes) {
-    settings += "\ntime: " + time.hour + ":" + time.minute + ":00    word: '" + time.shoutout + "'    points: " + time.points;
+    settings += "\ntime: " + util.padNumber(time.hour) + ":" + util.padNumber(time.minute) + ":00    word: '" + time.shoutout + "'    points: " + time.points;
   }
   settings += '\n<b>Random dank times per day:</b> ' + chat.numberOfRandomTimes;
   settings += '\n<b>Random dank time points:</b> ' + chat.pointsPerRandomTime;
