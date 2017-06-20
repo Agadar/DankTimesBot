@@ -49,31 +49,17 @@ BOT.on('message', (msg) => {
   if (chat.running) {
     msg.text = util.cleanText(msg.text);
 
-    // Continue further if a dank time is known by the message text.
-    let dankTime;
-    for (let next of chat.dankTimes) {
-      if (next.texts.indexOf(msg.text) > -1) {
-        dankTime = next;
-        break;
-      }
+    // Gather dank times from the sent text.
+    const dankTimesByText = getDankTimesByText(msg.text, chat.dankTimes).concat(getDankTimesByText(msg.text, chat.randomDankTimes));
+    if (dankTimesByText.length < 1) {
+      return;
     }
-    if (!dankTime) {
-      for (let next of chat.randomDankTimes) {
-        if (next.texts.indexOf(msg.text) > -1) {
-          dankTime = next;
-          break;
-        }
-      }
-    }
+    const user = chat.users.has(msg.from.id) ? chat.users.get(msg.from.id) : newUser(msg.from.id, msg.from.username, chat);
+    const serverDate = new Date();
+    serverDate.setTimezone(chat.timezone);
+    let subtractBy = 0;
 
-    if (dankTime) {
-
-      // Get user, shouted dank time, and server time.
-      const user = chat.users.has(msg.from.id) ? chat.users.get(msg.from.id) : newUser(msg.from.id, msg.from.username, chat);
-      const serverDate = new Date();
-      serverDate.setTimezone(chat.timezone);
-
-      // If the times match...
+    for (let dankTime of dankTimesByText) {
       if (serverDate.getHours() === dankTime.hour && (serverDate.getMinutes() === dankTime.minute 
         || new Date(msg.date * 1000).getMinutes() === dankTime.minute)) {
         
@@ -95,11 +81,14 @@ BOT.on('message', (msg) => {
           user.lastScoreChange += dankTime.points;
           user.called = true;
         }
-      } else { // Remove points if times do not match.
-        user.score -= dankTime.points;
-        user.lastScoreChange -= dankTime.points;
+        return;
+      } else if (dankTime.points > subtractBy) {
+          subtractBy = dankTime.points;
       }
     }
+    // If no match was found, punish the user.
+    user.score -= subtractBy;
+    user.lastScoreChange -= subtractBy;
   }
 });
 
@@ -118,8 +107,7 @@ new cron.CronJob('0 0 0 * * *', function() {
         date.setMinutes(Math.floor(Math.random() * 59));
         date.setTimezone(chat[1].timezone);
         const shoutout = util.padNumber(date.getHours().toString()) + util.padNumber(date.getMinutes().toString());
-        const time = {hour: date.getHours(), minute: date.getMinutes(), points: chat[1].pointsPerRandomTime, texts: [shoutout]};
-        chat[1].randomDankTimes.push(time);
+        const time = newDankTime(date.getHours(), date.getMinutes(), chat[1].pointsPerRandomTime, [shoutout], chat[1].randomDankTimes);
 
         // Schedule cron job that informs the chat when the time has come.
         new cron.CronJob(date, function() {
@@ -294,10 +282,10 @@ function addTime(msg, match, chat) {
     sendMessageOnFailRemoveChat(msg.chat.id, 'The points must be a whole number greater than 0!');
     return;
   }
-  const texts = split.slice(4);
+  const texts = split.splice(4);
 
-  // Subscribe new dank time for the chat.
-  newDankTime(hour, minute, points, texts, chat);
+  // Subscribe new dank time for the chat, replacing any with the same hour and minute.
+  newDankTime(hour, minute, points, texts, chat.dankTimes);
   sendMessageOnFailRemoveChat(msg.chat.id, 'Added the new time!');
 }
 
@@ -316,17 +304,27 @@ function removeTime(msg, match, chat) {
     return;
   }
 
-  for (dankTime in chat.dankTimes) {
-    // WE BE HERE MON ------------------------------------------------------------------------------
-    // notes: 
-    // - fix addTime so it cant add duplicate times
-    // - make issue for ensuring setDailyRandomTimes and setDailyRandomTimesPoints update current random dank times
-    // - make sure old style data.json is parsed to new style and new style data.json is properly parsed
-    // - fix onmessage so it retrieves ALL dankTimes that have the text
+  // Identify arguments and validate them.
+  const hour = Number(split[1]);
+  if (hour === NaN || hour < 0 || hour > 23 || hour % 1 !== 0) {
+    sendMessageOnFailRemoveChat(msg.chat.id, 'The hour must be a whole number between 0 and 23!');
+    return;
+  }
+  const minute = Number(split[2]);
+  if (minute === NaN || minute < 0 || minute > 59 || minute % 1 !== 0) {
+    sendMessageOnFailRemoveChat(msg.chat.id, 'The minute must be a whole number between 0 and 59!');
+    return;
+  }
+
+  // Remove dank time if it exists, otherwise just send an info message.
+  const removeMe = getDankTimeByHourMinute(hour, minute, chat.dankTimes);
+  if (!removeMe) {
+    sendMessageOnFailRemoveChat(msg.chat.id, 'No dank time known with that hour and minute!');
+    return;
   }
 
   // Remove the time from the chat.
-  chat.dankTimes.delete(split[1]);
+  chat.dankTimes.splice(chat.dankTimes.indexOf(removeMe), 1);
   sendMessageOnFailRemoveChat(msg.chat.id, 'Removed the time!');
 }
 
@@ -383,6 +381,7 @@ function setDailyRandomTimes(msg, match, chat) {
 
   // Do the update.
   chat.numberOfRandomTimes = frequency;
+  chat.randomDankTimes.splice(frequency);
   sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the number of random dank times per day!');
 }
 
@@ -410,6 +409,11 @@ function setDailyRandomTimesPoints(msg, match, chat) {
 
   // Do the update.
   chat.pointsPerRandomTime = points;
+  for (let dankTime of chat.randomDankTimes) {
+    dankTime.points = points;
+  }
+
+  // Send informative message.
   sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the points for random daily dank times!');
 }
 
@@ -454,19 +458,20 @@ function newUser(id, name, chat) {
 function newChat(id) {
   const chat = {id: id, users: new Map(), lastTime: { hour: -1, minute: -1 }, running: false, dankTimes: new Array(),
     randomDankTimes: new Array(), numberOfRandomTimes: 1, pointsPerRandomTime: 10, timezone: 'Europe/Amsterdam'};
-  newDankTime(0, 0, 5, ['0000'], chat);
-  newDankTime(4, 20, 15, ['420'], chat);
-  newDankTime(11, 11, 5, ['1111'], chat);
-  newDankTime(12, 34, 5, ['1234'], chat);
-  newDankTime(13, 37, 10, ['1337'], chat);
-  newDankTime(16, 20, 10, ['420'], chat);
-  newDankTime(22, 22, 5, ['2222'], chat);
+  newDankTime(0, 0, 5, ['0000'], chat.dankTimes);
+  newDankTime(4, 20, 15, ['420'], chat.dankTimes);
+  newDankTime(11, 11, 5, ['1111'], chat.dankTimes);
+  newDankTime(12, 34, 5, ['1234'], chat.dankTimes);
+  newDankTime(13, 37, 10, ['1337'], chat.dankTimes);
+  newDankTime(16, 20, 10, ['420'], chat.dankTimes);
+  newDankTime(22, 22, 5, ['2222'], chat.dankTimes);
   CHATS.set(id, chat);
   return chat;
 }
 
 /**
- * Creates a new dank time object and places it in the supplied chat's dank times.
+ * Creates a new dank time object and places it in the supplied dank times array.
+ * Replaces any dank time that has the same hour and minute if so specified, otherwise ignores the new value.
  * It has the following fields:
  * - hour: The hour to shout at;
  * - minute: The minute to shout at;
@@ -476,13 +481,53 @@ function newChat(id) {
  * @param {number} minute The minute to shout at.
  * @param {number} points The amount of points the time is worth.
  * @param {string[]} texts The texts to type to get the point.
- * @param {Chat} chat The chat to place the dank times in.
- * @return {DankTime} New dank time.
+ * @param {DankTime} dankTimes The array to place the dank times in.
+ * @param {boolean} replace Whether to replace any existing values.
+ * @return {DankTime} New dank time, or existing one.
  */
-function newDankTime(hour, minute, points, texts, chat) {
+function newDankTime(hour, minute, points, texts, dankTimes, replace = true) {
+  const existing = getDankTimeByHourMinute(hour, minute, dankTimes);
+  if (existing) {
+    if (replace) {
+      dankTimes.splice(dankTimes.indexOf(existing), 1);
+    } else {
+      return existing;
+    }
+  }
   const dankTime = {hour: hour, minute: minute, points: points, texts: texts};
-  chat.dankTimes.push(dankTime);
+  dankTimes.push(dankTime);
   return dankTime;
+}
+
+/**
+ * Gets all dank times that have the specified text from the specified array.
+ * @param {string} text 
+ * @param {DankTime[]} dankTimes
+ * @return {DankTime[]}
+ */
+function getDankTimesByText(text, dankTimes) {
+  let found = new Array();
+  for (let dankTime of dankTimes) {
+    if (dankTime.texts.indexOf(text) > -1) {
+      found.push(dankTime);
+    }
+  }
+  return found;
+}
+
+/**
+ * Gets the dank time that has the specified hour and minute from the specified array.
+ * @param {number} hour 
+ * @param {number} minute 
+ * @param {DankTime[]} dankTimes
+ * @return {DankTime} or undefined if none has the specified hour and minute.
+ */
+function getDankTimeByHourMinute(hour, minute, dankTimes) {
+  for (let dankTime of dankTimes) {
+    if (dankTime.hour === hour && dankTime.minute === minute) {
+      return dankTime;
+    }
+  }
 }
 
 /**
