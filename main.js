@@ -106,8 +106,8 @@ new cron.CronJob('0 0 0 * * *', function() {
         date.setHours(date.getHours() + Math.floor(Math.random() * 23));
         date.setMinutes(Math.floor(Math.random() * 59));
         date.setTimezone(chat[1].timezone);
-        const shoutout = util.padNumber(date.getHours().toString()) + util.padNumber(date.getMinutes().toString());
-        const time = newDankTime(date.getHours(), date.getMinutes(), chat[1].pointsPerRandomTime, [shoutout], chat[1].randomDankTimes);
+        const text = util.padNumber(date.getHours().toString()) + util.padNumber(date.getMinutes().toString());
+        const time = newDankTime(date.getHours(), date.getMinutes(), chat[1].pointsPerRandomTime, [text], chat[1].randomDankTimes);
 
         // Schedule cron job that informs the chat when the time has come.
         new cron.CronJob(date, function() {
@@ -160,7 +160,7 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
 }
 
 /**
- * Starts the specified chat so that it records dank time shoutouts.
+ * Starts the specified chat so that it records dank time texts.
  * Only prints a warning if the chat is already running.
  * @param {any} msg The message object from the Telegram api.
  * @param {any[]} match The regex matched object from the Telegram api.
@@ -201,13 +201,12 @@ function resetChat(msg, match, chat) {
  */
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  const dankTimes = util.mapToSortedArray(chat.dankTimes, util.compareDankTimes);
+  chat.dankTimes.sort(util.compareDankTimes);
 
-  let settings = '\n<b>Chat time zone:</b> ' + chat.timezone;
-  settings += '\n<b>Dank times:</b>';
-  for (const time of dankTimes) {
+  let settings = '\n<b>Chat time zone:</b> ' + chat.timezone + '\n<b>Dank times:</b>';
+  for (const time of chat.dankTimes) {
     settings += "\ntime: " + util.padNumber(time.hour) + ":" + util.padNumber(time.minute) + ":00    points: " + time.points + "    texts:";
-    for (let text of dankTimes.texts) {
+    for (let text of time.texts) {
       settings += " " + text;
     }
   }
