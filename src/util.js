@@ -7,7 +7,6 @@
 // Exports.
 module.exports.mapToSortedArray = mapToSortedArray;
 module.exports.compareUsers = compareUsers;
-module.exports.compareDankTimes = compareDankTimes;
 module.exports.cleanText = cleanText;
 module.exports.padNumber = padNumber;
 
@@ -60,27 +59,6 @@ function compareUsers(user1, user2) {
     return -1;
   }
   if (user1.name > user2.name) {
-    return 1;
-  }
-  return 0;
-}
-
-/**
- * Compares two dank times, primarily via their hour and minute. Used for sorting collections.
- * @param {DankTime} time1 
- * @param {DankTime} time2 
- */
-function compareDankTimes(time1, time2) {
-  if (time1.hour < time2.hour) {
-    return -1;
-  } 
-  if (time1.hour > time2.hour) {
-    return 1;
-  }
-  if (time1.minute < time2.minute) {
-    return -1;
-  }
-  if (time1.minute > time2.minute) {
     return 1;
   }
   return 0;
