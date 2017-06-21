@@ -8,15 +8,15 @@
 const fs = require('fs'); // For working with files.
 
 // Constants.
-const DATA_FOLDER = './data';
-const BACKUP_PATH = DATA_FOLDER + '/backup.json';
-const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
-const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
+const DATA_FOLDER     = './data';
+const BACKUP_PATH     = DATA_FOLDER + '/backup.json';
+const SETTINGS_PATH   = DATA_FOLDER + '/settings.json';
+const API_KEY_ENV     = 'DANK_TIMES_BOT_API_KEY';
 
 // Exports.
-module.exports.loadSettingsFromFile = loadSettingsFromFile;
-module.exports.loadChatsFromFile = loadChatsFromFile;
-module.exports.saveChatsToFile = saveChatsToFile;
+module.exports.loadSettingsFromFile   = loadSettingsFromFile;
+module.exports.loadChatsFromFile      = loadChatsFromFile;
+module.exports.saveChatsToFile        = saveChatsToFile;
 
 /**
  * Parses the JSON data in the file to a Settings object. If the file does not exist,
@@ -73,39 +73,21 @@ function loadChatsFromFile() {
   
   // If the data file exists, load and parse the data to an object.
   if (fs.existsSync(BACKUP_PATH)) {
-    const chatsRaw = JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8'));
-    
-    // We want to parse the arrays to proper maps, so let's do that.
-    for (const chat of chatsRaw) {
-      const users = new Map();
-      const dankTimes = new Map();
-      const randomDankTimes = new Map();
+    for (const chat of JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8'))) {
+      usersArrayToMap(chat);
+      chats.set(chat.id, chat);
 
-      // User array to map.
-      for (const user of chat.users) {
-        users.set(user.id, user);
-
-        // Temporary verification for user.lastScoreChange field
-        if (!user.lastScoreChange) {
-          user.lastScoreChange = 0;
+      if (!chat.lastTime.hour || !chat.lastTime.minute) {  // For backwards compatibility with v.1.0.0.
+        chat.lastTime = { hour: -1, minute: -1 };
+        for (let dankTime of chat.dankTimes) {
+          dankTime.texts = [dankTime.shoutout];
+          delete dankTime.shoutout;
+        }
+        for (let dankTime of chat.randomDankTimes) {
+          dankTime.texts = [dankTime.shoutout];
+          delete dankTime.shoutout;
         }
       }
-
-      // DankTimes array to map.
-      for (const dankTime of chat.dankTimes) {
-        dankTimes.set(dankTime.shoutout, dankTime);
-      }
-
-      // Random DankTimes array to map.
-      for (const randomDankTime of chat.randomDankTimes) {
-        randomDankTimes.set(randomDankTime.shoutout, randomDankTime);
-      }
-
-      // Override fields and add to map.
-      chat.users = users;
-      chat.dankTimes = dankTimes;
-      chat.randomDankTimes = randomDankTimes;
-      chats.set(chat.id, chat);
     }
   }
   return chats;
@@ -123,6 +105,22 @@ function saveChatsToFile(chat) {
 
   // Write to backup file.
   fs.writeFileSync(BACKUP_PATH, JSON.stringify(chat, mapReplacer, '\t'));
+}
+
+/**
+ * Converts chat.users from Array to Map.
+ * @param {Chat} chat 
+ */
+function usersArrayToMap(chat) {
+  const users = new Map();
+
+  // User array to map.
+  for (const user of chat.users) {
+    users.set(user.id, user);
+  }
+
+  // Override fields and add to map.
+  chat.users = users;
 }
 
 /**
