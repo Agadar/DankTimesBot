@@ -1,5 +1,5 @@
 var assert=require('assert');
-var Utility = require('../util.js');
+var Utility = require('../src/util.js');
 
 
 describe('padNumber(msg)', function(msg) {
