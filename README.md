@@ -48,6 +48,6 @@ The workflow for helping develop the codebase is as follows:
 * Versioning of DankTimesBot is accomplished via tags on the master branch, e.g. '__v.1.1.0__';
 * The master branch always contains the latest stable release;
 * Upcoming releases are worked on in seperate develop branches, e.g. '__dev-1.1.0__'. Develop branches should always contain the latest stable version of the corresponding upcoming release;
-* Development on individual features is done in feature branches, e.g. '__dev-1.1.0-#10-add-a-readme.md__';
-* Once such a feature is fully implemented and tested, a __pull request__ to the corresponding develop branch may be made. If the request is approved, then the code is pulled;
+* Development on individual features and fixes is done in feature branches, e.g. '__dev-1.1.0-#10-add-a-readme.md__';
+* Once such a feature or fix is fully implemented and tested, a __pull request__ to the corresponding develop branch may be made. If the request is approved, then the code is pulled;
 * Once all of an upcoming release's goals have been reached, its corresponding develop branch is merged to the master branch and a new version tag is added.
