@@ -16,16 +16,16 @@ const BOT       = new TelegramBot(SETTINGS.apiKey, { polling: true });
 const COMMANDS  = new Map(); // All the available settings of this bot.
 
 // Register available Telegram bot commands.
-newCommand('/add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
-newCommand('/help', 'Shows the available commands.', (msg) => help(msg));
-newCommand('/leaderboard', 'Shows the leaderboard.', (msg) => leaderBoard(msg));
-newCommand('/remove_time', 'Removes a dank time. Format: [hour] [minute]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
-newCommand('/reset', 'Resets the scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
-newCommand('/settings', 'Shows the current settings.', (msg) => chatSettings(msg));
-newCommand('/set_daily_random_frequency', 'Sets the number of random dank times per day. Format: [number]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setDailyRandomTimes));
-newCommand('/set_daily_random_points', 'Sets the points for random daily dank times. Format: [number]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setDailyRandomTimesPoints));
-newCommand('/set_timezone', 'Sets the time zone. Format: [timezone]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setTimezone));
-newCommand('/start', 'Starts keeping track of scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
+newCommand('add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
+newCommand('help', 'Shows the available commands.', (msg) => help(msg));
+newCommand('leaderboard', 'Shows the leaderboard.', (msg) => leaderBoard(msg));
+newCommand('remove_time', 'Removes a dank time. Format: [hour] [minute]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, removeTime));
+newCommand('reset', 'Resets the scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, resetChat));
+newCommand('settings', 'Shows the current settings.', (msg) => chatSettings(msg));
+newCommand('set_daily_random_frequency', 'Sets the number of random dank times per day. Format: [number]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setDailyRandomTimes));
+newCommand('set_daily_random_points', 'Sets the points for random daily dank times. Format: [number]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setDailyRandomTimesPoints));
+newCommand('set_timezone', 'Sets the time zone. Format: [timezone]', (msg, match) => callFunctionIfUserIsAdmin(msg, match, setTimezone));
+newCommand('start', 'Starts keeping track of scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
 
 // Schedule to persist chats map to file every X minutes.
 setInterval(function() {
@@ -245,7 +245,7 @@ function leaderBoard(msg) {
 function help(msg) {
   let help = '<b>Available commands:</b>';
   for (const command of COMMANDS) {
-    help += '\n' + command[0] + '    ' + command[1].description;
+    help += '\n' + '/' + command[0] + '    ' + command[1].description;
   }
   sendMessageOnFailRemoveChat(msg.chat.id, help, {parse_mode: 'HTML'});
 }
@@ -542,7 +542,7 @@ function getDankTimeByHourMinute(hour, minute, dankTimes) {
  * @return {Command} New command.
  */
 function newCommand(name, description, _function) {
-  const regex = RegExp(name + '(@DankTimesBot|)');
+  const regex = RegExp('^\\/' + name + '(?:\\@DankTimesBot)?(?:\\s(?:[\\w\\d]+)+)*$', 'i');
   const command = {name: name, regex: regex, description: description, _function: _function};
   COMMANDS.set(name, command);
   BOT.onText(command.regex, command._function);
