@@ -1,0 +1,15 @@
+{
+  "releases": 
+  [
+    {
+      "tag": "1.1.0",
+      "date": "",
+      "changes":[
+        "The primary way in which DankTimes were mapped to actual hours and minutes has seen a big overhaul. Times can now have multiple shoutouts.",
+        "An exit catch was implemented in order to prevent data loss. When aborting the DankTimesBot process, the process will attempt to save its state to the disk.",
+        "A Readme has been included.",
+        "A releaselog has been included."
+      ]
+    }
+  ]
+}
