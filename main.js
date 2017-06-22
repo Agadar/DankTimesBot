@@ -245,7 +245,7 @@ function leaderBoard(msg) {
 function help(msg) {
   let help = '<b>Available commands:</b>';
   for (const command of COMMANDS) {
-    help += '\n' + command[0] + '    ' + command[1].description;
+    help += '\n' + '/' + command[0] + '    ' + command[1].description;
   }
   sendMessageOnFailRemoveChat(msg.chat.id, help, {parse_mode: 'HTML'});
 }
