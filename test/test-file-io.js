@@ -61,5 +61,8 @@ describe('loadReleaseLogFromFile()', function() {
         ExpectedLog.Releases.push(ReleaseB);
 
         assert.equal(FileIO.loadReleaseLogFromFile().Releases.length, 2);
+        assert.notDeepEqual(ReleaseA, ReleaseB);
+        assert.deepEqual(FileIO.loadReleaseLogFromFile().Releases[0], ReleaseA);
+        assert.deepEqual(FileIO.loadReleaseLogFromFile().Releases[1], ReleaseB);
         });
 });
