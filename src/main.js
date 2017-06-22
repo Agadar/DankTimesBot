@@ -51,7 +51,7 @@ BOT.on('message', (msg) => {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id)
 
   // If the chat is running, continue.
-  if (chat.running) {
+  if (chat.running && msg.text) {
     msg.text = util.cleanText(msg.text);
 
     // Gather dank times from the sent text.
@@ -244,7 +244,7 @@ function leaderBoard(msg) {
 function help(msg) {
   let help = '<b>Available commands:</b>';
   for (const command of COMMANDS) {
-    help += '\n' + command[1].getPrefixedName() + '    ' + command[1].getDescription();
+    help += '\n/' + command[1].getPrefixedName() + '    ' + command[1].getDescription();
   }
   sendMessageOnFailRemoveChat(msg.chat.id, help, {parse_mode: 'HTML'});
 }

@@ -36,14 +36,6 @@ function Command(name, description, _function) {
     }
 
     /**
-     * Gets the name of the command, prefixed with '/', e.g. '/start'.
-     * @returns {string}
-     */
-    this.getPrefixedName = function() {
-        return '/' + name;
-    }
-
-    /**
      * Gets the brief description of the command.
      * @returns {string}
      */
