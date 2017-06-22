@@ -542,7 +542,7 @@ function getDankTimeByHourMinute(hour, minute, dankTimes) {
  * @return {Command} New command.
  */
 function newCommand(name, description, _function) {
-  const regex = RegExp('^\/' + name + '(?:\@DankTimesBot)?$', 'gmi');
+  const regex = RegExp('^\/' + name + '(?:\@DankTimesBot)?$', 'i');
   const command = {name: name, regex: regex, description: description, _function: _function};
   COMMANDS.set(name, command);
   BOT.onText(command.regex, command._function);
