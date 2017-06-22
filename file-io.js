@@ -4,8 +4,30 @@
  * Exposes file I/O related functions for DankTimesBot.
  */
 
+// Class Defines
+
+/**
+ * Releaselog
+ */
+var Releaselog = class Releaselog {
+  constructor() {
+    this.Releases = [];
+  }
+}
+
+/**
+ * Individual Release
+ */
+var Release = class Release {
+  constructor() {
+    this.Tag      = "";
+    this.Date     = "";
+    this.Changes  = [];
+  }
+}
+
 // Imports.
-const fs = require('fs'); // For working with files.
+var fs = require('fs'); // For working with files.
 
 // Constants.
 const DATA_FOLDER     = './data';
@@ -17,6 +39,9 @@ const API_KEY_ENV     = 'DANK_TIMES_BOT_API_KEY';
 module.exports.loadSettingsFromFile   = loadSettingsFromFile;
 module.exports.loadChatsFromFile      = loadChatsFromFile;
 module.exports.saveChatsToFile        = saveChatsToFile;
+module.exports.loadReleaseLogFromFile = loadReleaseLogFromFile;
+module.exports.Releaselog             = Releaselog
+module.exports.Release                = Release;
 
 /**
  * Parses the JSON data in the file to a Settings object. If the file does not exist,
@@ -139,4 +164,16 @@ function mapReplacer(key, value) {
     return array;
   }
   return value;
+}
+
+/**
+ * Loads the release log from the Release.json file. If at all possible.
+ * @return {Releaselog} Releaselog.
+ */
+function loadReleaseLogFromFile() {
+  var Releaselog = new this.Releaselog();
+
+  if(fs.existsSync('Release.json')) {
+    return Object.assign(Releaselog, JSON.parse(fs.readFileSync('Release.json')));
+  }
 }
