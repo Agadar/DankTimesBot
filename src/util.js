@@ -6,7 +6,6 @@
 
 // Exports.
 module.exports.mapToSortedArray = mapToSortedArray;
-module.exports.compareUsers = compareUsers;
 module.exports.cleanText = cleanText;
 module.exports.padNumber = padNumber;
 
@@ -41,27 +40,6 @@ function mapToSortedArray(map, comparator) {
   }
   array.sort(comparator);
   return array;
-}
-
-/**
- * Compares two users, primarily via their scores. Used for sorting collections.
- * @param {User} user1
- * @param {User} user2
- */
-function compareUsers(user1, user2) {
-  if (user1.score > user2.score) {
-    return -1;
-  }
-  if (user1.score < user2.score) {
-    return 1;
-  }
-  if (user1.name < user2.name) {
-    return -1;
-  }
-  if (user1.name > user2.name) {
-    return 1;
-  }
-  return 0;
 }
 
 /**

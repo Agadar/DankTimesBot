@@ -21,12 +21,12 @@ function DankTime(hour, minute, texts, points = 1) {
     };
 
     /**
-     * Sets the hour. Throws error if invalid value.
+     * Sets the hour.
      * @param {number} newhour
      */
     this.setHour = function(newhour) {
-        if (newhour === NaN || newhour < 0 || newhour > 23 || newhour % 1 !== 0) {
-            throw new RangeError('The hour must be a whole number between 0 and 23!');
+        if (typeof newhour !== 'number' || newhour < 0 || newhour > 23 || newhour % 1 !== 0) {
+            throw TypeError('The hour must be a whole number between 0 and 23!');
         }
         hour = newhour;
     };
@@ -40,12 +40,12 @@ function DankTime(hour, minute, texts, points = 1) {
     };
 
     /**
-     * Sets the minute. Throws error if invalid value.
+     * Sets the minute.
      * @param {number} newminute
      */
     this.setMinute = function(newminute) {
-        if (newminute === NaN || newminute < 0 || newminute > 59 || newminute % 1 !== 0) {
-            throw new RangeError('The minute must be a whole number between 0 and 59!');
+        if (typeof newminute !== 'number' || newminute < 0 || newminute > 59 || newminute % 1 !== 0) {
+            throw TypeError('The minute must be a whole number between 0 and 59!');
         }
         minute = newminute;
     };
@@ -59,12 +59,12 @@ function DankTime(hour, minute, texts, points = 1) {
     };
 
     /**
-     * Sets the points. Throws error if invalid value.
+     * Sets the points.
      * @param {number} newpoints
      */
     this.setPoints = function(newpoints) {
-        if (newpoints === NaN || newpoints < 1 || newpoints % 1 !== 0) {
-            throw new RangeError('The points must be a whole number greater than 0!');
+        if (typeof newpoints !== 'number' || newpoints < 1 || newpoints % 1 !== 0) {
+            throw TypeError('The points must be a whole number greater than 0!');
         }
         points = newpoints;
     };
@@ -78,16 +78,22 @@ function DankTime(hour, minute, texts, points = 1) {
     };
 
     /**
-     * Sets the texts. Throws error if invalid value.
+     * Sets the texts.
      * @param {string[]} newtexts
      */
     this.setTexts = function(newtexts) {
         if (!(newtexts instanceof Array) || newtexts.length < 1) {
-            throw new RangeError('The texts must be an array containing at least one item!');
+            throw TypeError('The texts must be a string array containing at least one item!');
         }
+        newtexts.forEach(entry => {
+            if (typeof entry !== 'string') {
+                throw TypeError('The texts must contain only strings!');
+            }
+        });
         texts = newtexts;
     };
 
+    // 'Constructor'
     this.setHour(hour);
     this.setMinute(minute);
     this.setPoints(points);
@@ -95,11 +101,12 @@ function DankTime(hour, minute, texts, points = 1) {
 }
 
 /**
- * Returns a new DankTime parsed from a literal.
- * @param {Object} literal
+ * Returns a new DankTime parsed from a JSON string.
+ * @param {string} json
  * @returns {DankTime}
  */
-DankTime.fromJson = function(literal) {
+DankTime.fromJson = function(json) {
+    const literal = JSON.parse(json);
     return new DankTime(literal.hour, literal.minute, literal.texts, literal.points);
 };
 

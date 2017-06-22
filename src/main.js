@@ -8,6 +8,7 @@ const time        = require('time')(Date);            // NodeJS library for work
 const cron        = require('cron');                  // NodeJS library for scheduling cron jobs.
 const nodeCleanup = require('node-cleanup');          // NodeJS library for running code on program exit.
 const DankTime    = require('./dank-time.js');
+const User        = require('./user.js');
 
 // Global variables.
 const VERSION   = '1.1.0';
@@ -67,20 +68,17 @@ BOT.on('message', (msg) => {
         // If cache needs resetting, do so and award DOUBLE points to the calling user.
         if (chat.lastTime.hour !== dankTime.getHour() || chat.lastTime.minute !== dankTime.getMinute()) {
           for (const chatUser of chat.users) {
-            chatUser[1].called = false;
+            chatUser[1].setCalled(false);
           }
           chat.lastTime.hour     = dankTime.getHour();
           chat.lastTime.minute   = dankTime.getMinute();
-          user.score            += dankTime.getPoints() * 2;
-          user.lastScoreChange  += dankTime.getPoints() * 2;
-          user.called            = true;
-        } else if (user.called) { // Else if user already called this time, remove points.
-          user.score -= dankTime.getPoints();
-          user.lastScoreChange -= dankTime.getPoints();
+          user.addToScore(dankTime.getPoints() * 2);
+          user.setCalled(true);
+        } else if (user.getCalled()) { // Else if user already called this time, remove points.
+          user.addToScore(-dankTime.getPoints());
         } else {  // Else, award point.
-          user.score += dankTime.getPoints();
-          user.lastScoreChange += dankTime.getPoints();
-          user.called = true;
+          user.addToScore(dankTime.getPoints());
+          user.setCalled(true);
         }
         return;
       } else if (dankTime.getPoints() > subtractBy) {
@@ -88,8 +86,7 @@ BOT.on('message', (msg) => {
       }
     }
     // If no match was found, punish the user.
-    user.score -= subtractBy;
-    user.lastScoreChange -= subtractBy;
+    user.addToScore(-subtractBy);
   }
 });
 
@@ -183,15 +180,13 @@ function startChat(msg, match, chat) {
  * @param {Chat} chat The chat to reset. 
  */
 function resetChat(msg, match, chat) {
-  const users = util.mapToSortedArray(chat.users, util.compareUsers);
+  const users = util.mapToSortedArray(chat.users, User.compare);
   let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
 
   for (const user of users) {
-    const scoreChange = (user.lastScoreChange > 0 ? '(+' + user.lastScoreChange + ')' : (user.lastScoreChange < 0 ? '(' + user.lastScoreChange + ')' : ''));
-    message += '\n' + user.name + ':    ' + user.score + ' ' + scoreChange;
-    user.score = 0;
-    user.called = false;
-    user.lastScoreChange = 0;
+    const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
+    message += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
+    user.resetScore();
   }
   sendMessageOnFailRemoveChat(chat.id, message, {parse_mode: 'HTML'});
 }
@@ -202,7 +197,7 @@ function resetChat(msg, match, chat) {
  */
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  chat.dankTimes.sort(util.compareDankTimes);
+  chat.dankTimes.sort(DankTime.compare);
 
   let settings = '\n<b>Chat time zone:</b> ' + chat.timezone + '\n<b>Dank times:</b>';
   for (const time of chat.dankTimes) {
@@ -227,14 +222,14 @@ function leaderBoard(msg) {
 
   // Get the chat, creating it if needed.
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  const users = util.mapToSortedArray(chat.users, util.compareUsers);
+  const users = util.mapToSortedArray(chat.users, User.compare);
 
   // Build a string to send from the chat's user list.
   let leaderboard = '<b>Leaderboard:</b>';
   for (const user of users) {
-   const scoreChange = (user.lastScoreChange > 0 ? '(+' + user.lastScoreChange + ')' : (user.lastScoreChange < 0 ? '(' + user.lastScoreChange + ')' : ''));
-    leaderboard += '\n' + user.name + ':    ' + user.score + ' ' + scoreChange;
-    user.lastScoreChange = 0;
+    const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
+    leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
+    user.resetLastScoreChange();
   }
   sendMessageOnFailRemoveChat(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
 }
@@ -416,19 +411,13 @@ function setDailyRandomTimesPoints(msg, match, chat) {
 
 /**
  * Creates a new user object and places it in the supplied chat's users map. 
- * It has the following fields:
- * - id: The user's unique Telegram id;
- * - name: The user's Telegram name;
- * - score: The user's score, starting at 0;
- * - called: Whether the user already called the current dank time;
- * - lastScoreChange The user's last score change, reset with every leaderboard.
  * @param {number} id The user's unique Telegram id.
  * @param {string} name The user's Telegram name.
  * @param {Chat} chat The chat to which the user belongs.
  * @return {User} New user.
  */
 function newUser(id, name, chat) {
-  const user = {id: id, name: name, score: 0, called: false, lastScoreChange: 0};
+  const user = new User(id, name);
   chat.users.set(id, user);
   return user;
 }
@@ -465,11 +454,6 @@ function newChat(id) {
 /**
  * Creates a new dank time object and places it in the supplied dank times array.
  * Replaces any dank time that has the same hour and minute if so specified, otherwise ignores the new value.
- * It has the following fields:
- * - hour: The hour to shout at;
- * - minute: The minute to shout at;
- * - points: The amount of points the time is worth;
- * - texts: The texts to type to get the point;
  * @param {number} hour The hour to shout at.
  * @param {number} minute The minute to shout at.
  * @param {number} points The amount of points the time is worth.
