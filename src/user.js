@@ -1,8 +1,5 @@
 'use strict';
 
-// Exports.
-module.exports = User;
-
 /**
  * Creates a new user object.
  * @param {number} id The unique Telegram user's id.
@@ -12,6 +9,41 @@ module.exports = User;
  * @param {number} lastScoreChange The last change to the user's score.
  */
 function User(id, name, score = 0, called = false, lastScoreChange = 0) {
+
+    /**
+     * Sets the Telegram user's name.
+     * @param {string} newname
+     */
+    this.setName = function(newname) {
+        if (typeof newname !== 'string') {
+            throw TypeError('The name must be a string!');
+        }
+        name = newname;
+    };
+
+    /**
+     * Sets whether the user called the last dank time already.
+     * @param {boolean} newcalled
+     */
+    this.setCalled = function(newcalled) {
+        if (typeof newcalled !== 'boolean') {
+            throw TypeError('The called state must be a boolean!');
+        }
+        called = newcalled;
+    };
+
+    // 'Constructor'  
+    if (typeof id !== 'number' || id % 1 !== 0) {
+        throw TypeError('The id must be a whole number!');
+    }
+    setName(name);
+    if (typeof score !== 'number' || score % 1 !== 0) {
+        throw TypeError('The score must be a whole number!');
+    }
+    setCalled(called);
+    if (typeof lastScoreChange !== 'number' || lastScoreChange % 1 !== 0) {
+        throw TypeError('The last score change must be a whole number!');
+    }
 
     /**
      * Gets the unique Telegram user's id.
@@ -27,17 +59,6 @@ function User(id, name, score = 0, called = false, lastScoreChange = 0) {
      */
     this.getName = function() {
         return name;
-    };
-
-    /**
-     * Sets the Telegram user's name.
-     * @param {string} newname
-     */
-    this.setName = function(newname) {
-        if (typeof newname !== 'string') {
-            throw TypeError('The name must be a string!');
-        }
-        name = newname;
     };
 
     /**
@@ -78,17 +99,6 @@ function User(id, name, score = 0, called = false, lastScoreChange = 0) {
     };
 
     /**
-     * Sets whether the user called the last dank time already.
-     * @param {boolean} newcalled
-     */
-    this.setCalled = function(newcalled) {
-        if (typeof newcalled !== 'boolean') {
-            throw TypeError('The called state must be a boolean!');
-        }
-        called = newcalled;
-    };
-
-    /**
      * Gets the last change to the user's score.
      * @returns {number}
      */
@@ -101,19 +111,6 @@ function User(id, name, score = 0, called = false, lastScoreChange = 0) {
      */
     this.resetLastScoreChange = function() {
         lastScoreChange = 0;
-    }
-
-    // 'Constructor'  
-    if (typeof id !== 'number' || id % 1 !== 0) {
-        throw TypeError('The id must be a whole number!');
-    }
-    setName(name);
-    if (typeof score !== 'number' || score % 1 !== 0) {
-        throw TypeError('The score must be a whole number!');
-    }
-    setCalled(called);
-    if (typeof lastScoreChange !== 'number' || lastScoreChange % 1 !== 0) {
-        throw TypeError('The last score change must be a whole number!');
     }
 };
 
@@ -148,3 +145,6 @@ User.compare = function(a, b) {
   }
   return 0;
 };
+
+// Exports.
+module.exports = User;

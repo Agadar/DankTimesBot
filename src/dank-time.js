@@ -1,8 +1,5 @@
 'use strict';
 
-// Exports.
-module.exports = DankTime;
-
 /**
  * Creates a new dank time object.
  * @param {number} hour The hour at which points can be scored.
@@ -13,14 +10,6 @@ module.exports = DankTime;
 function DankTime(hour, minute, texts, points = 1) {
 
     /**
-     * Gets the hour.
-     * @returns {number}
-     */
-    this.getHour = function() {
-        return hour;
-    };
-
-    /**
      * Sets the hour.
      * @param {number} newhour
      */
@@ -29,14 +18,6 @@ function DankTime(hour, minute, texts, points = 1) {
             throw TypeError('The hour must be a whole number between 0 and 23!');
         }
         hour = newhour;
-    };
-
-    /**
-     * Gets the minute.
-     * @returns {number}
-     */
-    this.getMinute = function() {
-        return minute;
     };
 
     /**
@@ -51,14 +32,6 @@ function DankTime(hour, minute, texts, points = 1) {
     };
 
     /**
-     * Gets the points.
-     * @returns {number}
-     */
-    this.getPoints = function() {
-        return points;
-    };
-
-    /**
      * Sets the points.
      * @param {number} newpoints
      */
@@ -67,14 +40,6 @@ function DankTime(hour, minute, texts, points = 1) {
             throw TypeError('The points must be a whole number greater than 0!');
         }
         points = newpoints;
-    };
-
-    /**
-     * Gets the texts.
-     * @returns {string[]}
-     */
-    this.getTexts = function() {
-        return texts;
     };
 
     /**
@@ -98,6 +63,39 @@ function DankTime(hour, minute, texts, points = 1) {
     this.setMinute(minute);
     this.setPoints(points);
     this.setTexts(texts);
+
+    /**
+     * Gets the texts.
+     * @returns {string[]}
+     */
+    this.getTexts = function() {
+        return texts;
+    };
+
+    /**
+     * Gets the points.
+     * @returns {number}
+     */
+    this.getPoints = function() {
+        return points;
+    };
+
+
+    /**
+     * Gets the minute.
+     * @returns {number}
+     */
+    this.getMinute = function() {
+        return minute;
+    };
+
+    /**
+     * Gets the hour.
+     * @returns {number}
+     */
+    this.getHour = function() {
+        return hour;
+    };
 }
 
 /**
@@ -131,3 +129,6 @@ DankTime.compare = function(a, b) {
     }
     return 0;
 };
+
+// Exports.
+module.exports = DankTime;
