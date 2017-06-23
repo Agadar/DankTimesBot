@@ -5,6 +5,10 @@ const time      = require('time')(Date);            // NodeJS library for workin
 const DankTime  = require('./dank-time.js');
 const User      = require('./user.js');
 
+
+// TODO: users, dankTimes, randomDankTimes
+
+
 /**
  * Creates a new Chat object.
  * @param {number} id The chat's unique Telegram id.
@@ -57,6 +61,39 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
         numberOfRandomTimes = newnumberOfRandomTimes;
     };
 
+    /**
+     * Sets the number of points each randomly generated dank time is worth.
+     * @param {number} newpointsPerRandomTime
+     */
+    this.setPointsPerRandomTime = function(newpointsPerRandomTime) {
+        if (typeof newpointsPerRandomTime !== 'number' || newpointsPerRandomTime < 1 || newpointsPerRandomTime % 1 !== 0) {
+            throw TypeError('The points must be a whole number greater than 0!');
+        }
+        pointsPerRandomTime = newpointsPerRandomTime;
+    };
+
+    /**
+     * Sets the hour of the last valid dank time being proclaimed.
+     * @param {number} newlastHour
+     */
+    this.setLastHour = function(newlastHour) {
+        if (typeof newlastHour !== 'number' || newlastHour < 0 || newlastHour > 23 || newlastHour % 1 !== 0) {
+            throw TypeError('The hour must be a whole number between 0 and 23!');
+        }
+        lastHour = newlastHour;
+    };
+
+    /**
+     * Sets the minute of the last valid dank time being proclaimed.
+     * @param {number} newlastMinute
+     */
+    this.setLastMinute = function(newlastMinute) {
+        if (typeof newlastMinute !== 'number' || newlastMinute < 0 || newlastMinute > 59 || newlastMinute % 1 !== 0) {
+            throw TypeError('The minute must be a whole number between 0 and 59!');
+        }
+        lastMinute = newlastMinute;
+    };
+
     // 'Constructor'  
     if (typeof id !== 'number' || id % 1 !== 0) {
         throw TypeError('The id must be a whole number!');
@@ -64,6 +101,9 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
     setTimezone(timezone);
     setRunning(running);
     setNumberOfRandomTimes(numberOfRandomTimes);
+    setPointsPerRandomTime(pointsPerRandomTime);
+    setLastHour(lastHour);
+    setLastMinute(lastMinute);
 
     /**
      * Adds a new normal dank time to this chat, replacing any dank time that has
@@ -95,6 +135,38 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
     }
 
     /**
+     * Gets the number of randomly generated dank times to generate each day.
+     * @returns {number}
+     */
+    this.getNumberOfRandomTimes = function() {
+        return numberOfRandomTimes;
+    }
+
+    /**
+     * Gets the number of points each randomly generated dank time is worth.
+     * @returns {number}
+     */
+    this.getPointsPerRandomTime = function() {
+        return pointsPerRandomTime;
+    }
+
+    /**
+     * Gets the hour of the last valid dank time being proclaimed.
+     * @returns {number}
+     */
+    this.getLastHour = function() {
+        return lastHour;
+    }
+
+    /**
+     * Gets the minute of the last valid dank time being proclaimed.
+     * @returns {number}
+     */
+    this.getLastMinute = function() {
+        return lastMinute;
+    }
+
+    /**
      * Gets the normal dank time that has the specified hour and minute.
      * @param {number} hour 
      * @param {number} minute 
@@ -122,14 +194,6 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
         }
         return found;
     };
-
-    /**
-     * Gets the number of randomly generated dank times to generate each day.
-     * @returns {number}
-     */
-    function getNumberOfRandomTimes() {
-        return numberOfRandomTimes;
-    }
 }
 
 // Exports.
