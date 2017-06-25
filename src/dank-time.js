@@ -103,7 +103,7 @@ function DankTime(hour, minute, texts, points = 1) {
      */
     this.toJSON = function() {
         return {hour: hour, minute: minute, texts: texts, points: points};
-    }
+    };
 }
 
 /**

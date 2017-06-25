@@ -33,7 +33,7 @@ function Command(name, description, _function) {
      */
     this.getName = function() {
         return name;
-    }
+    };
 
     /**
      * Gets the brief description of the command.
@@ -41,7 +41,7 @@ function Command(name, description, _function) {
      */
     this.getDescription = function() {
         return description;
-    }
+    };
 
     /**
      * Gets the function which this command calls.
@@ -49,7 +49,7 @@ function Command(name, description, _function) {
      */
     this.getFunction = function() {
         return _function;
-    }
+    };
 };
 
 // Exports.

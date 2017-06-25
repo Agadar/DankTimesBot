@@ -46,50 +46,9 @@ nodeCleanup(function(exitCode, signal) {
 
 /** Activated on any message. Checks for dank times. */
 BOT.on('message', (msg) => {
-
-  // Get the chat, creating it if needed.
-  const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id)
-
-  // If the chat is running, continue.
-  if (chat.isRunning() && msg.text) {
-    msg.text = util.cleanText(msg.text);
-
-    // Gather dank times from the sent text.
-    const dankTimesByText = getDankTimesByText(msg.text, chat.dankTimes).concat(getDankTimesByText(msg.text, chat.randomDankTimes));
-    if (dankTimesByText.length < 1) {
-      return;
-    }
-    const user = chat.users.has(msg.from.id) ? chat.users.get(msg.from.id) : newUser(msg.from.id, msg.from.username, chat);
-    const serverDate = new Date();
-    serverDate.setTimezone(chat.timezone);
-    let subtractBy = 0;
-
-    for (let dankTime of dankTimesByText) {
-      if (serverDate.getHours() === dankTime.getHour() && (serverDate.getMinutes() === dankTime.getMinute() 
-        || new Date(msg.date * 1000).getMinutes() === dankTime.getMinute())) {
-        
-        // If cache needs resetting, do so and award DOUBLE points to the calling user.
-        if (chat.lastTime.hour !== dankTime.getHour() || chat.lastTime.minute !== dankTime.getMinute()) {
-          for (const chatUser of chat.users) {
-            chatUser[1].setCalled(false);
-          }
-          chat.lastTime.hour     = dankTime.getHour();
-          chat.lastTime.minute   = dankTime.getMinute();
-          user.addToScore(dankTime.getPoints() * 2);
-          user.setCalled(true);
-        } else if (user.getCalled()) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.getPoints());
-        } else {  // Else, award point.
-          user.addToScore(dankTime.getPoints());
-          user.setCalled(true);
-        }
-        return;
-      } else if (dankTime.getPoints() > subtractBy) {
-          subtractBy = dankTime.getPoints();
-      }
-    }
-    // If no match was found, punish the user.
-    user.addToScore(-subtractBy);
+  if (msgText) {
+    const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id)
+    chat.processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
   }
 });
 
@@ -97,28 +56,17 @@ BOT.on('message', (msg) => {
 new cron.CronJob('0 0 0 * * *', function() {
   console.info('Generating random dank times for all chats!');
 
-  for (const chat of CHATS) {    
-    if (chat[1].running) {
-      chat[1].randomDankTimes = new Array();
-      for (let i = 0; i < chat[1].numberOfRandomTimes; i++) {
-
-        // Generate random dank time.
-        const date = new Date();
-        date.setHours(date.getHours() + Math.floor(Math.random() * 23));
-        date.setMinutes(Math.floor(Math.random() * 59));
-        date.setTimezone(chat[1].timezone);
-        const text = util.padNumber(date.getHours().toString()) + util.padNumber(date.getMinutes().toString());
-        const time = newDankTime(date.getHours(), date.getMinutes(), chat[1].pointsPerRandomTime, [text], chat[1].randomDankTimes);
-
-        // Schedule cron job that informs the chat when the time has come.
-        new cron.CronJob(date, function() {
-          if (chat[1].running) {
-            sendMessageOnFailRemoveChat(chat[1].id, 'Surprise dank time! Type \'' + time.getTexts()[0] + '\' for points!');
+  CHATS.forEach(chat => {
+    if (chat.isRunning()) {
+      chat.generateRandomDankTimes().forEach(randomTime => {
+        new cron.CronJob('0 ' + chat.getMinutes() + ' ' + chat.getHours() + ' * * *', function() {
+          if (chat.isRunning()) {
+            sendMessageOnFailRemoveChat(chat.getId(), 'Surprise dank time! Type \'' + randomTime.getTexts()[0] + '\' for points!');
           }
         }, null, true);
-      }
+      });
     }
-  }
+  });
 }, null, true);
 
 
@@ -129,6 +77,7 @@ new cron.CronJob('0 0 0 * * *', function() {
  * Calls the specified function, but only if the calling user is
  * an admin in his chat, or it is a private chat.
  * @param {any} msg The message object from the Telegram api.
+ * @param {any} match The matched regex.
  * @param {function} _function The function to call. Should have parameters msg, match, chat.
  */
 function callFunctionIfUserIsAdmin(msg, match, _function) {
@@ -143,7 +92,7 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
   }
 
   // Else if this chat is a group, then we must make sure the user is an admin.
-  const promise = BOT.getChatAdministrators(chat.id);  
+  const promise = BOT.getChatAdministrators(msg.chat.id);  
   promise.then(admins => {
 
     // Check to ensure user is admin. If not, post message.
@@ -153,7 +102,7 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
         return;
       }
     }
-    sendMessageOnFailRemoveChat(chat.id, 'This option is only available to admins!');
+    sendMessageOnFailRemoveChat(msg.chat.id, 'This option is only available to admins!');
   }).catch(reason => {
     console.error('Failed to retrieve admin list!\n' + reason);
     sendMessageOnFailRemoveChat('Failed to retrieve admin list! See server console.');
@@ -168,11 +117,11 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
  * @param {Chat} chat The chat to start.
  */
 function startChat(msg, match, chat) {
-  if (chat.running) {
-    sendMessageOnFailRemoveChat(chat.id, 'DankTimesBot is already running!');
+  if (chat.isRunning()) {
+    sendMessageOnFailRemoveChat(msg.chat.id, 'DankTimesBot is already running!');
   } else {
-    chat.running = true;
-    sendMessageOnFailRemoveChat(chat.id, 'DankTimesBot is now running! Hit \'/help\' for available commands.');
+    chat.setRunning(true);
+    sendMessageOnFailRemoveChat(msg.chat.id, 'DankTimesBot is now running! Hit \'/help\' for available commands.');
   }
 }
 
@@ -183,15 +132,15 @@ function startChat(msg, match, chat) {
  * @param {Chat} chat The chat to reset. 
  */
 function resetChat(msg, match, chat) {
-  const users = util.mapToSortedArray(chat.users, User.compare);
   let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
 
-  for (const user of users) {
-    const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
+  for (const user of chat.getUsers()) {
+    const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : 
+      (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
     message += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
-    user.resetScore();
   }
-  sendMessageOnFailRemoveChat(chat.id, message, {parse_mode: 'HTML'});
+  chat.resetScores();
+  sendMessageOnFailRemoveChat(chat.getId(), message, {parse_mode: 'HTML'});
 }
 
 /**
@@ -200,19 +149,18 @@ function resetChat(msg, match, chat) {
  */
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  chat.dankTimes.sort(DankTime.compare);
 
   let settings = '\n<b>Chat time zone:</b> ' + chat.timezone + '\n<b>Dank times:</b>';
-  for (const time of chat.dankTimes) {
+  for (const time of chat.getDankTimes()) {
     settings += "\ntime: " + util.padNumber(time.getHour()) + ":" + util.padNumber(time.getMinute()) + ":00    points: " + time.getPoints() + "    texts:";
     for (let text of time.getTexts()) {
       settings += " " + text;
     }
   }
-  settings += '\n<b>Random dank times per day:</b> ' + chat.numberOfRandomTimes;
-  settings += '\n<b>Random dank time points:</b> ' + chat.pointsPerRandomTime;
+  settings += '\n<b>Random dank times per day:</b> ' + chat.getNumberOfRandomTimes();
+  settings += '\n<b>Random dank time points:</b> ' + chat.getPointsPerRandomTime();
   settings += '\n<b>Server time:</b> ' + new Date();
-  settings += '\n<b>Status:</b> ' + (chat.running ? 'running' : 'awaiting start');
+  settings += '\n<b>Status:</b> ' + (chat.isRunning() ? 'running' : 'awaiting start');
   settings += '\n<b>Version:</b> ' + VERSION;
   sendMessageOnFailRemoveChat(msg.chat.id, settings, {parse_mode: 'HTML'});
 }
@@ -225,7 +173,6 @@ function leaderBoard(msg) {
 
   // Get the chat, creating it if needed.
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
-  const users = util.mapToSortedArray(chat.users, User.compare);
 
   // Build a string to send from the chat's user list.
   let leaderboard = '<b>Leaderboard:</b>';
@@ -243,9 +190,7 @@ function leaderBoard(msg) {
  */
 function help(msg) {
   let help = '<b>Available commands:</b>';
-  for (const command of COMMANDS) {
-    help += '\n/' + command[1].getPrefixedName() + '    ' + command[1].getDescription();
-  }
+  COMMANDS.forEach(command => help += '\n/' + command.getPrefixedName() + '    ' + command.getDescription());
   sendMessageOnFailRemoveChat(msg.chat.id, help, {parse_mode: 'HTML'});
 }
 
@@ -272,12 +217,12 @@ function addTime(msg, match, chat) {
 
   // Subscribe new dank time for the chat, replacing any with the same hour and minute.
   try {
-    newDankTime(hour, minute, points, texts, chat.dankTimes);
+    const dankTime = new DankTime(hour, minute, texts, points);
+    chat.addDankTime(dankTime);
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Added the new time!');
   } catch (err) {
     sendMessageOnFailRemoveChat(msg.chat.id, err.message);
-    return;
   }
-  sendMessageOnFailRemoveChat(msg.chat.id, 'Added the new time!');
 }
 
 /**
@@ -308,15 +253,11 @@ function removeTime(msg, match, chat) {
   }
 
   // Remove dank time if it exists, otherwise just send an info message.
-  const removeMe = getDankTimeByHourMinute(hour, minute, chat.dankTimes);
-  if (!removeMe) {
+  if (chat.removeDankTime(hour, minute)) {
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Removed the time!')
+  } else {
     sendMessageOnFailRemoveChat(msg.chat.id, 'No dank time known with that hour and minute!');
-    return;
   }
-
-  // Remove the time from the chat.
-  chat.dankTimes.splice(chat.dankTimes.indexOf(removeMe), 1);
-  sendMessageOnFailRemoveChat(msg.chat.id, 'Removed the time!');
 }
 
 /**
@@ -334,18 +275,13 @@ function setTimezone(msg, match, chat) {
     return;
   }
 
-  // Validate the date.
-  try {
-    const date = new Date();
-    date.setTimezone(split[1]);
-  } catch (err) {
-    sendMessageOnFailRemoveChat(msg.chat.id, 'Invalid time zone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
-    return;
-  }
-
   // Update the time zone.
-  chat.timezone = split[1];
-  sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the time zone!');
+  try {
+    chat.setTimezone(split[1]);
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the time zone!');
+  } catch (err) {
+    sendMessageOnFailRemoveChat(msg.chat.id, err.message);
+  }
 }
 
 /**
@@ -363,17 +299,13 @@ function setDailyRandomTimes(msg, match, chat) {
     return;
   }
 
-  // Identify arguments and validate them.
-  const frequency = Number(split[1]);
-  if (frequency === NaN || frequency < 0 || frequency % 1 !== 0) {
-    sendMessageOnFailRemoveChat(msg.chat.id, 'The frequency must be a whole number greater or equal to 0!');
-    return;
-  }
-
   // Do the update.
-  chat.numberOfRandomTimes = frequency;
-  chat.randomDankTimes.splice(frequency);
-  sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the number of random dank times per day!');
+  try {
+    chat.setNumberOfRandomTimes(Number(split[1]));
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the number of random dank times per day!');
+  } catch (err) {
+    sendMessageOnFailRemoveChat(msg.chat.id, err.message);
+  }
 }
 
 /**
@@ -391,38 +323,12 @@ function setDailyRandomTimesPoints(msg, match, chat) {
     return;
   }
 
-  // Identify arguments and validate them.
-  const points = Number(split[1]);
-  if (points === NaN || points <= 0 || points % 1 !== 0) {
-    sendMessageOnFailRemoveChat(msg.chat.id, 'The points must be a whole number greater than 0!');
-    return;
+  try {
+    chat.setPointsPerRandomTime(Number(split[1]));
+    sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the points for random daily dank times!')
+  } catch (err) {
+    sendMessageOnFailRemoveChat(msg.chat.id, err.message);
   }
-
-  // Do the update.
-  chat.pointsPerRandomTime = points;
-  for (let dankTime of chat.randomDankTimes) {
-    dankTime.setPoints(points);
-  }
-
-  // Send informative message.
-  sendMessageOnFailRemoveChat(msg.chat.id, 'Updated the points for random daily dank times!');
-}
-
-
-// --------------------OBJECT FACTORIES-------------------- //
-
-
-/**
- * Creates a new user object and places it in the supplied chat's users map. 
- * @param {number} id The user's unique Telegram id.
- * @param {string} name The user's Telegram name.
- * @param {Chat} chat The chat to which the user belongs.
- * @return {User} New user.
- */
-function newUser(id, name, chat) {
-  const user = new User(id, name);
-  chat.users.set(id, user);
-  return user;
 }
 
 /**

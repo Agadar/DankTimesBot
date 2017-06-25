@@ -88,7 +88,7 @@ function User(id, name, score = 0, called = false, lastScoreChange = 0) {
         score = 0;
         lastScoreChange = 0;
         called = false;
-    }
+    };
 
     /**
      * Gets whether the user called the last dank time already.
@@ -104,14 +104,14 @@ function User(id, name, score = 0, called = false, lastScoreChange = 0) {
      */
     this.getLastScoreChange = function() {
         return lastScoreChange;
-    }
+    };
 
     /**
      * Resets the last change to the user's score.
      */
     this.resetLastScoreChange = function() {
         lastScoreChange = 0;
-    }
+    };
 
     /**
      * Used by JSON.stringify. Returns a literal representation of this.
@@ -119,7 +119,7 @@ function User(id, name, score = 0, called = false, lastScoreChange = 0) {
      */
     this.toJSON = function() {
         return {id: id, name: name, score: score, called: called, lastScoreChange: lastScoreChange};
-    }
+    };
 };
 
 /**
