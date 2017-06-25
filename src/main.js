@@ -46,7 +46,7 @@ nodeCleanup(function(exitCode, signal) {
 
 /** Activated on any message. Checks for dank times. */
 BOT.on('message', (msg) => {
-  if (msgText) {
+  if (msg.text) {
     const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id)
     chat.processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
   }
@@ -140,7 +140,7 @@ function resetChat(msg, match, chat) {
     message += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
   }
   chat.resetScores();
-  sendMessageOnFailRemoveChat(chat.getId(), message, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(msg.chat.id, message, {parse_mode: 'HTML'});
 }
 
 /**
@@ -150,7 +150,7 @@ function resetChat(msg, match, chat) {
 function chatSettings(msg) {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id);
 
-  let settings = '\n<b>Chat time zone:</b> ' + chat.timezone + '\n<b>Dank times:</b>';
+  let settings = '\n<b>Chat time zone:</b> ' + chat.getTimezone() + '\n<b>Dank times:</b>';
   for (const time of chat.getDankTimes()) {
     settings += "\ntime: " + util.padNumber(time.getHour()) + ":" + util.padNumber(time.getMinute()) + ":00    points: " + time.getPoints() + "    texts:";
     for (let text of time.getTexts()) {
@@ -176,7 +176,7 @@ function leaderBoard(msg) {
 
   // Build a string to send from the chat's user list.
   let leaderboard = '<b>Leaderboard:</b>';
-  for (const user of users) {
+  for (const user of chat.getUsers()) {
     const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
     leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
     user.resetLastScoreChange();
@@ -190,7 +190,7 @@ function leaderBoard(msg) {
  */
 function help(msg) {
   let help = '<b>Available commands:</b>';
-  COMMANDS.forEach(command => help += '\n/' + command.getPrefixedName() + '    ' + command.getDescription());
+  COMMANDS.forEach(command => help += '\n/' + command.getName() + '    ' + command.getDescription());
   sendMessageOnFailRemoveChat(msg.chat.id, help, {parse_mode: 'HTML'});
 }
 
@@ -339,12 +339,12 @@ function setDailyRandomTimesPoints(msg, match, chat) {
 function newChat(id) {
   const chat = new Chat(id);
   chat.addDankTime(new DankTime(0,   0, ['0000'],  5));
-  chat.addDankTime(new DankTime(4,  20, ['0000'], 15));
-  chat.addDankTime(new DankTime(11, 11, ['0000'],  5));
-  chat.addDankTime(new DankTime(12, 34, ['0000'],  5));
-  chat.addDankTime(new DankTime(13, 37, ['0000'], 10));
-  chat.addDankTime(new DankTime(16, 20, ['0000'], 10));
-  chat.addDankTime(new DankTime(22, 22, ['0000'], 5));
+  chat.addDankTime(new DankTime(4,  20, ['420'],  15));
+  chat.addDankTime(new DankTime(11, 11, ['1111'],  5));
+  chat.addDankTime(new DankTime(12, 34, ['1234'],  5));
+  chat.addDankTime(new DankTime(13, 37, ['1337'], 10));
+  chat.addDankTime(new DankTime(16, 20, ['420'],  10));
+  chat.addDankTime(new DankTime(22, 22, ['2222'], 5));
   CHATS.set(id, chat);
   return chat;
 }

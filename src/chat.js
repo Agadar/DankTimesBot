@@ -266,7 +266,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
 
         // Get the player, creating him if he doesn't exist yet.
         if (!users.has(userId)) {
-            users.set(new User(userId, userName));
+            users.set(userId, new User(userId, userName));
         }
         const user = users.get(userId);
 
