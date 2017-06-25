@@ -36,11 +36,11 @@ function User(id, name, score = 0, called = false, lastScoreChange = 0) {
     if (typeof id !== 'number' || id % 1 !== 0) {
         throw TypeError('The id must be a whole number!');
     }
-    setName(name);
+    this.setName(name);
     if (typeof score !== 'number' || score % 1 !== 0) {
         throw TypeError('The score must be a whole number!');
     }
-    setCalled(called);
+    this.setCalled(called);
     if (typeof lastScoreChange !== 'number' || lastScoreChange % 1 !== 0) {
         throw TypeError('The last score change must be a whole number!');
     }
@@ -112,15 +112,22 @@ function User(id, name, score = 0, called = false, lastScoreChange = 0) {
     this.resetLastScoreChange = function() {
         lastScoreChange = 0;
     }
+
+    /**
+     * Used by JSON.stringify. Returns a literal representation of this.
+     * @return {Object}
+     */
+    this.toJSON = function() {
+        return {id: id, name: name, score: score, called: called, lastScoreChange: lastScoreChange};
+    }
 };
 
 /**
- * Returns a new User parsed from a JSON string.
- * @param {string} json
+ * Returns a new User parsed from a literal.
+ * @param {Object} literal
  * @returns {User}
  */
-User.fromJson = function(json) {
-    const literal = JSON.parse(json);
+User.fromJSON = function(literal) {
     return new User(literal.id, literal.name, literal.score, literal.called, literal.lastScoreChange);
 };
 

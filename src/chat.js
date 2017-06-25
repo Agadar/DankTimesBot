@@ -5,10 +5,6 @@ const time      = require('time')(Date);            // NodeJS library for workin
 const DankTime  = require('./dank-time.js');
 const User      = require('./user.js');
 
-
-// TODO: users, dankTimes, randomDankTimes
-
-
 /**
  * Creates a new Chat object.
  * @param {number} id The chat's unique Telegram id.
@@ -98,12 +94,21 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
     if (typeof id !== 'number' || id % 1 !== 0) {
         throw TypeError('The id must be a whole number!');
     }
-    setTimezone(timezone);
-    setRunning(running);
-    setNumberOfRandomTimes(numberOfRandomTimes);
-    setPointsPerRandomTime(pointsPerRandomTime);
-    setLastHour(lastHour);
-    setLastMinute(lastMinute);
+    this.setTimezone(timezone);
+    this.setRunning(running);
+    this.setNumberOfRandomTimes(numberOfRandomTimes);
+    this.setPointsPerRandomTime(pointsPerRandomTime);
+    this.setLastHour(lastHour);
+    this.setLastMinute(lastMinute);
+    if (!(users instanceof Map)) {
+        throw TypeError('The users must be a map!');
+    }
+    if (!(dankTimes instanceof Array)) {
+        throw TypeError('The dank times must be a array!');
+    }
+    if (!(randomDankTimes instanceof Array)) {
+        throw TypeError('The random dank times must be a array!');
+    }
 
     /**
      * Adds a new normal dank time to this chat, replacing any dank time that has
@@ -116,6 +121,14 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
             dankTimes.splice(dankTimes.indexOf(existing), 1);
         }
         dankTimes.push(dankTime);
+    };
+
+    /**
+     * Adds a user to this chat.
+     * @param {User} user The user to add.
+     */
+    this.addUser = function(user) {
+        users.set(user.id, user);
     };
 
     /**
@@ -167,6 +180,18 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
     }
 
     /**
+     * Used by JSON.stringify. Returns a literal representation of this.
+     * @return {Object}
+     */
+    this.toJSON = function() {
+        const usersArr = [];
+        users.forEach(user => usersArr.push(user));
+        return {id: id, timezone: timezone, running: running, numberOfRandomTimes: numberOfRandomTimes,
+            pointsPerRandomTime: pointsPerRandomTime, lastHour: lastHour, lastMinute: lastMinute, users: usersArr,
+            dankTimes: dankTimes, randomDankTimes: randomDankTimes};
+    }
+
+    /**
      * Gets the normal dank time that has the specified hour and minute.
      * @param {number} hour 
      * @param {number} minute 
@@ -195,6 +220,45 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
         return found;
     };
 }
+
+/**
+ * Returns a new Chat parsed from a literal.
+ * @param {Object} literal
+ * @returns {Chat}
+ */
+Chat.fromJSON = function(literal) {
+
+    // For backwards compatibility with v.1.1.0.
+    if (!literal.lastHour || !literal.lastMinute) {
+        chat.lastHour = 0;
+        chat.lastMinute = 0;
+
+        for (let dankTime of literal.dankTimes) {
+            if (!dankTime.texts) {
+                dankTime.texts = [dankTime.shoutout];
+                delete dankTime.shoutout;
+            }
+        }
+        for (let dankTime of literal.randomDankTimes) {
+            if (!dankTime.texts) {
+                dankTime.texts = [dankTime.shoutout];
+                delete dankTime.shoutout;
+            }
+        }
+   }
+
+    const dankTimes = [];
+    literal.dankTimes.forEach(dankTime => dankTimes.push(DankTime.fromJSON(dankTime)));
+
+    const randomDankTimes = [];
+    literal.randomDankTimes.forEach(dankTime => randomDankTimes.push(DankTime.fromJSON(dankTime)));
+
+    const users = new Map();
+    literal.users.forEach(user => users.set(user.id, User.fromJSON(user)));
+
+    return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
+        literal.lastHour, literal.lastMinute, users, dankTimes, randomDankTimes);
+};
 
 // Exports.
 module.exports = Chat;

@@ -96,15 +96,22 @@ function DankTime(hour, minute, texts, points = 1) {
     this.getHour = function() {
         return hour;
     };
+
+    /**
+     * Used by JSON.stringify. Returns a literal representation of this.
+     * @return {Object}
+     */
+    this.toJSON = function() {
+        return {hour: hour, minute: minute, texts: texts, points: points};
+    }
 }
 
 /**
- * Returns a new DankTime parsed from a JSON string.
- * @param {string} json
+ * Returns a new DankTime parsed from a literal.
+ * @param {Object} literal
  * @returns {DankTime}
  */
-DankTime.fromJson = function(json) {
-    const literal = JSON.parse(json);
+DankTime.fromJSON = function(literal) {
     return new DankTime(literal.hour, literal.minute, literal.texts, literal.points);
 };
 

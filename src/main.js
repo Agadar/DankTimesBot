@@ -51,7 +51,7 @@ BOT.on('message', (msg) => {
   const chat = CHATS.has(msg.chat.id) ? CHATS.get(msg.chat.id) : newChat(msg.chat.id)
 
   // If the chat is running, continue.
-  if (chat.running && msg.text) {
+  if (chat.isRunning() && msg.text) {
     msg.text = util.cleanText(msg.text);
 
     // Gather dank times from the sent text.
