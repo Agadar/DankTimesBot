@@ -5,7 +5,8 @@
  */
 
 // Imports.
-const fs = require('fs'); // For working with files.
+const fs    = require('fs'); // For working with files.
+const Chat  = require('./chat.js');
 
 // Constants.
 const DATA_FOLDER     = './data';

@@ -208,7 +208,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets an array of the users, sorted by scores.
      * @returns {User[]}
      */
-    this.getUsers() = function() {
+    this.getUsers = function() {
         const usersArr = [];
         users.forEach(user => usersArr.push(user));
         usersArr.sort(User.compare);
@@ -367,8 +367,8 @@ Chat.fromJSON = function(literal) {
 
     // For backwards compatibility with v.1.1.0.
     if (!literal.lastHour || !literal.lastMinute) {
-        chat.lastHour = 0;
-        chat.lastMinute = 0;
+        literal.lastHour = 0;
+        literal.lastMinute = 0;
 
         for (let dankTime of literal.dankTimes) {
             if (!dankTime.texts) {
