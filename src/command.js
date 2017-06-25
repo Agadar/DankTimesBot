@@ -24,7 +24,7 @@ function Command(name, description, _function) {
      * @returns {RegExp}
      */
     this.getRegex = function() {
-        return RegExp('^\/' + name + '(@DankTimesBot|)');
+        return RegExp('^\\/' + name + '(?:\\@DankTimesBot)?(?:\\s(?:[\\w\\d]+)+)*$', 'i');
     };
 
     /**
