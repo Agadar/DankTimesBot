@@ -6,19 +6,28 @@ const Command = require('./command.js');
 
 /**
  * Instantiates a new Telegram Client that communicates with the API via the 'node-telegram-bot-api' library.
- * @param {string} apiKey 
  */
-function TelegramClient(apiKey) {
-
-    if (typeof apiKey !== 'string') {
-        throw TypeError('The API key must be a string!');
-    }
+function TelegramClient() {
 
     /** All the available settings of the bot. */
     const commands = new Map();
 
     /** Access to the 'node-telegram-bot-api' library.  */
-    const bot = new TelegramBot(apiKey, { polling: true });
+    let bot;
+
+    /**
+     * Initializes this TelegramClient, if it hasn't already.
+     * @param {string} apiKey
+     */
+    this.init = function (apiKey) {
+        if (bot) {
+            throw Error('This client is already initialized!');
+        }
+        if (typeof apiKey !== 'string') {
+            throw TypeError('The API key must be a string!');
+        }
+        bot = new TelegramBot(apiKey, { polling: true });
+    };
 
     /**
      * Gets all registered commands.
@@ -33,6 +42,9 @@ function TelegramClient(apiKey) {
      * @param {function} _function The function to call.
      */
     this.setOnAnyText = function (_function) {
+        if (!bot) {
+            throw Error('This client is not yet initialized!');
+        }
         bot.on('message', (msg, match) => _function(msg, match));
     };
 
@@ -41,6 +53,9 @@ function TelegramClient(apiKey) {
      * @param {Command} command
      */
     this.registerCommand = function (command) {
+        if (!bot) {
+            throw Error('This client is not yet initialized!');
+        }
         if (!(command instanceof Command)) {
             throw TypeError('The command must be of type Command!');
         }
@@ -64,6 +79,9 @@ function TelegramClient(apiKey) {
      * @param {string} message In HTML format.
      */
     this.sendMessage = function (chatId, message) {
+        if (!bot) {
+            throw Error('This client is not yet initialized!');
+        }
         bot.sendMessage(chatId, message, { parse_mode: 'HTML' });
     };
 
@@ -74,10 +92,13 @@ function TelegramClient(apiKey) {
      * @param {any} match The matched regex.
      * @param {function} _function The function to call. Should have parameters msg, match, chat.
      */
-    this.callFunctionIfUserIsAdmin = function(msg, match, _function) {
+    this.callFunctionIfUserIsAdmin = function (msg, match, _function) {
+        if (!bot) {
+            throw Error('This client is not yet initialized!');
+        }
 
         // Only groups have admins, so if this chat isn't a group, continue straight to callback.
-        if (msg.chat.type === 'private') {          
+        if (msg.chat.type === 'private') {
             this.sendMessage(msg.chat.id, _function(msg, match));
             return;
         }
@@ -103,4 +124,4 @@ function TelegramClient(apiKey) {
 };
 
 // Exports.
-module.exports = TelegramClient;
+module.exports = new TelegramClient();  // Singleton
