@@ -18,7 +18,7 @@ module.exports.padNumber = padNumber;
 function cleanText(text) {
   let clean = '';
 
-  for(let i = 0; i < text.length; i++) {
+  for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i);
     if (code != 65039 && code != 8419) {
       clean += text[i];
@@ -50,7 +50,6 @@ function mapToSortedArray(map, comparator) {
  * "122" => "22"
  * @param {num} Number to prepend 0 to.
  */
-function padNumber(num)
-{
+function padNumber(num) {
   return ("0" + num).slice(-2);
 }

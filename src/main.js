@@ -2,23 +2,23 @@
 
 // Imports.
 const TelegramBot = require('node-telegram-bot-api'); // Client library for Telegram API.
-const fileIO      = require('./file-io.js');          // Custom script for file I/O related stuff.
-const util        = require('./util.js');             // Custom script containing global utility functions.
-const time        = require('time')(Date);            // NodeJS library for working with timezones.
-const cron        = require('cron');                  // NodeJS library for scheduling cron jobs.
+const fileIO = require('./file-io.js');          // Custom script for file I/O related stuff.
+const util = require('./util.js');             // Custom script containing global utility functions.
+const time = require('time')(Date);            // NodeJS library for working with timezones.
+const cron = require('cron');                  // NodeJS library for scheduling cron jobs.
 const nodeCleanup = require('node-cleanup');          // NodeJS library for running code on program exit.
 
-const DankTime  = require('./dank-time.js');
-const User      = require('./user.js');
-const Command   = require('./command.js');
-const Chat      = require('./chat.js');
+const DankTime = require('./dank-time.js');
+const User = require('./user.js');
+const Command = require('./command.js');
+const Chat = require('./chat.js');
 
 // Global variables.
-const VERSION   = '1.1.0';
-const SETTINGS  = fileIO.loadSettingsFromFile();
-const CHATS     = fileIO.loadChatsFromFile(); // All the scores of all the chats, loaded from data file.
-const BOT       = new TelegramBot(SETTINGS.apiKey, { polling: true });
-const COMMANDS  = new Map(); // All the available settings of this bot.
+const VERSION = '1.1.0';
+const SETTINGS = fileIO.loadSettingsFromFile();
+const CHATS = fileIO.loadChatsFromFile(); // All the scores of all the chats, loaded from data file.
+const BOT = new TelegramBot(SETTINGS.apiKey, { polling: true });
+const COMMANDS = new Map(); // All the available settings of this bot.
 
 // Register available Telegram bot commands.
 newCommand('add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, addTime));
@@ -33,13 +33,13 @@ newCommand('set_timezone', 'Sets the time zone. Format: [timezone]', (msg, match
 newCommand('start', 'Starts keeping track of scores.', (msg, match) => callFunctionIfUserIsAdmin(msg, match, startChat));
 
 // Schedule to persist chats map to file every X minutes.
-setInterval(function() {
+setInterval(function () {
   fileIO.saveChatsToFile(CHATS);
   console.info('Persisted data to file.');
 }, SETTINGS.persistenceRate * 60 * 1000);
 
 // Schedule to persist chats map to file on program exit.
-nodeCleanup(function(exitCode, signal) {
+nodeCleanup(function (exitCode, signal) {
   console.info('Persisting data to file before exiting...');
   fileIO.saveChatsToFile(CHATS);
 });
@@ -53,13 +53,13 @@ BOT.on('message', (msg) => {
 });
 
 /** Generates random dank times daily for all chats at 00:00:00. */
-new cron.CronJob('0 0 0 * * *', function() {
+new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');
 
   CHATS.forEach(chat => {
     if (chat.isRunning()) {
       chat.generateRandomDankTimes().forEach(randomTime => {
-        new cron.CronJob('0 ' + chat.getMinutes() + ' ' + chat.getHours() + ' * * *', function() {
+        new cron.CronJob('0 ' + chat.getMinutes() + ' ' + chat.getHours() + ' * * *', function () {
           if (chat.isRunning()) {
             sendMessageOnFailRemoveChat(chat.getId(), 'Surprise dank time! Type \'' + randomTime.getTexts()[0] + '\' for points!');
           }
@@ -92,7 +92,7 @@ function callFunctionIfUserIsAdmin(msg, match, _function) {
   }
 
   // Else if this chat is a group, then we must make sure the user is an admin.
-  const promise = BOT.getChatAdministrators(msg.chat.id);  
+  const promise = BOT.getChatAdministrators(msg.chat.id);
   promise.then(admins => {
 
     // Check to ensure user is admin. If not, post message.
@@ -135,12 +135,12 @@ function resetChat(msg, match, chat) {
   let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
 
   for (const user of chat.getUsers()) {
-    const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : 
+    const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' :
       (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
     message += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
   }
   chat.resetScores();
-  sendMessageOnFailRemoveChat(msg.chat.id, message, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(msg.chat.id, message, { parse_mode: 'HTML' });
 }
 
 /**
@@ -162,7 +162,7 @@ function chatSettings(msg) {
   settings += '\n<b>Server time:</b> ' + new Date();
   settings += '\n<b>Status:</b> ' + (chat.isRunning() ? 'running' : 'awaiting start');
   settings += '\n<b>Version:</b> ' + VERSION;
-  sendMessageOnFailRemoveChat(msg.chat.id, settings, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(msg.chat.id, settings, { parse_mode: 'HTML' });
 }
 
 /**
@@ -181,7 +181,7 @@ function leaderBoard(msg) {
     leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
     user.resetLastScoreChange();
   }
-  sendMessageOnFailRemoveChat(msg.chat.id, leaderboard, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(msg.chat.id, leaderboard, { parse_mode: 'HTML' });
 }
 
 /**
@@ -191,7 +191,7 @@ function leaderBoard(msg) {
 function help(msg) {
   let help = '<b>Available commands:</b>';
   COMMANDS.forEach(command => help += '\n/' + command.getName() + '    ' + command.getDescription());
-  sendMessageOnFailRemoveChat(msg.chat.id, help, {parse_mode: 'HTML'});
+  sendMessageOnFailRemoveChat(msg.chat.id, help, { parse_mode: 'HTML' });
 }
 
 /**
@@ -338,12 +338,12 @@ function setDailyRandomTimesPoints(msg, match, chat) {
  */
 function newChat(id) {
   const chat = new Chat(id);
-  chat.addDankTime(new DankTime(0,   0, ['0000'],  5));
-  chat.addDankTime(new DankTime(4,  20, ['420'],  15));
-  chat.addDankTime(new DankTime(11, 11, ['1111'],  5));
-  chat.addDankTime(new DankTime(12, 34, ['1234'],  5));
+  chat.addDankTime(new DankTime(0, 0, ['0000'], 5));
+  chat.addDankTime(new DankTime(4, 20, ['420'], 15));
+  chat.addDankTime(new DankTime(11, 11, ['1111'], 5));
+  chat.addDankTime(new DankTime(12, 34, ['1234'], 5));
   chat.addDankTime(new DankTime(13, 37, ['1337'], 10));
-  chat.addDankTime(new DankTime(16, 20, ['420'],  10));
+  chat.addDankTime(new DankTime(16, 20, ['420'], 10));
   chat.addDankTime(new DankTime(22, 22, ['2222'], 5));
   CHATS.set(id, chat);
   return chat;

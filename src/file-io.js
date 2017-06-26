@@ -5,19 +5,19 @@
  */
 
 // Imports.
-const fs    = require('fs'); // For working with files.
-const Chat  = require('./chat.js');
+const fs = require('fs'); // For working with files.
+const Chat = require('./chat.js');
 
 // Constants.
-const DATA_FOLDER     = './data';
-const BACKUP_PATH     = DATA_FOLDER + '/backup.json';
-const SETTINGS_PATH   = DATA_FOLDER + '/settings.json';
-const API_KEY_ENV     = 'DANK_TIMES_BOT_API_KEY';
+const DATA_FOLDER = './data';
+const BACKUP_PATH = DATA_FOLDER + '/backup.json';
+const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
+const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
 
 // Exports.
-module.exports.loadSettingsFromFile   = loadSettingsFromFile;
-module.exports.loadChatsFromFile      = loadChatsFromFile;
-module.exports.saveChatsToFile        = saveChatsToFile;
+module.exports.loadSettingsFromFile = loadSettingsFromFile;
+module.exports.loadChatsFromFile = loadChatsFromFile;
+module.exports.saveChatsToFile = saveChatsToFile;
 
 /**
  * Parses the JSON data in the file to a Settings object. If the file does not exist,
@@ -28,7 +28,7 @@ module.exports.saveChatsToFile        = saveChatsToFile;
  * @return {Settings} The settings.
  */
 function loadSettingsFromFile() {
-  const settings = {apiKey: '', persistenceRate: 60}; // Default settings.
+  const settings = { apiKey: '', persistenceRate: 60 }; // Default settings.
 
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {
@@ -71,7 +71,7 @@ function loadChatsFromFile() {
     fs.mkdirSync(DATA_FOLDER);
   }
   const chats = new Map();
-  
+
   // If the data file exists, load and parse the data to an object.
   if (fs.existsSync(BACKUP_PATH)) {
     JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8')).forEach(chat => chats.set(chat.id, Chat.fromJSON(chat)));

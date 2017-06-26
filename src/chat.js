@@ -1,10 +1,10 @@
 'use strict';
 
 // Imports.
-const time      = require('time')(Date);            // NodeJS library for working with timezones.
-const util      = require('./util.js');             // Custom script containing global utility functions.
-const DankTime  = require('./dank-time.js');
-const User      = require('./user.js');
+const time = require('time')(Date);            // NodeJS library for working with timezones.
+const util = require('./util.js');             // Custom script containing global utility functions.
+const DankTime = require('./dank-time.js');
+const User = require('./user.js');
 
 /**
  * Creates a new Chat object.
@@ -26,7 +26,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Sets the timezone the users are in.
      * @param {string} newtimezone
      */
-    this.setTimezone = function(newtimezone) {
+    this.setTimezone = function (newtimezone) {
         try {
             const date = new Date();
             date.setTimezone(newtimezone);
@@ -40,7 +40,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Sets whether this bot is running for this chat.
      * @param {boolean} newrunning
      */
-    this.setRunning = function(newrunning) {
+    this.setRunning = function (newrunning) {
         if (typeof newrunning !== 'boolean') {
             throw TypeError('The running state must be a boolean!');
         }
@@ -52,7 +52,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * @param {number} newnumberOfRandomTimes
      * @returns {DankTime[]} The removed times if the old number was > than the new number.
      */
-    this.setNumberOfRandomTimes = function(newnumberOfRandomTimes) {
+    this.setNumberOfRandomTimes = function (newnumberOfRandomTimes) {
         if (typeof newnumberOfRandomTimes !== 'number' || newnumberOfRandomTimes < 0 || newnumberOfRandomTimes % 1 !== 0) {
             throw TypeError('The number of times must be a whole number greater or equal to 0!');
         }
@@ -64,7 +64,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Sets the number of points each randomly generated dank time is worth.
      * @param {number} newpointsPerRandomTime
      */
-    this.setPointsPerRandomTime = function(newpointsPerRandomTime) {
+    this.setPointsPerRandomTime = function (newpointsPerRandomTime) {
         if (typeof newpointsPerRandomTime !== 'number' || newpointsPerRandomTime < 1 || newpointsPerRandomTime % 1 !== 0) {
             throw TypeError('The points must be a whole number greater than 0!');
         }
@@ -78,7 +78,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Sets the hour of the last valid dank time being proclaimed.
      * @param {number} newlastHour
      */
-    this.setLastHour = function(newlastHour) {
+    this.setLastHour = function (newlastHour) {
         if (typeof newlastHour !== 'number' || newlastHour < 0 || newlastHour > 23 || newlastHour % 1 !== 0) {
             throw TypeError('The hour must be a whole number between 0 and 23!');
         }
@@ -89,7 +89,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Sets the minute of the last valid dank time being proclaimed.
      * @param {number} newlastMinute
      */
-    this.setLastMinute = function(newlastMinute) {
+    this.setLastMinute = function (newlastMinute) {
         if (typeof newlastMinute !== 'number' || newlastMinute < 0 || newlastMinute > 59 || newlastMinute % 1 !== 0) {
             throw TypeError('The minute must be a whole number between 0 and 59!');
         }
@@ -121,7 +121,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * the same hour and minute.
      * @param {DankTime} dankTime
      */
-    this.addDankTime = function(dankTime) {
+    this.addDankTime = function (dankTime) {
         const existing = getDankTime(dankTime.getHour(), dankTime.getMinute());
         if (existing) {
             dankTimes.splice(dankTimes.indexOf(existing), 1);
@@ -133,7 +133,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Adds a user to this chat.
      * @param {User} user The user to add.
      */
-    this.addUser = function(user) {
+    this.addUser = function (user) {
         users.set(user.id, user);
     };
 
@@ -141,7 +141,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets the timezone the users are in.
      * @returns {string}
      */
-    this.getTimezone = function() {
+    this.getTimezone = function () {
         return timezone;
     };
 
@@ -149,7 +149,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets whether this bot is running for this chat.
      * @returns {boolean}
      */
-    this.isRunning = function() {
+    this.isRunning = function () {
         return running;
     };
 
@@ -157,7 +157,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets the number of randomly generated dank times to generate each day.
      * @returns {number}
      */
-    this.getNumberOfRandomTimes = function() {
+    this.getNumberOfRandomTimes = function () {
         return numberOfRandomTimes;
     };
 
@@ -165,7 +165,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets the number of points each randomly generated dank time is worth.
      * @returns {number}
      */
-    this.getPointsPerRandomTime = function() {
+    this.getPointsPerRandomTime = function () {
         return pointsPerRandomTime;
     };
 
@@ -173,7 +173,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets the hour of the last valid dank time being proclaimed.
      * @returns {number}
      */
-    this.getLastHour = function() {
+    this.getLastHour = function () {
         return lastHour;
     };
 
@@ -181,7 +181,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets the minute of the last valid dank time being proclaimed.
      * @returns {number}
      */
-    this.getLastMinute = function() {
+    this.getLastMinute = function () {
         return lastMinute;
     };
 
@@ -189,7 +189,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets an array of the dank times, sorted by hour and minute.
      * @returns {DankTime[]}
      */
-    this.getDankTimes = function() {
+    this.getDankTimes = function () {
         const timesArr = []
         dankTimes.forEach(time => timesArr.push(time));
         timesArr.sort(DankTime.compare);
@@ -200,7 +200,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets an unsorted array of the random dank times.
      * @returns {DankTime[]}
      */
-    this.getRandomDankTimes = function() {
+    this.getRandomDankTimes = function () {
         return randomDankTimes;
     };
 
@@ -208,7 +208,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Gets an array of the users, sorted by scores.
      * @returns {User[]}
      */
-    this.getUsers = function() {
+    this.getUsers = function () {
         const usersArr = [];
         users.forEach(user => usersArr.push(user));
         usersArr.sort(User.compare);
@@ -219,7 +219,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Generates new random dank times for this chat, clearing old ones.
      * @returns {DankTime[]} The generated dank times.
      */
-    this.generateRandomDankTimes = function() {
+    this.generateRandomDankTimes = function () {
         randomDankTimes = [];
 
         for (let i = 0; i < numberOfRandomTimes; i++) {
@@ -237,12 +237,14 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * Used by JSON.stringify. Returns a literal representation of this.
      * @return {Object}
      */
-    this.toJSON = function() {
+    this.toJSON = function () {
         const usersArr = [];
         users.forEach(user => usersArr.push(user));
-        return {id: id, timezone: timezone, running: running, numberOfRandomTimes: numberOfRandomTimes,
+        return {
+            id: id, timezone: timezone, running: running, numberOfRandomTimes: numberOfRandomTimes,
             pointsPerRandomTime: pointsPerRandomTime, lastHour: lastHour, lastMinute: lastMinute, users: usersArr,
-            dankTimes: dankTimes, randomDankTimes: randomDankTimes};
+            dankTimes: dankTimes, randomDankTimes: randomDankTimes
+        };
     };
 
     /**
@@ -252,7 +254,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * @param {string} msgText
      * @param {number} msgUnixTime
      */
-    this.processMessage = function(userId, userName, msgText, msgUnixTime) {
+    this.processMessage = function (userId, userName, msgText, msgUnixTime) {
         if (!running) {
             return;
         }
@@ -281,14 +283,14 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
 
         let subtractBy = 0;
         for (let dankTime of dankTimesByText) {
-            if (serverDate.getHours() === dankTime.getHour() && (serverDate.getMinutes() === dankTime.getMinute() 
+            if (serverDate.getHours() === dankTime.getHour() && (serverDate.getMinutes() === dankTime.getMinute()
                 || new Date(msgUnixTime * 1000).getMinutes() === dankTime.getMinute())) {
-                
+
                 // If cache needs resetting, do so and award DOUBLE points to the calling user.
                 if (lastHour !== dankTime.getHour() || lastMinute !== dankTime.getMinute()) {
                     users.forEach(user => user.setCalled(false));
-                    lastHour     = dankTime.getHour();
-                    lastMinute   = dankTime.getMinute();
+                    lastHour = dankTime.getHour();
+                    lastMinute = dankTime.getMinute();
                     user.addToScore(dankTime.getPoints() * 2);
                     user.setCalled(true);
                 } else if (user.getCalled()) { // Else if user already called this time, remove points.
@@ -309,7 +311,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
     /**
      * Resets the scores of all the users.
      */
-    this.resetScores = function() {
+    this.resetScores = function () {
         users.forEach(user => user.resetScore());
     };
 
@@ -319,7 +321,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
      * @param {number} minute
      * @returns {boolean} Whether a dank time was found and removed.
      */
-    this.removeDankTime = function(hour, minute) {
+    this.removeDankTime = function (hour, minute) {
         const dankTime = getDankTime(hour, minute);
         if (dankTime) {
             dankTimes.splice(dankTimes.indexOf(dankTime));
@@ -363,7 +365,7 @@ function Chat(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandom
  * @param {Object} literal
  * @returns {Chat}
  */
-Chat.fromJSON = function(literal) {
+Chat.fromJSON = function (literal) {
 
     // For backwards compatibility with v.1.1.0.
     if (!literal.lastHour || !literal.lastMinute) {
@@ -382,7 +384,7 @@ Chat.fromJSON = function(literal) {
                 delete dankTime.shoutout;
             }
         }
-   }
+    }
 
     const dankTimes = [];
     literal.dankTimes.forEach(dankTime => dankTimes.push(DankTime.fromJSON(dankTime)));

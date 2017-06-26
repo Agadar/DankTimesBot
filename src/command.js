@@ -23,7 +23,7 @@ function Command(name, description, _function) {
      * Gets this command's regex, which is based on its name.
      * @returns {RegExp}
      */
-    this.getRegex = function() {
+    this.getRegex = function () {
         return RegExp('^\\/' + name + '(?:\\@DankTimesBot)?(?:\\s(?:[\\w\\d]+)+)*$', 'i');
     };
 
@@ -31,7 +31,7 @@ function Command(name, description, _function) {
      * Gets the name of the command, e.g. 'start'.
      * @returns {string}
      */
-    this.getName = function() {
+    this.getName = function () {
         return name;
     };
 
@@ -39,7 +39,7 @@ function Command(name, description, _function) {
      * Gets the brief description of the command.
      * @returns {string}
      */
-    this.getDescription = function() {
+    this.getDescription = function () {
         return description;
     };
 
@@ -47,7 +47,7 @@ function Command(name, description, _function) {
      * Gets the function which this command calls.
      * @returns {function}
      */
-    this.getFunction = function() {
+    this.getFunction = function () {
         return _function;
     };
 };

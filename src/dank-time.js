@@ -13,7 +13,7 @@ function DankTime(hour, minute, texts, points = 1) {
      * Sets the hour.
      * @param {number} newhour
      */
-    this.setHour = function(newhour) {
+    this.setHour = function (newhour) {
         if (typeof newhour !== 'number' || newhour < 0 || newhour > 23 || newhour % 1 !== 0) {
             throw TypeError('The hour must be a whole number between 0 and 23!');
         }
@@ -24,7 +24,7 @@ function DankTime(hour, minute, texts, points = 1) {
      * Sets the minute.
      * @param {number} newminute
      */
-    this.setMinute = function(newminute) {
+    this.setMinute = function (newminute) {
         if (typeof newminute !== 'number' || newminute < 0 || newminute > 59 || newminute % 1 !== 0) {
             throw TypeError('The minute must be a whole number between 0 and 59!');
         }
@@ -35,7 +35,7 @@ function DankTime(hour, minute, texts, points = 1) {
      * Sets the points.
      * @param {number} newpoints
      */
-    this.setPoints = function(newpoints) {
+    this.setPoints = function (newpoints) {
         if (typeof newpoints !== 'number' || newpoints < 1 || newpoints % 1 !== 0) {
             throw TypeError('The points must be a whole number greater than 0!');
         }
@@ -46,7 +46,7 @@ function DankTime(hour, minute, texts, points = 1) {
      * Sets the texts.
      * @param {string[]} newtexts
      */
-    this.setTexts = function(newtexts) {
+    this.setTexts = function (newtexts) {
         if (!(newtexts instanceof Array) || newtexts.length < 1) {
             throw TypeError('The texts must be a string array containing at least one item!');
         }
@@ -68,7 +68,7 @@ function DankTime(hour, minute, texts, points = 1) {
      * Gets the texts.
      * @returns {string[]}
      */
-    this.getTexts = function() {
+    this.getTexts = function () {
         return texts;
     };
 
@@ -76,7 +76,7 @@ function DankTime(hour, minute, texts, points = 1) {
      * Gets the points.
      * @returns {number}
      */
-    this.getPoints = function() {
+    this.getPoints = function () {
         return points;
     };
 
@@ -85,7 +85,7 @@ function DankTime(hour, minute, texts, points = 1) {
      * Gets the minute.
      * @returns {number}
      */
-    this.getMinute = function() {
+    this.getMinute = function () {
         return minute;
     };
 
@@ -93,7 +93,7 @@ function DankTime(hour, minute, texts, points = 1) {
      * Gets the hour.
      * @returns {number}
      */
-    this.getHour = function() {
+    this.getHour = function () {
         return hour;
     };
 
@@ -101,8 +101,8 @@ function DankTime(hour, minute, texts, points = 1) {
      * Used by JSON.stringify. Returns a literal representation of this.
      * @return {Object}
      */
-    this.toJSON = function() {
-        return {hour: hour, minute: minute, texts: texts, points: points};
+    this.toJSON = function () {
+        return { hour: hour, minute: minute, texts: texts, points: points };
     };
 }
 
@@ -111,7 +111,7 @@ function DankTime(hour, minute, texts, points = 1) {
  * @param {Object} literal
  * @returns {DankTime}
  */
-DankTime.fromJSON = function(literal) {
+DankTime.fromJSON = function (literal) {
     return new DankTime(literal.hour, literal.minute, literal.texts, literal.points);
 };
 
@@ -121,10 +121,10 @@ DankTime.fromJSON = function(literal) {
  * @param {DankTime} b
  * @returns {number}
  */
-DankTime.compare = function(a, b) {
+DankTime.compare = function (a, b) {
     if (a.getHour() < b.getHour()) {
         return -1;
-    } 
+    }
     if (a.getHour() > b.getHour()) {
         return 1;
     }
