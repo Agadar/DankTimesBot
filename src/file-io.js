@@ -6,17 +6,18 @@
 
 // Imports.
 const fs = require('fs'); // For working with files.
+const Chat = require('./chat.js');
 
 // Constants.
-const DATA_FOLDER     = './data';
-const BACKUP_PATH     = DATA_FOLDER + '/backup.json';
-const SETTINGS_PATH   = DATA_FOLDER + '/settings.json';
-const API_KEY_ENV     = 'DANK_TIMES_BOT_API_KEY';
+const DATA_FOLDER = './data';
+const BACKUP_PATH = DATA_FOLDER + '/backup.json';
+const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
+const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
 
 // Exports.
-module.exports.loadSettingsFromFile   = loadSettingsFromFile;
-module.exports.loadChatsFromFile      = loadChatsFromFile;
-module.exports.saveChatsToFile        = saveChatsToFile;
+module.exports.loadSettingsFromFile = loadSettingsFromFile;
+module.exports.loadChatsFromFile = loadChatsFromFile;
+module.exports.saveChatsToFile = saveChatsToFile;
 
 /**
  * Parses the JSON data in the file to a Settings object. If the file does not exist,
@@ -27,7 +28,7 @@ module.exports.saveChatsToFile        = saveChatsToFile;
  * @return {Settings} The settings.
  */
 function loadSettingsFromFile() {
-  const settings = {apiKey: '', persistenceRate: 60}; // Default settings.
+  const settings = { apiKey: '', persistenceRate: 60 }; // Default settings.
 
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {
@@ -64,63 +65,32 @@ function loadSettingsFromFile() {
  * @return {Map} Map containing Chat objects.
  */
 function loadChatsFromFile() {
-  const chats = new Map();
 
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {
     fs.mkdirSync(DATA_FOLDER);
   }
-  
+  const chats = new Map();
+
   // If the data file exists, load and parse the data to an object.
   if (fs.existsSync(BACKUP_PATH)) {
-    for (const chat of JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8'))) {
-      usersArrayToMap(chat);
-      chats.set(chat.id, chat);
-
-      if (!chat.lastTime.hour || !chat.lastTime.minute) {  // For backwards compatibility with v.1.0.0.
-        chat.lastTime = { hour: -1, minute: -1 };
-        for (let dankTime of chat.dankTimes) {
-          dankTime.texts = [dankTime.shoutout];
-          delete dankTime.shoutout;
-        }
-        for (let dankTime of chat.randomDankTimes) {
-          dankTime.texts = [dankTime.shoutout];
-          delete dankTime.shoutout;
-        }
-      }
-    }
+    JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8')).forEach(chat => chats.set(chat.id, Chat.fromJSON(chat)));
   }
   return chats;
 }
 
 /**
  * Parses a Map of Chat objects to JSON and saves it to a file.
- * @param {Map} chat Map containing Chat objects.
+ * @param {Map<number,Chat>} chats Map containing Chat objects.
  */
-function saveChatsToFile(chat) {
+function saveChatsToFile(chats) {
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {
     fs.mkdirSync(DATA_FOLDER);
   }
 
   // Write to backup file.
-  fs.writeFileSync(BACKUP_PATH, JSON.stringify(chat, mapReplacer, '\t'));
-}
-
-/**
- * Converts chat.users from Array to Map.
- * @param {Chat} chat 
- */
-function usersArrayToMap(chat) {
-  const users = new Map();
-
-  // User array to map.
-  for (const user of chat.users) {
-    users.set(user.id, user);
-  }
-
-  // Override fields and add to map.
-  chat.users = users;
+  fs.writeFileSync(BACKUP_PATH, JSON.stringify(chats, mapReplacer, 1));
 }
 
 /**
