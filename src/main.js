@@ -10,7 +10,7 @@ const fileIO = require('./file-io.js');          // Custom script for file I/O r
 const Command = require('./command.js');
 const TG_CLIENT = require('./telegram-client.js');
 const commands = require('./command-functions.js');
-const CHAT_REGISTRY = require('./chat-registry.js');
+const CHAT_REGISTRY = new (require('./chat-registry.js'))();
 
 // Global variables.
 const SETTINGS = fileIO.loadSettingsFromFile();
