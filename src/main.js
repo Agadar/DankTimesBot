@@ -9,7 +9,7 @@ const nodeCleanup = require('node-cleanup');   // NodeJS library for running cod
 const fileIO = require('./file-io.js');          // Custom script for file I/O related stuff.
 const Command = require('./command.js');
 const TelegramClient = require('./telegram-client.js');
-const Commands = require('./command-functions.js');
+const Commands = require('./commands.js');
 const CHAT_REGISTRY = require('./chat-registry.js');
 
 // Global variables.
