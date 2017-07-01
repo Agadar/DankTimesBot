@@ -1,15 +1,6 @@
 'use strict';
 
 /**
- * Exposes some utility functions for DankTimesBot.
- */
-
-// Exports.
-module.exports.mapToSortedArray = mapToSortedArray;
-module.exports.cleanText = cleanText;
-module.exports.padNumber = padNumber;
-
-/**
  * Removes from the text the characters with unicodes 65039 and 8419.
  * Makes it so the emoji versions of numbers are parsed to just normal numbers.
  * @param {string} text The text to clean.
@@ -53,3 +44,8 @@ function mapToSortedArray(map, comparator) {
 function padNumber(num) {
   return ("0" + num).slice(-2);
 }
+
+// Exports.
+module.exports.mapToSortedArray = mapToSortedArray;
+module.exports.cleanText = cleanText;
+module.exports.padNumber = padNumber;
