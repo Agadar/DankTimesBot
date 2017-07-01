@@ -6,17 +6,17 @@ const cron = require('cron');                  // NodeJS library for scheduling 
 const nodeCleanup = require('node-cleanup');   // NodeJS library for running code on program exit.
 
 // Internal imports.
-const fileIO = require('./file-io.js');          // Custom script for file I/O related stuff.
+const fileIO = require('./file-io.js');
 const Command = require('./command.js');
 const TelegramClient = require('./telegram-client.js');
 const Commands = require('./commands.js');
-const CHAT_REGISTRY = require('./chat-registry.js');
+const ChatRegistry = require('./chat-registry.js');
 
 // Global variables.
 const settings = fileIO.loadSettingsFromFile();
-CHAT_REGISTRY.setChats(fileIO.loadChatsFromFile());
+const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
 const tgClient = new TelegramClient(settings.apiKey);
-const commands = new Commands(tgClient, '1.1.0');
+const commands = new Commands(tgClient, chatRegistry, '1.1.0');
 
 // Register available Telegram bot commands.
 tgClient.registerCommand(new Command('add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
@@ -31,27 +31,27 @@ tgClient.registerCommand(new Command('set_timezone', 'Sets the time zone. Format
 tgClient.registerCommand(new Command('start', 'Starts keeping track of scores.', commands, commands.startChat, true));
 tgClient.setOnAnyText((msg) => {
   if (msg.text) {
-    CHAT_REGISTRY.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
+    chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
   }
 });
 
 // Schedule to persist chats map to file every X minutes.
 setInterval(function () {
-  fileIO.saveChatsToFile(CHAT_REGISTRY.getChats());
+  fileIO.saveChatsToFile(chatRegistry.getChats());
   console.info('Persisted data to file.');
 }, settings.persistenceRate * 60 * 1000);
 
 // Schedule to persist chats map to file on program exit.
 nodeCleanup(function (exitCode, signal) {
   console.info('Persisting data to file before exiting...');
-  fileIO.saveChatsToFile(CHAT_REGISTRY.getChats());
+  fileIO.saveChatsToFile(chatRegistry.getChats());
 });
 
 /** Generates random dank times daily for all chats at 00:00:00. */
 new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');
 
-  CHAT_REGISTRY.getChats().forEach(chat => {
+  chatRegistry.getChats().forEach(chat => {
     if (chat.isRunning()) {
       chat.generateRandomDankTimes().forEach(randomTime => {
         new cron.CronJob('0 ' + chat.getMinutes() + ' ' + chat.getHours() + ' * * *', function () {

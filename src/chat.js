@@ -129,7 +129,7 @@ class Chat {
      * @param {DankTime} dankTime
      */
     addDankTime(dankTime) {
-        const existing = getDankTime(dankTime.getHour(), dankTime.getMinute());
+        const existing = this._getDankTime(dankTime.getHour(), dankTime.getMinute());
         if (existing) {
             this._dankTimes.splice(this._dankTimes.indexOf(existing), 1);
         }
@@ -249,7 +249,7 @@ class Chat {
         this._users.forEach(user => usersArr.push(user));
         return {
             id: this._id, timezone: this._timezone, running: this._running, numberOfRandomTimes: this._numberOfRandomTimes,
-            pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: this._usersArr,
+            pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: usersArr,
             dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes
         };
     };

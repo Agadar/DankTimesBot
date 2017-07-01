@@ -1,7 +1,7 @@
 'use strict';
 
 // Imports
-const CHAT_REGISTRY = require('./chat-registry.js');
+const ChatRegistry = require('./chat-registry.js');
 const TelegramClient = require('./telegram-client.js');
 const util = require('./util.js');
 const DankTime = require('./dank-time.js');
@@ -12,10 +12,12 @@ class Commands {
   /**
    * Instantiates a new Commands object.
    * @param {TelegramClient} tgClient 
+   * @param {ChatRegistry} chatRegistry
    * @param {string} version 
    */
-  constructor(tgClient, version) {
+  constructor(tgClient, chatRegistry, version) {
     this._tgClient = tgClient;
+    this._chatRegistry = chatRegistry;
     this._version = version;
   }
 
@@ -27,7 +29,7 @@ class Commands {
    * @returns {string} The response.
    */
   startChat(msg, match) {
-    const chat = CHAT_REGISTRY.getOrCreateChat(msg.chat.id);
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
     if (chat.isRunning()) {
       return 'DankTimesBot is already running!';
     }
@@ -42,7 +44,7 @@ class Commands {
    * @returns {string} The response.
    */
   resetChat(msg, match) {
-    const chat = CHAT_REGISTRY.getOrCreateChat(msg.chat.id);
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
     let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
 
     for (const user of chat.getUsers()) {
@@ -61,7 +63,7 @@ class Commands {
    * @returns {string} The response.
    */
   chatSettings(msg, match) {
-    const chat = CHAT_REGISTRY.getOrCreateChat(msg.chat.id);
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
 
     let settings = '\n<b>Chat time zone:</b> ' + chat.getTimezone() + '\n<b>Dank times:</b>';
     for (const time of chat.getDankTimes()) {
@@ -88,7 +90,7 @@ class Commands {
 
     // Build a string to send from the chat's user list.
     let leaderboard = '<b>Leaderboard:</b>';
-    for (const user of CHAT_REGISTRY.getOrCreateChat(msg.chat.id).getUsers()) {
+    for (const user of this._chatRegistry.getOrCreateChat(msg.chat.id).getUsers()) {
       const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
       leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
       user.resetLastScoreChange();
@@ -131,7 +133,7 @@ class Commands {
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
       const dankTime = new DankTime(hour, minute, texts, points);
-      CHAT_REGISTRY.getOrCreateChat(msg.chat.id).addDankTime(dankTime);
+      this._chatRegistry.getOrCreateChat(msg.chat.id).addDankTime(dankTime);
       return 'Added the new time!';
     } catch (err) {
       return err.message;
@@ -163,7 +165,7 @@ class Commands {
     }
 
     // Remove dank time if it exists, otherwise just send an info message.
-    if (CHAT_REGISTRY.getOrCreateChat(msg.chat.id).removeDankTime(hour, minute)) {
+    if (this._chatRegistry.getOrCreateChat(msg.chat.id).removeDankTime(hour, minute)) {
       return 'Removed the time!'
     } else {
       return 'No dank time known with that hour and minute!';
@@ -186,7 +188,7 @@ class Commands {
 
     // Update the time zone.
     try {
-      CHAT_REGISTRY.getOrCreateChat(msg.chat.id).setTimezone(split[1]);
+      this._chatRegistry.getOrCreateChat(msg.chat.id).setTimezone(split[1]);
       return 'Updated the time zone!';
     } catch (err) {
       return err.message;
@@ -209,7 +211,7 @@ class Commands {
 
     // Do the update.
     try {
-      CHAT_REGISTRY.getOrCreateChat(msg.chat.id).setNumberOfRandomTimes(Number(split[1]));
+      this._chatRegistry.getOrCreateChat(msg.chat.id).setNumberOfRandomTimes(Number(split[1]));
       return 'Updated the number of random dank times per day!';
     } catch (err) {
       return err.message;
@@ -231,7 +233,7 @@ class Commands {
     }
 
     try {
-      CHAT_REGISTRY.getOrCreateChat(msg.chat.id).setPointsPerRandomTime(Number(split[1]));
+      this._chatRegistry.getOrCreateChat(msg.chat.id).setPointsPerRandomTime(Number(split[1]));
       return 'Updated the points for random daily dank times!';
     } catch (err) {
       return err.message;
