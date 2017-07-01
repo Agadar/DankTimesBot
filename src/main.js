@@ -50,11 +50,10 @@ nodeCleanup(function (exitCode, signal) {
 /** Generates random dank times daily for all chats at 00:00:00. */
 new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');
-
   chatRegistry.getChats().forEach(chat => {
     if (chat.isRunning()) {
       chat.generateRandomDankTimes().forEach(randomTime => {
-        new cron.CronJob('0 ' + chat.getMinutes() + ' ' + chat.getHours() + ' * * *', function () {
+        new cron.CronJob('0 ' + randomTime.getMinute() + ' ' + randomTime.getHour() + ' * * *', function () {
           if (chat.isRunning()) {
             tgClient.sendMessage(chat.getId(), 'Surprise dank time! Type \'' + randomTime.getTexts()[0] + '\' for points!');
           }
