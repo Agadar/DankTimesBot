@@ -54,7 +54,7 @@ class TelegramClient {
             });
         } else {
             this._bot.onText(command.getRegex(), (msg, match) => {
-                this.callFunctionIfUserIsAdmin(msg, match, command.getObject(), command.getFunction());
+                this._callFunctionIfUserIsAdmin(msg, match, command.getObject(), command.getFunction());
             });
         }
     };
@@ -76,7 +76,7 @@ class TelegramClient {
      * @param {Object} object The object to call the function on.
      * @param {function} _function The function to call. Should have parameters msg, match, chat.
      */
-    callFunctionIfUserIsAdmin(msg, match, object, _function) {
+    _callFunctionIfUserIsAdmin(msg, match, object, _function) {
 
         // Only groups have admins, so if this chat isn't a group, continue straight to callback.
         if (msg.chat.type === 'private') {
