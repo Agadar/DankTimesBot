@@ -4,11 +4,12 @@
  * Defines a new command for the Telegram bot.
  * @param {string} name The name of the command, e.g. 'start'.
  * @param {string} description Brief description of the command.
+ * @param {object} object The object to call the function on.
  * @param {function} _function The function which this command calls. Expected to take parameters 'msg' and 'match' and return a string.
  * @param {boolean} adminOnly Whether only admins can execute this command.
  * @param {boolean} requiresConfirmation Whether this command requires explicit confirmation.
  */
-function Command(name, description, _function, adminOnly = false, requiresConfirmation = false) {
+function Command(name, description, object, _function, adminOnly = false, requiresConfirmation = false) {
 
     // 'Constructor'
     if (typeof name !== 'string') {
@@ -16,6 +17,9 @@ function Command(name, description, _function, adminOnly = false, requiresConfir
     }
     if (typeof description !== 'string') {
         throw TypeError('The description must be a string!');
+    }
+    if (typeof object !== 'object') {
+        throw TypeError('The object must be an object!');
     }
     if (typeof _function !== 'function') {
         throw TypeError('The function must be a function!');
@@ -49,6 +53,14 @@ function Command(name, description, _function, adminOnly = false, requiresConfir
      */
     this.getDescription = function () {
         return description;
+    };
+
+    /**
+     * Gets the object on which the command is called.
+     * @returns {Object}
+     */
+    this.getObject = function() {
+        return object;
     };
 
     /**
