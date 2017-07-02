@@ -29,6 +29,7 @@ tgClient.registerCommand(new Command('set_daily_random_frequency', 'Sets the num
 tgClient.registerCommand(new Command('set_daily_random_points', 'Sets the points for random daily dank times. Format: [number]', commands, commands.setDailyRandomTimesPoints, true));
 tgClient.registerCommand(new Command('set_timezone', 'Sets the time zone. Format: [timezone]', commands, commands.setTimezone, true));
 tgClient.registerCommand(new Command('start', 'Starts keeping track of scores.', commands, commands.startChat, true));
+tgClient.registerCommand(new Command('stop', 'Stops keeping track of scores.', commands, commands.stopChat, true));
 tgClient.setOnAnyText((msg) => {
   if (msg.text) {
     chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);

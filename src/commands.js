@@ -38,6 +38,22 @@ class Commands {
   }
 
   /**
+   * Stops the specified chat so that it stops recording dank time texts.
+   * Only prints a warning if the chat isn't already stopped.
+   * @param {any} msg The message object from the Telegram api.
+   * @param {any[]} match The regex matched object from the Telegram api.
+   * @returns {string} The response.
+   */
+  stopChat(msg, match) {
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+    if (chat.isRunning()) {
+      chat.setRunning(false);
+      return 'DankTimesBot is now stopped! Hit \'/start\' to restart.';     
+    }
+    return 'DankTimesBot is already stopped!';
+  }
+
+  /**
    * Resets the scores of the specified chat.
    * @param {any} msg The message object from the Telegram api.
    * @param {any[]} match The regex matched object from the Telegram api. 
