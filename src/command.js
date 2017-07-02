@@ -46,7 +46,7 @@ class Command {
      * @returns {RegExp}
      */
     getRegex() {
-        return RegExp('^\\/' + this._name + '(?:\\@DankTimesBot)?(?:\\s(?:[\\w\\d]+)+)*$', 'i');
+        return RegExp('^\\/' + this._name + '(?:\\@DankTimesBot)?(?:\\s(?:[\\w\\d\\/]+)+)*$', 'i');
     };
 
     /**
