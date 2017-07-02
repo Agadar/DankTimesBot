@@ -359,7 +359,7 @@ class Chat {
     _getDankTimesByText(text) {
         const found = [];
         for (let dankTime of this._dankTimes.concat(this._randomDankTimes)) {
-            if (dankTime.getTexts().indexOf(text) > -1) {
+            if (dankTime.hasText(text)) {
                 found.push(dankTime);
             }
         }

@@ -101,6 +101,21 @@ class DankTime {
     };
 
     /**
+     * Checks whether this instance contains the text (case-insensitive).
+     * @param {string} text 
+     * @returns True if this instance contains the text, otherwise false.
+     */
+    hasText(text) {
+        text = text.toUpperCase();
+        for (let text2 of this._texts) {
+            if (text2.toUpperCase() === text) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    /**
      * Used by JSON.stringify. Returns a literal representation of this.
      * @return {Object}
      */
