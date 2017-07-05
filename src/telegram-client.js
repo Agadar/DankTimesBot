@@ -34,7 +34,12 @@ class TelegramClient {
      * @param {function} _function The function to call.
      */
     setOnAnyText(_function) {
-        this._bot.on('message', (msg, match) => _function(msg, match));
+        this._bot.on('message', (msg, match) => { 
+            const output = _function(msg, match);
+            if (output) {
+                this.sendMessage(msg.chat.id, output);
+            }
+        });
     };
 
     /**

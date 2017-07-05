@@ -60,16 +60,8 @@ class Commands {
    * @returns {string} The response.
    */
   resetChat(msg, match) {
-    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
-    let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
-
-    for (const user of chat.getUsers()) {
-      const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' :
-        (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
-      message += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
-    }
-    chat.resetScores();
-    return message;
+    this._chatRegistry.getOrCreateChat(msg.chat.id).setAwaitingResetConfirmation(true);
+    return 'Are you sure? Type \'yes\' to confirm.';
   }
 
   /**

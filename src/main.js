@@ -32,7 +32,7 @@ tgClient.registerCommand(new Command('start', 'Starts keeping track of scores.',
 tgClient.registerCommand(new Command('stop', 'Stops keeping track of scores.', commands, commands.stopChat, true));
 tgClient.setOnAnyText((msg) => {
   if (msg.text) {
-    chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
+    return chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
   }
 });
 

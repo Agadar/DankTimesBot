@@ -48,6 +48,7 @@ class Chat {
         this._randomDankTimes = randomDankTimes;
         this.setNumberOfRandomTimes(numberOfRandomTimes);
         this.setPointsPerRandomTime(pointsPerRandomTime);
+        this._awaitingResetConfirmation = false;
     }
 
     /**
@@ -260,12 +261,30 @@ class Chat {
      * @param {string} userName
      * @param {string} msgText
      * @param {number} msgUnixTime
+     * @returns {string} A reply, or nothing if no reply is suitable/needed.
      */
     processMessage(userId, userName, msgText, msgUnixTime) {
+        msgText = util.cleanText(msgText);
+
+        // If we are awaiting reset confirmation...
+        if (this._awaitingResetConfirmation) {
+            this._awaitingResetConfirmation = false;
+            if (msgText.toUpperCase() === 'YES') {
+                let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
+                for (const user of this.getUsers()) {
+                    const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' :
+                        (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
+                    message += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
+                    user.resetScore();
+                }
+                return message;
+            }
+        }
+
+        // If this chat isn't running, don't check anything else.
         if (!this._running) {
             return;
         }
-        msgText = util.cleanText(msgText);
 
         // Gather dank times from the sent text, returning if none was found.
         const dankTimesByText = this._getDankTimesByText(msgText);
@@ -316,10 +335,14 @@ class Chat {
     };
 
     /**
-     * Resets the scores of all the users.
+     * Sets this chat's awaitingResetConfirmation value.
+     * @param {boolean} awaitingResetConfirmation 
      */
-    resetScores() {
-        this._users.forEach(user => user.resetScore());
+    setAwaitingResetConfirmation(awaitingResetConfirmation) {
+        if (typeof awaitingResetConfirmation !== 'boolean') {
+            throw TypeError('The value must be a boolean!');
+        }
+        this._awaitingResetConfirmation = awaitingResetConfirmation;
     };
 
     /**
