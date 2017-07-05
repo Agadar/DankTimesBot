@@ -60,7 +60,7 @@ class Commands {
    * @returns {string} The response.
    */
   resetChat(msg, match) {
-    this._chatRegistry.getOrCreateChat(msg.chat.id).setAwaitingResetConfirmation(true);
+    this._chatRegistry.getOrCreateChat(msg.chat.id).setAwaitingResetConfirmation(msg.from.id);
     return 'Are you sure? Type \'yes\' to confirm.';
   }
 

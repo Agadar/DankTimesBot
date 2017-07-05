@@ -48,7 +48,7 @@ class Chat {
     this._randomDankTimes = randomDankTimes;
     this.setNumberOfRandomTimes(numberOfRandomTimes);
     this.setPointsPerRandomTime(pointsPerRandomTime);
-    this._awaitingResetConfirmation = false;
+    this._awaitingResetConfirmation = undefined;
   }
 
   /**
@@ -267,8 +267,8 @@ class Chat {
     msgText = util.cleanText(msgText);
 
     // If we are awaiting reset confirmation...
-    if (this._awaitingResetConfirmation) {
-      this._awaitingResetConfirmation = false;
+    if (this._awaitingResetConfirmation === userId) {
+      this._awaitingResetConfirmation = undefined;
       if (msgText.toUpperCase() === 'YES') {
         let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
         for (const user of this.getUsers()) {
@@ -335,12 +335,13 @@ class Chat {
   };
 
   /**
-   * Sets this chat's awaitingResetConfirmation value.
-   * @param {boolean} awaitingResetConfirmation 
+   * Sets this chat's awaitingResetConfirmation value, which is the
+   * id of the user whose confirmation is awaited.
+   * @param {number} awaitingResetConfirmation 
    */
   setAwaitingResetConfirmation(awaitingResetConfirmation) {
-    if (typeof awaitingResetConfirmation !== 'boolean') {
-      throw TypeError('The value must be a boolean!');
+    if (awaitingResetConfirmation && typeof awaitingResetConfirmation !== 'number') {
+      throw TypeError('The value must be a number or undefined!');
     }
     this._awaitingResetConfirmation = awaitingResetConfirmation;
   };
