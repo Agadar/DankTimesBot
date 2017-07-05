@@ -48,7 +48,7 @@ class Commands {
     const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
     if (chat.isRunning()) {
       chat.setRunning(false);
-      return 'DankTimesBot is now stopped! Hit \'/start\' to restart.';     
+      return 'DankTimesBot is now stopped! Hit \'/start\' to restart.';
     }
     return 'DankTimesBot is already stopped!';
   }
