@@ -1,6 +1,8 @@
-'use strict';
+'use strict'
 
-// Imports.
+/**
+ * Imports
+ */
 const Chat = require('./chat.js');
 const DankTime = require('./dank-time.js');
 
