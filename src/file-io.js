@@ -4,45 +4,16 @@
  * Exposes file I/O related functions for DankTimesBot.
  */
 
-// Class Defines
-
-/**
- * Releaselog
- */
-var Releaselog = class Releaselog {
-  constructor() {
-    this.Releases = [];
-  }
-}
-
-/**
- * Individual Release
- */
-var Release = class Release {
-  constructor() {
-    this.Tag      = "";
-    this.Date     = "";
-    this.Changes  = [];
-  }
-}
-
 // Imports.
 let fs = require('fs'); // For working with files.
 const Chat = require('./chat.js');
+const Release = require('./release.js');
 
 // Constants.
 const DATA_FOLDER = './data';
 const BACKUP_PATH = DATA_FOLDER + '/backup.json';
 const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
 const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
-
-// Exports.
-module.exports.loadSettingsFromFile   = loadSettingsFromFile;
-module.exports.loadChatsFromFile      = loadChatsFromFile;
-module.exports.saveChatsToFile        = saveChatsToFile;
-module.exports.loadReleaseLogFromFile = loadReleaseLogFromFile;
-module.exports.Releaselog             = Releaselog
-module.exports.Release                = Release;
 
 /**
  * Parses the JSON data in the file to a Settings object. If the file does not exist,
@@ -137,13 +108,26 @@ function mapReplacer(key, value) {
 }
 
 /**
- * Loads the release log from the Release.json file. If at all possible.
- * @return {Releaselog} Releaselog.
+ * Loads the releases from the Release.json file. If at all possible.
+ * @returns {Release[]}
  */
 function loadReleaseLogFromFile() {
-  var Releaselog = new this.Releaselog();
+  const releasesFile = 'Release.json';
 
-  if(fs.existsSync('Release.json')) {
-    return Object.assign(Releaselog, JSON.parse(fs.readFileSync('Release.json')));
+  // If no releases file exists, just return an empty array.
+  if (!fs.existsSync(releasesFile)) {
+    return [];
   }
+
+  const releases = JSON.parse(fs.readFileSync(releasesFile));
+  for (let i = 0; i < releases.length; i++) {
+    releases[i] = new Release(releases[i].version, releases[i].date, releases[i].changes);
+  }
+  return releases;
 }
+
+// Exports.
+module.exports.loadSettingsFromFile = loadSettingsFromFile;
+module.exports.loadChatsFromFile = loadChatsFromFile;
+module.exports.saveChatsToFile = saveChatsToFile;
+module.exports.loadReleaseLogFromFile = loadReleaseLogFromFile;
