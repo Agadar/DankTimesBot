@@ -1,9 +1,8 @@
 'use strict';
 
 // External imports.
-const time = require('time')(Date);            // NodeJS library for working with timezones.
-const cron = require('cron');                  // NodeJS library for scheduling cron jobs.
 const nodeCleanup = require('node-cleanup');   // NodeJS library for running code on program exit.
+const cron = require('cron'); // NodeJS library for scheduling cron jobs.
 
 // Internal imports.
 const fileIO = require('./file-io.js');
@@ -11,12 +10,14 @@ const Command = require('./command.js');
 const TelegramClient = require('./telegram-client.js');
 const Commands = require('./commands.js');
 const ChatRegistry = require('./chat-registry.js');
+const DankTimeScheduler = require('./dank-time-scheduler.js');
 
 // Global variables.
 const settings = fileIO.loadSettingsFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
 const tgClient = new TelegramClient(settings.apiKey);
 const commands = new Commands(tgClient, chatRegistry, '1.1.0');
+const scheduler = new DankTimeScheduler(tgClient, commands, true);
 
 // Register available Telegram bot commands.
 tgClient.registerCommand(new Command('add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
@@ -48,18 +49,22 @@ nodeCleanup(function (exitCode, signal) {
   fileIO.saveChatsToFile(chatRegistry.getChats());
 });
 
+  chatRegistry.getChats().forEach(chat => {
+    if (chat.isRunning()) {
+      chat.generateRandomDankTimes();
+      scheduler.scheduleDankTimes(chat);
+    }
+  });
+
 /** Generates random dank times daily for all chats at 00:00:00. */
 new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');
+
+  scheduler.reset();
   chatRegistry.getChats().forEach(chat => {
     if (chat.isRunning()) {
-      chat.generateRandomDankTimes().forEach(randomTime => {
-        new cron.CronJob('0 ' + randomTime.getMinute() + ' ' + randomTime.getHour() + ' * * *', function () {
-          if (chat.isRunning()) {
-            tgClient.sendMessage(chat.getId(), 'Surprise dank time! Type \'' + randomTime.getTexts()[0] + '\' for points!');
-          }
-        }, null, true);
-      });
+      chat.generateRandomDankTimes();
+      scheduler.scheduleDankTimes(chat);
     }
   });
 }, null, true);
