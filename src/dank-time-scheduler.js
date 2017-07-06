@@ -61,7 +61,7 @@ class DankTimeScheduler {
    */
   unschedule(chat, dankTime) {
     let i = this._jobs.length;
-    let remaining = this._showLeaderboardAfter ? 2 : 1;
+    let remaining = 2
 
     while (i--) {
       if (this._jobs[i].chatId === chat.getId() && this._jobs[i].hour === dankTime.getHour() && this._jobs[i].minute === dankTime.getMinute()) {
