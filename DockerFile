@@ -2,4 +2,4 @@ FROM node:8.0.0
 WORKDIR /src
 ADD . .
 RUN cd /src && npm install
-ENTRYPOINT ["node", "/src/main.js"]
+ENTRYPOINT ["node", "/src/src/main.js"]
