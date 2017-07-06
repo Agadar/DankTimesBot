@@ -13,7 +13,7 @@ const Release = require('./release.js');
 const DATA_FOLDER = './data';
 const BACKUP_PATH = DATA_FOLDER + '/backup.json';
 const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
-const RELEASE_LOG_PATH = './releases.json';
+const RELEASE_LOG_PATH = DATA_FOLDER + '/releases.json';
 const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
 
 /**
