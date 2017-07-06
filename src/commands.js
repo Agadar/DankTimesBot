@@ -13,11 +13,13 @@ class Commands {
    * Instantiates a new Commands object.
    * @param {TelegramClient} tgClient 
    * @param {ChatRegistry} chatRegistry
+   * @param {Release[]} releaseLog
    * @param {string} version 
    */
-  constructor(tgClient, chatRegistry, version) {
+  constructor(tgClient, chatRegistry, releaseLog, version) {
     this._tgClient = tgClient;
     this._chatRegistry = chatRegistry;
+    this._releaseLog = releaseLog;
     this._version = version;
   }
 
@@ -73,7 +75,8 @@ class Commands {
   chatSettings(msg, match) {
     const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
 
-    let settings = '\n<b>Chat time zone:</b> ' + chat.getTimezone() + '\n<b>Dank times:</b>';
+    let settings = '<b>--- SETTINGS ---</b>\n\n';
+    settings += '<b>Chat time zone:</b> ' + chat.getTimezone() + '\n<b>Dank times:</b>';
     for (const time of chat.getDankTimes()) {
       settings += "\ntime: " + util.padNumber(time.getHour()) + ":" + util.padNumber(time.getMinute()) + ":00    points: " + time.getPoints() + "    texts:";
       for (let text of time.getTexts()) {
@@ -97,7 +100,7 @@ class Commands {
   leaderBoard(msg, match) {
 
     // Build a string to send from the chat's user list.
-    let leaderboard = '<b>Leaderboard:</b>';
+    let leaderboard = '<b>--- LEADERBOARD ---</b>\n';
     for (const user of this._chatRegistry.getOrCreateChat(msg.chat.id).getUsers()) {
       const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
       leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
@@ -113,7 +116,7 @@ class Commands {
    * @returns {string} The response.
    */
   help(msg, match) {
-    let help = '<b>Available commands:</b>';
+    let help = '<b>--- AVAILABLE COMMANDS ---</b>\n';
     this._tgClient.getCommands().forEach(command => help += '\n/' + command.getName() + '    ' + command.getDescription());
     return help;
   }
@@ -246,6 +249,26 @@ class Commands {
     } catch (err) {
       return err.message;
     }
+  }
+
+  /**
+   * Gets the entire release log, formatted neatly.
+   * @param {any} msg The message object from the Telegram api.
+   * @param {any[]} match The regex matched object from the Telegram api. 
+   * @returns {string} The response.
+   */
+  releaseLog(msg, match) {
+    let reply = '<b>--- RELEASES ---</b>\n';
+    this._releaseLog.forEach(release => {
+      reply += '\n';
+      reply += '<b>Version:</b> ' + release.version + '\n';
+      reply += '<b>Date:</b> ' + release.date + '\n';
+      reply += '<b>Changes:</b>\n';
+      release.changes.forEach(change => {
+        reply += '- ' + change + '\n';
+      });
+    });
+    return reply;
   }
 }
 

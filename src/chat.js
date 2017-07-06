@@ -270,7 +270,7 @@ class Chat {
     if (this._awaitingResetConfirmation === userId) {
       this._awaitingResetConfirmation = undefined;
       if (msgText.toUpperCase() === 'YES') {
-        let message = 'Leaderboard has been reset!\n\n<b>Final leaderboard:</b>';
+        let message = 'Leaderboard has been reset!\n\n<b>--- FINAL LEADERBOARD ---</b>\n';
         for (const user of this.getUsers()) {
           const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' :
             (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));

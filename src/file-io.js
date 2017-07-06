@@ -5,19 +5,16 @@
  */
 
 // Imports.
-const fs = require('fs'); // For working with files.
+let fs = require('fs'); // For working with files.
 const Chat = require('./chat.js');
+const Release = require('./release.js');
 
 // Constants.
 const DATA_FOLDER = './data';
 const BACKUP_PATH = DATA_FOLDER + '/backup.json';
 const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
+const RELEASE_LOG_PATH = DATA_FOLDER + '/releases.json';
 const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
-
-// Exports.
-module.exports.loadSettingsFromFile = loadSettingsFromFile;
-module.exports.loadChatsFromFile = loadChatsFromFile;
-module.exports.saveChatsToFile = saveChatsToFile;
 
 /**
  * Parses the JSON data in the file to a Settings object. If the file does not exist,
@@ -110,3 +107,27 @@ function mapReplacer(key, value) {
   }
   return value;
 }
+
+/**
+ * Loads the releases from the Release.json file. If at all possible.
+ * @returns {Release[]}
+ */
+function loadReleaseLogFromFile() {
+
+  // If no releases file exists, just return an empty array.
+  if (!fs.existsSync(RELEASE_LOG_PATH)) {
+    return [];
+  }
+
+  const releases = JSON.parse(fs.readFileSync(RELEASE_LOG_PATH));
+  for (let i = 0; i < releases.length; i++) {
+    releases[i] = new Release(releases[i].version, releases[i].date, releases[i].changes);
+  }
+  return releases;
+}
+
+// Exports.
+module.exports.loadSettingsFromFile = loadSettingsFromFile;
+module.exports.loadChatsFromFile = loadChatsFromFile;
+module.exports.saveChatsToFile = saveChatsToFile;
+module.exports.loadReleaseLogFromFile = loadReleaseLogFromFile;
