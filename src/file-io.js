@@ -13,6 +13,7 @@ const Release = require('./release.js');
 const DATA_FOLDER = './data';
 const BACKUP_PATH = DATA_FOLDER + '/backup.json';
 const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
+const RELEASE_LOG_PATH = './releases.json';
 const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
 
 /**
@@ -112,14 +113,13 @@ function mapReplacer(key, value) {
  * @returns {Release[]}
  */
 function loadReleaseLogFromFile() {
-  const releasesFile = 'Release.json';
 
   // If no releases file exists, just return an empty array.
-  if (!fs.existsSync(releasesFile)) {
+  if (!fs.existsSync(RELEASE_LOG_PATH)) {
     return [];
   }
 
-  const releases = JSON.parse(fs.readFileSync(releasesFile));
+  const releases = JSON.parse(fs.readFileSync(RELEASE_LOG_PATH));
   for (let i = 0; i < releases.length; i++) {
     releases[i] = new Release(releases[i].version, releases[i].date, releases[i].changes);
   }
