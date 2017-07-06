@@ -52,7 +52,7 @@ class Commands {
     if (chat.isRunning()) {
       chat.setRunning(false);
       this._scheduler.unscheduleAllOfChat(chat);
-      return 'DankTimesBot is now stopped! Hit \'/start\' to restart.';     
+      return 'DankTimesBot is now stopped! Hit \'/start\' to restart.';
     }
     return 'DankTimesBot is already stopped!';
   }
@@ -92,6 +92,7 @@ class Commands {
         settings += " " + text;
       }
     }
+    settings += '\n<b>Notifications:</b> ' + (chat.getNotifications() ? 'on' : 'off');
     settings += '\n<b>Random dank times per day:</b> ' + chat.getNumberOfRandomTimes();
     settings += '\n<b>Random dank time points:</b> ' + chat.getPointsPerRandomTime();
     settings += '\n<b>Server time:</b> ' + new Date();
@@ -239,7 +240,7 @@ class Commands {
       chat.setNumberOfRandomTimes(Number(split[1]));
       // Reschedule due to removed random times.
       this._scheduler.unscheduleAllOfChat(chat);
-      this._scheduler.scheduleAllOfChat(chat);      
+      this._scheduler.scheduleAllOfChat(chat);
       return 'Updated the number of random dank times per day!';
     } catch (err) {
       return err.message;
@@ -252,7 +253,7 @@ class Commands {
    * @param {any[]} match The regex matched object from the Telegram api. 
    * @returns {string} The response.
    */
-  setDailyRandomTimesPoints(msg, match, chat) {
+  setDailyRandomTimesPoints(msg, match) {
 
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(' ');
@@ -265,6 +266,25 @@ class Commands {
       return 'Updated the points for random daily dank times!';
     } catch (err) {
       return err.message;
+    }
+  }
+
+  /**
+   * Toggles whether the chat auto-posts notifications about dank times and leaderboards.
+   * @param {any} msg The message object from the Telegram api.
+   * @param {any[]} match The regex matched object from the Telegram api. 
+   * @returns {string} The response.
+   */
+  toggleNotifications(msg, match) {
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+    chat.setNotifications(!chat.getNotifications());
+
+    if (chat.getNotifications()) {
+      this._scheduler.scheduleAllOfChat(chat);
+      return 'Notifications are now enabled!';
+    } else {
+      this._scheduler.unscheduleAllOfChat(chat);
+      return 'Notifications are now disabled!';
     }
   }
 }

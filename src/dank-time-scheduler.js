@@ -11,11 +11,9 @@ class DankTimeScheduler {
   /**
    * Initializes a new dank time scheduler.
    * @param {TelegramClient} tgClient 
-   * @param {boolean} showLeaderboardAfter 
    */
-  constructor(tgClient, showLeaderboardAfter) {
+  constructor(tgClient) {
     this._tgClient = tgClient;
-    this._showLeaderboardAfter = showLeaderboardAfter;
     this._jobs = [];
   };
 
@@ -24,12 +22,14 @@ class DankTimeScheduler {
    * @param {Chat} chat 
    */
   scheduleAllOfChat(chat) {
-    chat.getRandomDankTimes().forEach(dankTime => {
-      this.schedule(chat, dankTime, 'Surprise dank time! Type \'' + dankTime.getTexts()[0] + '\' for points!');
-    });
-    chat.getDankTimes().forEach(dankTime => {
-      this.schedule(chat, dankTime, 'It\'s dank o\'clock! Type \'' + dankTime.getTexts()[0] + '\' for points!');
-    });
+    if (chat.getNotifications()) {
+      chat.getRandomDankTimes().forEach(dankTime => {
+        this.schedule(chat, dankTime, 'Surprise dank time! Type \'' + dankTime.getTexts()[0] + '\' for points!');
+      });
+      chat.getDankTimes().forEach(dankTime => {
+        this.schedule(chat, dankTime, 'It\'s dank o\'clock! Type \'' + dankTime.getTexts()[0] + '\' for points!');
+      });
+    }
   };
 
   /**
@@ -83,40 +83,44 @@ class DankTimeScheduler {
    * @param {string} text 
    */
   schedule(chat, dankTime, text) {
+
+    // If the chat does not want notifications, don't schedule them.
+    if (!chat.getNotifications()) {
+      return;
+    }
+
+    // Schedule the notification at the start of a dank time.
     const _this = this;
     this._jobs.push({
       chatId: chat.getId(), hour: dankTime.getHour(), minute: dankTime.getMinute(), cronJob: new cron.CronJob('0 ' + dankTime.getMinute() + ' ' + dankTime.getHour() + ' * * *', function () {
-        if (chat.isRunning()) {
+        if (chat.isRunning() && chat.getNotifications()) {
           _this._tgClient.sendMessage(chat.getId(), text);
         }
       }, null, true, chat.getTimezone())
     });
 
-    // Schedule the showing of the leaderboard if so desired.
-    if (this._showLeaderboardAfter) {
-      let minute = dankTime.getMinute() + 1;
-      let hour = dankTime.getHour();
+    // Schedule the showing of the leaderboard one minute after the start of a dank time.
+    let minute = dankTime.getMinute() + 1;
+    let hour = dankTime.getHour();
 
-      // Correct if minute + 1 is 60.
-      if (minute >= 60) {
-        minute = 0;
-        hour++;
+    // Correct if minute + 1 is 60.
+    if (minute >= 60) {
+      minute = 0;
+      hour++;
 
-        // Correct if hour is 24.
-        if (hour >= 24) {
-          hour = 0;
-        }
+      // Correct if hour is 24.
+      if (hour >= 24) {
+        hour = 0;
       }
-
-      // Schedule the job.
-      this._jobs.push({
-        chatId: chat.getId(), hour: dankTime.getHour(), minute: dankTime.getMinute(), cronJob: new cron.CronJob('0 ' + minute + ' ' + hour + ' * * *', function () {
-          if (chat.isRunning()) {
-            _this._tgClient.sendMessage(chat.getId(), chat.generateLeaderboard());
-          }
-        }, null, true, chat.getTimezone())
-      });
     }
+    
+    this._jobs.push({
+      chatId: chat.getId(), hour: dankTime.getHour(), minute: dankTime.getMinute(), cronJob: new cron.CronJob('0 ' + minute + ' ' + hour + ' * * *', function () {
+        if (chat.isRunning() && chat.getNotifications()) {
+          _this._tgClient.sendMessage(chat.getId(), chat.generateLeaderboard());
+        }
+      }, null, true, chat.getTimezone())
+    });
   };
 }
 

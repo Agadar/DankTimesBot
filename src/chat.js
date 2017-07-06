@@ -23,9 +23,10 @@ class Chat {
      * @param {User[]} users A map with the users, indexed by user id's.
      * @param {DankTime[]} dankTimes The dank times known in this chat.
      * @param {DankTime[]} randomDankTimes The daily randomly generated dank times in this chat.
+     * @param {boolean} notifications Whether or not this chat automatically sends notifications for dank times.
      */
     constructor(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
-        lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = []) {
+        lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true) {
         if (typeof id !== 'number' || id % 1 !== 0) {
             throw TypeError('The id must be a whole number!');
         }
@@ -48,6 +49,7 @@ class Chat {
         this._randomDankTimes = randomDankTimes;
         this.setNumberOfRandomTimes(numberOfRandomTimes);
         this.setPointsPerRandomTime(pointsPerRandomTime);
+        this.setNotifications(notifications);
     }
 
     /**
@@ -56,6 +58,25 @@ class Chat {
      */
     getId() {
         return this._id;
+    }
+
+    /**
+     * Sets whether or not this chat automatically sends notifications for dank times.
+     * @param {boolean} notifications 
+     */
+    setNotifications(notifications) {
+        if (typeof notifications !== 'boolean') {
+            throw TypeError('The notifications value must be a boolean!');
+        }
+        this._notifications = notifications;
+    }
+
+    /**
+     * Gets whether or not this chat automatically sends notifications for dank times.
+     * @returns {boolean}
+     */
+    getNotifications() {
+        return this._notifications;
     }
 
     /**
@@ -258,7 +279,7 @@ class Chat {
         return {
             id: this._id, timezone: this._timezone, running: this._running, numberOfRandomTimes: this._numberOfRandomTimes,
             pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: usersArr,
-            dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes
+            dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes, notifications: this._notifications
         };
     };
 
@@ -413,6 +434,7 @@ class Chat {
                     delete dankTime.shoutout;
                 }
             }
+            literal.notifications = true;
         }
 
         const dankTimes = [];
@@ -425,7 +447,7 @@ class Chat {
         literal.users.forEach(user => users.set(user.id, User.fromJSON(user)));
 
         return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
-            literal.lastHour, literal.lastMinute, users, dankTimes, randomDankTimes);
+            literal.lastHour, literal.lastMinute, users, dankTimes, randomDankTimes, literal.notifications);
     };
 }
 
