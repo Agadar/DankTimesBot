@@ -51,6 +51,14 @@ class Chat {
     }
 
     /**
+     * Gets this chat's unique Telegram id.
+     * @returns {number}
+     */
+    getId() {
+        return this._id;
+    }
+
+    /**
      * Sets the timezone the users are in.
      * @param {string} newtimezone
      */
@@ -129,7 +137,7 @@ class Chat {
      * @param {DankTime} dankTime
      */
     addDankTime(dankTime) {
-        const existing = this._getDankTime(dankTime.getHour(), dankTime.getMinute());
+        const existing = this.getDankTime(dankTime.getHour(), dankTime.getMinute());
         if (existing) {
             this._dankTimes.splice(this._dankTimes.indexOf(existing), 1);
         }
@@ -329,7 +337,7 @@ class Chat {
      * @returns {boolean} Whether a dank time was found and removed.
      */
     removeDankTime(hour, minute) {
-        const dankTime = this._getDankTime(hour, minute);
+        const dankTime = this.getDankTime(hour, minute);
         if (dankTime) {
             this._dankTimes.splice(this._dankTimes.indexOf(dankTime));
             return true;
@@ -338,12 +346,27 @@ class Chat {
     };
 
     /**
+     * Generates the leaderboard of this chat.
+     * @returns {string} The leaderboard.
+     */
+    generateLeaderboard(msg, match) {
+        let leaderboard = '<b>Leaderboard:</b>';
+        for (const userEntry of this._users) {
+            const user = userEntry[1];
+            const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
+            leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
+            user.resetLastScoreChange();
+        }
+        return leaderboard;
+    }
+
+    /**
      * Gets the normal dank time that has the specified hour and minute.
      * @param {number} hour 
      * @param {number} minute 
      * @returns {DankTime} or undefined if none has the specified hour and minute.
      */
-    _getDankTime(hour, minute) {
+    getDankTime(hour, minute) {
         for (let dankTime of this._dankTimes) {
             if (dankTime.getHour() === hour && dankTime.getMinute() === minute) {
                 return dankTime;

@@ -16,8 +16,8 @@ const DankTimeScheduler = require('./dank-time-scheduler.js');
 const settings = fileIO.loadSettingsFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
 const tgClient = new TelegramClient(settings.apiKey);
-const commands = new Commands(tgClient, chatRegistry, '1.1.0');
-const scheduler = new DankTimeScheduler(tgClient, commands, true);
+const scheduler = new DankTimeScheduler(tgClient, true);
+const commands = new Commands(tgClient, chatRegistry, scheduler, '1.1.0');
 
 // Register available Telegram bot commands.
 tgClient.registerCommand(new Command('add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
@@ -49,25 +49,17 @@ nodeCleanup(function (exitCode, signal) {
   fileIO.saveChatsToFile(chatRegistry.getChats());
 });
 
-  chatRegistry.getChats().forEach(chat => {
-    if (chat.isRunning()) {
-      chat.generateRandomDankTimes();
-      scheduler.scheduleDankTimes(chat);
-    }
-  });
+// Inform server.
+console.info("DankTimesBot is now running...");
 
-/** Generates random dank times daily for all chats at 00:00:00. */
+/** Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00 and once at bot start-up. */
 new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');
-
   scheduler.reset();
   chatRegistry.getChats().forEach(chat => {
     if (chat.isRunning()) {
       chat.generateRandomDankTimes();
-      scheduler.scheduleDankTimes(chat);
+      scheduler.scheduleAllOfChat(chat);
     }
   });
-}, null, true);
-
-// Inform server.
-console.info("DankTimesBot is now running...");
+}, null, true, undefined, undefined, true);

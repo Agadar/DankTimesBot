@@ -13,11 +13,13 @@ class Commands {
    * Instantiates a new Commands object.
    * @param {TelegramClient} tgClient 
    * @param {ChatRegistry} chatRegistry
+   * @param {DankTimeScheduler} scheduler
    * @param {string} version 
    */
-  constructor(tgClient, chatRegistry, version) {
+  constructor(tgClient, chatRegistry, scheduler, version) {
     this._tgClient = tgClient;
     this._chatRegistry = chatRegistry;
+    this._scheduler = scheduler;
     this._version = version;
   }
 
@@ -34,6 +36,7 @@ class Commands {
       return 'DankTimesBot is already running!';
     }
     chat.setRunning(true);
+    this._scheduler.scheduleAllOfChat(chat);
     return 'DankTimesBot is now running! Hit \'/help\' for available commands.';
   }
 
@@ -48,6 +51,7 @@ class Commands {
     const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
     if (chat.isRunning()) {
       chat.setRunning(false);
+      this._scheduler.unscheduleAllOfChat(chat);
       return 'DankTimesBot is now stopped! Hit \'/start\' to restart.';     
     }
     return 'DankTimesBot is already stopped!';
@@ -103,15 +107,7 @@ class Commands {
    * @returns {string} The response.
    */
   leaderBoard(msg, match) {
-
-    // Build a string to send from the chat's user list.
-    let leaderboard = '<b>Leaderboard:</b>';
-    for (const user of this._chatRegistry.getOrCreateChat(msg.chat.id).getUsers()) {
-      const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
-      leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
-      user.resetLastScoreChange();
-    }
-    return leaderboard;
+    return this._chatRegistry.getOrCreateChat(msg.chat.id).generateLeaderboard();
   }
 
   /**
@@ -149,7 +145,11 @@ class Commands {
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
       const dankTime = new DankTime(hour, minute, texts, points);
-      this._chatRegistry.getOrCreateChat(msg.chat.id).addDankTime(dankTime);
+      const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+      chat.addDankTime(dankTime);
+      // Reschedule cron job, just to make sure.
+      this._scheduler.unschedule(chat, dankTime);
+      this._scheduler.schedule(chat, dankTime, 'It\'s dank o\'clock! Type \'' + dankTime.getTexts()[0] + '\' for points!');
       return 'Added the new time!';
     } catch (err) {
       return err.message;
@@ -181,7 +181,11 @@ class Commands {
     }
 
     // Remove dank time if it exists, otherwise just send an info message.
-    if (this._chatRegistry.getOrCreateChat(msg.chat.id).removeDankTime(hour, minute)) {
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+    const dankTime = chat.getDankTime(hour, minute);
+
+    if (chat.removeDankTime(hour, minute)) {
+      this._scheduler.unschedule(chat, dankTime);
       return 'Removed the time!'
     } else {
       return 'No dank time known with that hour and minute!';
@@ -204,7 +208,11 @@ class Commands {
 
     // Update the time zone.
     try {
-      this._chatRegistry.getOrCreateChat(msg.chat.id).setTimezone(split[1]);
+      const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+      chat.setTimezone(split[1]);
+      // Reschedule due to timezone change.
+      this._scheduler.unscheduleAllOfChat(chat);
+      this._scheduler.scheduleAllOfChat(chat);
       return 'Updated the time zone!';
     } catch (err) {
       return err.message;
@@ -227,7 +235,11 @@ class Commands {
 
     // Do the update.
     try {
-      this._chatRegistry.getOrCreateChat(msg.chat.id).setNumberOfRandomTimes(Number(split[1]));
+      const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+      chat.setNumberOfRandomTimes(Number(split[1]));
+      // Reschedule due to removed random times.
+      this._scheduler.unscheduleAllOfChat(chat);
+      this._scheduler.scheduleAllOfChat(chat);      
       return 'Updated the number of random dank times per day!';
     } catch (err) {
       return err.message;
