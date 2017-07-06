@@ -66,5 +66,20 @@ new cron.CronJob('0 0 0 * * *', function () {
   });
 }, null, true);
 
+// Send a release log message to all chats, assuming there are release logs.
+if (releaseLog.length > 0) {
+
+  // Prepare message.
+  let message = '<b>--- What\'s new in version ' + releaseLog[0].version + ' ? ---</b>\n\n';
+  releaseLog[0].changes.forEach(change => {
+    message += '- ' + change + '\n';
+  });
+
+  // Send it to all chats.
+  chatRegistry.getChats().forEach(chat => {
+    tgClient.sendMessage(chat._id, message);
+  });
+}
+
 // Inform server.
 console.info("DankTimesBot is now running...");
