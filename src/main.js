@@ -15,14 +15,16 @@ const DankTimeScheduler = require('./dank-time-scheduler.js');
 // Global variables.
 const settings = fileIO.loadSettingsFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
+const releaseLog = fileIO.loadReleaseLogFromFile();
 const tgClient = new TelegramClient(settings.apiKey);
 const scheduler = new DankTimeScheduler(tgClient, true);
-const commands = new Commands(tgClient, chatRegistry, scheduler, '1.1.0');
+const commands = new Commands(tgClient, chatRegistry, scheduler, releaseLog, '1.1.0');
 
 // Register available Telegram bot commands.
 tgClient.registerCommand(new Command('add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
 tgClient.registerCommand(new Command('help', 'Shows the available commands.', commands, commands.help));
 tgClient.registerCommand(new Command('leaderboard', 'Shows the leaderboard.', commands, commands.leaderBoard));
+tgClient.registerCommand(new Command('releases', 'Prints the release log.', commands, commands.releaseLog));
 tgClient.registerCommand(new Command('remove_time', 'Removes a dank time. Format: [hour] [minute]', commands, commands.removeTime, true));
 tgClient.registerCommand(new Command('reset', 'Resets the scores.', commands, commands.resetChat, true, true));
 tgClient.registerCommand(new Command('settings', 'Shows the current settings.', commands, commands.chatSettings));
@@ -64,3 +66,21 @@ new cron.CronJob('0 0 0 * * *', function () {
     }
   });
 }, null, true, undefined, undefined, true);
+
+// Send a release log message to all chats, assuming there are release logs.
+if (releaseLog.length > 0) {
+
+  // Prepare message.
+  let message = '<b>--- What\'s new in version ' + releaseLog[0].version + ' ? ---</b>\n\n';
+  releaseLog[0].changes.forEach(change => {
+    message += '- ' + change + '\n';
+  });
+
+  // Send it to all chats.
+  chatRegistry.getChats().forEach(chat => {
+    tgClient.sendMessage(chat._id, message);
+  });
+}
+
+// Inform server.
+console.info("DankTimesBot is now running...");

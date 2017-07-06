@@ -4,8 +4,9 @@ dank-times-bot.key
 dank-times-bot.data
 dank-times-bot.settings
 
-# Folder containing application data
-data
+# Files that are specific per installation, and thus need to be ignored.
+data/backup.json
+data/settings.json
 
 # Logs
 logs

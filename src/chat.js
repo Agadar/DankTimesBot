@@ -371,7 +371,7 @@ class Chat {
      * @returns {string} The leaderboard.
      */
     generateLeaderboard(msg, match) {
-        let leaderboard = '<b>Leaderboard:</b>';
+        let leaderboard = '<b>--- LEADERBOARD ---</b>';
         for (const userEntry of this._users) {
             const user = userEntry[1];
             const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
