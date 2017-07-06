@@ -27,7 +27,7 @@ var Release = class Release {
 }
 
 // Imports.
-const fs = require('fs'); // For working with files.
+let fs = require('fs'); // For working with files.
 const Chat = require('./chat.js');
 
 // Constants.

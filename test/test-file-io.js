@@ -1,6 +1,6 @@
 var assert = require('assert');
 var rewire = require('rewire');
-var FileIO = rewire('../file-io.js');
+var FileIO = rewire('../src/file-io.js');
 
 describe('loadReleaseLogFromFile()', function() {
     var typeTests = [
