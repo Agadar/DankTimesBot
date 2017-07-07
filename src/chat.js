@@ -23,9 +23,10 @@ class Chat {
    * @param {User[]} users A map with the users, indexed by user id's.
    * @param {DankTime[]} dankTimes The dank times known in this chat.
    * @param {DankTime[]} randomDankTimes The daily randomly generated dank times in this chat.
+   * @param {boolean} notifications Whether or not this chat automatically sends notifications for dank times.
    */
   constructor(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
-    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = []) {
+    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true) {
     if (typeof id !== 'number' || id % 1 !== 0) {
       throw TypeError('The id must be a whole number!');
     }
@@ -49,6 +50,34 @@ class Chat {
     this.setNumberOfRandomTimes(numberOfRandomTimes);
     this.setPointsPerRandomTime(pointsPerRandomTime);
     this._awaitingResetConfirmation = undefined;
+    this.setNotifications(notifications);
+  }
+
+  /**
+   * Gets this chat's unique Telegram id.
+   * @returns {number}
+   */
+  getId() {
+    return this._id;
+  }
+
+  /**
+   * Sets whether or not this chat automatically sends notifications for dank times.
+   * @param {boolean} notifications
+   */
+  setNotifications(notifications) {
+    if (typeof notifications !== 'boolean') {
+      throw TypeError('The notifications value must be a boolean!');
+    }
+    this._notifications = notifications;
+  }
+
+  /**
+   * Gets whether or not this chat automatically sends notifications for dank times.
+   * @returns {boolean}
+   */
+  getNotifications() {
+    return this._notifications;
   }
 
   /**
@@ -130,7 +159,7 @@ class Chat {
    * @param {DankTime} dankTime
    */
   addDankTime(dankTime) {
-    const existing = this._getDankTime(dankTime.getHour(), dankTime.getMinute());
+    const existing = this.getDankTime(dankTime.getHour(), dankTime.getMinute());
     if (existing) {
       this._dankTimes.splice(this._dankTimes.indexOf(existing), 1);
     }
@@ -251,7 +280,7 @@ class Chat {
     return {
       id: this._id, timezone: this._timezone, running: this._running, numberOfRandomTimes: this._numberOfRandomTimes,
       pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: usersArr,
-      dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes
+      dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes, notifications: this._notifications
     };
   };
 
@@ -347,13 +376,20 @@ class Chat {
   };
 
   /**
+   * Resets the scores of all the users.
+   */
+  resetScores() {
+    this._users.forEach(user => user.resetScore());
+  };
+
+  /**
    * Removes the dank time with the specified hour and minute.
    * @param {number} hour
    * @param {number} minute
    * @returns {boolean} Whether a dank time was found and removed.
    */
   removeDankTime(hour, minute) {
-    const dankTime = this._getDankTime(hour, minute);
+    const dankTime = this.getDankTime(hour, minute);
     if (dankTime) {
       this._dankTimes.splice(this._dankTimes.indexOf(dankTime));
       return true;
@@ -362,12 +398,27 @@ class Chat {
   };
 
   /**
+   * Generates the leaderboard of this chat.
+   * @returns {string} The leaderboard.
+   */
+  generateLeaderboard(msg, match) {
+    let leaderboard = '<b>--- LEADERBOARD ---</b>\n';
+    for (const userEntry of this._users) {
+      const user = userEntry[1];
+      const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
+      leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
+      user.resetLastScoreChange();
+    }
+    return leaderboard;
+  }
+
+  /**
    * Gets the normal dank time that has the specified hour and minute.
    * @param {number} hour 
    * @param {number} minute 
    * @returns {DankTime} or undefined if none has the specified hour and minute.
    */
-  _getDankTime(hour, minute) {
+  getDankTime(hour, minute) {
     for (let dankTime of this._dankTimes) {
       if (dankTime.getHour() === hour && dankTime.getMinute() === minute) {
         return dankTime;
@@ -414,6 +465,7 @@ class Chat {
           delete dankTime.shoutout;
         }
       }
+      literal.notifications = true;
     }
 
     const dankTimes = [];
@@ -426,7 +478,7 @@ class Chat {
     literal.users.forEach(user => users.set(user.id, User.fromJSON(user)));
 
     return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
-      literal.lastHour, literal.lastMinute, users, dankTimes, randomDankTimes);
+      literal.lastHour, literal.lastMinute, users, dankTimes, randomDankTimes, literal.notifications);
   };
 }
 

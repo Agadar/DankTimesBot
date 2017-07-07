@@ -1,9 +1,8 @@
 'use strict';
 
 // External imports.
-const time = require('time')(Date);            // NodeJS library for working with timezones.
-const cron = require('cron');                  // NodeJS library for scheduling cron jobs.
 const nodeCleanup = require('node-cleanup');   // NodeJS library for running code on program exit.
+const cron = require('cron'); // NodeJS library for scheduling cron jobs.
 
 // Internal imports.
 const fileIO = require('./file-io.js');
@@ -11,13 +10,15 @@ const Command = require('./command.js');
 const TelegramClient = require('./telegram-client.js');
 const Commands = require('./commands.js');
 const ChatRegistry = require('./chat-registry.js');
+const DankTimeScheduler = require('./dank-time-scheduler.js');
 
 // Global variables.
 const settings = fileIO.loadSettingsFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
 const releaseLog = fileIO.loadReleaseLogFromFile();
 const tgClient = new TelegramClient(settings.apiKey);
-const commands = new Commands(tgClient, chatRegistry, releaseLog, '1.1.0');
+const scheduler = new DankTimeScheduler(tgClient, true);
+const commands = new Commands(tgClient, chatRegistry, scheduler, releaseLog, '1.1.0');
 
 // Register available Telegram bot commands.
 tgClient.registerCommand(new Command('add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
@@ -32,6 +33,7 @@ tgClient.registerCommand(new Command('set_daily_random_points', 'Sets the points
 tgClient.registerCommand(new Command('set_timezone', 'Sets the time zone. Format: [timezone]', commands, commands.setTimezone, true));
 tgClient.registerCommand(new Command('start', 'Starts keeping track of scores.', commands, commands.startChat, true));
 tgClient.registerCommand(new Command('stop', 'Stops keeping track of scores.', commands, commands.stopChat, true));
+tgClient.registerCommand(new Command('toggle_notifications', 'Toggles whether notifications of dank times and leaderboards are sent.', commands, commands.toggleNotifications, true));
 tgClient.setOnAnyText((msg) => {
   if (msg.text) {
     return chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
@@ -50,21 +52,20 @@ nodeCleanup(function (exitCode, signal) {
   fileIO.saveChatsToFile(chatRegistry.getChats());
 });
 
-/** Generates random dank times daily for all chats at 00:00:00. */
+// Inform server.
+console.info("DankTimesBot is now running...");
+
+/** Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00 and once at bot start-up. */
 new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');
+  scheduler.reset();
   chatRegistry.getChats().forEach(chat => {
     if (chat.isRunning()) {
-      chat.generateRandomDankTimes().forEach(randomTime => {
-        new cron.CronJob('0 ' + randomTime.getMinute() + ' ' + randomTime.getHour() + ' * * *', function () {
-          if (chat.isRunning()) {
-            tgClient.sendMessage(chat.getId(), 'Surprise dank time! Type \'' + randomTime.getTexts()[0] + '\' for points!');
-          }
-        }, null, true);
-      });
+      chat.generateRandomDankTimes();
+      scheduler.scheduleAllOfChat(chat);
     }
   });
-}, null, true);
+}, null, true, undefined, undefined, true);
 
 // Send a release log message to all chats, assuming there are release logs.
 if (releaseLog.length > 0) {
