@@ -3,8 +3,20 @@
         "version": "1.1.0",
         "date": "July 7th, 2017",
         "changes": [
-            "change1",
-            "change2"
+            "It is now possible for a dank time to have multiple words that can be typed to score points",
+            "It is now possible for multiple dank times to share the same word(s)",
+            "The words you need to type to score points for dank times are no longer case-sensitive",
+            "Notifications are no longer sent only for random dank times, but also for normal dank times",
+            "When a dank time has ended, the leaderboard is now printed",
+            "Added the /toggle_notifications command to enable or disable the behavior of the above two changes",
+            "Added the /stop command which stops the bot",
+            "Added the /releases command which prints the release logs",
+            "When the bot is (re)started on the server it now sends a 'what's new?' message to all chats",
+            "Bot data is now saved when the bot stops on the server, so no more data loss when it crashes or updates!",
+            "The /reset command now requires confirmation before doing the reset",
+            "Fixed a bug where notifications for existing random dank times would not be sent after the bot was restarted on the server",
+            "Fixed a bug where typing a bot command mid-sentence would execute that command",
+            "Added a README to the repository containing info and tutorials about the bot"
         ]
     }
 ]
