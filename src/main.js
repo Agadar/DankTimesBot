@@ -36,7 +36,7 @@ tgClient.registerCommand(new Command('stop', 'Stops keeping track of scores.', c
 tgClient.registerCommand(new Command('toggle_notifications', 'Toggles whether notifications of dank times and leaderboards are sent.', commands, commands.toggleNotifications, true));
 tgClient.setOnAnyText((msg) => {
   if (msg.text) {
-    chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
+    return chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
   }
 });
 
