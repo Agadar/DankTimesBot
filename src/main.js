@@ -18,7 +18,7 @@ const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
 const releaseLog = fileIO.loadReleaseLogFromFile();
 const tgClient = new TelegramClient(settings.apiKey);
 const scheduler = new DankTimeScheduler(tgClient, true);
-const commands = new Commands(tgClient, chatRegistry, scheduler, releaseLog, '1.1.0');
+const commands = new Commands(tgClient, chatRegistry, scheduler, releaseLog, '1.2.0');
 
 // Register available Telegram bot commands.
 tgClient.registerCommand(new Command('add_time', 'Adds a dank time. Format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
