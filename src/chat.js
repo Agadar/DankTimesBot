@@ -403,8 +403,8 @@ class Chat {
    */
   generateLeaderboard(msg, match) {
     let leaderboard = '<b>--- LEADERBOARD ---</b>\n';
-    for (const userEntry of this._users) {
-      const user = userEntry[1];
+    for (const userEntry of this.getUsers()) {
+      const user = userEntry;
       const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
       leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
       user.resetLastScoreChange();
