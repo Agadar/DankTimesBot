@@ -5,18 +5,16 @@
  */
 
 // Imports.
-const fs = require('fs'); // For working with files.
+let fs = require('fs'); // For working with files.
+const Chat = require('./chat.js');
+const Release = require('./release.js');
 
 // Constants.
 const DATA_FOLDER = './data';
 const BACKUP_PATH = DATA_FOLDER + '/backup.json';
 const SETTINGS_PATH = DATA_FOLDER + '/settings.json';
+const RELEASE_LOG_PATH = DATA_FOLDER + '/releases.json';
 const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
-
-// Exports.
-module.exports.loadSettingsFromFile = loadSettingsFromFile;
-module.exports.loadChatsFromFile = loadChatsFromFile;
-module.exports.saveChatsToFile = saveChatsToFile;
 
 /**
  * Parses the JSON data in the file to a Settings object. If the file does not exist,
@@ -27,7 +25,7 @@ module.exports.saveChatsToFile = saveChatsToFile;
  * @return {Settings} The settings.
  */
 function loadSettingsFromFile() {
-  const settings = {apiKey: '', persistenceRate: 60}; // Default settings.
+  const settings = { apiKey: '', persistenceRate: 60 }; // Default settings.
 
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {
@@ -64,65 +62,32 @@ function loadSettingsFromFile() {
  * @return {Map} Map containing Chat objects.
  */
 function loadChatsFromFile() {
-  const chats = new Map();
 
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {
     fs.mkdirSync(DATA_FOLDER);
   }
-  
+  const chats = new Map();
+
   // If the data file exists, load and parse the data to an object.
   if (fs.existsSync(BACKUP_PATH)) {
-    const chatsRaw = JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8'));
-    
-    // We want to parse the arrays to proper maps, so let's do that.
-    for (const chat of chatsRaw) {
-      const users = new Map();
-      const dankTimes = new Map();
-      const randomDankTimes = new Map();
-
-      // User array to map.
-      for (const user of chat.users) {
-        users.set(user.id, user);
-
-        // Temporary verification for user.lastScoreChange field
-        if (!user.lastScoreChange) {
-          user.lastScoreChange = 0;
-        }
-      }
-
-      // DankTimes array to map.
-      for (const dankTime of chat.dankTimes) {
-        dankTimes.set(dankTime.shoutout, dankTime);
-      }
-
-      // Random DankTimes array to map.
-      for (const randomDankTime of chat.randomDankTimes) {
-        randomDankTimes.set(randomDankTime.shoutout, randomDankTime);
-      }
-
-      // Override fields and add to map.
-      chat.users = users;
-      chat.dankTimes = dankTimes;
-      chat.randomDankTimes = randomDankTimes;
-      chats.set(chat.id, chat);
-    }
+    JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8')).forEach(chat => chats.set(chat.id, Chat.fromJSON(chat)));
   }
   return chats;
 }
 
 /**
  * Parses a Map of Chat objects to JSON and saves it to a file.
- * @param {Map} chat Map containing Chat objects.
+ * @param {Map<number,Chat>} chats Map containing Chat objects.
  */
-function saveChatsToFile(chat) {
+function saveChatsToFile(chats) {
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {
     fs.mkdirSync(DATA_FOLDER);
   }
 
   // Write to backup file.
-  fs.writeFileSync(BACKUP_PATH, JSON.stringify(chat, mapReplacer, '\t'));
+  fs.writeFileSync(BACKUP_PATH, JSON.stringify(chats, mapReplacer, 1));
 }
 
 /**
@@ -142,3 +107,27 @@ function mapReplacer(key, value) {
   }
   return value;
 }
+
+/**
+ * Loads the releases from the Release.json file. If at all possible.
+ * @returns {Release[]}
+ */
+function loadReleaseLogFromFile() {
+
+  // If no releases file exists, just return an empty array.
+  if (!fs.existsSync(RELEASE_LOG_PATH)) {
+    return [];
+  }
+
+  const releases = JSON.parse(fs.readFileSync(RELEASE_LOG_PATH));
+  for (let i = 0; i < releases.length; i++) {
+    releases[i] = new Release(releases[i].version, releases[i].date, releases[i].changes);
+  }
+  return releases;
+}
+
+// Exports.
+module.exports.loadSettingsFromFile = loadSettingsFromFile;
+module.exports.loadChatsFromFile = loadChatsFromFile;
+module.exports.saveChatsToFile = saveChatsToFile;
+module.exports.loadReleaseLogFromFile = loadReleaseLogFromFile;
