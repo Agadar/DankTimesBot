@@ -1,7 +1,7 @@
 [
     {
         "version": "1.1.0",
-        "date": "July 7th, 2017",
+        "date": "July 8th, 2017",
         "changes": [
             "It is now possible for a dank time to have multiple words that can be typed to score points",
             "It is now possible for multiple dank times to share the same word(s)",
