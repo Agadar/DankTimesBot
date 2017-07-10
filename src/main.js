@@ -52,9 +52,6 @@ nodeCleanup(function (exitCode, signal) {
   fileIO.saveChatsToFile(chatRegistry.getChats());
 });
 
-// Inform server.
-console.info("DankTimesBot is now running...");
-
 /** Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00 and once at bot start-up. */
 new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');

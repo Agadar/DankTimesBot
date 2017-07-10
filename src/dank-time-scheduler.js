@@ -116,7 +116,7 @@ class DankTimeScheduler {
     
     this._jobs.push({
       chatId: chat.getId(), hour: dankTime.getHour(), minute: dankTime.getMinute(), cronJob: new cron.CronJob('0 ' + minute + ' ' + hour + ' * * *', function () {
-        if (chat.isRunning() && chat.getNotifications()) {
+        if (chat.isRunning() && chat.getNotifications() && chat.leaderboardChanged()) {
           _this._tgClient.sendMessage(chat.getId(), chat.generateLeaderboard());
         }
       }, null, true, chat.getTimezone())

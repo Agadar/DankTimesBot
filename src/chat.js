@@ -299,13 +299,8 @@ class Chat {
     if (this._awaitingResetConfirmation === userId) {
       this._awaitingResetConfirmation = undefined;
       if (msgText.toUpperCase() === 'YES') {
-        let message = 'Leaderboard has been reset!\n\n<b>--- FINAL LEADERBOARD ---</b>\n';
-        for (const user of this.getUsers()) {
-          const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' :
-            (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
-          message += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
-          user.resetScore();
-        }
+        const message = 'Leaderboard has been reset!\n\n' + this.generateLeaderboard(true);
+        this._users.forEach(user => user.resetScore());
         return message;
       }
     }
@@ -398,11 +393,25 @@ class Chat {
   };
 
   /**
+   * Returns whether the leaderboard has changed since the last time this.generateLeaderboard(...) was generated.
+   * @returns {boolean}
+   */
+  leaderboardChanged() {
+    for (const user of this._users) {
+      if (user[1].getLastScoreChange() !== 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Generates the leaderboard of this chat.
+   * @param {boolean} final If true, prints 'FINAL LEADERBOARD' instead of 'LEADERBOARD'.
    * @returns {string} The leaderboard.
    */
-  generateLeaderboard(msg, match) {
-    let leaderboard = '<b>--- LEADERBOARD ---</b>\n';
+  generateLeaderboard(final = false) {
+    let leaderboard = '<b>--- ' + (final ? 'FINAL ' : '') + 'LEADERBOARD ---</b>\n';
     for (const userEntry of this.getUsers()) {
       const user = userEntry;
       const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
