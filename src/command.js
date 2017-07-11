@@ -42,11 +42,12 @@ class Command {
   }
 
   /**
-   * Gets this command's regex, which is based on its name.
+   * Gets this command's regex, which is based on its name and the supplied bot name.
+   * @param {string} botname The name of the bot.
    * @returns {RegExp}
    */
-  getRegex() {
-    return RegExp('^\\/' + this._name + '(?:\\@DankTimesBot)?(?:\\s(?:[\\w\\d\\/]+)+)*$', 'i');
+  getRegex(botname) {
+    return RegExp('^\\/' + this._name + '(?:\\@' + botname + ')?(?:\\s(?:[\\w\\d\\/]+)+)*$', 'i');
   };
 
   /**

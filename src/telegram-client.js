@@ -22,6 +22,25 @@ class TelegramClient {
   }
 
   /**
+   * Retrieves and stores the bot's name from the API.
+   * @returns {Promise}
+   */
+  retrieveBotName() {
+    const _this = this;
+    return this._bot.getMe().then(me => {
+      _this._botname = me.username;
+    });
+  };
+
+  /**
+   * Gets the bot's name, or undefined if this.retrieveBotName() wasn't called yet.
+   * @returns {string}
+   */
+  getBotName() {
+    return this._botname;
+  };
+
+  /**
    * Gets all registered commands.
    * @returns {Map<string,Command>}
    */
@@ -54,11 +73,11 @@ class TelegramClient {
 
     // Register the command with the bot accordingly.
     if (!command.getAdminOnly()) {
-      this._bot.onText(command.getRegex(), (msg, match) => {
+      this._bot.onText(command.getRegex(this._botname), (msg, match) => {
         this.sendMessage(msg.chat.id, command.getFunction().call(command.getObject(), msg, match));
       });
     } else {
-      this._bot.onText(command.getRegex(), (msg, match) => {
+      this._bot.onText(command.getRegex(this._botname), (msg, match) => {
         this._callFunctionIfUserIsAdmin(msg, match, command.getObject(), command.getFunction());
       });
     }

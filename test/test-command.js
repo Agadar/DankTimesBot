@@ -5,7 +5,7 @@ const Command = require('../src/command.js');
 
 describe('Command.getRegex()', function () {
 
-  const regex = new Command('command', 'command description', {}, () => { }, false, false).getRegex();
+  const regex = new Command('command', 'command description', {}, () => { }, false, false).getRegex('DankTimesBot');
   const tests = [
     { arg: '/command', expected: true },
 

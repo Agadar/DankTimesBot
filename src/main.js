@@ -20,24 +20,26 @@ const tgClient = new TelegramClient(settings.apiKey);
 const scheduler = new DankTimeScheduler(tgClient, true);
 const commands = new Commands(tgClient, chatRegistry, scheduler, releaseLog, '1.2.0');
 
-// Register available Telegram bot commands.
-tgClient.registerCommand(new Command('addtime', 'adds a dank time. format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
-tgClient.registerCommand(new Command('help', 'shows the available commands', commands, commands.help));
-tgClient.registerCommand(new Command('leaderboard', 'shows the leaderboard', commands, commands.leaderBoard));
-tgClient.registerCommand(new Command('releases', 'prints the release log', commands, commands.releaseLog));
-tgClient.registerCommand(new Command('removetime', 'removes a dank time. format: [hour] [minute]', commands, commands.removeTime, true));
-tgClient.registerCommand(new Command('reset', 'resets the scores', commands, commands.resetChat, true, true));
-tgClient.registerCommand(new Command('settings', 'shows the current settings', commands, commands.chatSettings));
-tgClient.registerCommand(new Command('setdailyrandomfrequency', 'sets the number of random dank times per day. format: [number]', commands, commands.setDailyRandomTimes, true));
-tgClient.registerCommand(new Command('setdailyrandompoints', 'sets the points for random daily dank times. format: [number]', commands, commands.setDailyRandomTimesPoints, true));
-tgClient.registerCommand(new Command('settimezone', 'sets the time zone. format: [timezone]', commands, commands.setTimezone, true));
-tgClient.registerCommand(new Command('start', 'starts keeping track of scores', commands, commands.startChat, true));
-tgClient.registerCommand(new Command('stop', 'stops keeping track of scores', commands, commands.stopChat, true));
-tgClient.registerCommand(new Command('togglenotifications', 'toggles whether notifications of dank times and leaderboards are sent', commands, commands.toggleNotifications, true));
-tgClient.setOnAnyText((msg) => {
-  if (msg.text) {
-    return chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
-  }
+// Register available Telegram bot commands, after retrieving the bot name.
+tgClient.retrieveBotName().then(() => {
+  tgClient.registerCommand(new Command('addtime', 'adds a dank time. format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
+  tgClient.registerCommand(new Command('help', 'shows the available commands', commands, commands.help));
+  tgClient.registerCommand(new Command('leaderboard', 'shows the leaderboard', commands, commands.leaderBoard));
+  tgClient.registerCommand(new Command('releases', 'prints the release log', commands, commands.releaseLog));
+  tgClient.registerCommand(new Command('removetime', 'removes a dank time. format: [hour] [minute]', commands, commands.removeTime, true));
+  tgClient.registerCommand(new Command('reset', 'resets the scores', commands, commands.resetChat, true, true));
+  tgClient.registerCommand(new Command('settings', 'shows the current settings', commands, commands.chatSettings));
+  tgClient.registerCommand(new Command('setdailyrandomfrequency', 'sets the number of random dank times per day. format: [number]', commands, commands.setDailyRandomTimes, true));
+  tgClient.registerCommand(new Command('setdailyrandompoints', 'sets the points for random daily dank times. format: [number]', commands, commands.setDailyRandomTimesPoints, true));
+  tgClient.registerCommand(new Command('settimezone', 'sets the time zone. format: [timezone]', commands, commands.setTimezone, true));
+  tgClient.registerCommand(new Command('start', 'starts keeping track of scores', commands, commands.startChat, true));
+  tgClient.registerCommand(new Command('stop', 'stops keeping track of scores', commands, commands.stopChat, true));
+  tgClient.registerCommand(new Command('togglenotifications', 'toggles whether notifications of dank times and leaderboards are sent', commands, commands.toggleNotifications, true));
+  tgClient.setOnAnyText((msg) => {
+    if (msg.text) {
+      return chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
+    }
+  });
 });
 
 // Schedule to persist chats map to file every X minutes.
@@ -80,4 +82,4 @@ if (releaseLog.length > 0) {
 }
 
 // Inform server.
-console.info("DankTimesBot is now running...");
+console.info("Bot is now running...");
