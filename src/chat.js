@@ -293,6 +293,14 @@ class Chat {
    * @returns {string} A reply, or nothing if no reply is suitable/needed.
    */
   processMessage(userId, userName, msgText, msgUnixTime) {
+
+    // Ignore the message if it was sent more than 1 minute ago.
+    const serverDate = new Date();
+    serverDate.setTimezone(this._timezone);
+    msgUnixTime *= 1000;
+    if (serverDate.getTime() - msgUnixTime >= 60 * 1000) {
+      return;
+    }
     msgText = util.cleanText(msgText);
 
     // If we are awaiting reset confirmation...
@@ -327,14 +335,10 @@ class Chat {
       user.setName(userName);
     }
 
-    // Prepare server date object.
-    const serverDate = new Date();
-    serverDate.setTimezone(this._timezone);
-
     let subtractBy = 0;
     for (let dankTime of dankTimesByText) {
       if (serverDate.getHours() === dankTime.getHour() && (serverDate.getMinutes() === dankTime.getMinute()
-        || new Date(msgUnixTime * 1000).getMinutes() === dankTime.getMinute())) {
+        || new Date(msgUnixTime).getMinutes() === dankTime.getMinute())) {
 
         // If cache needs resetting, do so and award DOUBLE points to the calling user.
         if (this._lastHour !== dankTime.getHour() || this._lastMinute !== dankTime.getMinute()) {
