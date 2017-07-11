@@ -14,17 +14,17 @@ class User {
    * @param {number} lastScoreChange The last change to the user's score.
    */
   constructor(id, name, score = 0, called = false, lastScoreChange = 0) {
-    if (typeof id !== 'number' || id % 1 !== 0) {
+    if (isNaN(id) || id % 1 !== 0) {
       throw TypeError('The id must be a whole number!');
     }
     this._id = id;
     this.setName(name);
-    if (typeof score !== 'number' || score % 1 !== 0) {
+    if (isNaN(score) || score % 1 !== 0) {
       throw TypeError('The score must be a whole number!');
     }
     this._score = score;
     this.setCalled(called);
-    if (typeof lastScoreChange !== 'number' || lastScoreChange % 1 !== 0) {
+    if (isNaN(lastScoreChange) || lastScoreChange % 1 !== 0) {
       throw TypeError('The last score change must be a whole number!');
     }
     this._lastScoreChange = lastScoreChange;
@@ -81,7 +81,7 @@ class User {
    * @param {number} amount May be negative.
    */
   addToScore(amount) {
-    if (typeof amount !== 'number' || amount % 1 !== 0) {
+    if (isNaN(amount) || amount % 1 !== 0) {
       throw TypeError('The amount must be a whole number!');
     }
     this._score += amount;

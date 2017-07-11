@@ -24,7 +24,7 @@ class DankTime {
    * @param {number} newhour
    */
   setHour(newhour) {
-    if (typeof newhour !== 'number' || newhour < 0 || newhour > 23 || newhour % 1 !== 0) {
+    if (isNaN(newhour) || newhour < 0 || newhour > 23 || newhour % 1 !== 0) {
       throw TypeError('The hour must be a whole number between 0 and 23!');
     }
     this._hour = newhour;
@@ -35,7 +35,7 @@ class DankTime {
    * @param {number} newminute
    */
   setMinute(newminute) {
-    if (typeof newminute !== 'number' || newminute < 0 || newminute > 59 || newminute % 1 !== 0) {
+    if (isNaN(newminute) || newminute < 0 || newminute > 59 || newminute % 1 !== 0) {
       throw TypeError('The minute must be a whole number between 0 and 59!');
     }
     this._minute = newminute;
@@ -46,7 +46,7 @@ class DankTime {
    * @param {number} newpoints
    */
   setPoints(newpoints) {
-    if (typeof newpoints !== 'number' || newpoints < 1 || newpoints % 1 !== 0) {
+    if (isNaN(newpoints) || newpoints < 1 || newpoints % 1 !== 0) {
       throw TypeError('The points must be a whole number greater than 0!');
     }
     this._points = newpoints;

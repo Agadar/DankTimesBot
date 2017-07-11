@@ -47,7 +47,7 @@ class Command {
    * @returns {RegExp}
    */
   getRegex(botname) {
-    return RegExp('^\\/' + this._name + '(?:\\@' + botname + ')?(?:\\s(?:[\\w\\d\\/]+)+)*$', 'i');
+    return RegExp('^\\/' + this._name + '(@' + botname + ')?(\\s{1}\\S+)*$');
   };
 
   /**

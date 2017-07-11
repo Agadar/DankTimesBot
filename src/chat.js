@@ -60,7 +60,7 @@ class Chat {
    * @param {number} multiplier 
    */
   setMultiplier(multiplier) {
-    if (typeof multiplier !== 'number' || multiplier < 1) {
+    if (isNaN(multiplier) || multiplier < 1) {
       throw TypeError('The multiplier must be a number greater than 1!');
     }
     this._multiplier= multiplier;
@@ -131,7 +131,7 @@ class Chat {
    * @returns {DankTime[]} The removed times if the old number was > than the new number.
    */
   setNumberOfRandomTimes(newnumberOfRandomTimes) {
-    if (typeof newnumberOfRandomTimes !== 'number' || newnumberOfRandomTimes < 0 || newnumberOfRandomTimes % 1 !== 0) {
+    if (isNaN(newnumberOfRandomTimes) || newnumberOfRandomTimes < 0 || newnumberOfRandomTimes % 1 !== 0) {
       throw TypeError('The number of times must be a whole number greater or equal to 0!');
     }
     this._numberOfRandomTimes = newnumberOfRandomTimes;
@@ -143,7 +143,7 @@ class Chat {
    * @param {number} newpointsPerRandomTime
    */
   setPointsPerRandomTime(newpointsPerRandomTime) {
-    if (typeof newpointsPerRandomTime !== 'number' || newpointsPerRandomTime < 1 || newpointsPerRandomTime % 1 !== 0) {
+    if (isNaN(newpointsPerRandomTime) || newpointsPerRandomTime < 1){
       throw TypeError('The points must be a whole number greater than 0!');
     }
     this._pointsPerRandomTime = newpointsPerRandomTime;
@@ -157,7 +157,7 @@ class Chat {
    * @param {number} newlastHour
    */
   setLastHour(newlastHour) {
-    if (typeof newlastHour !== 'number' || newlastHour < 0 || newlastHour > 23 || newlastHour % 1 !== 0) {
+    if (isNaN(newlastHour) || newlastHour < 0 || newlastHour > 23 || newlastHour % 1 !== 0) {
       throw TypeError('The hour must be a whole number between 0 and 23!');
     }
     this._lastHour = newlastHour;
@@ -168,7 +168,7 @@ class Chat {
    * @param {number} newlastMinute
    */
   setLastMinute(newlastMinute) {
-    if (typeof newlastMinute !== 'number' || newlastMinute < 0 || newlastMinute > 59 || newlastMinute % 1 !== 0) {
+    if (isNaN(newlastMinute) || newlastMinute < 0 || newlastMinute > 59 || newlastMinute % 1 !== 0) {
       throw TypeError('The minute must be a whole number between 0 and 59!');
     }
     this._lastMinute = newlastMinute;
@@ -389,7 +389,7 @@ class Chat {
    * @param {number} awaitingResetConfirmation 
    */
   setAwaitingResetConfirmation(awaitingResetConfirmation) {
-    if (awaitingResetConfirmation && typeof awaitingResetConfirmation !== 'number') {
+    if (awaitingResetConfirmation && isNaN(awaitingResetConfirmation)) {
       throw TypeError('The value must be a number or undefined!');
     }
     this._awaitingResetConfirmation = awaitingResetConfirmation;
