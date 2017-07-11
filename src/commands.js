@@ -35,11 +35,11 @@ class Commands {
   startChat(msg, match) {
     const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
     if (chat.isRunning()) {
-      return 'DankTimesBot is already running!';
+      return 'The bot is already running!';
     }
     chat.setRunning(true);
     this._scheduler.scheduleAllOfChat(chat);
-    return 'DankTimesBot is now running! Hit \'/help\' for available commands.';
+    return 'The bot is now running! Hit \'/help\' for available commands.';
   }
 
   /**
@@ -54,9 +54,9 @@ class Commands {
     if (chat.isRunning()) {
       chat.setRunning(false);
       this._scheduler.unscheduleAllOfChat(chat);
-      return 'DankTimesBot is now stopped! Hit \'/start\' to restart.';
+      return 'The bot is now stopped! Hit \'/start\' to restart.';
     }
-    return 'DankTimesBot is already stopped!';
+    return 'The bot is already stopped!';
   }
 
   /**
@@ -130,7 +130,7 @@ class Commands {
     // Split string and ensure it contains at least 4 items.
     const split = match.input.split(' ');
     if (split.length < 5) {
-      return 'Not enough arguments! Format: /add_time [hour] [minute] [points] [text1] [text2] etc.';
+      return 'Not enough arguments! Format: /addtime [hour] [minute] [points] [text1] [text2] etc.';
     }
 
     // Identify arguments.
@@ -164,7 +164,7 @@ class Commands {
     // Split string and ensure it contains at least 2 items.
     const split = match.input.split(' ');
     if (split.length < 3) {
-      return 'Not enough arguments! Format: /remove_time [hour] [minute]';
+      return 'Not enough arguments! Format: /removetime [hour] [minute]';
     }
 
     // Identify arguments and validate them.
@@ -200,7 +200,7 @@ class Commands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(' ');
     if (split.length < 2) {
-      return 'Not enough arguments! Format: /set_timezone [timezone]';
+      return 'Not enough arguments! Format: /settimezone [timezone]';
     }
 
     // Update the time zone.
@@ -250,7 +250,7 @@ class Commands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(' ');
     if (split.length < 2) {
-      return 'Not enough arguments! Format: /set_daily_random_frequency [number]';
+      return 'Not enough arguments! Format: /setdailyrandomfrequency [number]';
     }
 
     // Do the update.
@@ -277,7 +277,7 @@ class Commands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(' ');
     if (split.length < 2) {
-      return 'Not enough arguments! Format: /set_daily_random_points [number]';
+      return 'Not enough arguments! Format: /setdailyrandompoints [number]';
     }
 
     try {
