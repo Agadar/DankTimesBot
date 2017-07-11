@@ -24,9 +24,10 @@ class Chat {
    * @param {DankTime[]} dankTimes The dank times known in this chat.
    * @param {DankTime[]} randomDankTimes The daily randomly generated dank times in this chat.
    * @param {boolean} notifications Whether or not this chat automatically sends notifications for dank times.
+   * @param {number} multiplier The multiplier applied to the score of the first user to score.
    */
   constructor(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
-    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true) {
+    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true, multiplier = 2) {
     if (typeof id !== 'number' || id % 1 !== 0) {
       throw TypeError('The id must be a whole number!');
     }
@@ -51,7 +52,27 @@ class Chat {
     this.setPointsPerRandomTime(pointsPerRandomTime);
     this._awaitingResetConfirmation = undefined;
     this.setNotifications(notifications);
+    this.setMultiplier(multiplier);
   }
+
+  /**
+   * Sets the multiplier applied to the score of the first user to score.
+   * @param {number} multiplier 
+   */
+  setMultiplier(multiplier) {
+    if (typeof multiplier !== 'number' || multiplier < 1) {
+      throw TypeError('The multiplier must be a number greater than 1!');
+    }
+    this._multiplier= multiplier;
+  };
+
+  /**
+   * Gets the multiplier applied to the score of the first user to score.
+   * @returns {number}
+   */
+  getMultiplier() {
+    return this._multiplier;
+  };
 
   /**
    * Gets this chat's unique Telegram id.
@@ -280,7 +301,7 @@ class Chat {
     return {
       id: this._id, timezone: this._timezone, running: this._running, numberOfRandomTimes: this._numberOfRandomTimes,
       pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: usersArr,
-      dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes, notifications: this._notifications
+      dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes, notifications: this._notifications, multiplier: this._multiplier
     };
   };
 
@@ -345,7 +366,7 @@ class Chat {
           this._users.forEach(user => user.setCalled(false));
           this._lastHour = dankTime.getHour();
           this._lastMinute = dankTime.getMinute();
-          user.addToScore(dankTime.getPoints() * 2);
+          user.addToScore(dankTime.getPoints() * this._multiplier);
           user.setCalled(true);
         } else if (user.getCalled()) { // Else if user already called this time, remove points.
           user.addToScore(-dankTime.getPoints());
@@ -461,24 +482,9 @@ class Chat {
    */
   static fromJSON(literal) {
 
-    // For backwards compatibility with v.1.0.0.
-    if (!literal.lastHour || !literal.lastMinute) {
-      literal.lastHour = 0;
-      literal.lastMinute = 0;
-
-      for (let dankTime of literal.dankTimes) {
-        if (!dankTime.texts) {
-          dankTime.texts = [dankTime.shoutout];
-          delete dankTime.shoutout;
-        }
-      }
-      for (let dankTime of literal.randomDankTimes) {
-        if (!dankTime.texts) {
-          dankTime.texts = [dankTime.shoutout];
-          delete dankTime.shoutout;
-        }
-      }
-      literal.notifications = true;
+    // For backwards compatibility with v.1.1.0.
+    if (!literal.multiplier) {
+      literal.multiplier = 2;
     }
 
     const dankTimes = [];
@@ -491,7 +497,7 @@ class Chat {
     literal.users.forEach(user => users.set(user.id, User.fromJSON(user)));
 
     return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
-      literal.lastHour, literal.lastMinute, users, dankTimes, randomDankTimes, literal.notifications);
+      literal.lastHour, literal.lastMinute, users, dankTimes, randomDankTimes, literal.notifications, literal.multiplier);
   };
 }
 
