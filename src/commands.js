@@ -87,6 +87,7 @@ class Commands {
         settings += " " + text;
       }
     }
+    settings += '\n<b>Multiplier:</b> x' + chat.getMultiplier();
     settings += '\n<b>Notifications:</b> ' + (chat.getNotifications() ? 'on' : 'off');
     settings += '\n<b>Random dank times per day:</b> ' + chat.getNumberOfRandomTimes();
     settings += '\n<b>Random dank time points:</b> ' + chat.getPointsPerRandomTime();
@@ -189,7 +190,7 @@ class Commands {
   }
 
   /**
-   * Updated the chat's time zone.
+   * Updates the chat's time zone.
    * @param {any} msg The message object from the Telegram api.
    * @param {any[]} match The regex matched object from the Telegram api. 
    * @returns {string} The response.
@@ -210,6 +211,29 @@ class Commands {
       this._scheduler.unscheduleAllOfChat(chat);
       this._scheduler.scheduleAllOfChat(chat);
       return 'Updated the time zone!';
+    } catch (err) {
+      return err.message;
+    }
+  }
+
+ /**
+  * Updates the chat's first score multiplier.
+  * @param {any} msg The message object from the Telegram api.
+  * @param {any[]} match The regex matched object from the Telegram api. 
+  * @returns {string} The response.
+  */
+  setMultiplier(msg, match) {
+
+    // Split string and ensure it contains at least 1 item.
+    const split = match.input.split(' ');
+    if (split.length < 2) {
+      return 'Not enough arguments! Format: /setmultiplier [number]';
+    }
+
+    // Update the time zone.
+    try {
+      this._chatRegistry.getOrCreateChat(msg.chat.id).setMultiplier(Number(split[1]));
+      return 'Updated the multiplier!';
     } catch (err) {
       return err.message;
     }
