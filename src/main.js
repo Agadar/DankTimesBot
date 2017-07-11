@@ -28,7 +28,7 @@ tgClient.retrieveBotName().then(() => {
   tgClient.registerCommand(new Command('releases', 'prints the release log', commands, commands.releaseLog));
   tgClient.registerCommand(new Command('removetime', 'removes a dank time. format: [hour] [minute]', commands, commands.removeTime, true));
   tgClient.registerCommand(new Command('reset', 'resets the scores', commands, commands.resetChat, true, true));
-  tgClient.registerCommand(new Command('setmultiplier', 'sets the multiplier for the score of the first user to score. Format: [number]', commands, commands.setMultiplier, true));
+  tgClient.registerCommand(new Command('setmultiplier', 'sets the multiplier for the score of the first user to score. format: [number]', commands, commands.setMultiplier, true));
   tgClient.registerCommand(new Command('settings', 'shows the current settings', commands, commands.chatSettings));
   tgClient.registerCommand(new Command('setdailyrandomfrequency', 'sets the number of random dank times per day. format: [number]', commands, commands.setDailyRandomTimes, true));
   tgClient.registerCommand(new Command('setdailyrandompoints', 'sets the points for random daily dank times. format: [number]', commands, commands.setDailyRandomTimesPoints, true));
