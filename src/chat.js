@@ -366,7 +366,7 @@ class Chat {
           this._users.forEach(user => user.setCalled(false));
           this._lastHour = dankTime.getHour();
           this._lastMinute = dankTime.getMinute();
-          user.addToScore(dankTime.getPoints() * this._multiplier);
+          user.addToScore(Math.round(dankTime.getPoints() * this._multiplier));
           user.setCalled(true);
         } else if (user.getCalled()) { // Else if user already called this time, remove points.
           user.addToScore(-dankTime.getPoints());
