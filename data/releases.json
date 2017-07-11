@@ -3,7 +3,8 @@
     "version": "1.2.0",
     "date": "to be announced",
     "changes": [
-      "The leaderboard is no longer automatically printed after a dank time if nobody scored"
+      "The leaderboard is no longer automatically printed after a dank time if nobody scored",
+      "Changed the command names and the output of /help to reflect the style of BotFather"
     ]
   },
   {

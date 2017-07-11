@@ -114,7 +114,7 @@ class Commands {
    */
   help(msg, match) {
     let help = '<b>--- AVAILABLE COMMANDS ---</b>\n';
-    this._tgClient.getCommands().forEach(command => help += '\n/' + command.getName() + '    ' + command.getDescription());
+    this._tgClient.getCommands().forEach(command => help += '\n/' + command.getName() + ' - ' + command.getDescription());
     return help;
   }
 
