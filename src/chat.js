@@ -25,9 +25,10 @@ class Chat {
    * @param {DankTime[]} randomDankTimes The daily randomly generated dank times in this chat.
    * @param {boolean} notifications Whether or not this chat automatically sends notifications for dank times.
    * @param {number} multiplier The multiplier applied to the score of the first user to score.
+   * @param {boolean} autoLeaderboards Whether or not this chat automatically posts leaderboards after dank times occured.
    */
   constructor(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
-    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true, multiplier = 2) {
+    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true, multiplier = 2, autoLeaderboards = true) {
     if (typeof id !== 'number' || id % 1 !== 0) {
       throw TypeError('The id must be a whole number!');
     }
@@ -53,6 +54,27 @@ class Chat {
     this._awaitingResetConfirmation = undefined;
     this.setNotifications(notifications);
     this.setMultiplier(multiplier);
+
+    // Set autoLeaderboards.
+    if (typeof autoLeaderboards !== 'boolean') {
+      throw TypeError('autoLeaderboards must be a boolean!');
+    }
+    this._autoLeaderboards = autoLeaderboards;
+  }
+
+  /**
+   * Toggles whether or not this chat automatically posts leaderboards after dank times occured.
+   */
+  toggleAutoLeaderboards() {
+    this._autoLeaderboards = !this._autoLeaderboards;
+  }
+
+  /**
+   * Gets whether or not this chat automatically posts leaderboards after dank times occured.
+   * @returns {boolean}
+   */
+  getAutoLeaderboards() {
+    return this._autoLeaderboards;
   }
 
   /**
@@ -63,7 +85,7 @@ class Chat {
     if (isNaN(multiplier) || multiplier < 1) {
       throw TypeError('The multiplier must be a number greater than 1!');
     }
-    this._multiplier= multiplier;
+    this._multiplier = multiplier;
   };
 
   /**
@@ -143,7 +165,7 @@ class Chat {
    * @param {number} newpointsPerRandomTime
    */
   setPointsPerRandomTime(newpointsPerRandomTime) {
-    if (isNaN(newpointsPerRandomTime) || newpointsPerRandomTime < 1){
+    if (isNaN(newpointsPerRandomTime) || newpointsPerRandomTime < 1) {
       throw TypeError('The points must be a whole number greater than 0!');
     }
     this._pointsPerRandomTime = newpointsPerRandomTime;
@@ -301,7 +323,8 @@ class Chat {
     return {
       id: this._id, timezone: this._timezone, running: this._running, numberOfRandomTimes: this._numberOfRandomTimes,
       pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: usersArr,
-      dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes, notifications: this._notifications, multiplier: this._multiplier
+      dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes, notifications: this._notifications, multiplier: this._multiplier,
+      autoLeaderboards: this._autoLeaderboards
     };
   };
 
@@ -485,6 +508,9 @@ class Chat {
     // For backwards compatibility with v.1.1.0.
     if (!literal.multiplier) {
       literal.multiplier = 2;
+    }
+    if (!literal.autoLeaderboards) {
+      literal.autoLeaderboards = true;
     }
 
     const dankTimes = [];

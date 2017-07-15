@@ -79,16 +79,17 @@ class Commands {
   chatSettings(msg, match) {
     const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
 
-    let settings = '<b>--- SETTINGS ---</b>\n\n';
-    settings += '<b>Chat time zone:</b> ' + chat.getTimezone() + '\n<b>Dank times:</b>';
+    let settings = '<b>--- SETTINGS ---</b>\n';
+    settings += '\n<b>Auto-post leaderboards:</b> ' + (chat.getAutoLeaderboards() ? 'on' : 'off');
+    settings += '\n<b>Chat time zone:</b> ' + chat.getTimezone() + '\n<b>Dank times:</b>';
     for (const time of chat.getDankTimes()) {
       settings += "\ntime: " + util.padNumber(time.getHour()) + ":" + util.padNumber(time.getMinute()) + ":00    points: " + time.getPoints() + "    texts:";
       for (let text of time.getTexts()) {
         settings += " " + text;
       }
     }
+    settings += '\n<b>Dank time notifications:</b> ' + (chat.getNotifications() ? 'on' : 'off');
     settings += '\n<b>Multiplier:</b> x' + chat.getMultiplier();
-    settings += '\n<b>Notifications:</b> ' + (chat.getNotifications() ? 'on' : 'off');
     settings += '\n<b>Random dank times per day:</b> ' + chat.getNumberOfRandomTimes();
     settings += '\n<b>Random dank time points:</b> ' + chat.getPointsPerRandomTime();
     settings += '\n<b>Server time:</b> ' + new Date();
@@ -144,9 +145,18 @@ class Commands {
       const dankTime = new DankTime(hour, minute, texts, points);
       const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
       chat.addDankTime(dankTime);
-      // Reschedule cron job, just to make sure.
-      this._scheduler.unschedule(chat, dankTime);
-      this._scheduler.schedule(chat, dankTime, 'It\'s dank o\'clock! Type \'' + dankTime.getTexts()[0] + '\' for points!');
+
+      // Reschedule notifications just to make sure, if applicable.
+      if (chat.isRunning()) {
+        if (chat.getNotifications()) {
+          this._scheduler.unscheduleDankTime(chat, dankTime);
+          this._scheduler.scheduleDankTime(chat, dankTime);
+        }
+        if (chat.getAutoLeaderboards()) {
+          this._scheduler.unscheduleAutoLeaderboard(chat, dankTime);
+          this._scheduler.scheduleAutoLeaderboard(chat, dankTime);
+        }
+      }
       return 'Added the new time!';
     } catch (err) {
       return err.message;
@@ -182,7 +192,8 @@ class Commands {
     const dankTime = chat.getDankTime(hour, minute);
 
     if (chat.removeDankTime(hour, minute)) {
-      this._scheduler.unschedule(chat, dankTime);
+      this._scheduler.unscheduleDankTime(chat, dankTime);
+      this._scheduler.unscheduleAutoLeaderboard(chat, dankTime);
       return 'Removed the time!'
     } else {
       return 'No dank time known with that hour and minute!';
@@ -207,6 +218,7 @@ class Commands {
     try {
       const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
       chat.setTimezone(split[1]);
+
       // Reschedule due to timezone change.
       this._scheduler.unscheduleAllOfChat(chat);
       this._scheduler.scheduleAllOfChat(chat);
@@ -216,12 +228,12 @@ class Commands {
     }
   }
 
- /**
-  * Updates the chat's first score multiplier.
-  * @param {any} msg The message object from the Telegram api.
-  * @param {any[]} match The regex matched object from the Telegram api. 
-  * @returns {string} The response.
-  */
+  /**
+   * Updates the chat's first score multiplier.
+   * @param {any} msg The message object from the Telegram api.
+   * @param {any[]} match The regex matched object from the Telegram api. 
+   * @returns {string} The response.
+   */
   setMultiplier(msg, match) {
 
     // Split string and ensure it contains at least 1 item.
@@ -257,9 +269,17 @@ class Commands {
     try {
       const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
       chat.setNumberOfRandomTimes(Number(split[1]));
+
       // Reschedule due to removed random times.
-      this._scheduler.unscheduleAllOfChat(chat);
-      this._scheduler.scheduleAllOfChat(chat);
+      if (chat.isRunning()) {
+        this._scheduler.unscheduleRandomDankTimesOfChat(chat);
+        this._scheduler.scheduleRandomDankTimesOfChat(chat);
+
+        if (chat.getAutoLeaderboards()) {
+          this._scheduler.unscheduleAutoLeaderboardsOfChat(chat);
+          this._scheduler.scheduleAutoLeaderboardsOfChat(chat);
+        }
+      }
       return 'Updated the number of random dank times per day!';
     } catch (err) {
       return err.message;
@@ -289,7 +309,7 @@ class Commands {
   }
 
   /**
-   * Toggles whether the chat auto-posts notifications about dank times and leaderboards.
+   * Toggles whether the chat auto-posts notifications about NORMAL dank times.
    * @param {any} msg The message object from the Telegram api.
    * @param {any[]} match The regex matched object from the Telegram api. 
    * @returns {string} The response.
@@ -299,11 +319,38 @@ class Commands {
     chat.setNotifications(!chat.getNotifications());
 
     if (chat.getNotifications()) {
-      this._scheduler.scheduleAllOfChat(chat);
-      return 'Notifications are now enabled!';
+      if (chat.isRunning()) {
+        this._scheduler.scheduleDankTimesOfChat(chat);
+      }
+      return 'Normal dank time notifications are now enabled!';
     } else {
-      this._scheduler.unscheduleAllOfChat(chat);
-      return 'Notifications are now disabled!';
+      if (chat.isRunning()) {
+        this._scheduler.unscheduleDankTimesOfChat(chat);
+      }
+      return 'Normal dank time notifications are now disabled! (Random dank time notifications remain enabled.)';
+    }
+  }
+
+  /**
+   * Toggles whether the chat auto-posts a leaderboard 1 minute after every dank time.
+   * @param {any} msg The message object from the Telegram api.
+   * @param {any[]} match The regex matched object from the Telegram api. 
+   * @returns {string} The response.
+   */
+  toggleAutoLeaderboards(msg, match) {
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+    chat.toggleAutoLeaderboards();
+
+    if (chat.getAutoLeaderboards()) {
+      if (chat.isRunning()) {
+        this._scheduler.scheduleAutoLeaderboardsOfChat(chat);
+      }
+      return 'Automatic leaderboard posting is now enabled!';
+    } else {
+      if (chat.isRunning()) {
+        this._scheduler.unscheduleAutoLeaderboardsOfChat(chat);
+      }
+      return 'Automatic leaderboard posting is now disabled!';
     }
   }
 

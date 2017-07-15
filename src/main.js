@@ -33,9 +33,10 @@ tgClient.retrieveBotName().then(() => {
   tgClient.registerCommand(new Command('setdailyrandomfrequency', 'sets the number of random dank times per day. format: [number]', commands, commands.setDailyRandomTimes, true));
   tgClient.registerCommand(new Command('setdailyrandompoints', 'sets the points for random daily dank times. format: [number]', commands, commands.setDailyRandomTimesPoints, true));
   tgClient.registerCommand(new Command('settimezone', 'sets the time zone. format: [timezone]', commands, commands.setTimezone, true));
-  tgClient.registerCommand(new Command('start', 'starts keeping track of scores', commands, commands.startChat, true));
-  tgClient.registerCommand(new Command('stop', 'stops keeping track of scores', commands, commands.stopChat, true));
-  tgClient.registerCommand(new Command('togglenotifications', 'toggles whether notifications of dank times and leaderboards are sent', commands, commands.toggleNotifications, true));
+  tgClient.registerCommand(new Command('start', 'starts keeping track of scores and sending messages', commands, commands.startChat, true));
+  tgClient.registerCommand(new Command('stop', 'stops keeping track of scores and sending messages', commands, commands.stopChat, true));
+  tgClient.registerCommand(new Command('toggleautoleaderboards', 'toggles whether a leaderboard is auto-posted 1 minute after every dank time', commands, commands.toggleAutoLeaderboards, true));
+  tgClient.registerCommand(new Command('toggledanktimenotifications', 'toggles whether notifications of normal dank times are sent', commands, commands.toggleNotifications, true));
   tgClient.setOnAnyText((msg) => {
     if (msg.text) {
       return chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
@@ -58,11 +59,19 @@ nodeCleanup(function (exitCode, signal) {
 /** Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00 and once at bot start-up. */
 new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');
-  scheduler.reset();
   chatRegistry.getChats().forEach(chat => {
     if (chat.isRunning()) {
+
+      // Unschedule
+      scheduler.unscheduleRandomDankTimesOfChat(chat);
+      scheduler.unscheduleAutoLeaderboardsOfChat(chat);
+
+      // Generate random dank times
       chat.generateRandomDankTimes();
-      scheduler.scheduleAllOfChat(chat);
+
+      // Reschedule
+      scheduler.scheduleRandomDankTimesOfChat(chat);
+      scheduler.scheduleAutoLeaderboardsOfChat(chat);
     }
   });
 }, null, true, undefined, undefined, true);
