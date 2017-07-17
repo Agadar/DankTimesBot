@@ -78,16 +78,9 @@ class Commands {
    */
   chatSettings(msg, match) {
     const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
-
     let settings = '<b>--- SETTINGS ---</b>\n';
     settings += '\n<b>Auto-post leaderboards:</b> ' + (chat.getAutoLeaderboards() ? 'on' : 'off');
-    settings += '\n<b>Chat time zone:</b> ' + chat.getTimezone() + '\n<b>Dank times:</b>';
-    for (const time of chat.getDankTimes()) {
-      settings += "\ntime: " + util.padNumber(time.getHour()) + ":" + util.padNumber(time.getMinute()) + ":00    points: " + time.getPoints() + "    texts:";
-      for (let text of time.getTexts()) {
-        settings += " " + text;
-      }
-    }
+    settings += '\n<b>Chat time zone:</b> ' + chat.getTimezone();
     settings += '\n<b>Dank time notifications:</b> ' + (chat.getNotifications() ? 'on' : 'off');
     settings += '\n<b>Multiplier:</b> x' + chat.getMultiplier();
     settings += '\n<b>Random dank times per day:</b> ' + chat.getNumberOfRandomTimes();
@@ -96,6 +89,24 @@ class Commands {
     settings += '\n<b>Status:</b> ' + (chat.isRunning() ? 'running' : 'awaiting start');
     settings += '\n<b>Version:</b> ' + this._version;
     return settings;
+  }
+
+  /**
+   * Prints the NORMAL dank times of the chat identified in the msg object.
+   * @param {any} msg The message object from the Telegram api.
+   * @param {any[]} match The regex matched object from the Telegram api. 
+   * @returns {string} The response.
+   */
+  dankTimes(msg, match) {
+    let dankTimes = '<b>--- DANK TIMES ---</b>\n';
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+    for (const time of chat.getDankTimes()) {
+      dankTimes += "\ntime: " + util.padNumber(time.getHour()) + ":" + util.padNumber(time.getMinute()) + ":00    points: " + time.getPoints() + "    texts:";
+      for (let text of time.getTexts()) {
+        dankTimes += " " + text;
+      }
+    }
+    return dankTimes;
   }
 
   /**

@@ -23,16 +23,17 @@ const commands = new Commands(tgClient, chatRegistry, scheduler, releaseLog, '1.
 // Register available Telegram bot commands, after retrieving the bot name.
 tgClient.retrieveBotName().then(() => {
   tgClient.registerCommand(new Command('addtime', 'adds a dank time. format: [hour] [minute] [points] [text1] [text2] etc.', commands, commands.addTime, true));
+  tgClient.registerCommand(new Command('danktimes', 'shows the user-specified dank times', commands, commands.dankTimes));
   tgClient.registerCommand(new Command('help', 'shows the available commands', commands, commands.help));
   tgClient.registerCommand(new Command('leaderboard', 'shows the leaderboard', commands, commands.leaderBoard));
-  tgClient.registerCommand(new Command('releases', 'prints the release log', commands, commands.releaseLog));
+  tgClient.registerCommand(new Command('releases', 'shows the release log', commands, commands.releaseLog));
   tgClient.registerCommand(new Command('removetime', 'removes a dank time. format: [hour] [minute]', commands, commands.removeTime, true));
   tgClient.registerCommand(new Command('reset', 'resets the scores', commands, commands.resetChat, true, true));
-  tgClient.registerCommand(new Command('setmultiplier', 'sets the multiplier for the score of the first user to score. format: [number]', commands, commands.setMultiplier, true));
-  tgClient.registerCommand(new Command('settings', 'shows the current settings', commands, commands.chatSettings));
   tgClient.registerCommand(new Command('setdailyrandomfrequency', 'sets the number of random dank times per day. format: [number]', commands, commands.setDailyRandomTimes, true));
   tgClient.registerCommand(new Command('setdailyrandompoints', 'sets the points for random daily dank times. format: [number]', commands, commands.setDailyRandomTimesPoints, true));
+  tgClient.registerCommand(new Command('setmultiplier', 'sets the multiplier for the score of the first user to score. format: [number]', commands, commands.setMultiplier, true));
   tgClient.registerCommand(new Command('settimezone', 'sets the time zone. format: [timezone]', commands, commands.setTimezone, true));
+  tgClient.registerCommand(new Command('settings', 'shows the current settings', commands, commands.chatSettings));
   tgClient.registerCommand(new Command('start', 'starts keeping track of scores and sending messages', commands, commands.startChat, true));
   tgClient.registerCommand(new Command('stop', 'stops keeping track of scores and sending messages', commands, commands.stopChat, true));
   tgClient.registerCommand(new Command('toggleautoleaderboards', 'toggles whether a leaderboard is auto-posted 1 minute after every dank time', commands, commands.toggleAutoLeaderboards, true));
