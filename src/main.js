@@ -11,7 +11,7 @@ const TelegramClient = require('./telegram-client.js');
 const Commands = require('./commands.js');
 const ChatRegistry = require('./chat-registry.js');
 const DankTimeScheduler = require('./dank-time-scheduler.js');
-
+;
 // Global variables.
 const settings = fileIO.loadSettingsFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
@@ -56,7 +56,13 @@ nodeCleanup(function (exitCode, signal) {
   fileIO.saveChatsToFile(chatRegistry.getChats());
 });
 
-/** Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00 and once at bot start-up. */
+// Generate new random dank times and chedule everything.
+chatRegistry.getChats().forEach(chat => { 
+  chat.generateRandomDankTimes();
+  scheduler.scheduleAllOfChat(chat); 
+});
+
+/** Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00. */
 new cron.CronJob('0 0 0 * * *', function () {
   console.info('Generating random dank times for all chats!');
   chatRegistry.getChats().forEach(chat => {
@@ -74,7 +80,7 @@ new cron.CronJob('0 0 0 * * *', function () {
       scheduler.scheduleAutoLeaderboardsOfChat(chat);
     }
   });
-}, null, true, undefined, undefined, true);
+}, null, true);
 
 // Send a release log message to all chats, assuming there are release logs.
 if (releaseLog.length > 0) {

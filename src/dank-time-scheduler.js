@@ -39,7 +39,7 @@ class DankTimeScheduler {
     }
 
     // Schedule auto-leaderboards, if desired.
-    if (chat.getAutoLeaderboard()) {
+    if (chat.getAutoLeaderboards()) {
       this.scheduleAutoLeaderboardsOfChat(chat);
     }
   };

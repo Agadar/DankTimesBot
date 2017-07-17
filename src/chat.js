@@ -323,7 +323,7 @@ class Chat {
     return {
       id: this._id, timezone: this._timezone, running: this._running, numberOfRandomTimes: this._numberOfRandomTimes,
       pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: usersArr,
-      dankTimes: this._dankTimes, randomDankTimes: this._randomDankTimes, notifications: this._notifications, multiplier: this._multiplier,
+      dankTimes: this._dankTimes, notifications: this._notifications, multiplier: this._multiplier,
       autoLeaderboards: this._autoLeaderboards
     };
   };
@@ -516,14 +516,11 @@ class Chat {
     const dankTimes = [];
     literal.dankTimes.forEach(dankTime => dankTimes.push(DankTime.fromJSON(dankTime)));
 
-    const randomDankTimes = [];
-    literal.randomDankTimes.forEach(dankTime => randomDankTimes.push(DankTime.fromJSON(dankTime)));
-
     const users = new Map();
     literal.users.forEach(user => users.set(user.id, User.fromJSON(user)));
 
     return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
-      literal.lastHour, literal.lastMinute, users, dankTimes, randomDankTimes, literal.notifications, literal.multiplier);
+      literal.lastHour, literal.lastMinute, users, dankTimes, [], literal.notifications, literal.multiplier);
   };
 }
 
