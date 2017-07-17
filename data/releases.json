@@ -4,8 +4,9 @@
     "date": "to be announced",
     "changes": [
       "Added the /setmultiplier command, with which a custom multiplier for the score of the first user to score can be set",
-      "The leaderboard is no longer automatically printed after a dank time if nobody scored",
       "Changed the command names and the output of /help to reflect the style of BotFather",
+      "Split the /toggle_notifications command into /toggledanktimenotifications and /toggleautoleaderboards",
+      "The leaderboard is no longer automatically printed after a dank time if nobody scored",
       "Messages read by the bot that were sent more than a minute earlier are now ignored",
       "The bot name is now retrieved dynamically from the Telegram API when the bot is started on the server"
     ]
