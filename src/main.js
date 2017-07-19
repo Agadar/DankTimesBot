@@ -40,7 +40,12 @@ tgClient.retrieveBotName().then(() => {
   tgClient.registerCommand(new Command('toggleautoleaderboards', 'toggles whether a leaderboard is auto-posted 1 minute after every dank time', commands, commands.toggleAutoLeaderboards, true));
   tgClient.registerCommand(new Command('toggledanktimenotifications', 'toggles whether notifications of normal dank times are sent', commands, commands.toggleNotifications, true));
   tgClient.setOnAnyText((msg) => {
-    if (msg.text) {
+    if (msg.migrate_to_chat_id) {
+      // If the chat was migrated, then update the registry.
+      chatRegistry.setChatId(msg.chat.id, msg.migrate_to_chat_id);
+    }
+    else if (msg.text) {
+      // Else, just let the appropriate chat process the message.
       return chatRegistry.getOrCreateChat(msg.chat.id).processMessage(msg.from.id, msg.from.username || 'anonymous', msg.text, msg.date);
     }
   });
@@ -59,9 +64,9 @@ nodeCleanup(function (exitCode, signal) {
 });
 
 // Generate new random dank times and chedule everything.
-chatRegistry.getChats().forEach(chat => { 
+chatRegistry.getChats().forEach(chat => {
   chat.generateRandomDankTimes();
-  scheduler.scheduleAllOfChat(chat); 
+  scheduler.scheduleAllOfChat(chat);
 });
 
 /** Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00. */
@@ -100,4 +105,4 @@ if (releaseLog.length > 0) {
 }
 
 // Inform server.
-console.info("Bot is now running...");
+console.info("Bot is now running!");

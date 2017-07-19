@@ -39,6 +39,19 @@ class ChatRegistry {
   };
 
   /**
+   * Re-maps the chat mapped to the supplied oldId to the specified newId.
+   * @param {number} oldId 
+   * @param {number} newId 
+   */
+  setChatId(oldId, newId) {
+    const chat = this._chats.get(oldId);
+    if (!chat) { return; }
+    this._chats.delete(oldId);
+    chat.setId(newId);
+    this._chats.set(newId, chat);
+  };
+
+  /**
    * Gets the chat with the supplied id, otherwise creates and returns a new one.
    * @param {number} id The chat's unique Telegram id.
    * @returns {Chat} The (possibly new) chat.

@@ -32,10 +32,7 @@ class Chat {
     lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true, multiplier = 2,
     autoLeaderboards = true, firstNotifications = true) {
 
-    if (typeof id !== 'number' || id % 1 !== 0) {
-      throw TypeError('The id must be a whole number!');
-    }
-    this._id = id;
+    this.setId(id);
     this.setTimezone(timezone);
     this.setRunning(running);
     this.setLastHour(lastHour);
@@ -119,6 +116,17 @@ class Chat {
   getMultiplier() {
     return this._multiplier;
   };
+
+  /**
+   * Sets this chat's unique Telegram id.
+   * @param {number} id 
+   */
+  setId(id) {
+    if (typeof id !== 'number' || id % 1 !== 0) {
+      throw TypeError('The id must be a whole number!');
+    }
+    this._id = id;
+  }
 
   /**
    * Gets this chat's unique Telegram id.
