@@ -3,12 +3,14 @@
     "version": "1.2.0",
     "date": "to be announced",
     "changes": [
-      "Added the /setmultiplier command, with which a custom multiplier for the score of the first user to score can be set",
+      "Added the /setmultiplier command to set a custom multiplier for the points of the first user to score",
+      "Added the /togglefirstnotifications command to enable or disable announcements about which user scored first",
       "Changed the command names and the output of /help to reflect the style of BotFather",
       "Split the /toggle_notifications command into /toggledanktimenotifications and /toggleautoleaderboards",
       "Split the /settings command into /settings and /danktimes",
       "The leaderboard is no longer automatically printed after a dank time if nobody scored",
       "Messages read by the bot that were sent more than a minute earlier are now ignored",
+      "When a group is upgraded to a supergroup, the scores and settings are now maintained",
       "The bot name is now retrieved dynamically from the Telegram API when the bot is started on the server"
     ]
   },
