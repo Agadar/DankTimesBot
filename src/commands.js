@@ -79,6 +79,7 @@ class Commands {
   chatSettings(msg, match) {
     const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
     let settings = '<b>--- SETTINGS ---</b>\n';
+    settings += '\n<b>Announce first to score:</b> ' + (chat.getFirstNotifications() ? 'on' : 'off');
     settings += '\n<b>Auto-post leaderboards:</b> ' + (chat.getAutoLeaderboards() ? 'on' : 'off');
     settings += '\n<b>Chat time zone:</b> ' + chat.getTimezone();
     settings += '\n<b>Dank time notifications:</b> ' + (chat.getNotifications() ? 'on' : 'off');
@@ -363,6 +364,18 @@ class Commands {
       }
       return 'Automatic leaderboard posting is now disabled!';
     }
+  }
+
+  /**
+   * Toggles whether the chat announces the first user to score.
+   * @param {any} msg The message object from the Telegram api.
+   * @param {any[]} match The regex matched object from the Telegram api. 
+   * @returns {string} The response.
+   */
+  toggleFirstNotifications(msg, match) {
+    const chat = this._chatRegistry.getOrCreateChat(msg.chat.id);
+    chat.toggleFirstNotifications();
+    return chat.getFirstNotifications() ? 'Announcements for first users to score are now enabled!' : 'Announcements for first users to score are now disabled!';
   }
 
   /** 

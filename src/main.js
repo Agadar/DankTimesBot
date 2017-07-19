@@ -36,6 +36,7 @@ tgClient.retrieveBotName().then(() => {
   tgClient.registerCommand(new Command('settings', 'shows the current settings', commands, commands.chatSettings));
   tgClient.registerCommand(new Command('start', 'starts keeping track of scores and sending messages', commands, commands.startChat, true));
   tgClient.registerCommand(new Command('stop', 'stops keeping track of scores and sending messages', commands, commands.stopChat, true));
+  tgClient.registerCommand(new Command('togglefirstnotifications', 'toggles whether this chat announces the first user to score', commands, commands.toggleFirstNotifications, true));
   tgClient.registerCommand(new Command('toggleautoleaderboards', 'toggles whether a leaderboard is auto-posted 1 minute after every dank time', commands, commands.toggleAutoLeaderboards, true));
   tgClient.registerCommand(new Command('toggledanktimenotifications', 'toggles whether notifications of normal dank times are sent', commands, commands.toggleNotifications, true));
   tgClient.setOnAnyText((msg) => {

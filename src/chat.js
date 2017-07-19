@@ -23,12 +23,15 @@ class Chat {
    * @param {User[]} users A map with the users, indexed by user id's.
    * @param {DankTime[]} dankTimes The dank times known in this chat.
    * @param {DankTime[]} randomDankTimes The daily randomly generated dank times in this chat.
-   * @param {boolean} notifications Whether or not this chat automatically sends notifications for dank times.
+   * @param {boolean} notifications Whether this chat automatically sends notifications for dank times.
    * @param {number} multiplier The multiplier applied to the score of the first user to score.
-   * @param {boolean} autoLeaderboards Whether or not this chat automatically posts leaderboards after dank times occured.
+   * @param {boolean} autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
+   * @param {boolean} firstNotifications Whether this chat announces the first user to score.
    */
   constructor(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
-    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true, multiplier = 2, autoLeaderboards = true) {
+    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true, multiplier = 2,
+    autoLeaderboards = true, firstNotifications = true) {
+
     if (typeof id !== 'number' || id % 1 !== 0) {
       throw TypeError('The id must be a whole number!');
     }
@@ -60,6 +63,12 @@ class Chat {
       throw TypeError('autoLeaderboards must be a boolean!');
     }
     this._autoLeaderboards = autoLeaderboards;
+
+    // Set firstNotifications.
+    if (typeof firstNotifications !== 'boolean') {
+      throw TypeError('firstNotifications must be a boolean!');
+    }
+    this._firstNotifications = firstNotifications;
   }
 
   /**
@@ -75,6 +84,21 @@ class Chat {
    */
   getAutoLeaderboards() {
     return this._autoLeaderboards;
+  }
+
+  /**
+  * Toggles whether this chat announces the first user to score.
+  */
+  toggleFirstNotifications() {
+    this._firstNotifications = !this._firstNotifications;
+  }
+
+  /**
+   * Gets whether this chat announces the first user to score.
+   * @returns {boolean}
+   */
+  getFirstNotifications() {
+    return this._firstNotifications;
   }
 
   /**
@@ -324,7 +348,7 @@ class Chat {
       id: this._id, timezone: this._timezone, running: this._running, numberOfRandomTimes: this._numberOfRandomTimes,
       pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: usersArr,
       dankTimes: this._dankTimes, notifications: this._notifications, multiplier: this._multiplier,
-      autoLeaderboards: this._autoLeaderboards
+      autoLeaderboards: this._autoLeaderboards, firstNotifications: this._firstNotifications
     };
   };
 
@@ -391,6 +415,9 @@ class Chat {
           this._lastMinute = dankTime.getMinute();
           user.addToScore(Math.round(dankTime.getPoints() * this._multiplier));
           user.setCalled(true);
+          if (this._firstNotifications) {
+            return user.getName() + ' was the first to score!';
+          }
         } else if (user.getCalled()) { // Else if user already called this time, remove points.
           user.addToScore(-dankTime.getPoints());
         } else {  // Else, award point.
@@ -512,6 +539,9 @@ class Chat {
     if (!literal.autoLeaderboards) {
       literal.autoLeaderboards = true;
     }
+    if (!literal.firstNotifications) {
+      literal.firstNotifications = true;
+    }
 
     const dankTimes = [];
     literal.dankTimes.forEach(dankTime => dankTimes.push(DankTime.fromJSON(dankTime)));
@@ -520,7 +550,7 @@ class Chat {
     literal.users.forEach(user => users.set(user.id, User.fromJSON(user)));
 
     return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
-      literal.lastHour, literal.lastMinute, users, dankTimes, [], literal.notifications, literal.multiplier);
+      literal.lastHour, literal.lastMinute, users, dankTimes, [], literal.notifications, literal.multiplier, literal.firstNotifications);
   };
 }
 
