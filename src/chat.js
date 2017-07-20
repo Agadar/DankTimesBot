@@ -5,6 +5,7 @@ const time = require('time')(Date);            // NodeJS library for working wit
 const util = require('./util.js');             // Custom script containing global utility functions.
 const DankTime = require('./dank-time.js');
 const User = require('./user.js');
+const Leaderboard = require('./leaderboard.js');
 
 /**
  * Represents a Telegram chat.
@@ -66,6 +67,7 @@ class Chat {
       throw TypeError('firstNotifications must be a boolean!');
     }
     this._firstNotifications = firstNotifications;
+    this._lastLeaderboard = null;
   }
 
   /**
@@ -333,7 +335,6 @@ class Chat {
    */
   generateRandomDankTimes() {
     this._randomDankTimes = [];
-
     for (let i = 0; i < this._numberOfRandomTimes; i++) {
       const date = new Date();
       date.setHours(date.getHours() + Math.floor(Math.random() * 23));
@@ -494,12 +495,17 @@ class Chat {
    * @returns {string} The leaderboard.
    */
   generateLeaderboard(final = false) {
+
+    // Construct string to return.
     let leaderboard = '<b>--- ' + (final ? 'FINAL ' : '') + 'LEADERBOARD ---</b>\n';
-    for (const userEntry of this.getUsers()) {
-      const user = userEntry;
-      const scoreChange = (user.getLastScoreChange() > 0 ? '(+' + user.getLastScoreChange() + ')' : (user.getLastScoreChange() < 0 ? '(' + user.getLastScoreChange() + ')' : ''));
-      leaderboard += '\n' + user.getName() + ':    ' + user.getScore() + ' ' + scoreChange;
-      user.resetLastScoreChange();
+    leaderboard += this._lastLeaderboard = new Leaderboard(this._users.values());
+
+    // Reset last score change values of all users.
+    let userIterator = this._users.values();
+    let user = userIterator.next();
+    while (!user.done) {
+      user.value.resetLastScoreChange();
+      user = userIterator.next();
     }
     return leaderboard;
   }

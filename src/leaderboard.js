@@ -9,12 +9,18 @@ const User = require('./user.js');
 class Leaderboard {
 
   /**
-   * Constructs a new leaderboard from the supplied collection of users.
-   * @param {User[]} users 
+   * Constructs a new leaderboard from the supplied iterator of users.
+   * @param {IterableIterator<User>} users 
    */
-  constructor(users = []) {
+  constructor(users = null) {
     this._entries = [];
-    users.forEach(user => this.addEntry(user));
+    if (users) {
+      let user = users.next();
+      while (!user.done) {
+        this.addEntry(user.value);
+        user = users.next();
+      }
+    }
   }
 
   /**
@@ -36,17 +42,17 @@ class Leaderboard {
 
   /**
    * Returns a string representation of this leaderboard.
+   * @param {Leaderboard} previous The previous leaderboard, or null.
+   * @returns {string}
    */
-  toString() {
-
-  }
-
-  /**
-   * Returns the ordered entries of this leaderboard.
-   * @returns {LeaderboardEntry[]}
-   */
-  getEntries() {
-    return this._entries;
+  toString(previous = null) {
+    let leaderboard = '';
+    for (let i = 0; i < this._entries.length; i++) {
+      const entry = this._entries[i];
+      const scoreChange = (entry.lastScoreChange > 0 ? '(+' + entry.lastScoreChange + ')' : (entry.lastScoreChange < 0 ? '(' + entry.lastScoreChange + ')' : ''));
+      leaderboard += '\n<b>' + (i + 1) + '.</b> ' + entry.name + '    ' + entry.score + ' ' + scoreChange;
+    }
+    return leaderboard;
   }
 }
 
