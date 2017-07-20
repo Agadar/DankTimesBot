@@ -6,7 +6,7 @@ const Chat = require('../src/chat.js');
 const DankTime = require('../src/dank-time.js');
 const DankTimeScheduler = require('../src/dank-time-scheduler.js');
 
-describe('DankTimeScheduler.scheduleAllOfChat(chat)', function () {
+/*describe('DankTimeScheduler.scheduleAllOfChat(chat)', function () {
 
   it('should schedule a dank time if it is present', function () {
 
@@ -130,4 +130,4 @@ describe('DankTimeScheduler.schedule(chat, dankTime, text)', function () {
     assert.equal(scheduler._jobs.length, 2);
   });
 
-});
+});*/
