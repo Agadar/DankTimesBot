@@ -41,16 +41,46 @@ class Leaderboard {
   }
 
   /**
+   * Gets the index of the entry that has the specified user id. If no such user exists, returns undefined.
+   * @param {number} userId 
+   */
+  _indexOfEntryViaUserId(userId) {
+    for (let i = 0; i < this._entries.length; i++) {
+      if (this._entries[i].id === userId) {
+        return i;
+      }
+    }
+    return undefined;
+  }
+
+  /**
    * Returns a string representation of this leaderboard.
    * @param {Leaderboard} previous The previous leaderboard, or null.
    * @returns {string}
    */
   toString(previous = null) {
+
+    // Calculate position changes.
+    const positionChanges = new Map();
+    if (previous) {
+      for (let currentPosition = 0; currentPosition < this._entries.length; currentPosition++) {
+        const currentEntry = this._entries[currentPosition];
+        const oldPosition = previous._indexOfEntryViaUserId(currentEntry.id);
+
+        if (oldPosition > 0 || oldPosition < 0) {
+          positionChanges.set(currentEntry.id, oldPosition - currentPosition);
+        }
+      }
+    }
+
+    // Construct string leaderboard.
     let leaderboard = '';
     for (let i = 0; i < this._entries.length; i++) {
       const entry = this._entries[i];
-      const scoreChange = (entry.lastScoreChange > 0 ? '(+' + entry.lastScoreChange + ')' : (entry.lastScoreChange < 0 ? '(' + entry.lastScoreChange + ')' : ''));
-      leaderboard += '\n<b>' + (i + 1) + '.</b> ' + entry.name + '    ' + entry.score + ' ' + scoreChange;
+      const positionChange = positionChanges.get(entry.id);
+      const positionChangeStr = positionChange > 0 ? '(+' + positionChange + ')' : positionChange < 0 ? '(' + positionChange + ')' : '';
+      const scoreChange = entry.lastScoreChange > 0 ? '(+' + entry.lastScoreChange + ')' : entry.lastScoreChange < 0 ? '(' + entry.lastScoreChange + ')' : '';
+      leaderboard += '\n<b>' + (i + 1) + '.</b> ' + positionChangeStr + '    ' + entry.name + '    ' + entry.score + ' ' + scoreChange;
     }
     return leaderboard;
   }
