@@ -39,7 +39,7 @@ tgClient.retrieveBotName().then(() => {
   tgClient.registerCommand(new Command('togglefirstnotifications', 'toggles whether this chat announces the first user to score', commands, commands.toggleFirstNotifications, true));
   tgClient.registerCommand(new Command('toggleautoleaderboards', 'toggles whether a leaderboard is auto-posted 1 minute after every dank time', commands, commands.toggleAutoLeaderboards, true));
   tgClient.registerCommand(new Command('toggledanktimenotifications', 'toggles whether notifications of normal dank times are sent', commands, commands.toggleNotifications, true));
-  tgClient.setOnAnyText((msg) => {
+  tgClient.setOnAnyText((msg) => {console.info(msg.text);
     if (msg.migrate_to_chat_id) {
       // If the chat was migrated, then update the registry.
       chatRegistry.setChatId(msg.chat.id, msg.migrate_to_chat_id);

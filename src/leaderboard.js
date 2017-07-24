@@ -73,6 +73,24 @@ class Leaderboard {
   }
 
   /**
+   * Generates a specified number of arrow emoji's (up for positive, down for negative).
+   * @param {number} amount The amount of emoji arrows to generate.
+   */
+  static _arrowEmojis(amount) {
+    let emojis = '';
+    if (amount > 0) {
+      for (let i = 0; i < amount; i++) {
+        emojis += '⬆️';
+      }
+    } else {
+      for (let i = 0; i > amount; i--) {
+        emojis += '⬇️';
+      }
+    }
+    return emojis;
+  }
+
+  /**
    * Returns a string representation of this leaderboard.
    * @param {Leaderboard} previous The previous leaderboard, or null.
    * @returns {string}
@@ -82,10 +100,10 @@ class Leaderboard {
     let leaderboard = '';
     for (let i = 0; i < this._entries.length; i++) {
       const entry = this._entries[i];
-      const positionChange = positionChanges.get(entry.id);
-      const positionChangeStr = positionChange > 0 ? '(+' + positionChange + ')' : positionChange < 0 ? '(' + positionChange + ')' : '';
+      const arrowEmojis = Leaderboard._arrowEmojis(positionChanges.get(entry.id));
+      const positionChange = arrowEmojis ? arrowEmojis : '';
       const scoreChange = entry.lastScoreChange > 0 ? '(+' + entry.lastScoreChange + ')' : entry.lastScoreChange < 0 ? '(' + entry.lastScoreChange + ')' : '';
-      leaderboard += '\n<b>' + (i + 1) + '.</b> ' + positionChangeStr + '    ' + entry.name + '    ' + entry.score + ' ' + scoreChange;
+      leaderboard += '\n<b>' + (i + 1) + '.</b>    ' + entry.name + '    ' + entry.score + ' ' + scoreChange + '    ' + positionChange;
     }
     return leaderboard;
   }
