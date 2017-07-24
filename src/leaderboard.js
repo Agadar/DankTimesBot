@@ -9,17 +9,15 @@ const User = require('./user.js');
 class Leaderboard {
 
   /**
-   * Constructs a new leaderboard from the supplied iterator of users.
-   * @param {IterableIterator<User>} users 
+   * Constructs a new leaderboard from the supplied array of users.
+   * @param {User[]} users 
    */
   constructor(users = null) {
     this._entries = [];
     if (users) {
-      let user = users.next();
-      while (!user.done) {
-        this.addEntry(user.value);
-        user = users.next();
-      }
+      users.forEach(user => {
+        this.addEntry(user);
+      });
     }
   }
 
@@ -54,26 +52,33 @@ class Leaderboard {
   }
 
   /**
+   * Calculates the position changes by comparing this leaderboard to a previous one.
+   * @param {Leaderboard} previousLeaderboard 
+   * @returns {Map<number,number>} The position changes, mapped to user id's.
+   */
+  _calculatePositionChanges(previousLeaderboard) {
+    const positionChanges = new Map();
+    if (!previousLeaderboard) {
+      return positionChanges;
+    }
+    for (let currentPosition = 0; currentPosition < this._entries.length; currentPosition++) {
+      const currentEntry = this._entries[currentPosition];
+      const oldPosition = previousLeaderboard._indexOfEntryViaUserId(currentEntry.id);
+      const change = oldPosition - currentPosition;
+      if (change > 0 || change < 0) {
+        positionChanges.set(currentEntry.id, change);
+      }
+    }
+    return positionChanges;
+  }
+
+  /**
    * Returns a string representation of this leaderboard.
    * @param {Leaderboard} previous The previous leaderboard, or null.
    * @returns {string}
    */
   toString(previous = null) {
-
-    // Calculate position changes.
-    const positionChanges = new Map();
-    if (previous) {
-      for (let currentPosition = 0; currentPosition < this._entries.length; currentPosition++) {
-        const currentEntry = this._entries[currentPosition];
-        const oldPosition = previous._indexOfEntryViaUserId(currentEntry.id);
-
-        if (oldPosition > 0 || oldPosition < 0) {
-          positionChanges.set(currentEntry.id, oldPosition - currentPosition);
-        }
-      }
-    }
-
-    // Construct string leaderboard.
+    const positionChanges = this._calculatePositionChanges(previous);
     let leaderboard = '';
     for (let i = 0; i < this._entries.length; i++) {
       const entry = this._entries[i];

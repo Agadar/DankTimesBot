@@ -498,7 +498,7 @@ class Chat {
 
     // Construct string to return.
     const oldLeaderboard = this._lastLeaderboard;
-    this._lastLeaderboard = new Leaderboard(this._users.values());
+    this._lastLeaderboard = new Leaderboard(Array.from(this._users.values()));
     let leaderboard = '<b>--- ' + (final ? 'FINAL ' : '') + 'LEADERBOARD ---</b>\n';
     leaderboard += this._lastLeaderboard.toString(oldLeaderboard);
 
