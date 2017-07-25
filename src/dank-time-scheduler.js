@@ -209,7 +209,7 @@ class DankTimeScheduler {
    */
   scheduleRandomDankTime(chat, dankTime) {
     const _this = this;
-    this._dankTimeNotifications.push({
+    this._randomDankTimeNotifications.push({
       chatId: chat.getId(), hour: dankTime.getHour(), minute: dankTime.getMinute(), cronJob: new cron.CronJob('0 ' + dankTime.getMinute() + ' ' + dankTime.getHour() + ' * * *', function () {
         if (chat.isRunning()) {
           _this._tgClient.sendMessage(chat.getId(), 'Surprise dank time! Type \'' + dankTime.getTexts()[0] + '\' for points!');
