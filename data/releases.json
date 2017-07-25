@@ -1,10 +1,11 @@
 [
   {
     "version": "1.2.0",
-    "date": "to be announced",
+    "date": "2017-07-25",
     "changes": [
       "Added the /setmultiplier command to set a custom multiplier for the points of the first user to score",
       "Added the /togglefirstnotifications command to enable or disable announcements about which user scored first",
+      "The leaderboard now shows changes in ranks via arrow emojis",
       "Changed the command names and the output of /help to reflect the style of BotFather",
       "Split the /toggle_notifications command into /toggledanktimenotifications and /toggleautoleaderboards",
       "Split the /settings command into /settings and /danktimes",
