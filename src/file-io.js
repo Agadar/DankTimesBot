@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Exposes file I/O related functions for DankTimesBot.
  */

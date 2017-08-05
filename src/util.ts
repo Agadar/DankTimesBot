@@ -1,14 +1,11 @@
-'use strict';
-
 /**
  * Removes from the text the characters with unicodes 65039 and 8419.
  * Makes it so the emoji versions of numbers are parsed to just normal numbers.
- * @param {string} text The text to clean.
- * @return {string} The cleaned text.
+ * @param text The text to clean.
+ * @return The cleaned text.
  */
-function cleanText(text) {
+export function cleanText(text: string): string {
   let clean = '';
-
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i);
     if (code != 65039 && code != 8419) {
@@ -20,15 +17,10 @@ function cleanText(text) {
 
 /**
  * Converts a map to a sorted array, using the specified comparator.
- * @param {Map} map
- * @param {function} comparator
- * @return {any[]}
  */
-function mapToSortedArray(map, comparator) {
-  const array = [];
-  for (const entry of map) {
-    array.push(entry[1]);
-  }
+export function mapToSortedArray<T>(map: Map<any,T>, comparator: ((a: T, b: T) => number)): T[] {
+  const array = new Array<T>();
+  map.forEach(value => array.push(value));
   array.sort(comparator);
   return array;
 }
@@ -39,13 +31,8 @@ function mapToSortedArray(map, comparator) {
  * "1"   => "01"
  * "12"  => "12"
  * "122" => "22"
- * @param {num} Number to prepend 0 to.
+ * @param number The number to prepend 0 to.
  */
-function padNumber(num) {
-  return ("0" + num).slice(-2);
+export function padNumber(number : string | number): string {
+  return ("0" + number.toString()).slice(-2);
 }
-
-// Exports.
-module.exports.mapToSortedArray = mapToSortedArray;
-module.exports.cleanText = cleanText;
-module.exports.padNumber = padNumber;
