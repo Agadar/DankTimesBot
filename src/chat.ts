@@ -1,21 +1,20 @@
-'use strict';
-
 // Imports.
-const time = require('time')(Date);            // NodeJS library for working with timezones.
-const util = require('./util.js');             // Custom script containing global utility functions.
-const DankTime = require('./dank-time.js');
-const User = require('./user.js');
+import * as moment from 'moment-timezone';
+import * as util from './util';
+import {DankTime} from './dank-time';
+import {User} from './user';
+
 const Leaderboard = require('./leaderboard.js');
 
 /**
  * Represents a Telegram chat.
  */
-class Chat {
+export class Chat {
 
   /**
    * Creates a new Chat object.
    * @param {number} id The chat's unique Telegram id.
-   * @param {string} timezone The timezone the users are in.
+   * @param {string} myTimezone The timezone the users are in.
    * @param {boolean} running Whether this bot is running for this chat.
    * @param {number} numberOfRandomTimes The number of randomly generated dank times to generate each day.
    * @param {number} pointsPerRandomTime The number of points each randomly generated dank time is worth.
@@ -29,7 +28,7 @@ class Chat {
    * @param {boolean} autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
    * @param {boolean} firstNotifications Whether this chat announces the first user to score.
    */
-  constructor(id, timezone = 'Europe/Amsterdam', running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
+  constructor(id, private myTimezone = 'Europe/Amsterdam', running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
     lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true, multiplier = 2,
     autoLeaderboards = true, firstNotifications = true) {
 
@@ -159,15 +158,12 @@ class Chat {
 
   /**
    * Sets the timezone the users are in.
-   * @param {string} newtimezone
    */
-  setTimezone(newtimezone) {
-    try {
-      new Date().setTimezone(newtimezone);
-    } catch (err) {
+  public set timezone(timezone: string) {
+    if (moment.tz.zone(timezone) === null) {
       throw RangeError('Invalid timezone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
     }
-    this._timezone = newtimezone;
+    this.myTimezone = timezone;
   };
 
   /**
