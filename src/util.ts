@@ -18,7 +18,7 @@ export function cleanText(text: string): string {
 /**
  * Converts a map to a sorted array, using the specified comparator.
  */
-export function mapToSortedArray<T>(map: Map<any,T>, comparator: ((a: T, b: T) => number)): T[] {
+export function mapToSortedArray<T>(map: Map<any, T>, comparator: ((a: T, b: T) => number)): T[] {
   const array = new Array<T>();
   map.forEach(value => array.push(value));
   array.sort(comparator);
@@ -33,6 +33,6 @@ export function mapToSortedArray<T>(map: Map<any,T>, comparator: ((a: T, b: T) =
  * "122" => "22"
  * @param number The number to prepend 0 to.
  */
-export function padNumber(number : string | number): string {
+export function padNumber(number: string | number): string {
   return ("0" + number.toString()).slice(-2);
 }

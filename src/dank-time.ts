@@ -1,18 +1,18 @@
-type DankTimeLiteral = {hour: number, minute: number, texts: string[], points: number};
+type DankTimeLiteral = { hour: number, minute: number, texts: string[], points: number };
 
 /**
  * Represents a dank time.
  */
 export class DankTime {
 
-  private myPoints: number;
+  private _points: number;
 
   /**
    * Creates a new dank time object.
    * @param hour The hour at which points can be scored.
    * @param minute The minute at which points can be scored.
    * @param texts The texts to shout at the hour:minute to score points.
-   * @param myPoints The amount of points to reward or confiscate.
+   * @param points The amount of points to reward or confiscate.
    */
   constructor(public readonly hour: number, public readonly minute: number, public readonly texts: string[], points = 1) {
     if (this.hour % 1 !== 0 || this.hour < 0 || this.hour > 23) {
@@ -34,14 +34,14 @@ export class DankTime {
     if (points % 1 !== 0 || points < 1 || points > 100) {
       throw TypeError('The points must be a whole number between 1 and 100!');
     }
-    this.myPoints = points;
+    this._points = points;
   }
 
   /**
    * Gets the points.
    */
   public get points(): number {
-    return this.myPoints;
+    return this._points;
   };
 
   /**

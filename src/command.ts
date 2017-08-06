@@ -17,7 +17,7 @@ export class Command {
     public readonly object: object,
     public readonly _function: Function,
     public readonly adminOnly = false,
-    public readonly requiresConfirmation = false) {}
+    public readonly requiresConfirmation = false) { }
 
   /**
    * Gets this command's regex, which is based on its name and the supplied bot name.
