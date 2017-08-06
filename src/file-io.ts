@@ -2,10 +2,9 @@
  * Exposes file I/O related functions for DankTimesBot.
  */
 
-// Imports.
-let fs = require('fs'); // For working with files.
-const Chat = require('./chat.js');
-const Release = require('./release.js');
+import * as fs from 'fs';
+import { Chat, ChatLiteral } from './chat';
+import { Release } from './release';
 
 // Constants.
 const DATA_FOLDER = './data';
@@ -17,12 +16,8 @@ const API_KEY_ENV = 'DANK_TIMES_BOT_API_KEY';
 /**
  * Parses the JSON data in the file to a Settings object. If the file does not exist,
  * then a new one with default values is created.
- * It should have the following fields:
- * - apiKey: The Telegram API key;
- * - persistenceRate: The rate in minutes at which data should be persisted to the data file.
- * @return {Settings} The settings.
  */
-function loadSettingsFromFile() {
+export function loadSettingsFromFile(): { apiKey: string, persistenceRate: number } {
   const settings = { apiKey: '', persistenceRate: 60 }; // Default settings.
 
   // Create the data folder if it doesn't exist yet.
@@ -33,16 +28,20 @@ function loadSettingsFromFile() {
   // If there is a settings file, load its valid values into settings obj.
   if (fs.existsSync(SETTINGS_PATH)) {
     const settingsFromFile = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8'));
-    for (const property in settingsFromFile) {
-      if (settingsFromFile.hasOwnProperty(property) && settings.hasOwnProperty(property) && settingsFromFile[property]) {
-        settings[property] = settingsFromFile[property];
-      }
+    if (settingsFromFile.apiKey) {
+      settings.apiKey = settingsFromFile.apiKey;
+    }
+    if (settingsFromFile.persistenceRate) {
+      settings.persistenceRate = settingsFromFile.persistenceRate;
     }
   }
 
   // If there was an undefined/empty API key in the settings file, try retrieve it from env.
   if (!settings.apiKey) {
-    settings.apiKey = process.env[API_KEY_ENV];
+    const apiKeyFromEnv = process.env[API_KEY_ENV];
+    if (apiKeyFromEnv) {
+      settings.apiKey = apiKeyFromEnv;
+    }
     if (!settings.apiKey) {
       console.error('No Telegram API key was found, not in the settings file nor in the environment variable \'' + API_KEY_ENV + '\'! Exiting...');
       fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, '\t'));
@@ -57,28 +56,26 @@ function loadSettingsFromFile() {
 
 /**
  * Parses the JSON data in the file to a Map of Chat objects.
- * @return {Map} Map containing Chat objects.
  */
-function loadChatsFromFile() {
+export function loadChatsFromFile(): Map<number, Chat> {
 
-  // Create the data folder if it doesn't exist yet.
+  // Create the data folder if it doesn't exist yet.I
   if (!fs.existsSync(DATA_FOLDER)) {
     fs.mkdirSync(DATA_FOLDER);
   }
-  const chats = new Map();
+  const chats = new Map<number, Chat>();
 
   // If the data file exists, load and parse the data to an object.
   if (fs.existsSync(BACKUP_PATH)) {
-    JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8')).forEach(chat => chats.set(chat.id, Chat.fromJSON(chat)));
+    (JSON.parse(fs.readFileSync(BACKUP_PATH, 'utf8')) as Array<ChatLiteral>).forEach(chat => chats.set(chat.id, Chat.fromJSON(chat)));
   }
   return chats;
 }
 
 /**
  * Parses a Map of Chat objects to JSON and saves it to a file.
- * @param {Map<number,Chat>} chats Map containing Chat objects.
  */
-function saveChatsToFile(chats) {
+export function saveChatsToFile(chats: Map<number, Chat>): void {
   // Create the data folder if it doesn't exist yet.
   if (!fs.existsSync(DATA_FOLDER)) {
     fs.mkdirSync(DATA_FOLDER);
@@ -89,13 +86,28 @@ function saveChatsToFile(chats) {
 }
 
 /**
+ * Loads the releases from the Release.json file. If at all possible.
+ * @returns {Release[]}
+ */
+export function loadReleaseLogFromFile(): Release[] {
+
+  // If no releases file exists, just return an empty array.
+  if (!fs.existsSync(RELEASE_LOG_PATH)) {
+    return [];
+  }
+
+  const releases = JSON.parse(fs.readFileSync(RELEASE_LOG_PATH, 'utf8'));
+  for (let i = 0; i < releases.length; i++) {
+    releases[i] = new Release(releases[i].version, releases[i].date, releases[i].changes);
+  }
+  return releases;
+}
+
+/**
  * Used by JSON.stringify(...) for parsing maps to arrays, because
  * it can't handle maps.
- * @param {any} key The key of the map field.
- * @param {any} value The map to be converted to an array.
- * @return {any[]} The array representation of the map.
  */
-function mapReplacer(key, value) {
+function mapReplacer(key: any, value: any): Array<any> {
   if (value instanceof Map) {
     const array = [];
     for (const entry of value) {
@@ -105,27 +117,3 @@ function mapReplacer(key, value) {
   }
   return value;
 }
-
-/**
- * Loads the releases from the Release.json file. If at all possible.
- * @returns {Release[]}
- */
-function loadReleaseLogFromFile() {
-
-  // If no releases file exists, just return an empty array.
-  if (!fs.existsSync(RELEASE_LOG_PATH)) {
-    return [];
-  }
-
-  const releases = JSON.parse(fs.readFileSync(RELEASE_LOG_PATH));
-  for (let i = 0; i < releases.length; i++) {
-    releases[i] = new Release(releases[i].version, releases[i].date, releases[i].changes);
-  }
-  return releases;
-}
-
-// Exports.
-module.exports.loadSettingsFromFile = loadSettingsFromFile;
-module.exports.loadChatsFromFile = loadChatsFromFile;
-module.exports.saveChatsToFile = saveChatsToFile;
-module.exports.loadReleaseLogFromFile = loadReleaseLogFromFile;
