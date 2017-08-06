@@ -1,548 +1,63 @@
-// Imports.
 import * as moment from 'moment-timezone';
 import * as util from './util';
-import {DankTime} from './dank-time';
-import {User} from './user';
+import { DankTime, DankTimeLiteral } from './dank-time';
+import { User, UserLiteral } from './user';
+import { Leaderboard } from './leaderboard';
 
-const Leaderboard = require('./leaderboard.js');
+export type ChatLiteral = {
+  id: number, timezone: string, running: boolean, numberOfRandomTimes: number,
+  pointsPerRandomTime: number, lastHour: number, lastMinute: number, users: UserLiteral[],
+  dankTimes: DankTimeLiteral[], notifications: boolean, multiplier: number,
+  autoLeaderboards: boolean, firstNotifications: boolean
+};
 
-/**
- * Represents a Telegram chat.
- */
 export class Chat {
+
+  private _id: number;
+  private _timezone: string;
+  private _lastHour: number;
+  private _lastMinute: number;
+  private _numberOfRandomTimes: number;
+  private _pointsPerRandomTime: number;
+  private _multiplier: number;
+  private _lastLeaderboard: Leaderboard | null = null;
+  private _awaitingResetConfirmation = -1;
 
   /**
    * Creates a new Chat object.
-   * @param {number} id The chat's unique Telegram id.
-   * @param {string} myTimezone The timezone the users are in.
-   * @param {boolean} running Whether this bot is running for this chat.
-   * @param {number} numberOfRandomTimes The number of randomly generated dank times to generate each day.
-   * @param {number} pointsPerRandomTime The number of points each randomly generated dank time is worth.
-   * @param {number} lastHour The hour of the last valid dank time being proclaimed.
-   * @param {number} lastMinute The minute of the last valid dank time being proclaimed.
-   * @param {User[]} users A map with the users, indexed by user id's.
-   * @param {DankTime[]} dankTimes The dank times known in this chat.
-   * @param {DankTime[]} randomDankTimes The daily randomly generated dank times in this chat.
-   * @param {boolean} notifications Whether this chat automatically sends notifications for dank times.
-   * @param {number} multiplier The multiplier applied to the score of the first user to score.
-   * @param {boolean} autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
-   * @param {boolean} firstNotifications Whether this chat announces the first user to score.
+   * @param id The chat's unique Telegram id.
+   * @param timezone The timezone the users are in.
+   * @param running Whether this bot is running for this chat.
+   * @param numberOfRandomTimes The number of randomly generated dank times to generate each day.
+   * @param pointsPerRandomTime The number of points each randomly generated dank time is worth.
+   * @param lastHour The hour of the last valid dank time being proclaimed.
+   * @param lastMinute The minute of the last valid dank time being proclaimed.
+   * @param users A map with the users, indexed by user id's.
+   * @param dankTimes The dank times known in this chat.
+   * @param randomDankTimes The daily randomly generated dank times in this chat.
+   * @param notifications Whether this chat automatically sends notifications for dank times.
+   * @param multiplier The multiplier applied to the score of the first user to score.
+   * @param autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
+   * @param firstNotifications Whether this chat announces the first user to score.
    */
-  constructor(id, private myTimezone = 'Europe/Amsterdam', running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
-    lastHour = 0, lastMinute = 0, users = new Map(), dankTimes = [], randomDankTimes = [], notifications = true, multiplier = 2,
-    autoLeaderboards = true, firstNotifications = true) {
+  constructor(id: number, timezone = 'Europe/Amsterdam', public running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
+    lastHour = 0, lastMinute = 0, private readonly users = new Map<number, User>(), public readonly dankTimes = new Array<DankTime>(),
+    public randomDankTimes = new Array<DankTime>(), public notifications = true, multiplier = 2, public autoLeaderboards = true,
+    public firstNotifications = true) {
 
-    this.setId(id);
-    this.setTimezone(timezone);
-    this.setRunning(running);
-    this.setLastHour(lastHour);
-    this.setLastMinute(lastMinute);
-    if (!(users instanceof Map)) {
-      throw TypeError('The users must be a map!');
-    }
-    this._users = users;
-    if (!(dankTimes instanceof Array)) {
-      throw TypeError('The dank times must be a array!');
-    }
-    this._dankTimes = dankTimes;
-    if (!(randomDankTimes instanceof Array)) {
-      throw TypeError('The random dank times must be a array!');
-    }
-    this._randomDankTimes = randomDankTimes;
-    this.setNumberOfRandomTimes(numberOfRandomTimes);
-    this.setPointsPerRandomTime(pointsPerRandomTime);
-    this._awaitingResetConfirmation = undefined;
-    this.setNotifications(notifications);
-    this.setMultiplier(multiplier);
-
-    // Set autoLeaderboards.
-    if (typeof autoLeaderboards !== 'boolean') {
-      throw TypeError('autoLeaderboards must be a boolean!');
-    }
-    this._autoLeaderboards = autoLeaderboards;
-
-    // Set firstNotifications.
-    if (typeof firstNotifications !== 'boolean') {
-      throw TypeError('firstNotifications must be a boolean!');
-    }
-    this._firstNotifications = firstNotifications;
-    this._lastLeaderboard = null;
+    this.id = id;
+    this.timezone = timezone;
+    this.lastHour = lastHour;
+    this.lastMinute = lastMinute;
+    this.numberOfRandomTimes = numberOfRandomTimes;
+    this.pointsPerRandomTime = pointsPerRandomTime;
+    this.multiplier = multiplier;
   }
-
-  /**
-   * Toggles whether or not this chat automatically posts leaderboards after dank times occured.
-   */
-  toggleAutoLeaderboards() {
-    this._autoLeaderboards = !this._autoLeaderboards;
-  }
-
-  /**
-   * Gets whether or not this chat automatically posts leaderboards after dank times occured.
-   * @returns {boolean}
-   */
-  getAutoLeaderboards() {
-    return this._autoLeaderboards;
-  }
-
-  /**
-  * Toggles whether this chat announces the first user to score.
-  */
-  toggleFirstNotifications() {
-    this._firstNotifications = !this._firstNotifications;
-  }
-
-  /**
-   * Gets whether this chat announces the first user to score.
-   * @returns {boolean}
-   */
-  getFirstNotifications() {
-    return this._firstNotifications;
-  }
-
-  /**
-   * Sets the multiplier applied to the score of the first user to score.
-   * @param {number} multiplier 
-   */
-  setMultiplier(multiplier) {
-    if (isNaN(multiplier) || multiplier < 1) {
-      throw TypeError('The multiplier must be a number greater than 1!');
-    }
-    this._multiplier = multiplier;
-  };
-
-  /**
-   * Gets the multiplier applied to the score of the first user to score.
-   * @returns {number}
-   */
-  getMultiplier() {
-    return this._multiplier;
-  };
-
-  /**
-   * Sets this chat's unique Telegram id.
-   * @param {number} id 
-   */
-  setId(id) {
-    if (typeof id !== 'number' || id % 1 !== 0) {
-      throw TypeError('The id must be a whole number!');
-    }
-    this._id = id;
-  }
-
-  /**
-   * Gets this chat's unique Telegram id.
-   * @returns {number}
-   */
-  getId() {
-    return this._id;
-  }
-
-  /**
-   * Sets whether or not this chat automatically sends notifications for dank times.
-   * @param {boolean} notifications
-   */
-  setNotifications(notifications) {
-    if (typeof notifications !== 'boolean') {
-      throw TypeError('The notifications value must be a boolean!');
-    }
-    this._notifications = notifications;
-  }
-
-  /**
-   * Gets whether or not this chat automatically sends notifications for dank times.
-   * @returns {boolean}
-   */
-  getNotifications() {
-    return this._notifications;
-  }
-
-  /**
-   * Sets the timezone the users are in.
-   */
-  public set timezone(timezone: string) {
-    if (moment.tz.zone(timezone) === null) {
-      throw RangeError('Invalid timezone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
-    }
-    this.myTimezone = timezone;
-  };
-
-  /**
-   * Sets whether this bot is running for this chat.
-   * @param {boolean} newrunning
-   */
-  setRunning(newrunning) {
-    if (typeof newrunning !== 'boolean') {
-      throw TypeError('The running state must be a boolean!');
-    }
-    this._running = newrunning;
-  };
-
-  /**
-   * Sets the number of randomly generated dank times to generate each day.
-   * @param {number} newnumberOfRandomTimes
-   * @returns {DankTime[]} The removed times if the old number was > than the new number.
-   */
-  setNumberOfRandomTimes(newnumberOfRandomTimes) {
-    if (isNaN(newnumberOfRandomTimes) || newnumberOfRandomTimes < 0 || newnumberOfRandomTimes % 1 !== 0) {
-      throw TypeError('The number of times must be a whole number greater or equal to 0!');
-    }
-    this._numberOfRandomTimes = newnumberOfRandomTimes;
-    return this._randomDankTimes.splice(newnumberOfRandomTimes)
-  };
-
-  /**
-   * Sets the number of points each randomly generated dank time is worth.
-   * @param {number} newpointsPerRandomTime
-   */
-  setPointsPerRandomTime(newpointsPerRandomTime) {
-    if (isNaN(newpointsPerRandomTime) || newpointsPerRandomTime < 1) {
-      throw TypeError('The points must be a whole number greater than 0!');
-    }
-    this._pointsPerRandomTime = newpointsPerRandomTime;
-
-    // Update existing random times.
-    this._randomDankTimes.forEach(time => time.setPoints(newpointsPerRandomTime));
-  };
-
-  /**
-   * Sets the hour of the last valid dank time being proclaimed.
-   * @param {number} newlastHour
-   */
-  setLastHour(newlastHour) {
-    if (isNaN(newlastHour) || newlastHour < 0 || newlastHour > 23 || newlastHour % 1 !== 0) {
-      throw TypeError('The hour must be a whole number between 0 and 23!');
-    }
-    this._lastHour = newlastHour;
-  };
-
-  /**
-   * Sets the minute of the last valid dank time being proclaimed.
-   * @param {number} newlastMinute
-   */
-  setLastMinute(newlastMinute) {
-    if (isNaN(newlastMinute) || newlastMinute < 0 || newlastMinute > 59 || newlastMinute % 1 !== 0) {
-      throw TypeError('The minute must be a whole number between 0 and 59!');
-    }
-    this._lastMinute = newlastMinute;
-  };
-
-  /**
-   * Adds a new normal dank time to this chat, replacing any dank time that has
-   * the same hour and minute.
-   * @param {DankTime} dankTime
-   */
-  addDankTime(dankTime) {
-    const existing = this.getDankTime(dankTime.getHour(), dankTime.getMinute());
-    if (existing) {
-      this._dankTimes.splice(this._dankTimes.indexOf(existing), 1);
-    }
-    this._dankTimes.push(dankTime);
-  };
-
-  /**
-   * Adds a user to this chat.
-   * @param {User} user The user to add.
-   */
-  addUser(user) {
-    this._users.set(user.id, user);
-  };
-
-  /**
-   * Gets the timezone the users are in.
-   * @returns {string}
-   */
-  getTimezone() {
-    return this._timezone;
-  };
-
-  /**
-   * Gets whether this bot is running for this chat.
-   * @returns {boolean}
-   */
-  isRunning() {
-    return this._running;
-  };
-
-  /**
-   * Gets the number of randomly generated dank times to generate each day.
-   * @returns {number}
-   */
-  getNumberOfRandomTimes() {
-    return this._numberOfRandomTimes;
-  };
-
-  /**
-   * Gets the number of points each randomly generated dank time is worth.
-   * @returns {number}
-   */
-  getPointsPerRandomTime() {
-    return this._pointsPerRandomTime;
-  };
-
-  /**
-   * Gets the hour of the last valid dank time being proclaimed.
-   * @returns {number}
-   */
-  getLastHour() {
-    return this._lastHour;
-  };
-
-  /**
-   * Gets the minute of the last valid dank time being proclaimed.
-   * @returns {number}
-   */
-  getLastMinute() {
-    return this._lastMinute;
-  };
-
-  /**
-   * Gets an array of the dank times, sorted by hour and minute.
-   * @returns {DankTime[]}
-   */
-  getDankTimes() {
-    const timesArr = []
-    this._dankTimes.forEach(time => timesArr.push(time));
-    timesArr.sort(DankTime.compare);
-    return timesArr;
-  };
-
-  /**
-   * Gets an unsorted array of the random dank times.
-   * @returns {DankTime[]}
-   */
-  getRandomDankTimes() {
-    return this._randomDankTimes;
-  };
-
-  /**
-   * Gets an array of the users, sorted by scores.
-   * @returns {User[]}
-   */
-  getUsers() {
-    const usersArr = [];
-    this._users.forEach(user => usersArr.push(user));
-    usersArr.sort(User.compare);
-    return usersArr;
-  };
-
-  /**
-   * Generates new random dank times for this chat, clearing old ones.
-   * @returns {DankTime[]} The generated dank times.
-   */
-  generateRandomDankTimes() {
-    this._randomDankTimes = [];
-    for (let i = 0; i < this._numberOfRandomTimes; i++) {
-      const date = new Date();
-      date.setHours(date.getHours() + Math.floor(Math.random() * 23));
-      date.setMinutes(Math.floor(Math.random() * 59));
-      date.setTimezone(this._timezone);
-      const text = util.padNumber(date.getHours().toString()) + util.padNumber(date.getMinutes().toString());
-      this._randomDankTimes.push(new DankTime(date.getHours(), date.getMinutes(), [text], this._pointsPerRandomTime));
-    }
-    return this._randomDankTimes;
-  };
-
-  /**
-   * Used by JSON.stringify. Returns a literal representation of this.
-   * @return {Object}
-   */
-  toJSON() {
-    const usersArr = [];
-    this._users.forEach(user => usersArr.push(user));
-    return {
-      id: this._id, timezone: this._timezone, running: this._running, numberOfRandomTimes: this._numberOfRandomTimes,
-      pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: usersArr,
-      dankTimes: this._dankTimes, notifications: this._notifications, multiplier: this._multiplier,
-      autoLeaderboards: this._autoLeaderboards, firstNotifications: this._firstNotifications
-    };
-  };
-
-  /**
-   * Processes a message, awarding or punishing points etc. where applicable.
-   * @param {number} userId
-   * @param {string} userName
-   * @param {string} msgText
-   * @param {number} msgUnixTime
-   * @returns {string} A reply, or nothing if no reply is suitable/needed.
-   */
-  processMessage(userId, userName, msgText, msgUnixTime) {
-
-    // Ignore the message if it was sent more than 1 minute ago.
-    const serverDate = new Date();
-    serverDate.setTimezone(this._timezone);
-    msgUnixTime *= 1000;
-    if (serverDate.getTime() - msgUnixTime >= 60 * 1000) {
-      return;
-    }
-    msgText = util.cleanText(msgText);
-
-    // If we are awaiting reset confirmation...
-    if (this._awaitingResetConfirmation === userId) {
-      this._awaitingResetConfirmation = undefined;
-      if (msgText.toUpperCase() === 'YES') {
-        const message = 'Leaderboard has been reset!\n\n' + this.generateLeaderboard(true);
-        this._users.forEach(user => user.resetScore());
-        return message;
-      }
-    }
-
-    // If this chat isn't running, don't check anything else.
-    if (!this._running) {
-      return;
-    }
-
-    // Gather dank times from the sent text, returning if none was found.
-    const dankTimesByText = this._getDankTimesByText(msgText);
-    if (dankTimesByText.length < 1) {
-      return;
-    }
-
-    // Get the player, creating him if he doesn't exist yet.
-    if (!this._users.has(userId)) {
-      this._users.set(userId, new User(userId, userName));
-    }
-    const user = this._users.get(userId);
-
-    // Update user name if needed.
-    if (user.getName() !== userName) {
-      user.setName(userName);
-    }
-
-    let subtractBy = 0;
-    for (let dankTime of dankTimesByText) {
-      if (serverDate.getHours() === dankTime.getHour() && (serverDate.getMinutes() === dankTime.getMinute()
-        || new Date(msgUnixTime).getMinutes() === dankTime.getMinute())) {
-
-        // If cache needs resetting, do so and award DOUBLE points to the calling user.
-        if (this._lastHour !== dankTime.getHour() || this._lastMinute !== dankTime.getMinute()) {
-          this._users.forEach(user => user.setCalled(false));
-          this._lastHour = dankTime.getHour();
-          this._lastMinute = dankTime.getMinute();
-          user.addToScore(Math.round(dankTime.getPoints() * this._multiplier));
-          user.setCalled(true);
-          if (this._firstNotifications) {
-            return user.getName() + ' was the first to score!';
-          }
-        } else if (user.getCalled()) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.getPoints());
-        } else {  // Else, award point.
-          user.addToScore(dankTime.getPoints());
-          user.setCalled(true);
-        }
-        return;
-      } else if (dankTime.getPoints() > subtractBy) {
-        subtractBy = dankTime.getPoints();
-      }
-    }
-    // If no match was found, punish the user.
-    user.addToScore(-subtractBy);
-  };
-
-  /**
-   * Sets this chat's awaitingResetConfirmation value, which is the
-   * id of the user whose confirmation is awaited.
-   * @param {number} awaitingResetConfirmation 
-   */
-  setAwaitingResetConfirmation(awaitingResetConfirmation) {
-    if (awaitingResetConfirmation && isNaN(awaitingResetConfirmation)) {
-      throw TypeError('The value must be a number or undefined!');
-    }
-    this._awaitingResetConfirmation = awaitingResetConfirmation;
-  };
-
-  /**
-   * Resets the scores of all the users.
-   */
-  resetScores() {
-    this._users.forEach(user => user.resetScore());
-  };
-
-  /**
-   * Removes the dank time with the specified hour and minute.
-   * @param {number} hour
-   * @param {number} minute
-   * @returns {boolean} Whether a dank time was found and removed.
-   */
-  removeDankTime(hour, minute) {
-    const dankTime = this.getDankTime(hour, minute);
-    if (dankTime) {
-      this._dankTimes.splice(this._dankTimes.indexOf(dankTime));
-      return true;
-    }
-    return false;
-  };
-
-  /**
-   * Returns whether the leaderboard has changed since the last time this.generateLeaderboard(...) was generated.
-   * @returns {boolean}
-   */
-  leaderboardChanged() {
-    for (const user of this._users) {
-      if (user[1].getLastScoreChange() !== 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Generates the leaderboard of this chat.
-   * @param {boolean} final If true, prints 'FINAL LEADERBOARD' instead of 'LEADERBOARD'.
-   * @returns {string} The leaderboard.
-   */
-  generateLeaderboard(final = false) {
-
-    // Construct string to return.
-    const oldLeaderboard = this._lastLeaderboard;
-    this._lastLeaderboard = new Leaderboard(Array.from(this._users.values()));
-    let leaderboard = '<b>--- ' + (final ? 'FINAL ' : '') + 'LEADERBOARD ---</b>\n';
-    leaderboard += this._lastLeaderboard.toString(oldLeaderboard);
-
-    // Reset last score change values of all users.
-    let userIterator = this._users.values();
-    let user = userIterator.next();
-    while (!user.done) {
-      user.value.resetLastScoreChange();
-      user = userIterator.next();
-    }
-    return leaderboard;
-  }
-
-  /**
-   * Gets the normal dank time that has the specified hour and minute.
-   * @param {number} hour 
-   * @param {number} minute 
-   * @returns {DankTime} or undefined if none has the specified hour and minute.
-   */
-  getDankTime(hour, minute) {
-    for (let dankTime of this._dankTimes) {
-      if (dankTime.getHour() === hour && dankTime.getMinute() === minute) {
-        return dankTime;
-      }
-    }
-  };
-
-  /**
-   * Gets both normal and random dank times that have the specified text.
-   * @param {string} text 
-   * @returns {DankTime[]}
-   */
-  _getDankTimesByText(text) {
-    const found = [];
-    for (let dankTime of this._dankTimes.concat(this._randomDankTimes)) {
-      if (dankTime.hasText(text)) {
-        found.push(dankTime);
-      }
-    }
-    return found;
-  };
 
   /**
    * Returns a new Chat parsed from a literal.
-   * @param {Object} literal
-   * @returns {Chat}
    */
-  static fromJSON(literal) {
+  public static fromJSON(literal: ChatLiteral): Chat {
 
     // For backwards compatibility with v.1.1.0.
     if (!literal.multiplier) {
@@ -555,7 +70,7 @@ export class Chat {
       literal.firstNotifications = true;
     }
 
-    const dankTimes = [];
+    const dankTimes = new Array<DankTime>();
     literal.dankTimes.forEach(dankTime => dankTimes.push(DankTime.fromJSON(dankTime)));
 
     const users = new Map();
@@ -564,7 +79,293 @@ export class Chat {
     return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
       literal.lastHour, literal.lastMinute, users, dankTimes, [], literal.notifications, literal.multiplier, literal.firstNotifications);
   };
-}
 
-// Exports.
-module.exports = Chat;
+  public set id(id: number) {
+    if (id % 1 !== 0) {
+      throw TypeError('The id must be a whole number!');
+    }
+    this._id = id;
+  }
+
+  public get id(): number {
+    return this._id;
+  }
+
+  public set timezone(timezone: string) {
+    if (moment.tz.zone(timezone) === null) {
+      throw RangeError('Invalid timezone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
+    }
+    this._timezone = timezone;
+  }
+
+  public get timezone(): string {
+    return this._timezone;
+  }
+
+  public set lastHour(lastHour: number) {
+    if (lastHour < 0 || lastHour > 23 || lastHour % 1 !== 0) {
+      throw TypeError('The hour must be a whole number between 0 and 23!');
+    }
+    this._lastHour = lastHour;
+  }
+
+  public get lastHour(): number {
+    return this._lastHour;
+  }
+
+  public set lastMinute(lastMinute: number) {
+    if (lastMinute < 0 || lastMinute > 59 || lastMinute % 1 !== 0) {
+      throw TypeError('The minute must be a whole number between 0 and 59!');
+    }
+    this._lastMinute = lastMinute;
+  }
+
+  public get lastMinute(): number {
+    return this._lastMinute;
+  }
+
+  public set numberOfRandomTimes(numberOfRandomTimes: number) {
+    if (numberOfRandomTimes < 0 || numberOfRandomTimes > 24 || numberOfRandomTimes % 1 !== 0) {
+      throw TypeError('The number of times must be a whole number between 0 and 24!');
+    }
+    this._numberOfRandomTimes = numberOfRandomTimes;
+    this.randomDankTimes.splice(numberOfRandomTimes)
+  }
+
+  public get numberOfRandomTimes(): number {
+    return this._numberOfRandomTimes;
+  }
+
+  public set multiplier(multiplier: number) {
+    if (multiplier < 1 || multiplier > 10) {
+      throw TypeError('The multiplier must be a number between 1 and 10!');
+    }
+    this._multiplier = multiplier;
+  }
+
+  public get multiplier(): number {
+    return this._multiplier;
+  }
+
+  public set pointsPerRandomTime(pointsPerRandomTime: number) {
+    if (pointsPerRandomTime < 1 || pointsPerRandomTime > 100 || pointsPerRandomTime % 1 !== 0) {
+      throw TypeError('The points must be a whole number between 1 and 100!');
+    }
+    this._pointsPerRandomTime = pointsPerRandomTime;
+  }
+
+  public get pointsPerRandomTime(): number {
+    return this._pointsPerRandomTime;
+  }
+
+  /**
+   * Adds a new normal dank time to this chat, replacing any dank time that has
+   * the same hour and minute.
+   */
+  public addDankTime(dankTime: DankTime): void {
+    const existing = this.getDankTime(dankTime.hour, dankTime.minute);
+    if (existing) {
+      this.dankTimes.splice(this.dankTimes.indexOf(existing), 1);
+    }
+    this.dankTimes.push(dankTime);
+  };
+
+  /**
+   * Adds a user to this chat.
+   */
+  public addUser(user: User): void {
+    this.users.set(user.id, user);
+  };
+
+  /**
+   * Gets an array of the users, sorted by scores.
+   */
+  public sortedUsers(): User[] {
+    const usersArr = new Array<User>();
+    this.users.forEach(user => usersArr.push(user));
+    usersArr.sort(User.compare);
+    return usersArr;
+  };
+
+  /**
+   * Generates new random dank times for this chat, clearing old ones.
+   */
+  public generateRandomDankTimes(): DankTime[] {
+    this.randomDankTimes = new Array<DankTime>();
+    for (let i = 0; i < this._numberOfRandomTimes; i++) {
+      const now = moment.tz(this.timezone);
+      now.add(now.hours() + Math.floor(Math.random() * 23), 'hours');
+      now.minutes(Math.floor(Math.random() * 59));
+      const text = util.padNumber(now.hours().toString()) + util.padNumber(now.minutes.toString());
+      this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this._pointsPerRandomTime));
+    }
+    return this.randomDankTimes;
+  };
+
+  /**
+   * Used by JSON.stringify. Returns a literal representation of this.
+   */
+  public toJSON(): ChatLiteral {
+    return {
+      id: this._id, timezone: this._timezone, running: this.running, numberOfRandomTimes: this._numberOfRandomTimes,
+      pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: this.sortedUsers(),
+      dankTimes: this.dankTimes, notifications: this.notifications, multiplier: this._multiplier,
+      autoLeaderboards: this.autoLeaderboards, firstNotifications: this.firstNotifications
+    };
+  };
+
+  /**
+   * Processes a message, awarding or punishing points etc. where applicable.
+   * @returns A reply, or nothing if no reply is suitable/needed.
+   */
+  public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string {
+
+    // Ignore the message if it was sent more than 1 minute ago.
+    const now = moment(this.timezone);
+    if (now.unix() - msgUnixTime >= 60) {
+      return '';
+    }
+    msgText = util.cleanText(msgText);
+
+    // If we are awaiting reset confirmation...
+    if (this._awaitingResetConfirmation === userId) {
+      this._awaitingResetConfirmation = -1;
+      if (msgText.toUpperCase() === 'YES') {
+        const message = 'Leaderboard has been reset!\n\n' + this.generateLeaderboard(true);
+        this.users.forEach(user => user.resetScore());
+        return message;
+      }
+    }
+
+    // If this chat isn't running, don't check anything else.
+    if (!this.running) {
+      return '';
+    }
+
+    // Gather dank times from the sent text, returning if none was found.
+    const dankTimesByText = this.getDankTimesByText(msgText);
+    if (dankTimesByText.length < 1) {
+      return '';
+    }
+
+    // Get the player, creating him if he doesn't exist yet.
+    if (!this.users.has(userId)) {
+      this.users.set(userId, new User(userId, userName));
+    }
+    const user = this.users.get(userId) as User;
+
+    // Update user name if needed.
+    if (user.name !== userName) {
+      user.name = userName;
+    }
+
+    let subtractBy = 0;
+    for (let dankTime of dankTimesByText) {
+      if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
+
+        // If cache needs resetting, do so and award DOUBLE points to the calling user.
+        if (this.lastHour !== dankTime.hour || this._lastMinute !== dankTime.minute) {
+          this.users.forEach(user => user.called = false);
+          this.lastHour = dankTime.hour;
+          this.lastMinute = dankTime.minute;
+          user.addToScore(Math.round(dankTime.points * this._multiplier));
+          user.called = true;
+          if (this.firstNotifications) {
+            return user.name + ' was the first to score!';
+          }
+        } else if (user.called) { // Else if user already called this time, remove points.
+          user.addToScore(-dankTime.points);
+        } else {  // Else, award point.
+          user.addToScore(dankTime.points);
+          user.called = true;
+        }
+        return '';
+      } else if (dankTime.points > subtractBy) {
+        subtractBy = dankTime.points;
+      }
+    }
+    // If no match was found, punish the user.
+    user.addToScore(-subtractBy);
+    return '';
+  };
+
+  /**
+   * Resets the scores of all the users.
+   */
+  public resetScores(): void {
+    this.users.forEach(user => user.resetScore());
+  };
+
+  /**
+   * Removes the dank time with the specified hour and minute.
+   * @returns Whether a dank time was found and removed.
+   */
+  public removeDankTime(hour: number, minute: number): boolean {
+    const dankTime = this.getDankTime(hour, minute);
+    if (dankTime) {
+      this.dankTimes.splice(this.dankTimes.indexOf(dankTime));
+      return true;
+    }
+    return false;
+  };
+
+  /**
+   * Returns whether the leaderboard has changed since the last time this.generateLeaderboard(...) was generated.
+   */
+  public leaderboardChanged(): boolean {
+    for (const user of this.users) {
+      if (user[1].lastScoreChange !== 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Generates the leaderboard of this chat.
+   * @param final If true, prints 'FINAL LEADERBOARD' instead of 'LEADERBOARD'.
+   */
+  public generateLeaderboard(final = false): string {
+
+    // Construct string to return.
+    const oldLeaderboard = this._lastLeaderboard;
+    this._lastLeaderboard = new Leaderboard(Array.from(this.users.values()));
+    let leaderboard = '<b>--- ' + (final ? 'FINAL ' : '') + 'LEADERBOARD ---</b>\n';
+    leaderboard += this._lastLeaderboard.toString(oldLeaderboard);
+
+    // Reset last score change values of all users.
+    const userIterator = this.users.values();
+    let user = userIterator.next();
+    while (!user.done) {
+      user.value.resetLastScoreChange();
+      user = userIterator.next();
+    }
+    return leaderboard;
+  }
+
+  /**
+   * Gets the normal dank time that has the specified hour and minute.
+   * @returns The dank time or null if none has the specified hour and minute.
+   */
+  public getDankTime(hour: number, minute: number): DankTime | null {
+    for (let dankTime of this.dankTimes) {
+      if (dankTime.hour === hour && dankTime.minute === minute) {
+        return dankTime;
+      }
+    }
+    return null;
+  };
+
+  /**
+   * Gets both normal and random dank times that have the specified text.
+   */
+  private getDankTimesByText(text: string): DankTime[] {
+    const found = [];
+    for (let dankTime of this.dankTimes.concat(this.randomDankTimes)) {
+      if (dankTime.hasText(text)) {
+        found.push(dankTime);
+      }
+    }
+    return found;
+  };
+}

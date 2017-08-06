@@ -1,4 +1,4 @@
-type DankTimeLiteral = { hour: number, minute: number, texts: string[], points: number };
+export type DankTimeLiteral = { hour: number, minute: number, texts: string[], points: number };
 
 /**
  * Represents a dank time.

@@ -1,4 +1,4 @@
-type UserLiteral = { id: number, name: string, score: number, called: boolean, lastScoreChange: number };
+export type UserLiteral = { id: number, name: string, score: number, called: boolean, lastScoreChange: number };
 
 /**
  * Represents a Telegram user.

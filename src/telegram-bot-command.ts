@@ -1,7 +1,4 @@
-/**
- * Represents a command that can be executed by a Telegram bot.
- */
-export class Command {
+export class TelegramBotCommand {
 
   /**
    * Defines a new command for the Telegram bot.
