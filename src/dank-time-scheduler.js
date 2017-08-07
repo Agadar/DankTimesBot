@@ -1,12 +1,10 @@
-'use strict';
+import {CronJob} from 'cron';
 
-// Imports
-const cron = require('cron'); // NodeJS library for scheduling cron jobs.
 
 /** 
  * Responsible for scheduling notification messages about dank times. 
  */
-class DankTimeScheduler {
+export class DankTimeScheduler {
 
   /**
    * Initializes a new dank time scheduler.
@@ -249,6 +247,3 @@ class DankTimeScheduler {
     });
   }
 }
-
-// Exports.
-module.exports = DankTimeScheduler;

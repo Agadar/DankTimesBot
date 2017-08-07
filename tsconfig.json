@@ -12,7 +12,8 @@
     "pretty": true,
     "removeComments": true,
     "moduleResolution": "node",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "module": "commonjs"
   },
   "include": [
     "./src/**/*"

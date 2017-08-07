@@ -4,7 +4,8 @@
   "description": "This Telegram bot keeps track of 'dank' times such as 13:37 and 04:20, and awards points to users who call them out.",
   "main": "built/main.js",
   "scripts": {
-    "start": "tsc && node src/main.js",
+    "build": "tsc",
+    "start": "npm run build && node built/main.js",
     "test": "mocha"
   },
   "author": "Agadar",
@@ -23,6 +24,7 @@
     "@types/cron": "^1.2.1",
     "@types/moment-timezone": "^0.2.34",
     "@types/node": "^8.0.19",
+    "@types/node-telegram-bot-api": "^0.27.0",
     "mocha": "^3.4.2",
     "rewire": "^2.5.2"
   }

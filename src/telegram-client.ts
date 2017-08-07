@@ -1,59 +1,43 @@
-'use strict';
-
-// Imports.
-const TelegramBot = require('node-telegram-bot-api'); // Client library for Telegram API.
-const Command = require('./command.js');
+import TelegramBot = require('node-telegram-bot-api');
+import {TelegramBotCommand} from './telegram-bot-command';
 
 /**
  * The Telegram Client that communicates with the API via the 'node-telegram-bot-api' library.
  */
-class TelegramClient {
+export class TelegramClient {
+  
+  public readonly commands = new Map<string,TelegramBotCommand>();
+  private readonly bot: TelegramBot;
+  private _botname = '';
 
-  /**
-   * Instantiates a new client.
-   * @param {string} apiKey The Telegram API key.
-   */
-  constructor(apiKey) {
-    if (typeof apiKey !== 'string') {
-      throw TypeError('The API key must be a string!');
-    }
-    this._commands = new Map(); // All the available settings of the bot.
-    this._bot = new TelegramBot(apiKey, { polling: true }); // Access to the 'node-telegram-bot-api' library.
+  constructor(apiKey: string) {
+    this.bot = new TelegramBot(apiKey, { polling: true });
   }
 
   /**
    * Retrieves and stores the bot's name from the API.
-   * @returns {Promise}
    */
-  retrieveBotName() {
+  public retrieveBotName(): Promise<string> {
     const _this = this;
-    return this._bot.getMe().then(me => {
+    return this.bot.getMe().then(me => {
       _this._botname = me.username;
+      return me.username;
     });
   };
 
   /**
-   * Gets the bot's name, or undefined if this.retrieveBotName() wasn't called yet.
-   * @returns {string}
+   * Gets the bot's name, or an empty string if this.retrieveBotName() wasn't called yet.
    */
-  getBotName() {
+  public get botname(): string {
     return this._botname;
-  };
-
-  /**
-   * Gets all registered commands.
-   * @returns {Map<string,Command>}
-   */
-  getCommands() {
-    return this._commands;
-  };
+  }
 
   /**
    * Sets the action to do on ANY incoming text.
    * @param {function} _function The function to call.
    */
-  setOnAnyText(_function) {
-    this._bot.on('message', (msg, match) => {
+  public setOnAnyText(_function) {
+    this.bot.on('message', (msg, match) => {
       const output = _function(msg, match);
       if (output) {
         this.sendMessage(msg.chat.id, output);
@@ -128,6 +112,3 @@ class TelegramClient {
     });
   }
 };
-
-// Exports.
-module.exports = TelegramClient;
