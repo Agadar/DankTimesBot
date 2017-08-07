@@ -5,14 +5,14 @@ export class TelegramBotCommand {
    * @param name The name of the command, e.g. 'start'.
    * @param description Brief description of the command.
    * @param object The object to call the function on.
-   * @param _function The function which this command calls. Expected to take parameters 'msg' and 'match' and return a string.
+   * @param action The function which this command calls. Expected to take parameters 'msg' and 'match' and return a string.
    * @param adminOnly Whether only admins can execute this command.
    * @param requiresConfirmation Whether this command requires explicit confirmation.
    */
   constructor(public readonly name: string,
     public readonly description: string,
     public readonly object: object,
-    public readonly _function: Function,
+    public readonly action: ((msg: any, match: string[]) => string),
     public readonly adminOnly = false,
     public readonly requiresConfirmation = false) { }
 
