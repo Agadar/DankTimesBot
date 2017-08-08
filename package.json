@@ -24,7 +24,6 @@
     "@types/cron": "^1.2.1",
     "@types/moment-timezone": "^0.2.34",
     "@types/node": "^8.0.19",
-    "@types/node-telegram-bot-api": "^0.27.0",
     "mocha": "^3.4.2",
     "rewire": "^2.5.2"
   }

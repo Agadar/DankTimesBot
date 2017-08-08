@@ -13,7 +13,12 @@
     "removeComments": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
-    "module": "commonjs"
+    "module": "commonjs",
+    "baseUrl": "types",
+    "typeRoots": [
+      "types",
+      "node_modules/@types"
+    ]
   },
   "include": [
     "./src/**/*"

@@ -13,6 +13,8 @@ export type ChatLiteral = {
 
 export class Chat {
 
+  public awaitingResetConfirmation = -1;
+  
   private _id: number;
   private _timezone: string;
   private _lastHour: number;
@@ -21,7 +23,6 @@ export class Chat {
   private _pointsPerRandomTime: number;
   private _multiplier: number;
   private _lastLeaderboard: Leaderboard | null = null;
-  private _awaitingResetConfirmation = -1;
 
   /**
    * Creates a new Chat object.
@@ -228,8 +229,8 @@ export class Chat {
     msgText = util.cleanText(msgText);
 
     // If we are awaiting reset confirmation...
-    if (this._awaitingResetConfirmation === userId) {
-      this._awaitingResetConfirmation = -1;
+    if (this.awaitingResetConfirmation === userId) {
+      this.awaitingResetConfirmation = -1;
       if (msgText.toUpperCase() === 'YES') {
         const message = 'Leaderboard has been reset!\n\n' + this.generateLeaderboard(true);
         this.users.forEach(user => user.resetScore());
