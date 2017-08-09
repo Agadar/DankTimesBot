@@ -1,7 +1,21 @@
 'use strict';
 
 // External imports.
-const nodeCleanup = require('node-cleanup');   // NodeJS library for running code on program exit.
+import * as nodeCleanup from 'node-cleanup';   // NodeJS library for running code on program exit.
+
+// TODO: write a type definitions file for nodeCleanup.
+
+function foo() { }
+namespace foo {
+    export var someValue = 3;
+}
+
+foo();
+foo.someValue;
+// use declare for typings
+
+
+
 const cron = require('cron'); // NodeJS library for scheduling cron jobs.
 
 // Internal imports.
@@ -11,7 +25,7 @@ const TelegramClient = require('./telegram-client.js');
 const Commands = require('./commands.js');
 const ChatRegistry = require('./chat-registry.js');
 const DankTimeScheduler = require('./dank-time-scheduler.js');
-;
+
 // Global variables.
 const settings = fileIO.loadSettingsFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
