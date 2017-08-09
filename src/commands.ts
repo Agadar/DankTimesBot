@@ -6,7 +6,7 @@ import { DankTimeScheduler } from './dank-time-scheduler';
 import { Release } from './release';
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
-class Commands {
+export class Commands {
 
   constructor(private readonly tgClient: TelegramClient,
     private readonly chatRegistry: ChatRegistry,
@@ -22,7 +22,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public startChat(msg: any, match: string[]): string {
+  public startChat(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     if (chat.running) {
       return 'The bot is already running!';
@@ -39,7 +39,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public stopChat(msg: any, match: string[]): string {
+  public stopChat(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     if (chat.running) {
       chat.running = false;
@@ -55,7 +55,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public resetChat(msg: any, match: string[]): string {
+  public resetChat(msg: any, match: any): string {
     this.chatRegistry.getOrCreateChat(msg.chat.id).awaitingResetConfirmation = msg.from.id;
     return 'Are you sure? Type \'yes\' to confirm.';
   }
@@ -66,7 +66,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public chatSettings(msg: any, match: string[]): string {
+  public chatSettings(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     let settings = '<b>--- SETTINGS ---</b>\n';
     settings += '\n<b>Announce first to score:</b> ' + (chat.firstNotifications ? 'on' : 'off');
@@ -88,7 +88,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public dankTimes(msg: any, match: string[]): string {
+  public dankTimes(msg: any, match: any): string {
     let dankTimes = '<b>--- DANK TIMES ---</b>\n';
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     for (const time of chat.dankTimes) {
@@ -106,7 +106,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public leaderBoard(msg: any, match: string[]): string {
+  public leaderBoard(msg: any, match: any): string {
     return this.chatRegistry.getOrCreateChat(msg.chat.id).generateLeaderboard();
   }
 
@@ -116,7 +116,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public help(msg: any, match: string[]): string {
+  public help(msg: any, match: any): string {
     let help = '<b>--- AVAILABLE COMMANDS ---</b>\n';
     this.tgClient.commands.forEach(command => help += '\n/' + command.name + ' - ' + command.description);
     return help;
@@ -128,7 +128,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public addTime(msg: any, match: string[]): string {
+  public addTime(msg: any, match: any): string {
 
     // Split string and ensure it contains at least 4 items.
     const split = match.input.split(' ');
@@ -171,7 +171,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public removeTime(msg: any, match: string[]): string {
+  public removeTime(msg: any, match: any): string {
 
     // Split string and ensure it contains at least 2 items.
     const split = match.input.split(' ');
@@ -208,7 +208,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public setTimezone(msg: any, match: string[]): string {
+  public setTimezone(msg: any, match: any): string {
 
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(' ');
@@ -236,7 +236,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public setMultiplier(msg: any, match: string[]): string {
+  public setMultiplier(msg: any, match: any): string {
 
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(' ');
@@ -259,7 +259,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public setDailyRandomTimes(msg: any, match: string[]): string {
+  public setDailyRandomTimes(msg: any, match: any): string {
 
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(' ');
@@ -294,7 +294,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public setDailyRandomTimesPoints(msg: any, match: string[]): string {
+  public setDailyRandomTimesPoints(msg: any, match: any): string {
 
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(' ');
@@ -316,7 +316,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public toggleNotifications(msg: any, match: string[]): string {
+  public toggleNotifications(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.notifications = !chat.notifications;
 
@@ -339,7 +339,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public toggleAutoLeaderboards(msg: any, match: string[]): string {
+  public toggleAutoLeaderboards(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.autoLeaderboards = !chat.autoLeaderboards;
 
@@ -362,7 +362,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public toggleFirstNotifications(msg: any, match: string[]): string {
+  public toggleFirstNotifications(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.firstNotifications = !chat.firstNotifications;
     return chat.firstNotifications ? 'Announcements for first users to score are now enabled!' : 'Announcements for first users to score are now disabled!';
@@ -374,7 +374,7 @@ class Commands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public getReleaseLog(msg: any, match: string[]): string {
+  public getReleaseLog(msg: any, match: any): string {
     let reply = '<b>--- RELEASES ---</b>\n';
     this.releaseLog.forEach(release => {
       reply += '\n';

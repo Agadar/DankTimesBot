@@ -16,7 +16,7 @@
     "module": "commonjs",
     "baseUrl": "types",
     "typeRoots": [
-      "types",
+      "./types",
       "node_modules/@types"
     ],
     "forceConsistentCasingInFileNames": true
