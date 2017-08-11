@@ -1,9 +1,8 @@
-'use strict';
+import 'mocha';
+import assert = require('assert');
+import * as util from '../src/util';
 
-const assert = require('assert');
-const util = require('../src/util.js');
-
-describe('padNumber(msg)', function (msg) {
+describe('util.padNumber(msg)', () => {
   const tests = [
     { arg: "0", expected: "00" },
     { arg: "7", expected: "07" },

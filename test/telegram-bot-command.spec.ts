@@ -1,11 +1,12 @@
-'use strict';
+import 'mocha';
+import assert = require('assert');
+import { TelegramBotCommand } from '../src/telegram-bot-command';
 
-const assert = require('assert');
-const Command = require('../src/command.js');
+describe('TelegramBotCommand.getRegex()', () => {
 
-describe('Command.getRegex()', function () {
+  const regex = new TelegramBotCommand('command', 'command description', {},
+    (msg, match) => { return '' }, false, false).getRegex('DankTimesBot');
 
-  const regex = new Command('command', 'command description', {}, () => { }, false, false).getRegex('DankTimesBot');
   const tests = [
     { arg: '/command', expected: true },
 

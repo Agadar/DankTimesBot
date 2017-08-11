@@ -5,7 +5,7 @@ import {User} from './user';
  */
 export class Leaderboard {
 
-  private readonly entries = new Array<LeaderboardEntry>();
+  public readonly entries = new Array<LeaderboardEntry>();
 
   /**
    * Constructs a new leaderboard from the supplied array of users.

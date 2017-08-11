@@ -63,7 +63,7 @@ export class TelegramClient {
     }
   };
 
-  public sendMessage(chatId: number, htmlMessage: string) {
+  public sendMessage(chatId: number, htmlMessage: string): void {
     this.bot.sendMessage(chatId, htmlMessage, { parse_mode: 'HTML' }).catch(reason => {
       console.warn('Telegram API returned HTTP status code ' + reason.response.statusCode + ' when this bot attempted to send a message to chat with id ' + chatId
         + '. Error description: \'' + reason.response.body.description + '\'.');

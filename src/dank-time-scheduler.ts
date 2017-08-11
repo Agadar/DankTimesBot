@@ -15,9 +15,9 @@ interface ScheduledItem {
  */
 export class DankTimeScheduler {
 
-  private randomDankTimeNotifications = new Array<ScheduledItem>();
-  private dankTimeNotifications = new Array<ScheduledItem>();
-  private autoLeaderBoards = new Array<ScheduledItem>();
+  public randomDankTimeNotifications = new Array<ScheduledItem>();
+  public dankTimeNotifications = new Array<ScheduledItem>();
+  public autoLeaderBoards = new Array<ScheduledItem>();
 
   constructor(private readonly tgClient: TelegramClient) { };
 

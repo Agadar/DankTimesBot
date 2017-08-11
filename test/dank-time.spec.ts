@@ -1,9 +1,8 @@
-'use strict';
+import 'mocha';
+import assert = require('assert');
+import { DankTime } from '../src/dank-time';
 
-const assert = require('assert');
-const DankTime = require('../src/dank-time.js');
-
-describe('DankTime.compare(a, b)', function (a, b) {
+describe('DankTime.compare(a, b)', () => {
   const tests = [
     { args: [new DankTime(13, 37, ['1'], 5), new DankTime(13, 37, ['5'], 1)], expected: 0 },
     { args: [new DankTime(10, 0, ['2'], 4), new DankTime(9, 10, ['4'], 2)], expected: 1 },
