@@ -27,8 +27,6 @@
     "@types/mocha": "^2.2.41",
     "@types/moment-timezone": "^0.2.34",
     "@types/node": "^8.0.19",
-    "@types/rewire": "^2.5.28",
-    "mocha": "^3.4.2",
-    "rewire": "^2.5.2"
+    "mocha": "^3.4.2"
   }
 }
