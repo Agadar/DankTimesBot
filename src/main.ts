@@ -1,4 +1,4 @@
-import { nodeCleanup } from 'node-cleanup';
+import nodeCleanup = require('node-cleanup');
 import { CronJob } from 'cron';
 import * as fileIO from './file-io';
 import { TelegramBotCommand } from './telegram-bot-command';
