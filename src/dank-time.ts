@@ -16,13 +16,13 @@ export class DankTime {
    */
   constructor(public readonly hour: number, public readonly minute: number, public readonly texts: string[], points = 1) {
     if (this.hour % 1 !== 0 || this.hour < 0 || this.hour > 23) {
-      throw TypeError('The hour must be a whole number between 0 and 23!');
+      throw new RangeError('The hour must be a whole number between 0 and 23!');
     }
     if (this.minute % 1 !== 0 || this.minute < 0 || this.minute > 59) {
-      throw TypeError('The minute must be a whole number between 0 and 59!');
+      throw new RangeError('The minute must be a whole number between 0 and 59!');
     }
     if (this.texts.length < 1) {
-      throw TypeError('The texts must be a string array containing at least one item!');
+      throw new RangeError('The texts must be a string array containing at least one item!');
     }
     this.points = points;
   }
@@ -32,7 +32,7 @@ export class DankTime {
    */
   public set points(points: number) {
     if (points % 1 !== 0 || points < 1 || points > 100) {
-      throw TypeError('The points must be a whole number between 1 and 100!');
+      throw new RangeError('The points must be a whole number between 1 and 100!');
     }
     this._points = points;
   }

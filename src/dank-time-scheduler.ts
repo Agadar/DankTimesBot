@@ -70,7 +70,6 @@ export class DankTimeScheduler {
     chat.randomDankTimes.forEach(dankTime => {
       this.scheduleAutoLeaderboard(chat, dankTime);
     });
-
     chat.dankTimes.forEach(dankTime => {
       this.scheduleAutoLeaderboard(chat, dankTime);
     });

@@ -83,7 +83,7 @@ export class Chat {
 
   public set id(id: number) {
     if (id % 1 !== 0) {
-      throw TypeError('The id must be a whole number!');
+      throw new RangeError('The id must be a whole number!');
     }
     this._id = id;
   }
@@ -94,7 +94,7 @@ export class Chat {
 
   public set timezone(timezone: string) {
     if (moment.tz.zone(timezone) === null) {
-      throw RangeError('Invalid timezone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
+      throw new RangeError('Invalid timezone! Examples: \'Europe/Amsterdam\', \'UTC\'.');
     }
     this._timezone = timezone;
   }
@@ -105,7 +105,7 @@ export class Chat {
 
   public set lastHour(lastHour: number) {
     if (lastHour < 0 || lastHour > 23 || lastHour % 1 !== 0) {
-      throw TypeError('The hour must be a whole number between 0 and 23!');
+      throw new RangeError('The hour must be a whole number between 0 and 23!');
     }
     this._lastHour = lastHour;
   }
@@ -116,7 +116,7 @@ export class Chat {
 
   public set lastMinute(lastMinute: number) {
     if (lastMinute < 0 || lastMinute > 59 || lastMinute % 1 !== 0) {
-      throw TypeError('The minute must be a whole number between 0 and 59!');
+      throw new RangeError('The minute must be a whole number between 0 and 59!');
     }
     this._lastMinute = lastMinute;
   }
@@ -127,7 +127,7 @@ export class Chat {
 
   public set numberOfRandomTimes(numberOfRandomTimes: number) {
     if (numberOfRandomTimes < 0 || numberOfRandomTimes > 24 || numberOfRandomTimes % 1 !== 0) {
-      throw TypeError('The number of times must be a whole number between 0 and 24!');
+      throw new RangeError('The number of times must be a whole number between 0 and 24!');
     }
     this._numberOfRandomTimes = numberOfRandomTimes;
     this.randomDankTimes.splice(numberOfRandomTimes)
@@ -139,7 +139,7 @@ export class Chat {
 
   public set multiplier(multiplier: number) {
     if (multiplier < 1 || multiplier > 10) {
-      throw TypeError('The multiplier must be a number between 1 and 10!');
+      throw new RangeError('The multiplier must be a number between 1 and 10!');
     }
     this._multiplier = multiplier;
   }
@@ -150,7 +150,7 @@ export class Chat {
 
   public set pointsPerRandomTime(pointsPerRandomTime: number) {
     if (pointsPerRandomTime < 1 || pointsPerRandomTime > 100 || pointsPerRandomTime % 1 !== 0) {
-      throw TypeError('The points must be a whole number between 1 and 100!');
+      throw new RangeError('The points must be a whole number between 1 and 100!');
     }
     this._pointsPerRandomTime = pointsPerRandomTime;
   }
@@ -223,8 +223,6 @@ export class Chat {
 
     // Ignore the message if it was sent more than 1 minute ago.
     const now = moment().tz(this.timezone);
-    console.info(now.unix());
-    console.info(msgUnixTime);
     if (now.unix() - msgUnixTime >= 60) {
       return '';
     }

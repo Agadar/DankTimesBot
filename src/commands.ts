@@ -136,11 +136,20 @@ export class Commands {
       return 'Not enough arguments! Format: /addtime [hour] [minute] [points] [text1] [text2] etc.';
     }
 
-    // Identify arguments.
+    // Identify and verify arguments.
     const hour = Number(split[1]);
     const minute = Number(split[2]);
     const points = Number(split[3]);
-    const texts = split.splice(4);
+    const texts = split.slice(4);
+    if (isNaN(hour)) {
+      return 'The hour must be a number!';
+    }
+    if (isNaN(minute)) {
+      return 'The minute must be a number!';
+    }
+    if (isNaN(points)) {
+      return 'The points must be a number!';
+    }
 
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
@@ -179,14 +188,14 @@ export class Commands {
       return 'Not enough arguments! Format: /removetime [hour] [minute]';
     }
 
-    // Identify arguments and validate them.
+    // Identify and verify arguments.
     const hour = Number(split[1]);
-    if (hour === NaN || hour < 0 || hour > 23 || hour % 1 !== 0) {
-      return 'The hour must be a whole number between 0 and 23!';
-    }
     const minute = Number(split[2]);
-    if (minute === NaN || minute < 0 || minute > 59 || minute % 1 !== 0) {
-      return 'The minute must be a whole number between 0 and 59!';
+    if (isNaN(hour)) {
+      return 'The hour must be a number!';
+    }
+    if (isNaN(minute)) {
+      return 'The minute must be a number!';
     }
 
     // Remove dank time if it exists, otherwise just send an info message.
@@ -244,9 +253,14 @@ export class Commands {
       return 'Not enough arguments! Format: /setmultiplier [number]';
     }
 
+    const multiplier = Number(split[1]);
+    if (isNaN(multiplier)) {
+      return 'The multiplier must be a number!';
+    }
+
     // Update the time zone.
     try {
-      this.chatRegistry.getOrCreateChat(msg.chat.id).multiplier = Number(split[1]);
+      this.chatRegistry.getOrCreateChat(msg.chat.id).multiplier = multiplier;
       return 'Updated the multiplier!';
     } catch (err) {
       return err.message;
@@ -267,10 +281,15 @@ export class Commands {
       return 'Not enough arguments! Format: /setdailyrandomfrequency [number]';
     }
 
+    const dailyRandomTimes = Number(split[1]);
+    if (isNaN(dailyRandomTimes)) {
+      return 'The frequency must be a number!';
+    }
+
     // Do the update.
     try {
       const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-      chat.numberOfRandomTimes = Number(split[1]);
+      chat.numberOfRandomTimes = dailyRandomTimes;
 
       // Reschedule due to removed random times.
       if (chat.running) {
@@ -302,8 +321,13 @@ export class Commands {
       return 'Not enough arguments! Format: /setdailyrandompoints [number]';
     }
 
+    const pointsPerRandomTime = Number(split[1]);
+    if (isNaN(pointsPerRandomTime)) {
+      return 'The points must be a number!';
+    }
+
     try {
-      this.chatRegistry.getOrCreateChat(msg.chat.id).pointsPerRandomTime = Number(split[1]);
+      this.chatRegistry.getOrCreateChat(msg.chat.id).pointsPerRandomTime = pointsPerRandomTime;
       return 'Updated the points for random daily dank times!';
     } catch (err) {
       return err.message;

@@ -14,8 +14,12 @@ export class User {
    * @param myLastScoreChange The last change to the user's score.
    */
   constructor(public readonly id: number, public name: string, private myScore = 0, public called = false, private myLastScoreChange = 0) {
-    this.myScore = Math.round(this.myScore);
-    this.myLastScoreChange = Math.round(this.myLastScoreChange);
+    if (this.myScore % 1 !== 0) {
+      throw new RangeError('The score should be a whole number!');
+    }
+    if (this.myLastScoreChange % 1 !== 0) {
+      throw new RangeError('The last score change should be a whole number!');
+    }
   }
 
   /**
@@ -36,7 +40,9 @@ export class User {
    * Adds an amount to the user's DankTimes score.
    */
   public addToScore(amount: number): void {
-    amount = Math.round(amount);
+    if (amount % 1 !== 0) {
+      throw new RangeError('The amount should be a whole number!');
+    }
     this.myScore += amount;
     this.myLastScoreChange += amount;
   };
