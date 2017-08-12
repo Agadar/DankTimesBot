@@ -1,6 +1,6 @@
 import 'mocha';
 import assert = require('assert');
-import { ChatRegistry } from '../src/chat-registry.js';
+import { ChatRegistry } from './chat-registry';
 
 describe('ChatRegistry.constructor', function () {
   const instance = new ChatRegistry();

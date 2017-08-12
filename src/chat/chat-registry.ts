@@ -1,5 +1,5 @@
 import { Chat } from './chat';
-import { DankTime } from './dank-time';
+import { DankTime } from '../dank-time/dank-time';
 
 /**
  * Keeps track of all the chats.

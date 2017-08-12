@@ -1,12 +1,12 @@
-import { ChatRegistry } from './chat-registry';
-import { TelegramClient } from './telegram-client';
-import * as util from './util';
-import { DankTime } from './dank-time';
-import { DankTimeScheduler } from './dank-time-scheduler';
-import { Release } from './release';
+import { ChatRegistry } from '../chat/chat-registry';
+import { TelegramClient } from '../telegram-client/telegram-client';
+import * as util from '../util/util';
+import { DankTime } from '../dank-time/dank-time';
+import { DankTimeScheduler } from '../dank-time-scheduler/dank-time-scheduler';
+import { Release } from '../release';
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
-export class Commands {
+export class TelegramBotCommands {
 
   constructor(private readonly tgClient: TelegramClient,
     private readonly chatRegistry: ChatRegistry,

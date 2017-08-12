@@ -1,6 +1,6 @@
 import 'mocha';
 import assert = require('assert');
-import { TelegramBotCommand } from '../src/telegram-bot-command';
+import { TelegramBotCommand } from './telegram-bot-command';
 
 describe('TelegramBotCommand.getRegex()', () => {
 

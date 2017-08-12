@@ -1,9 +1,9 @@
 import 'mocha';
 import assert = require('assert');
-import { Chat } from '../src/chat';
-import { DankTime } from '../src/dank-time';
-import { DankTimeScheduler } from '../src/dank-time-scheduler';
-import { TelegramClientMock } from './telegram-client-mock';
+import { Chat } from '../chat/chat';
+import { DankTime } from '../dank-time/dank-time';
+import { DankTimeScheduler } from '../dank-time-scheduler/dank-time-scheduler';
+import { TelegramClientMock } from '../telegram-client/telegram-client-mock';
 
 describe('DankTimeScheduler.scheduleAutoLeaderboard(chat, dankTime)', function () {
   it('should schedule an auto-leaderboard post', function () {

@@ -1,4 +1,4 @@
-import { TelegramBotCommand } from './telegram-bot-command';
+import { TelegramBotCommand } from '../telegram-bot-command/telegram-bot-command';
 
 export interface TelegramClient {
   readonly commands: Map<string, TelegramBotCommand>;

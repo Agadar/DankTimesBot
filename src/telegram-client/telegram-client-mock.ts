@@ -1,5 +1,5 @@
-import { TelegramClient } from "../src/telegram-client";
-import { TelegramBotCommand } from "../src/telegram-bot-command";
+import { TelegramClient } from "./telegram-client";
+import { TelegramBotCommand } from "../telegram-bot-command/telegram-bot-command";
 
 export class TelegramClientMock implements TelegramClient {
 

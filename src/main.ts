@@ -1,11 +1,11 @@
 import nodeCleanup = require('node-cleanup');
 import { CronJob } from 'cron';
-import * as fileIO from './file-io';
-import { TelegramBotCommand } from './telegram-bot-command';
-import { TelegramClientImpl } from './telegram-client-impl';
-import { Commands } from './commands';
-import { ChatRegistry } from './chat-registry';
-import { DankTimeScheduler } from './dank-time-scheduler';
+import * as fileIO from './util/file-io';
+import { TelegramBotCommand } from './telegram-bot-command/telegram-bot-command';
+import { TelegramClientImpl } from './telegram-client/telegram-client-impl';
+import { TelegramBotCommands } from './telegram-bot-command/telegram-bot-commands';
+import { ChatRegistry } from './chat/chat-registry';
+import { DankTimeScheduler } from './dank-time-scheduler/dank-time-scheduler';
 
 // Global variables.
 const settings = fileIO.loadSettingsFromFile();
@@ -14,7 +14,7 @@ const releaseLog = fileIO.loadReleaseLogFromFile();
 const tgClient = new TelegramClientImpl();
 tgClient.initialize(settings.apiKey);
 const scheduler = new DankTimeScheduler(tgClient);
-const commands = new Commands(tgClient, chatRegistry, scheduler, releaseLog, '1.3.0');
+const commands = new TelegramBotCommands(tgClient, chatRegistry, scheduler, releaseLog, '1.3.0');
 
 // Register available Telegram bot commands, after retrieving the bot name.
 tgClient.retrieveBotName().then(() => {

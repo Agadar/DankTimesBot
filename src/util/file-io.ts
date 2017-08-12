@@ -3,8 +3,8 @@
  */
 
 import * as fs from 'fs';
-import { Chat, ChatLiteral } from './chat';
-import { Release } from './release';
+import { Chat, ChatLiteral } from '../chat/chat';
+import { Release } from '../release';
 
 // Constants.
 const DATA_FOLDER = './data';

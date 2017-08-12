@@ -1,7 +1,7 @@
 import 'mocha';
 import assert = require('assert');
-import { User } from '../src/user';
-import { Leaderboard } from '../src/leaderboard';
+import { User } from '../user';
+import { Leaderboard } from '../leaderboard/leaderboard';
 
 describe('Leaderboard.constructor', () => {
   it('should have created an ordered leaderboard', function () {

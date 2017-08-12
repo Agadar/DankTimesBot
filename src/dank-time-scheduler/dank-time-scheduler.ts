@@ -1,7 +1,7 @@
 import { CronJob } from 'cron';
-import { TelegramClient } from './telegram-client';
-import { Chat } from './chat';
-import { DankTime } from './dank-time';
+import { TelegramClient } from '../telegram-client/telegram-client';
+import { Chat } from '../chat/chat';
+import { DankTime } from '../dank-time/dank-time';
 
 interface ScheduledItem {
   chatId: number;

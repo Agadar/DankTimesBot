@@ -6,9 +6,9 @@
   "scripts": {
     "clean": "rm -rf ./built",
     "prestart": "npm run clean && tsc",
-    "start": "node ./built/src/main.js",
+    "start": "node ./built/main.js",
     "pretest": "npm run clean && tsc",
-    "test": "mocha ./built/test/"
+    "test": "mocha $(find built -name '*.spec.js')"
   },
   "author": "Agadar",
   "license": "Apache-2.0",

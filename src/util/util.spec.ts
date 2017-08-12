@@ -1,6 +1,6 @@
 import 'mocha';
 import assert = require('assert');
-import * as util from '../src/util';
+import * as util from './util';
 
 describe('util.padNumber(msg)', () => {
   const tests = [

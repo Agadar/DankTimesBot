@@ -1,6 +1,6 @@
 import 'mocha';
 import assert = require('assert');
-import { DankTime } from '../src/dank-time';
+import { DankTime } from './dank-time';
 
 describe('DankTime.compare(a, b)', () => {
   const tests = [

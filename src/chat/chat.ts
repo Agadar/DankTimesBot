@@ -1,8 +1,8 @@
 import * as moment from 'moment-timezone';
-import * as util from './util';
-import { DankTime, DankTimeLiteral } from './dank-time';
-import { User, UserLiteral } from './user';
-import { Leaderboard } from './leaderboard';
+import * as util from '../util/util';
+import { DankTime, DankTimeLiteral } from '../dank-time/dank-time';
+import { User, UserLiteral } from '../user';
+import { Leaderboard } from '../leaderboard/leaderboard';
 
 export type ChatLiteral = {
   id: number, timezone: string, running: boolean, numberOfRandomTimes: number,
