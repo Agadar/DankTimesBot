@@ -194,7 +194,7 @@ export class Chat {
   public generateRandomDankTimes(): DankTime[] {
     this.randomDankTimes = new Array<DankTime>();
     for (let i = 0; i < this._numberOfRandomTimes; i++) {
-      const now = moment.tz(this.timezone);
+      const now = moment().tz(this.timezone);
       now.add(now.hours() + Math.floor(Math.random() * 23), 'hours');
       now.minutes(Math.floor(Math.random() * 59));
       const text = util.padNumber(now.hours().toString()) + util.padNumber(now.minutes.toString());
@@ -222,7 +222,9 @@ export class Chat {
   public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string {
 
     // Ignore the message if it was sent more than 1 minute ago.
-    const now = moment(this.timezone);
+    const now = moment().tz(this.timezone);
+    console.info(now.unix());
+    console.info(msgUnixTime);
     if (now.unix() - msgUnixTime >= 60) {
       return '';
     }
