@@ -2,7 +2,7 @@ import nodeCleanup = require('node-cleanup');
 import { CronJob } from 'cron';
 import * as fileIO from './file-io';
 import { TelegramBotCommand } from './telegram-bot-command';
-import { TelegramClient } from './telegram-client';
+import { TelegramClientImpl } from './telegram-client-impl';
 import { Commands } from './commands';
 import { ChatRegistry } from './chat-registry';
 import { DankTimeScheduler } from './dank-time-scheduler';
@@ -11,7 +11,8 @@ import { DankTimeScheduler } from './dank-time-scheduler';
 const settings = fileIO.loadSettingsFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
 const releaseLog = fileIO.loadReleaseLogFromFile();
-const tgClient = new TelegramClient(settings.apiKey);
+const tgClient = new TelegramClientImpl();
+tgClient.initialize(settings.apiKey);
 const scheduler = new DankTimeScheduler(tgClient);
 const commands = new Commands(tgClient, chatRegistry, scheduler, releaseLog, '1.3.0');
 

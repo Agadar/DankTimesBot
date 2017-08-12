@@ -1,4 +1,4 @@
-import {User} from './user';
+import { User } from './user';
 
 /**
  * Represents a leaderboard.
@@ -30,7 +30,7 @@ export class Leaderboard {
    * @param previous The previous leaderboard, or null.
    */
   public toString(previous: Leaderboard | null): string {
-    const positionChanges = previous ? this.calculatePositionChanges(previous) : new Map<number,number>();
+    const positionChanges = previous ? this.calculatePositionChanges(previous) : new Map<number, number>();
     let leaderboard = '';
     for (let i = 0; i < this.entries.length; i++) {
       const entry = this.entries[i];
@@ -75,7 +75,7 @@ export class Leaderboard {
    * Calculates the position changes by comparing this leaderboard to a previous one.
    * @returns The position changes, mapped to user id's.
    */
-  private calculatePositionChanges(previousLeaderboard: Leaderboard): Map<number,number> {
+  private calculatePositionChanges(previousLeaderboard: Leaderboard): Map<number, number> {
     const positionChanges = new Map();
     for (let currentPosition = 0; currentPosition < this.entries.length; currentPosition++) {
       const currentEntry = this.entries[currentPosition];

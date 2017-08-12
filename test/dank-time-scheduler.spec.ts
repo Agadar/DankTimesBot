@@ -1,6 +1,5 @@
 import 'mocha';
 import assert = require('assert');
-import rewire = require('rewire');
 import { Chat } from '../src/chat';
 import { DankTime } from '../src/dank-time';
 import { DankTimeScheduler } from '../src/dank-time-scheduler';
