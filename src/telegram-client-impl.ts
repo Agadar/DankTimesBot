@@ -91,7 +91,7 @@ export class TelegramClientImpl implements TelegramClient {
     if (!this.bot) {
       throw new Error(this.botNotInitializedMsg);
     }
-    
+
     // Only groups have admins, so if this chat isn't a group, continue straight to callback.
     if (msg.chat.type === 'private') {
       this.sendMessage(msg.chat.id, action.call(object, msg, match));
