@@ -2,14 +2,11 @@
 built/
 
 # Old files
-DankTimesBot.api
-dank-times-bot.key
-dank-times-bot.data
-dank-times-bot.settings
+data/settings.json
 
 # Files that are specific per installation, and thus need to be ignored.
 data/backup.json
-data/settings.json
+data/config.json
 
 # Logs
 logs

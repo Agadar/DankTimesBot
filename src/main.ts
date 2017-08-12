@@ -8,7 +8,7 @@ import { ChatRegistry } from './chat/chat-registry';
 import { DankTimeScheduler } from './dank-time-scheduler/dank-time-scheduler';
 
 // Global variables.
-const settings = fileIO.loadSettingsFromFile();
+const settings = fileIO.loadConfigFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
 const releaseLog = fileIO.loadReleaseLogFromFile();
 const tgClient = new TelegramClientImpl();
