@@ -34,11 +34,12 @@ export class Chat {
    * @param multiplier The multiplier applied to the score of the first user to score.
    * @param autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
    * @param firstNotifications Whether this chat announces the first user to score.
+   * @param hardcoreMode Whether this chat punishes users that haven't scored in the last 24 hours.
    */
   constructor(id: number, timezone = 'Europe/Amsterdam', public running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
     lastHour = 0, lastMinute = 0, private readonly users = new Map<number, User>(), public readonly dankTimes = new Array<DankTime>(),
     public randomDankTimes = new Array<DankTime>(), public notifications = true, multiplier = 2, public autoLeaderboards = true,
-    public firstNotifications = true) {
+    public firstNotifications = true, public hardcoreMode = false) {
 
     this.id = id;
     this.timezone = timezone;
@@ -72,7 +73,8 @@ export class Chat {
     literal.users.forEach(user => users.set(user.id, User.fromJSON(user)));
 
     return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
-      literal.lastHour, literal.lastMinute, users, dankTimes, [], literal.notifications, literal.multiplier, literal.firstNotifications);
+      literal.lastHour, literal.lastMinute, users, dankTimes, [], literal.notifications, literal.multiplier,
+      literal.autoLeaderboards, literal.firstNotifications, literal.hardcoreMode);
   };
 
   public set id(id: number) {
@@ -205,7 +207,7 @@ export class Chat {
       id: this._id, timezone: this._timezone, running: this.running, numberOfRandomTimes: this._numberOfRandomTimes,
       pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: this.sortedUsers(),
       dankTimes: this.dankTimes, notifications: this.notifications, multiplier: this._multiplier,
-      autoLeaderboards: this.autoLeaderboards, firstNotifications: this.firstNotifications
+      autoLeaderboards: this.autoLeaderboards, firstNotifications: this.firstNotifications, hardcoreMode: this.hardcoreMode
     };
   };
 
@@ -350,6 +352,18 @@ export class Chat {
     }
     return null;
   };
+
+  public hardcoreModeCheck(timestamp: number) {
+    if (this.hardcoreMode) {
+      const day = 24 * 60 * 60;
+      const punishBy = 10;
+      this.users.forEach(user => {
+        if (timestamp - user.lastScoreTimestamp >= day && user.score - punishBy >= 0) {
+          user.addToScore(-punishBy);
+        }
+      });
+    }
+  }
 
   /**
    * Gets both normal and random dank times that have the specified text.

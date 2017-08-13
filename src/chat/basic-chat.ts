@@ -14,5 +14,6 @@ export interface BasicChat {
   notifications: boolean,
   multiplier: number,
   autoLeaderboards: boolean,
-  firstNotifications: boolean
+  firstNotifications: boolean,
+  hardcoreMode: boolean
 }

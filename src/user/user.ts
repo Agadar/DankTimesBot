@@ -1,7 +1,7 @@
 import { BasicUser } from "./basic-user";
+import * as moment from 'moment-timezone';
 
 export class User implements BasicUser {
-
   /**
    * Creates a new user object.
    * @param id The unique Telegram user's id.
@@ -10,13 +10,21 @@ export class User implements BasicUser {
    * @param called Whether the user called the last dank time already.
    * @param myLastScoreChange The last change to the user's score.
    */
-  constructor(public readonly id: number, public name: string, private myScore = 0, public called = false, private myLastScoreChange = 0) {
+  constructor(public readonly id: number, public name: string, private myScore = 0,
+    private myLastScoreTimestamp = 0, public called = false, private myLastScoreChange = 0) {
     if (this.myScore % 1 !== 0) {
       throw new RangeError('The score should be a whole number!');
+    }
+    if (this.myLastScoreTimestamp % 1 !== 0) {
+      throw new RangeError('The last score timestamp should be a whole number!');
     }
     if (this.myLastScoreChange % 1 !== 0) {
       throw new RangeError('The last score change should be a whole number!');
     }
+  }
+
+  public get lastScoreTimestamp(): number {
+    return this.myLastScoreTimestamp;
   }
 
   /**
@@ -42,6 +50,9 @@ export class User implements BasicUser {
     }
     this.myScore += amount;
     this.myLastScoreChange += amount;
+    if (amount > 0) {
+      this.myLastScoreTimestamp = moment().unix();
+    }
   };
 
   /**
@@ -65,7 +76,7 @@ export class User implements BasicUser {
    */
   public toJSON(): BasicUser {
     return {
-      id: this.id, name: this.name, score: this.myScore
+      id: this.id, name: this.name, score: this.myScore, lastScoreTimestamp: this.lastScoreTimestamp
     };
   };
 
