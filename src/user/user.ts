@@ -84,7 +84,7 @@ export class User implements BasicUser {
    * Returns a new User parsed from a literal.
    */
   public static fromJSON(literal: BasicUser): User {
-    return new User(literal.id, literal.name, literal.score);
+    return new User(literal.id, literal.name, literal.score, literal.lastScoreTimestamp);
   };
 
   /**

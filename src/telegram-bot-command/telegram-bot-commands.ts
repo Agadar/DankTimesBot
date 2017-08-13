@@ -411,4 +411,17 @@ export class TelegramBotCommands {
     });
     return reply;
   }
+
+  /**
+   * Toggles hardcore mode.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  public toggleHardcoreMode(msg: any, match: any): string {
+    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+    chat.hardcoreMode = !chat.hardcoreMode;
+    return chat.hardcoreMode ? 'Hardcore mode is now enabled! Every day, those who did not score the previous day are punished!'
+      : 'Hardcore mode is now disabled!';
+  }
 }

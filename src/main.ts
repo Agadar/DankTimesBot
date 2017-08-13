@@ -1,5 +1,6 @@
 import nodeCleanup = require('node-cleanup');
 import { CronJob } from 'cron';
+import * as moment from 'moment-timezone';
 import * as fileIO from './util/file-io';
 import { TelegramBotCommand } from './telegram-bot-command/telegram-bot-command';
 import { TelegramClientImpl } from './telegram-client/telegram-client-impl';
@@ -32,9 +33,10 @@ tgClient.retrieveBotName().then(() => {
   tgClient.registerCommand(new TelegramBotCommand('settings', 'shows the current settings', commands, commands.chatSettings));
   tgClient.registerCommand(new TelegramBotCommand('start', 'starts keeping track of scores and sending messages', commands, commands.startChat, true));
   tgClient.registerCommand(new TelegramBotCommand('stop', 'stops keeping track of scores and sending messages', commands, commands.stopChat, true));
-  tgClient.registerCommand(new TelegramBotCommand('togglefirstnotifications', 'toggles whether this chat announces the first user to score', commands, commands.toggleFirstNotifications, true));
   tgClient.registerCommand(new TelegramBotCommand('toggleautoleaderboards', 'toggles whether a leaderboard is auto-posted 1 minute after every dank time', commands, commands.toggleAutoLeaderboards, true));
   tgClient.registerCommand(new TelegramBotCommand('toggledanktimenotifications', 'toggles whether notifications of normal dank times are sent', commands, commands.toggleNotifications, true));
+  tgClient.registerCommand(new TelegramBotCommand('togglefirstnotifications', 'toggles whether this chat announces the first user to score', commands, commands.toggleFirstNotifications, true));
+  tgClient.registerCommand(new TelegramBotCommand('togglehardcoremode', 'toggles whether every day, users are punished if they haven\'t scored the previous day', commands, commands.toggleHardcoreMode, true));
   tgClient.setOnAnyText((msg) => {
     if (msg.migrate_to_chat_id) {
       // If the chat was migrated, then update the registry.
@@ -67,9 +69,11 @@ chatRegistry.chats.forEach(chat => {
   scheduler.scheduleAllOfChat(chat);
 });
 
-/** Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00. */
+// Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00.
+// Also, punishes players that have not scored in the past 24 hours.
 new CronJob('0 0 0 * * *', function () {
-  console.info('Generating random dank times for all chats!');
+  console.info('Generating random dank times for all chats and punishing users that haven\'t scored in the past 24 hours!');
+  const now = moment().unix();
   chatRegistry.chats.forEach(chat => {
     if (chat.running) {
 
@@ -83,6 +87,9 @@ new CronJob('0 0 0 * * *', function () {
       // Reschedule
       scheduler.scheduleRandomDankTimesOfChat(chat);
       scheduler.scheduleAutoLeaderboardsOfChat(chat);
+
+      // Your punishment must be more severe!
+      chat.hardcoreModeCheck(now);
     }
   });
 }, undefined, true);
