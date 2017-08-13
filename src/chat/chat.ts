@@ -165,6 +165,7 @@ export class Chat {
       this.dankTimes.splice(this.dankTimes.indexOf(existing), 1);
     }
     this.dankTimes.push(dankTime);
+    this.dankTimes.sort(DankTime.compare);
   };
 
   /**
