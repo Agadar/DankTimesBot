@@ -1,7 +1,7 @@
-import { CronJob } from 'cron';
-import { TelegramClient } from '../telegram-client/telegram-client';
-import { Chat } from '../chat/chat';
-import { DankTime } from '../dank-time/dank-time';
+import { CronJob } from "cron";
+import { Chat } from "../chat/chat";
+import { DankTime } from "../dank-time/dank-time";
+import { TelegramClient } from "../telegram-client/telegram-client";
 
 interface ScheduledItem {
   chatId: number;
@@ -10,8 +10,8 @@ interface ScheduledItem {
   cronJob: CronJob;
 }
 
-/** 
- * Responsible for scheduling notification messages about dank times. 
+/**
+ * Responsible for scheduling notification messages about dank times.
  */
 export class DankTimeScheduler {
 
@@ -19,7 +19,7 @@ export class DankTimeScheduler {
   public dankTimeNotifications = new Array<ScheduledItem>();
   public autoLeaderBoards = new Array<ScheduledItem>();
 
-  constructor(private readonly tgClient: TelegramClient) { };
+  constructor(private readonly tgClient: TelegramClient) { }
 
   /**
    * Schedules all normal and random dank times notifications and auto-leaderboards of a chat.
@@ -43,13 +43,13 @@ export class DankTimeScheduler {
     if (chat.autoLeaderboards) {
       this.scheduleAutoLeaderboardsOfChat(chat);
     }
-  };
+  }
 
   /**
    * Schedules all NORMAL dank time notifications of a chat. Does NOT verify chat settings.
    */
   public scheduleDankTimesOfChat(chat: Chat): void {
-    chat.dankTimes.forEach(dankTime => {
+    chat.dankTimes.forEach((dankTime) => {
       this.scheduleDankTime(chat, dankTime);
     });
   }
@@ -58,7 +58,7 @@ export class DankTimeScheduler {
    * Schedules all RANDOM dank time notifications of a chat. Does NOT verify chat settings.
    */
   public scheduleRandomDankTimesOfChat(chat: Chat): void {
-    chat.randomDankTimes.forEach(dankTime => {
+    chat.randomDankTimes.forEach((dankTime) => {
       this.scheduleRandomDankTime(chat, dankTime);
     });
   }
@@ -67,10 +67,10 @@ export class DankTimeScheduler {
    * Schedules all auto-leaderboard posts of a chat. Does NOT verify chat settings.
    */
   public scheduleAutoLeaderboardsOfChat(chat: Chat): void {
-    chat.randomDankTimes.forEach(dankTime => {
+    chat.randomDankTimes.forEach((dankTime) => {
       this.scheduleAutoLeaderboard(chat, dankTime);
     });
-    chat.dankTimes.forEach(dankTime => {
+    chat.dankTimes.forEach((dankTime) => {
       this.scheduleAutoLeaderboard(chat, dankTime);
     });
   }
@@ -82,7 +82,7 @@ export class DankTimeScheduler {
     this.unscheduleDankTimesOfChat(chat);
     this.unscheduleRandomDankTimesOfChat(chat);
     this.unscheduleAutoLeaderboardsOfChat(chat);
-  };
+  }
 
   /**
    * Unschedules all NORMAL dank time notifications of a chat.
@@ -109,34 +109,34 @@ export class DankTimeScheduler {
    * Resets this scheduler completely, unscheduling all jobs and emptying the job lists.
    */
   public reset(): void {
-    this.dankTimeNotifications.forEach(job => job.cronJob.stop());
+    this.dankTimeNotifications.forEach((job) => job.cronJob.stop());
     this.dankTimeNotifications = [];
-    this.autoLeaderBoards.forEach(job => job.cronJob.stop());
+    this.autoLeaderBoards.forEach((job) => job.cronJob.stop());
     this.autoLeaderBoards = [];
-    this.randomDankTimeNotifications.forEach(job => job.cronJob.stop());
+    this.randomDankTimeNotifications.forEach((job) => job.cronJob.stop());
     this.randomDankTimeNotifications = [];
-  };
+  }
 
   /**
    * Unschedules a NORMAL dank time notification.
    */
   public unscheduleDankTime(chat: Chat, dankTime: DankTime): void {
     this.unscheduleCronJob(chat, dankTime, this.dankTimeNotifications);
-  };
+  }
 
   /**
    * Unschedules a RANDOM dank time notification.
    */
   public unscheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
     this.unscheduleCronJob(chat, dankTime, this.randomDankTimeNotifications);
-  };
+  }
 
   /**
-   * Unschedules a the auto-posting of a leaderboard 1 minute after a dank time. 
+   * Unschedules a the auto-posting of a leaderboard 1 minute after a dank time.
    */
   public unscheduleAutoLeaderboard(chat: Chat, dankTime: DankTime): void {
     this.unscheduleCronJob(chat, dankTime, this.autoLeaderBoards);
-  };
+  }
 
   /**
    * Schedules a notification for a NORMAL dank time. Does NOT verify chat settings.
@@ -144,11 +144,11 @@ export class DankTimeScheduler {
   public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
     const _this = this;
     this.dankTimeNotifications.push({
-      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob('0 ' + dankTime.minute + ' ' + dankTime.hour + ' * * *', function () {
+      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", function() {
         if (chat.running && chat.notifications) {
-          _this.tgClient.sendMessage(chat.id, 'It\'s dank o\'clock! Type \'' + dankTime.texts[0] + '\' for points!');
+          _this.tgClient.sendMessage(chat.id, "It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!");
         }
-      }, undefined, true, chat.timezone)
+      }, undefined, true, chat.timezone),
     });
   }
 
@@ -158,11 +158,11 @@ export class DankTimeScheduler {
   public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
     const _this = this;
     this.randomDankTimeNotifications.push({
-      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob('0 ' + dankTime.minute + ' ' + dankTime.hour + ' * * *', function () {
+      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", function() {
         if (chat.running) {
-          _this.tgClient.sendMessage(chat.id, 'Surprise dank time! Type \'' + dankTime.texts[0] + '\' for points!');
+          _this.tgClient.sendMessage(chat.id, "Surprise dank time! Type '" + dankTime.texts[0] + "' for points!");
         }
-      }, undefined, true, chat.timezone)
+      }, undefined, true, chat.timezone),
     });
   }
 
@@ -187,14 +187,13 @@ export class DankTimeScheduler {
     // Schedule the cron job.
     const _this = this;
     this.autoLeaderBoards.push({
-      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob('0 ' + minute + ' ' + hour + ' * * *', function () {
+      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob("0 " + minute + " " + hour + " * * *", function() {
         if (chat.running && chat.autoLeaderboards && chat.leaderboardChanged()) {
           _this.tgClient.sendMessage(chat.id, chat.generateLeaderboard());
         }
-      }, undefined, true, chat.timezone)
+      }, undefined, true, chat.timezone),
     });
   }
-
 
   /**
    * Unschedules all cron jobs in the supplied array belonging to the specified chat.

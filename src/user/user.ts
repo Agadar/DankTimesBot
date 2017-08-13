@@ -1,5 +1,5 @@
+import * as moment from "moment-timezone";
 import { BasicUser } from "./basic-user";
-import * as moment from 'moment-timezone';
 
 export class User implements BasicUser {
   /**
@@ -11,15 +11,15 @@ export class User implements BasicUser {
    * @param myLastScoreChange The last change to the user's score.
    */
   constructor(public readonly id: number, public name: string, private myScore = 0,
-    private myLastScoreTimestamp = 0, public called = false, private myLastScoreChange = 0) {
+              private myLastScoreTimestamp = 0, public called = false, private myLastScoreChange = 0) {
     if (this.myScore % 1 !== 0) {
-      throw new RangeError('The score should be a whole number!');
+      throw new RangeError("The score should be a whole number!");
     }
     if (this.myLastScoreTimestamp % 1 !== 0) {
-      throw new RangeError('The last score timestamp should be a whole number!');
+      throw new RangeError("The last score timestamp should be a whole number!");
     }
     if (this.myLastScoreChange % 1 !== 0) {
-      throw new RangeError('The last score change should be a whole number!');
+      throw new RangeError("The last score change should be a whole number!");
     }
   }
 
@@ -32,28 +32,28 @@ export class User implements BasicUser {
    */
   public get score(): number {
     return this.myScore;
-  };
+  }
 
   /**
    * Gets the last change to the user's score.
    */
   public get lastScoreChange(): number {
     return this.myLastScoreChange;
-  };
+  }
 
   /**
    * Adds an amount to the user's DankTimes score.
    */
   public addToScore(amount: number): void {
     if (amount % 1 !== 0) {
-      throw new RangeError('The amount should be a whole number!');
+      throw new RangeError("The amount should be a whole number!");
     }
     this.myScore += amount;
     this.myLastScoreChange += amount;
     if (amount > 0) {
       this.myLastScoreTimestamp = moment().unix();
     }
-  };
+  }
 
   /**
    * Resets the DankTimes score.
@@ -62,30 +62,30 @@ export class User implements BasicUser {
     this.myScore = 0;
     this.myLastScoreChange = 0;
     this.called = false;
-  };
+  }
 
   /**
    * Resets the last change to the user's score.
    */
   public resetLastScoreChange(): void {
     this.myLastScoreChange = 0;
-  };
+  }
 
   /**
    * Used by JSON.stringify. Returns a literal representation of this.
    */
   public toJSON(): BasicUser {
     return {
-      id: this.id, name: this.name, score: this.myScore, lastScoreTimestamp: this.lastScoreTimestamp
+      id: this.id, name: this.name, score: this.myScore, lastScoreTimestamp: this.lastScoreTimestamp,
     };
-  };
+  }
 
   /**
    * Returns a new User parsed from a literal.
    */
   public static fromJSON(literal: BasicUser): User {
     return new User(literal.id, literal.name, literal.score, literal.lastScoreTimestamp);
-  };
+  }
 
   /**
    * Compares two users using their score and name. Used for sorting collections.
@@ -104,5 +104,5 @@ export class User implements BasicUser {
       return 1;
     }
     return 0;
-  };
-};
+  }
+}

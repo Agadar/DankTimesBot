@@ -10,16 +10,16 @@ export class TelegramBotCommand {
    * @param requiresConfirmation Whether this command requires explicit confirmation.
    */
   constructor(public readonly name: string,
-    public readonly description: string,
-    public readonly object: object,
-    public readonly action: ((msg: any, match: string[]) => string),
-    public readonly adminOnly = false,
-    public readonly requiresConfirmation = false) { }
+              public readonly description: string,
+              public readonly object: object,
+              public readonly action: ((msg: any, match: string[]) => string),
+              public readonly adminOnly = false,
+              public readonly requiresConfirmation = false) { }
 
   /**
    * Gets this command's regex, which is based on its name and the supplied bot name.
    */
   public getRegex(botname: string): RegExp {
-    return RegExp('^\\/' + this.name + '(@' + botname + ')?(\\s{1}\\S+)*$');
-  };
-};
+    return RegExp("^\\/" + this.name + "(@" + botname + ")?(\\s{1}\\S+)*$");
+  }
+}

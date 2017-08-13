@@ -5,7 +5,7 @@
  * @return The cleaned text.
  */
 export function cleanText(text: string): string {
-  let clean = '';
+  let clean = "";
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i);
     if (code != 65039 && code != 8419) {
@@ -20,7 +20,7 @@ export function cleanText(text: string): string {
  */
 export function mapToSortedArray<T>(map: Map<any, T>, comparator: ((a: T, b: T) => number)): T[] {
   const array = new Array<T>();
-  map.forEach(value => array.push(value));
+  map.forEach((value) => array.push(value));
   array.sort(comparator);
   return array;
 }

@@ -1,10 +1,10 @@
-import { TelegramClient } from "./telegram-client";
 import { TelegramBotCommand } from "../telegram-bot-command/telegram-bot-command";
+import { TelegramClient } from "./telegram-client";
 
 export class TelegramClientMock implements TelegramClient {
 
   public readonly commands = new Map<string, TelegramBotCommand>();
-  public readonly botname = 'testbot';
+  public readonly botname = "testbot";
 
   public initialize(apiKey: string): void { }
 

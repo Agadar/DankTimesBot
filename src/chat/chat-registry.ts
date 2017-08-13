@@ -1,5 +1,5 @@
-import { Chat } from './chat';
-import { DankTime } from '../dank-time/dank-time';
+import { DankTime } from "../dank-time/dank-time";
+import { Chat } from "./chat";
 
 /**
  * Keeps track of all the chats.
@@ -21,7 +21,7 @@ export class ChatRegistry {
     this.chats.delete(oldId);
     chat.id = newId;
     this.chats.set(newId, chat);
-  };
+  }
 
   /**
    * Gets the chat with the supplied id, otherwise creates and returns a new one.
@@ -31,14 +31,14 @@ export class ChatRegistry {
       return this.chats.get(id) as Chat;
     }
     const chat = new Chat(id);
-    chat.addDankTime(new DankTime(0, 0, ['0000'], 5));
-    chat.addDankTime(new DankTime(4, 20, ['420'], 15));
-    chat.addDankTime(new DankTime(11, 11, ['1111'], 5));
-    chat.addDankTime(new DankTime(12, 34, ['1234'], 5));
-    chat.addDankTime(new DankTime(13, 37, ['1337'], 10));
-    chat.addDankTime(new DankTime(16, 20, ['420'], 10));
-    chat.addDankTime(new DankTime(22, 22, ['2222'], 5));
+    chat.addDankTime(new DankTime(0, 0, ["0000"], 5));
+    chat.addDankTime(new DankTime(4, 20, ["420"], 15));
+    chat.addDankTime(new DankTime(11, 11, ["1111"], 5));
+    chat.addDankTime(new DankTime(12, 34, ["1234"], 5));
+    chat.addDankTime(new DankTime(13, 37, ["1337"], 10));
+    chat.addDankTime(new DankTime(16, 20, ["420"], 10));
+    chat.addDankTime(new DankTime(22, 22, ["2222"], 5));
     this.chats.set(id, chat);
     return chat;
-  };
-};
+  }
+}

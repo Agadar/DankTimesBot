@@ -1,15 +1,15 @@
-import 'mocha';
-import assert = require('assert');
-import { User } from '../user/user';
-import { Leaderboard } from '../leaderboard/leaderboard';
+import assert = require("assert");
+import "mocha";
+import { Leaderboard } from "../leaderboard/leaderboard";
+import { User } from "../user/user";
 
-describe('Leaderboard.constructor', () => {
-  it('should have created an ordered leaderboard', function () {
+describe("Leaderboard.constructor", () => {
+  it("should have created an ordered leaderboard", function() {
     const users = [
-      new User(0, 'user0', 15),
-      new User(1, 'user1', 5),
-      new User(2, 'user2', 20),
-      new User(3, 'user3', 10)
+      new User(0, "user0", 15),
+      new User(1, "user1", 5),
+      new User(2, "user2", 20),
+      new User(3, "user3", 10),
     ];
     const leaderboard = new Leaderboard(users);
     assert.equal(leaderboard.entries[0].id, users[2].id);

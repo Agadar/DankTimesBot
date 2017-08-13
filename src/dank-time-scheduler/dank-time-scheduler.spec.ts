@@ -1,17 +1,17 @@
-import 'mocha';
-import assert = require('assert');
-import { Chat } from '../chat/chat';
-import { DankTime } from '../dank-time/dank-time';
-import { DankTimeScheduler } from '../dank-time-scheduler/dank-time-scheduler';
-import { TelegramClientMock } from '../telegram-client/telegram-client-mock';
+import assert = require("assert");
+import "mocha";
+import { Chat } from "../chat/chat";
+import { DankTimeScheduler } from "../dank-time-scheduler/dank-time-scheduler";
+import { DankTime } from "../dank-time/dank-time";
+import { TelegramClientMock } from "../telegram-client/telegram-client-mock";
 
-describe('DankTimeScheduler.scheduleAutoLeaderboard(chat, dankTime)', function () {
-  it('should schedule an auto-leaderboard post', function () {
+describe("DankTimeScheduler.scheduleAutoLeaderboard(chat, dankTime)", function() {
+  it("should schedule an auto-leaderboard post", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    const dankTime = new DankTime(12, 12, ['1212'], 5);
+    const dankTime = new DankTime(12, 12, ["1212"], 5);
     chat.addDankTime(dankTime);
 
     // Act and assert.
@@ -24,13 +24,13 @@ describe('DankTimeScheduler.scheduleAutoLeaderboard(chat, dankTime)', function (
   });
 });
 
-describe('DankTimeScheduler.scheduleRandomDankTime(chat, dankTime)', function () {
-  it('should schedule a random dank time', function () {
+describe("DankTimeScheduler.scheduleRandomDankTime(chat, dankTime)", function() {
+  it("should schedule a random dank time", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    const dankTime = new DankTime(12, 12, ['1212'], 5);
+    const dankTime = new DankTime(12, 12, ["1212"], 5);
     chat.addDankTime(dankTime);
 
     // Act and assert.
@@ -43,13 +43,13 @@ describe('DankTimeScheduler.scheduleRandomDankTime(chat, dankTime)', function ()
   });
 });
 
-describe('DankTimeScheduler.scheduleDankTime(chat, dankTime)', function () {
-  it('should schedule a normal dank time', function () {
+describe("DankTimeScheduler.scheduleDankTime(chat, dankTime)", function() {
+  it("should schedule a normal dank time", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    const dankTime = new DankTime(12, 12, ['1212'], 5);
+    const dankTime = new DankTime(12, 12, ["1212"], 5);
     chat.addDankTime(dankTime);
 
     // Act and assert.
@@ -62,13 +62,13 @@ describe('DankTimeScheduler.scheduleDankTime(chat, dankTime)', function () {
   });
 });
 
-describe('DankTimeScheduler.unscheduleAutoLeaderboard(chat, dankTime)', function () {
-  it('should unschedule an auto-leaderboard post', function () {
+describe("DankTimeScheduler.unscheduleAutoLeaderboard(chat, dankTime)", function() {
+  it("should unschedule an auto-leaderboard post", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    const dankTime = new DankTime(12, 12, ['1212'], 5);
+    const dankTime = new DankTime(12, 12, ["1212"], 5);
     chat.addDankTime(dankTime);
 
     // Act and assert.
@@ -78,13 +78,13 @@ describe('DankTimeScheduler.unscheduleAutoLeaderboard(chat, dankTime)', function
   });
 });
 
-describe('DankTimeScheduler.unscheduleRandomDankTime(chat, dankTime)', function () {
-  it('should unschedule a random dank time', function () {
+describe("DankTimeScheduler.unscheduleRandomDankTime(chat, dankTime)", function() {
+  it("should unschedule a random dank time", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    const dankTime = new DankTime(12, 12, ['1212'], 5);
+    const dankTime = new DankTime(12, 12, ["1212"], 5);
     chat.addDankTime(dankTime);
 
     // Act and assert.
@@ -94,13 +94,13 @@ describe('DankTimeScheduler.unscheduleRandomDankTime(chat, dankTime)', function 
   });
 });
 
-describe('DankTimeScheduler.unscheduleDankTime(chat, dankTime)', function () {
-  it('should unschedule a normal dank time', function () {
+describe("DankTimeScheduler.unscheduleDankTime(chat, dankTime)", function() {
+  it("should unschedule a normal dank time", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    const dankTime = new DankTime(12, 12, ['1212'], 5);
+    const dankTime = new DankTime(12, 12, ["1212"], 5);
     chat.addDankTime(dankTime);
 
     // Act and assert.
@@ -110,13 +110,13 @@ describe('DankTimeScheduler.unscheduleDankTime(chat, dankTime)', function () {
   });
 });
 
-describe('DankTimeScheduler.reset()', function () {
-  it('should reset all scheduled notifications', function () {
+describe("DankTimeScheduler.reset()", function() {
+  it("should reset all scheduled notifications", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    const dankTime = new DankTime(12, 12, ['1212'], 5);
+    const dankTime = new DankTime(12, 12, ["1212"], 5);
     chat.addDankTime(dankTime);
 
     // Act and assert.
@@ -130,14 +130,14 @@ describe('DankTimeScheduler.reset()', function () {
   });
 });
 
-describe('DankTimeScheduler.unscheduleautoLeaderboardsOfChat(chat)', function () {
-  it('should unschedule all auto-leaderboards of a chat', function () {
+describe("DankTimeScheduler.unscheduleautoLeaderboardsOfChat(chat)", function() {
+  it("should unschedule all auto-leaderboards of a chat", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    chat.addDankTime(new DankTime(12, 12, ['1212'], 5));
-    chat.addDankTime(new DankTime(21, 21, ['2121'], 5));
+    chat.addDankTime(new DankTime(12, 12, ["1212"], 5));
+    chat.addDankTime(new DankTime(21, 21, ["2121"], 5));
     chat.generateRandomDankTimes();
 
     // Act and assert.
@@ -147,8 +147,8 @@ describe('DankTimeScheduler.unscheduleautoLeaderboardsOfChat(chat)', function ()
   });
 });
 
-describe('DankTimeScheduler.unscheduleRandomDankTimesOfChat(chat)', function () {
-  it('should unschedule all random dank times of a chat', function () {
+describe("DankTimeScheduler.unscheduleRandomDankTimesOfChat(chat)", function() {
+  it("should unschedule all random dank times of a chat", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
@@ -162,14 +162,14 @@ describe('DankTimeScheduler.unscheduleRandomDankTimesOfChat(chat)', function () 
   });
 });
 
-describe('DankTimeScheduler.unscheduleDankTimesOfChat(chat)', function () {
-  it('should unschedule all normal dank times of a chat', function () {
+describe("DankTimeScheduler.unscheduleDankTimesOfChat(chat)", function() {
+  it("should unschedule all normal dank times of a chat", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    chat.addDankTime(new DankTime(12, 12, ['1212'], 5));
-    chat.addDankTime(new DankTime(21, 21, ['2121'], 5));
+    chat.addDankTime(new DankTime(12, 12, ["1212"], 5));
+    chat.addDankTime(new DankTime(21, 21, ["2121"], 5));
 
     // Act and assert.
     scheduler.scheduleDankTimesOfChat(chat);
@@ -178,14 +178,14 @@ describe('DankTimeScheduler.unscheduleDankTimesOfChat(chat)', function () {
   });
 });
 
-describe('DankTimeScheduler.unscheduleAllOfChat(chat)', function () {
-  it('should unschedule all notifications of a chat', function () {
+describe("DankTimeScheduler.unscheduleAllOfChat(chat)", function() {
+  it("should unschedule all notifications of a chat", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    chat.addDankTime(new DankTime(12, 12, ['1212'], 5));
-    chat.addDankTime(new DankTime(21, 21, ['2121'], 5));
+    chat.addDankTime(new DankTime(12, 12, ["1212"], 5));
+    chat.addDankTime(new DankTime(21, 21, ["2121"], 5));
     chat.generateRandomDankTimes();
 
     // Act and assert.
@@ -199,14 +199,14 @@ describe('DankTimeScheduler.unscheduleAllOfChat(chat)', function () {
   });
 });
 
-describe('DankTimeScheduler.scheduleautoLeaderboardsOfChat(chat)', function () {
-  it('should schedule all auto-leaderboards of a chat', function () {
+describe("DankTimeScheduler.scheduleautoLeaderboardsOfChat(chat)", function() {
+  it("should schedule all auto-leaderboards of a chat", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    chat.addDankTime(new DankTime(12, 12, ['1212'], 5));
-    chat.addDankTime(new DankTime(21, 21, ['2121'], 5));
+    chat.addDankTime(new DankTime(12, 12, ["1212"], 5));
+    chat.addDankTime(new DankTime(21, 21, ["2121"], 5));
     chat.generateRandomDankTimes();
 
     // Act and assert.
@@ -215,8 +215,8 @@ describe('DankTimeScheduler.scheduleautoLeaderboardsOfChat(chat)', function () {
   });
 });
 
-describe('DankTimeScheduler.scheduleRandomDankTimesOfChat(chat)', function () {
-  it('should schedule all random dank times of a chat', function () {
+describe("DankTimeScheduler.scheduleRandomDankTimesOfChat(chat)", function() {
+  it("should schedule all random dank times of a chat", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
@@ -230,14 +230,14 @@ describe('DankTimeScheduler.scheduleRandomDankTimesOfChat(chat)', function () {
   });
 });
 
-describe('DankTimeScheduler.scheduleDankTimesOfChat(chat)', function () {
-  it('should schedule all normal dank times of a chat', function () {
+describe("DankTimeScheduler.scheduleDankTimesOfChat(chat)", function() {
+  it("should schedule all normal dank times of a chat", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
     const chat = new Chat(1234);
-    chat.addDankTime(new DankTime(12, 12, ['1212'], 5));
-    chat.addDankTime(new DankTime(21, 21, ['2121'], 5));
+    chat.addDankTime(new DankTime(12, 12, ["1212"], 5));
+    chat.addDankTime(new DankTime(21, 21, ["2121"], 5));
 
     // Act and assert.
     scheduler.scheduleDankTimesOfChat(chat);
@@ -245,15 +245,15 @@ describe('DankTimeScheduler.scheduleDankTimesOfChat(chat)', function () {
   });
 });
 
-describe('DankTimeScheduler.scheduleAllOfChat(chat)', function () {
+describe("DankTimeScheduler.scheduleAllOfChat(chat)", function() {
 
   const chat = new Chat(1234);
-  chat.addDankTime(new DankTime(12, 12, ['1212'], 5));
-  chat.addDankTime(new DankTime(21, 21, ['2121'], 5));
+  chat.addDankTime(new DankTime(12, 12, ["1212"], 5));
+  chat.addDankTime(new DankTime(21, 21, ["2121"], 5));
   chat.numberOfRandomTimes = 5;
   chat.generateRandomDankTimes();
 
-  it('should not schedule anything if the chat is not running', function () {
+  it("should not schedule anything if the chat is not running", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
@@ -270,7 +270,7 @@ describe('DankTimeScheduler.scheduleAllOfChat(chat)', function () {
     assert.equal(scheduler.randomDankTimeNotifications.length, 0);
   });
 
-  it('should schedule only random dank times if others are disabled', function () {
+  it("should schedule only random dank times if others are disabled", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
@@ -287,7 +287,7 @@ describe('DankTimeScheduler.scheduleAllOfChat(chat)', function () {
     assert.equal(scheduler.randomDankTimeNotifications.length, 5);
   });
 
-  it('should schedule everything save for auto-leaderboards if its disabled', function () {
+  it("should schedule everything save for auto-leaderboards if its disabled", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
@@ -304,7 +304,7 @@ describe('DankTimeScheduler.scheduleAllOfChat(chat)', function () {
     assert.equal(scheduler.randomDankTimeNotifications.length, 5);
   });
 
-  it('should schedule everything save for normal dank times if its disabled', function () {
+  it("should schedule everything save for normal dank times if its disabled", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());
@@ -321,7 +321,7 @@ describe('DankTimeScheduler.scheduleAllOfChat(chat)', function () {
     assert.equal(scheduler.randomDankTimeNotifications.length, 5);
   });
 
-  it('should schedule everything if everything is enabled', function () {
+  it("should schedule everything if everything is enabled", function() {
 
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock());

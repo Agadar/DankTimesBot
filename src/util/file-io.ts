@@ -2,19 +2,19 @@
  * Exposes file I/O related functions for DankTimesBot.
  */
 
-import * as fs from 'fs';
-import { Chat } from '../chat/chat';
-import { BasicChat } from '../chat/basic-chat';
-import { Release } from '../release';
+import * as fs from "fs";
+import { BasicChat } from "../chat/basic-chat";
+import { Chat } from "../chat/chat";
 import { Config } from "../config";
+import { Release } from "../release";
 
 // Constants.
-const dataFolder = './data';
-const backupFile = dataFolder + '/backup.json';
-const configFile = dataFolder + '/config.json';
-const settingsFile = dataFolder + '/settings.json'; // Deprecated, using config.json instead. Here for backwards compatibility.
-const releasesFile = dataFolder + '/releases.json';
-const apiKeyEnvKey = 'DANK_TIMES_BOT_API_KEY';
+const dataFolder = "./data";
+const backupFile = dataFolder + "/backup.json";
+const configFile = dataFolder + "/config.json";
+const settingsFile = dataFolder + "/settings.json"; // Deprecated, using config.json instead. Here for backwards compatibility.
+const releasesFile = dataFolder + "/releases.json";
+const apiKeyEnvKey = "DANK_TIMES_BOT_API_KEY";
 const jsonIndentation = 2;
 
 export function saveConfigToFile(config: Config): void {
@@ -36,10 +36,10 @@ export function loadConfigFromFile(): Config {
   }
 
   const config: Config = {
-    apiKey: '',
+    apiKey: "",
     persistenceRate: 60,
-    sendWhatsNewMsg: true
-  }
+    sendWhatsNewMsg: true,
+  };
 
   // If there is a config file, load its valid values into config obj.
   let configOrSettingsFile = configFile;
@@ -49,7 +49,7 @@ export function loadConfigFromFile(): Config {
     exists = fs.existsSync(configOrSettingsFile);
   }
   if (exists) {
-    const configFromFile: Config = JSON.parse(fs.readFileSync(configOrSettingsFile, 'utf8'));
+    const configFromFile: Config = JSON.parse(fs.readFileSync(configOrSettingsFile, "utf8"));
     if (configFromFile.apiKey) {
       config.apiKey = configFromFile.apiKey;
     }
@@ -68,7 +68,7 @@ export function loadConfigFromFile(): Config {
       config.apiKey = apiKeyFromEnv;
     }
     if (!config.apiKey) {
-      console.error('No Telegram API key was found, not in the settings file nor in the environment variable \'' + apiKeyEnvKey + '\'! Exiting...');
+      console.error("No Telegram API key was found, not in the settings file nor in the environment variable '" + apiKeyEnvKey + "'! Exiting...");
       fs.writeFileSync(configFile, JSON.stringify(config, undefined, jsonIndentation));
       process.exit(-1);
     }
@@ -92,7 +92,7 @@ export function loadChatsFromFile(): Map<number, Chat> {
 
   // If the data file exists, load and parse the data to an object.
   if (fs.existsSync(backupFile)) {
-    (JSON.parse(fs.readFileSync(backupFile, 'utf8')) as Array<BasicChat>).forEach(chat => chats.set(chat.id, Chat.fromJSON(chat)));
+    (JSON.parse(fs.readFileSync(backupFile, "utf8")) as BasicChat[]).forEach((chat) => chats.set(chat.id, Chat.fromJSON(chat)));
   }
   return chats;
 }
@@ -121,7 +121,7 @@ export function loadReleaseLogFromFile(): Release[] {
     return [];
   }
 
-  const releases = JSON.parse(fs.readFileSync(releasesFile, 'utf8'));
+  const releases = JSON.parse(fs.readFileSync(releasesFile, "utf8"));
   for (let i = 0; i < releases.length; i++) {
     releases[i] = new Release(releases[i].version, releases[i].date, releases[i].changes);
   }
@@ -132,7 +132,7 @@ export function loadReleaseLogFromFile(): Release[] {
  * Used by JSON.stringify(...) for parsing maps to arrays, because
  * it can't handle maps.
  */
-function mapReplacer(key: any, value: any): Array<any> {
+function mapReplacer(key: any, value: any): any[] {
   if (value instanceof Map) {
     const array = [];
     for (const entry of value) {

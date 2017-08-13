@@ -1,4 +1,4 @@
-import { User } from '../user/user';
+import { User } from "../user/user";
 
 /**
  * Represents a leaderboard.
@@ -11,7 +11,7 @@ export class Leaderboard {
    * Constructs a new leaderboard from the supplied array of users.
    */
   constructor(users: User[] = []) {
-    users.forEach(user => {
+    users.forEach((user) => {
       this.entries.push(new LeaderboardEntry(user));
     });
     this.entries.sort(LeaderboardEntry.compare);
@@ -31,13 +31,13 @@ export class Leaderboard {
    */
   public toString(previous?: Leaderboard): string {
     const positionChanges = previous ? this.calculatePositionChanges(previous) : new Map<number, number>();
-    let leaderboard = '';
+    let leaderboard = "";
     for (let i = 0; i < this.entries.length; i++) {
       const entry = this.entries[i];
       const positionChange = positionChanges.get(entry.id);
       const arrowEmojis = Leaderboard.arrowEmojis(positionChange ? positionChange : 0);
-      const scoreChange = entry.lastScoreChange > 0 ? '(+' + entry.lastScoreChange + ')' : entry.lastScoreChange < 0 ? '(' + entry.lastScoreChange + ')' : '';
-      leaderboard += '\n<b>' + (i + 1) + '.</b>    ' + entry.name + '    ' + entry.score + ' ' + scoreChange + '    ' + arrowEmojis;
+      const scoreChange = entry.lastScoreChange > 0 ? "(+" + entry.lastScoreChange + ")" : entry.lastScoreChange < 0 ? "(" + entry.lastScoreChange + ")" : "";
+      leaderboard += "\n<b>" + (i + 1) + ".</b>    " + entry.name + "    " + entry.score + " " + scoreChange + "    " + arrowEmojis;
     }
     return leaderboard;
   }
@@ -46,14 +46,14 @@ export class Leaderboard {
    * Generates a specified number of arrow emoji's (up for positive, down for negative).
    */
   private static arrowEmojis(amount: number): string {
-    let emojis = '';
+    let emojis = "";
     if (amount > 0) {
       for (let i = 0; i < amount; i++) {
-        emojis += '⬆️';
+        emojis += "⬆️";
       }
     } else {
       for (let i = 0; i > amount; i--) {
-        emojis += '⬇️';
+        emojis += "⬇️";
       }
     }
     return emojis;
@@ -130,5 +130,5 @@ class LeaderboardEntry {
       return 1;
     }
     return 0;
-  };
+  }
 }
