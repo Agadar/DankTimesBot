@@ -1,6 +1,6 @@
 import 'mocha';
 import assert = require('assert');
-import { User } from '../user';
+import { User } from '../user/user';
 import { Leaderboard } from '../leaderboard/leaderboard';
 
 describe('Leaderboard.constructor', () => {

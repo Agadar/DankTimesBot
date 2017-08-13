@@ -1,4 +1,4 @@
-import { User } from '../user';
+import { User } from '../user/user';
 
 /**
  * Represents a leaderboard.
@@ -29,7 +29,7 @@ export class Leaderboard {
    * Returns a string representation of this leaderboard.
    * @param previous The previous leaderboard, or null.
    */
-  public toString(previous: Leaderboard | null): string {
+  public toString(previous?: Leaderboard): string {
     const positionChanges = previous ? this.calculatePositionChanges(previous) : new Map<number, number>();
     let leaderboard = '';
     for (let i = 0; i < this.entries.length; i++) {

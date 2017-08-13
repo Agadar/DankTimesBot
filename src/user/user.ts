@@ -1,9 +1,6 @@
-export type UserLiteral = { id: number, name: string, score: number, called: boolean, lastScoreChange: number };
+import { BasicUser } from "./basic-user";
 
-/**
- * Represents a Telegram user.
- */
-export class User {
+export class User implements BasicUser {
 
   /**
    * Creates a new user object.
@@ -66,18 +63,17 @@ export class User {
   /**
    * Used by JSON.stringify. Returns a literal representation of this.
    */
-  public toJSON(): UserLiteral {
+  public toJSON(): BasicUser {
     return {
-      id: this.id, name: this.name, score: this.myScore,
-      called: this.called, lastScoreChange: this.myLastScoreChange
+      id: this.id, name: this.name, score: this.myScore
     };
   };
 
   /**
    * Returns a new User parsed from a literal.
    */
-  public static fromJSON(literal: UserLiteral): User {
-    return new User(literal.id, literal.name, literal.score, literal.called, literal.lastScoreChange);
+  public static fromJSON(literal: BasicUser): User {
+    return new User(literal.id, literal.name, literal.score);
   };
 
   /**

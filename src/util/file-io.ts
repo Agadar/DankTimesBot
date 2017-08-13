@@ -3,7 +3,8 @@
  */
 
 import * as fs from 'fs';
-import { Chat, ChatLiteral } from '../chat/chat';
+import { Chat } from '../chat/chat';
+import { BasicChat } from '../chat/basic-chat';
 import { Release } from '../release';
 import { Config } from "../config";
 
@@ -91,7 +92,7 @@ export function loadChatsFromFile(): Map<number, Chat> {
 
   // If the data file exists, load and parse the data to an object.
   if (fs.existsSync(backupFile)) {
-    (JSON.parse(fs.readFileSync(backupFile, 'utf8')) as Array<ChatLiteral>).forEach(chat => chats.set(chat.id, Chat.fromJSON(chat)));
+    (JSON.parse(fs.readFileSync(backupFile, 'utf8')) as Array<BasicChat>).forEach(chat => chats.set(chat.id, Chat.fromJSON(chat)));
   }
   return chats;
 }

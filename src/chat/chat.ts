@@ -1,20 +1,14 @@
 import * as moment from 'moment-timezone';
 import * as util from '../util/util';
-import { DankTime, DankTimeLiteral } from '../dank-time/dank-time';
-import { User, UserLiteral } from '../user';
+import { DankTime } from '../dank-time/dank-time';
+import { User } from '../user/user';
 import { Leaderboard } from '../leaderboard/leaderboard';
-
-export type ChatLiteral = {
-  id: number, timezone: string, running: boolean, numberOfRandomTimes: number,
-  pointsPerRandomTime: number, lastHour: number, lastMinute: number, users: UserLiteral[],
-  dankTimes: DankTimeLiteral[], notifications: boolean, multiplier: number,
-  autoLeaderboards: boolean, firstNotifications: boolean
-};
+import { BasicChat } from "./basic-chat";
 
 export class Chat {
 
   public awaitingResetConfirmation = -1;
-  
+
   private _id: number;
   private _timezone: string;
   private _lastHour: number;
@@ -22,7 +16,7 @@ export class Chat {
   private _numberOfRandomTimes: number;
   private _pointsPerRandomTime: number;
   private _multiplier: number;
-  private _lastLeaderboard: Leaderboard | null = null;
+  private _lastLeaderboard?: Leaderboard = undefined;
 
   /**
    * Creates a new Chat object.
@@ -58,7 +52,7 @@ export class Chat {
   /**
    * Returns a new Chat parsed from a literal.
    */
-  public static fromJSON(literal: ChatLiteral): Chat {
+  public static fromJSON(literal: BasicChat): Chat {
 
     // For backwards compatibility with v.1.1.0.
     if (!literal.multiplier) {
@@ -206,7 +200,7 @@ export class Chat {
   /**
    * Used by JSON.stringify. Returns a literal representation of this.
    */
-  public toJSON(): ChatLiteral {
+  public toJSON(): BasicChat {
     return {
       id: this._id, timezone: this._timezone, running: this.running, numberOfRandomTimes: this._numberOfRandomTimes,
       pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: this.sortedUsers(),

@@ -1,9 +1,6 @@
-export type DankTimeLiteral = { hour: number, minute: number, texts: string[], points: number };
+import { BasicDankTime } from "./basic-dank-time";
 
-/**
- * Represents a dank time.
- */
-export class DankTime {
+export class DankTime implements BasicDankTime {
 
   public readonly texts = new Array<string>();
   private _points: number;
@@ -67,14 +64,14 @@ export class DankTime {
   /**
    * Used by JSON.stringify. Returns a literal representation of this.
    */
-  public toJSON(): DankTimeLiteral {
+  public toJSON(): BasicDankTime {
     return { hour: this.hour, minute: this.minute, texts: this.texts, points: this.points };
   };
 
   /**
    * Returns a new DankTime parsed from a literal.
    */
-  public static fromJSON(literal: DankTimeLiteral): DankTime {
+  public static fromJSON(literal: BasicDankTime): DankTime {
     return new DankTime(literal.hour, literal.minute, literal.texts, literal.points);
   };
 
