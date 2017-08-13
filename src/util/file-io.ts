@@ -11,6 +11,7 @@ import { Config } from "../config";
 const dataFolder = './data';
 const backupFile = dataFolder + '/backup.json';
 const configFile = dataFolder + '/config.json';
+const settingsFile = dataFolder + '/settings.json'; // Deprecated, using config.json instead. Here for backwards compatibility.
 const releasesFile = dataFolder + '/releases.json';
 const apiKeyEnvKey = 'DANK_TIMES_BOT_API_KEY';
 const jsonIndentation = 2;
@@ -39,9 +40,15 @@ export function loadConfigFromFile(): Config {
     sendWhatsNewMsg: true
   }
 
-  // If there is a settings file, load its valid values into settings obj.
-  if (fs.existsSync(configFile)) {
-    const configFromFile: Config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+  // If there is a config file, load its valid values into config obj.
+  let configOrSettingsFile = configFile;
+  let exists = fs.existsSync(configOrSettingsFile);
+  if (!exists) {
+    configOrSettingsFile = settingsFile;
+    exists = fs.existsSync(configOrSettingsFile);
+  }
+  if (exists) {
+    const configFromFile: Config = JSON.parse(fs.readFileSync(configOrSettingsFile, 'utf8'));
     if (configFromFile.apiKey) {
       config.apiKey = configFromFile.apiKey;
     }
