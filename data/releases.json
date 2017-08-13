@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.3.0",
+    "date": "to be announced",
+    "changes": [
+      "Fixed a bug that allowed a dank time to have the same text more than once",
+      "Renamed 'settings.json' to 'config.json' for semantic reasons"
+    ]
+  },
+  {
     "version": "1.2.0",
     "date": "2017-07-25",
     "changes": [
