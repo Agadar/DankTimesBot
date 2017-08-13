@@ -8,7 +8,8 @@
     "prestart": "npm run clean && tsc",
     "start": "node ./built/main.js",
     "pretest": "npm run clean && tsc",
-    "test": "mocha $(find built -name '*.spec.js')"
+    "test": "mocha $(find built -name '*.spec.js')",
+    "lint": "tslint -p tsconfig.json --fix"
   },
   "author": "Agadar",
   "license": "Apache-2.0",

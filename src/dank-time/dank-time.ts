@@ -2,8 +2,34 @@ import { BasicDankTime } from "./basic-dank-time";
 
 export class DankTime implements BasicDankTime {
 
+  /**
+   * Returns a new DankTime parsed from a literal.
+   */
+  public static fromJSON(literal: BasicDankTime): DankTime {
+    return new DankTime(literal.hour, literal.minute, literal.texts, literal.points);
+  }
+
+  /**
+   * Compares two dank times using their hour and minute. Used for sorting collections.
+   */
+  public static compare(a: DankTime, b: DankTime) {
+    if (a.hour < b.hour) {
+      return -1;
+    }
+    if (a.hour > b.hour) {
+      return 1;
+    }
+    if (a.minute < b.minute) {
+      return -1;
+    }
+    if (a.minute > b.minute) {
+      return 1;
+    }
+    return 0;
+  }
+
   public readonly texts = new Array<string>();
-  private _points: number;
+  private myPoints: number;
 
   /**
    * Creates a new dank time object.
@@ -37,14 +63,14 @@ export class DankTime implements BasicDankTime {
     if (points % 1 !== 0 || points < 1 || points > 100) {
       throw new RangeError("The points must be a whole number between 1 and 100!");
     }
-    this._points = points;
+    this.myPoints = points;
   }
 
   /**
    * Gets the points.
    */
   public get points(): number {
-    return this._points;
+    return this.myPoints;
   }
 
   /**
@@ -66,31 +92,5 @@ export class DankTime implements BasicDankTime {
    */
   public toJSON(): BasicDankTime {
     return { hour: this.hour, minute: this.minute, texts: this.texts, points: this.points };
-  }
-
-  /**
-   * Returns a new DankTime parsed from a literal.
-   */
-  public static fromJSON(literal: BasicDankTime): DankTime {
-    return new DankTime(literal.hour, literal.minute, literal.texts, literal.points);
-  }
-
-  /**
-   * Compares two dank times using their hour and minute. Used for sorting collections.
-   */
-  public static compare(a: DankTime, b: DankTime) {
-    if (a.hour < b.hour) {
-      return -1;
-    }
-    if (a.hour > b.hour) {
-      return 1;
-    }
-    if (a.minute < b.minute) {
-      return -1;
-    }
-    if (a.minute > b.minute) {
-      return 1;
-    }
-    return 0;
   }
 }

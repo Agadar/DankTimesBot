@@ -4,7 +4,7 @@ import { Leaderboard } from "../leaderboard/leaderboard";
 import { User } from "../user/user";
 
 describe("Leaderboard.constructor", () => {
-  it("should have created an ordered leaderboard", function() {
+  it("should have created an ordered leaderboard", () => {
     const users = [
       new User(0, "user0", 15),
       new User(1, "user1", 5),

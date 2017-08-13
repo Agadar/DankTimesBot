@@ -2,6 +2,33 @@ import * as moment from "moment-timezone";
 import { BasicUser } from "./basic-user";
 
 export class User implements BasicUser {
+
+  /**
+   * Returns a new User parsed from a literal.
+   */
+  public static fromJSON(literal: BasicUser): User {
+    return new User(literal.id, literal.name, literal.score, literal.lastScoreTimestamp);
+  }
+
+  /**
+   * Compares two users using their score and name. Used for sorting collections.
+   */
+  public static compare(a: User, b: User): number {
+    if (a.score > b.score) {
+      return -1;
+    }
+    if (a.score < b.score) {
+      return 1;
+    }
+    if (a.name < b.name) {
+      return -1;
+    }
+    if (a.name > b.name) {
+      return 1;
+    }
+    return 0;
+  }
+
   /**
    * Creates a new user object.
    * @param id The unique Telegram user's id.
@@ -76,33 +103,7 @@ export class User implements BasicUser {
    */
   public toJSON(): BasicUser {
     return {
-      id: this.id, name: this.name, score: this.myScore, lastScoreTimestamp: this.lastScoreTimestamp,
+      id: this.id, lastScoreTimestamp: this.lastScoreTimestamp, name: this.name, score: this.myScore,
     };
-  }
-
-  /**
-   * Returns a new User parsed from a literal.
-   */
-  public static fromJSON(literal: BasicUser): User {
-    return new User(literal.id, literal.name, literal.score, literal.lastScoreTimestamp);
-  }
-
-  /**
-   * Compares two users using their score and name. Used for sorting collections.
-   */
-  public static compare(a: User, b: User): number {
-    if (a.score > b.score) {
-      return -1;
-    }
-    if (a.score < b.score) {
-      return 1;
-    }
-    if (a.name < b.name) {
-      return -1;
-    }
-    if (a.name > b.name) {
-      return 1;
-    }
-    return 0;
   }
 }

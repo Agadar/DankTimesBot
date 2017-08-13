@@ -46,7 +46,7 @@ describe("TelegramBotCommand.getRegex()", () => {
   ];
 
   tests.forEach((test) => {
-    it("Should produce a valid regex (" + test.arg + ")", function() {
+    it("Should produce a valid regex (" + test.arg + ")", () => {
       assert.equal(regex.test(test.arg), test.expected);
     });
   });

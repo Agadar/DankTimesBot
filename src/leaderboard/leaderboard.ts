@@ -1,9 +1,27 @@
 import { User } from "../user/user";
+import { LeaderboardEntry } from "./leaderboard-entry";
 
 /**
  * Represents a leaderboard.
  */
 export class Leaderboard {
+
+  /**
+   * Generates a specified number of arrow emoji's (up for positive, down for negative).
+   */
+  private static arrowEmojis(amount: number): string {
+    let emojis = "";
+    if (amount > 0) {
+      for (let i = 0; i < amount; i++) {
+        emojis += "⬆️";
+      }
+    } else {
+      for (let i = 0; i > amount; i--) {
+        emojis += "⬇️";
+      }
+    }
+    return emojis;
+  }
 
   public readonly entries = new Array<LeaderboardEntry>();
 
@@ -36,27 +54,11 @@ export class Leaderboard {
       const entry = this.entries[i];
       const positionChange = positionChanges.get(entry.id);
       const arrowEmojis = Leaderboard.arrowEmojis(positionChange ? positionChange : 0);
-      const scoreChange = entry.lastScoreChange > 0 ? "(+" + entry.lastScoreChange + ")" : entry.lastScoreChange < 0 ? "(" + entry.lastScoreChange + ")" : "";
-      leaderboard += "\n<b>" + (i + 1) + ".</b>    " + entry.name + "    " + entry.score + " " + scoreChange + "    " + arrowEmojis;
+      const scoreChange = entry.lastScoreChange > 0 ? `(+${entry.lastScoreChange})` : entry.lastScoreChange < 0
+        ? `(${entry.lastScoreChange})` : "";
+      leaderboard += `\n<b>${(i + 1)}.</b>    ${entry.name}    ${entry.score} ${scoreChange}    ${arrowEmojis}`;
     }
     return leaderboard;
-  }
-
-  /**
-   * Generates a specified number of arrow emoji's (up for positive, down for negative).
-   */
-  private static arrowEmojis(amount: number): string {
-    let emojis = "";
-    if (amount > 0) {
-      for (let i = 0; i < amount; i++) {
-        emojis += "⬆️";
-      }
-    } else {
-      for (let i = 0; i > amount; i--) {
-        emojis += "⬇️";
-      }
-    }
-    return emojis;
   }
 
   /**
@@ -86,49 +88,5 @@ export class Leaderboard {
       }
     }
     return positionChanges;
-  }
-}
-
-/**
- * Represents an entry in the leaderboard.
- */
-class LeaderboardEntry {
-
-  public readonly id: number;
-  public readonly name: string;
-  public readonly score: number;
-  public readonly lastScoreChange: number;
-
-  constructor(user: User) {
-    this.id = user.id;
-    this.name = user.name;
-    this.score = user.score;
-    this.lastScoreChange = user.lastScoreChange;
-  }
-
-  /**
-   * Compares this leaderboard entry to another one, using their score and name.
-   */
-  public compare(other: LeaderboardEntry): number {
-    return LeaderboardEntry.compare(this, other);
-  }
-
-  /**
-   * Compares two leaderboard entries using their score and name.
-   */
-  public static compare(a: LeaderboardEntry, b: LeaderboardEntry): number {
-    if (a.score > b.score) {
-      return -1;
-    }
-    if (a.score < b.score) {
-      return 1;
-    }
-    if (a.name < b.name) {
-      return -1;
-    }
-    if (a.name > b.name) {
-      return 1;
-    }
-    return 0;
   }
 }

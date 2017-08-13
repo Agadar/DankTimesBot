@@ -10,8 +10,8 @@ describe("util.padNumber(msg)", () => {
     { arg: "20", expected: "20" },
   ];
 
-  tests.forEach(function(test) {
-    it("Should create a valid string (" + test.arg + ")", function() {
+  tests.forEach((test) => {
+    it("Should create a valid string (" + test.arg + ")", () => {
       assert.deepEqual(test.expected, util.padNumber(test.arg));
     });
   });
@@ -23,8 +23,8 @@ describe("util.padNumber(msg)", () => {
     { args: ["3", "12"], expected: "0312" },
   ];
 
-  stringTests.forEach(function(test) {
-    it("Should create a valid string: (" + test.args[0] + " + " + test.args[1] + ") => " + test.expected + " ?", function() {
+  stringTests.forEach((test) => {
+    it(`Should create a valid string: (${test.args[0]} + ${test.args[1]}) => ${test.expected} ?`, () => {
       assert.deepEqual(test.expected, util.padNumber(test.args[0]) + util.padNumber(test.args[1]));
     });
   });
