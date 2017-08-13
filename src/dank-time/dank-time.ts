@@ -5,6 +5,7 @@ export type DankTimeLiteral = { hour: number, minute: number, texts: string[], p
  */
 export class DankTime {
 
+  public readonly texts = new Array<string>();
   private _points: number;
 
   /**
@@ -14,16 +15,21 @@ export class DankTime {
    * @param texts The texts to shout at the hour:minute to score points.
    * @param points The amount of points to reward or confiscate.
    */
-  constructor(public readonly hour: number, public readonly minute: number, public readonly texts: string[], points = 1) {
+  constructor(public readonly hour: number, public readonly minute: number, texts: string[], points = 1) {
     if (this.hour % 1 !== 0 || this.hour < 0 || this.hour > 23) {
       throw new RangeError('The hour must be a whole number between 0 and 23!');
     }
     if (this.minute % 1 !== 0 || this.minute < 0 || this.minute > 59) {
       throw new RangeError('The minute must be a whole number between 0 and 59!');
     }
-    if (this.texts.length < 1) {
+    if (texts.length < 1) {
       throw new RangeError('The texts must be a string array containing at least one item!');
     }
+    texts.forEach(text => {
+      if (this.texts.indexOf(text) === -1) {
+        this.texts.push(text);
+      }
+    });
     this.points = points;
   }
 
