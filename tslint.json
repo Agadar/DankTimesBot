@@ -7,6 +7,9 @@
   "rules": {
     "interface-name": [
       false
+    ],
+    "no-console": [
+      false
     ]
   },
   "rulesDirectory": []

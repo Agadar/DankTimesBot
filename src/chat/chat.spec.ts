@@ -4,12 +4,12 @@ import * as moment from "moment-timezone";
 import { User } from "../user/user";
 import { Chat } from "./chat";
 
-describe("Chat.hardcoreModeCheck", function() {
+describe("Chat.hardcoreModeCheck", () => {
   const now = moment().unix();
   const nowMinus24Hours = now - (24 * 60 * 60);
   const nowMinusAlmost24Hours = nowMinus24Hours + 1;
 
-  it("should not punish a user if hardcore mode is disabled", function() {
+  it("should not punish a user if hardcore mode is disabled", () => {
     const startingScore = 10;
     const user = new User(0, "user0", startingScore, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
@@ -19,7 +19,7 @@ describe("Chat.hardcoreModeCheck", function() {
     assert.equal(user.score, startingScore);
   });
 
-  it("should not punish a user if hardcore mode is enabled but he scored in the last 24 hours", function() {
+  it("should not punish a user if hardcore mode is enabled but he scored in the last 24 hours", () => {
     const startingScore = 10;
     const user = new User(0, "user0", startingScore, nowMinusAlmost24Hours, false, 0);
     const users = new Map<number, User>();
@@ -29,7 +29,7 @@ describe("Chat.hardcoreModeCheck", function() {
     assert.equal(user.score, startingScore);
   });
 
-  it("should punish a user if hardcore mode is enabled and he did not score in the last 24 hours", function() {
+  it("should punish a user if hardcore mode is enabled and he did not score in the last 24 hours", () => {
     const user = new User(0, "user0", 10, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);

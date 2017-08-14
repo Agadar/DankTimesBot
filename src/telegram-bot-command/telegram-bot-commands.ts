@@ -92,9 +92,10 @@ export class TelegramBotCommands {
     let dankTimes = "<b>--- DANK TIMES ---</b>\n";
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     for (const time of chat.dankTimes) {
-      dankTimes += "\ntime: " + util.padNumber(time.hour) + ":" + util.padNumber(time.minute) + ":00    points: " + time.points + "    texts:";
+      dankTimes +=
+        `\ntime: ${util.padNumber(time.hour)}:${util.padNumber(time.minute)}:00    points: ${time.points}    texts:`;
       for (const text of time.texts) {
-        dankTimes += " " + text;
+        dankTimes += ` ${text}`;
       }
     }
     return dankTimes;
@@ -389,7 +390,8 @@ export class TelegramBotCommands {
   public toggleFirstNotifications(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.firstNotifications = !chat.firstNotifications;
-    return chat.firstNotifications ? "Announcements for first users to score are now enabled!" : "Announcements for first users to score are now disabled!";
+    return chat.firstNotifications ? "Announcements for first users to score are now enabled!"
+      : "Announcements for first users to score are now disabled!";
   }
 
   /**
@@ -421,7 +423,8 @@ export class TelegramBotCommands {
   public toggleHardcoreMode(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.hardcoreMode = !chat.hardcoreMode;
-    return chat.hardcoreMode ? "Hardcore mode is now enabled! Every day, those who did not score the previous day are punished!"
+    return chat.hardcoreMode
+      ? "Hardcore mode is now enabled! Every day, those who did not score the previous day are punished!"
       : "Hardcore mode is now disabled!";
   }
 }

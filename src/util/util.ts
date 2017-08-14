@@ -8,7 +8,7 @@ export function cleanText(text: string): string {
   let clean = "";
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i);
-    if (code != 65039 && code != 8419) {
+    if (code !== 65039 && code !== 8419) {
       clean += text[i];
     }
   }
@@ -31,8 +31,8 @@ export function mapToSortedArray<T>(map: Map<any, T>, comparator: ((a: T, b: T) 
  * "1"   => "01"
  * "12"  => "12"
  * "122" => "22"
- * @param number The number to prepend 0 to.
+ * @param theNumber The number to prepend 0 to.
  */
-export function padNumber(number: string | number): string {
-  return ("0" + number.toString()).slice(-2);
+export function padNumber(theNumber: string | number): string {
+  return ("0" + theNumber.toString()).slice(-2);
 }

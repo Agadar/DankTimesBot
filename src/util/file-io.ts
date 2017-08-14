@@ -12,7 +12,8 @@ import { Release } from "../release";
 const dataFolder = "./data";
 const backupFile = dataFolder + "/backup.json";
 const configFile = dataFolder + "/config.json";
-const settingsFile = dataFolder + "/settings.json"; // Deprecated, using config.json instead. Here for backwards compatibility.
+// settings.json is deprecated, using config.json instead. Here for backwards compatibility.
+const settingsFile = dataFolder + "/settings.json";
 const releasesFile = dataFolder + "/releases.json";
 const apiKeyEnvKey = "DANK_TIMES_BOT_API_KEY";
 const jsonIndentation = 2;
@@ -61,14 +62,15 @@ export function loadConfigFromFile(): Config {
     }
   }
 
-  // If there was an undefined/empty API key in the settings file, try retrieve it from env.
+  // If there was an undefined/empty API key in the config file, try retrieve it from env.
   if (!config.apiKey) {
     const apiKeyFromEnv = process.env[apiKeyEnvKey];
     if (apiKeyFromEnv) {
       config.apiKey = apiKeyFromEnv;
     }
     if (!config.apiKey) {
-      console.error("No Telegram API key was found, not in the settings file nor in the environment variable '" + apiKeyEnvKey + "'! Exiting...");
+      console.error(`No Telegram API key was found, not in the config file nor in the` +
+      ` environment variable '${apiKeyEnvKey}'! Exiting...`);
       fs.writeFileSync(configFile, JSON.stringify(config, undefined, jsonIndentation));
       process.exit(-1);
     }
@@ -92,7 +94,8 @@ export function loadChatsFromFile(): Map<number, Chat> {
 
   // If the data file exists, load and parse the data to an object.
   if (fs.existsSync(backupFile)) {
-    (JSON.parse(fs.readFileSync(backupFile, "utf8")) as BasicChat[]).forEach((chat) => chats.set(chat.id, Chat.fromJSON(chat)));
+    (JSON.parse(fs.readFileSync(backupFile, "utf8")) as BasicChat[])
+      .forEach((chat) => chats.set(chat.id, Chat.fromJSON(chat)));
   }
   return chats;
 }

@@ -7,49 +7,6 @@ import { BasicChat } from "./basic-chat";
 
 export class Chat {
 
-  public awaitingResetConfirmation = -1;
-
-  private _id: number;
-  private _timezone: string;
-  private _lastHour: number;
-  private _lastMinute: number;
-  private _numberOfRandomTimes: number;
-  private _pointsPerRandomTime: number;
-  private _multiplier: number;
-  private _lastLeaderboard?: Leaderboard = undefined;
-
-  /**
-   * Creates a new Chat object.
-   * @param id The chat's unique Telegram id.
-   * @param timezone The timezone the users are in.
-   * @param running Whether this bot is running for this chat.
-   * @param numberOfRandomTimes The number of randomly generated dank times to generate each day.
-   * @param pointsPerRandomTime The number of points each randomly generated dank time is worth.
-   * @param lastHour The hour of the last valid dank time being proclaimed.
-   * @param lastMinute The minute of the last valid dank time being proclaimed.
-   * @param users A map with the users, indexed by user id's.
-   * @param dankTimes The dank times known in this chat.
-   * @param randomDankTimes The daily randomly generated dank times in this chat.
-   * @param notifications Whether this chat automatically sends notifications for dank times.
-   * @param multiplier The multiplier applied to the score of the first user to score.
-   * @param autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
-   * @param firstNotifications Whether this chat announces the first user to score.
-   * @param hardcoreMode Whether this chat punishes users that haven't scored in the last 24 hours.
-   */
-  constructor(id: number, timezone = "Europe/Amsterdam", public running = false, numberOfRandomTimes = 1, pointsPerRandomTime = 10,
-              lastHour = 0, lastMinute = 0, private readonly users = new Map<number, User>(), public readonly dankTimes = new Array<DankTime>(),
-              public randomDankTimes = new Array<DankTime>(), public notifications = true, multiplier = 2, public autoLeaderboards = true,
-              public firstNotifications = true, public hardcoreMode = false) {
-
-    this.id = id;
-    this.timezone = timezone;
-    this.lastHour = lastHour;
-    this.lastMinute = lastMinute;
-    this.numberOfRandomTimes = numberOfRandomTimes;
-    this.pointsPerRandomTime = pointsPerRandomTime;
-    this.multiplier = multiplier;
-  }
-
   /**
    * Returns a new Chat parsed from a literal.
    */
@@ -72,87 +29,132 @@ export class Chat {
     const users = new Map();
     literal.users.forEach((user) => users.set(user.id, User.fromJSON(user)));
 
-    return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes, literal.pointsPerRandomTime,
-      literal.lastHour, literal.lastMinute, users, dankTimes, [], literal.notifications, literal.multiplier,
-      literal.autoLeaderboards, literal.firstNotifications, literal.hardcoreMode);
+    return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes,
+      literal.pointsPerRandomTime, literal.lastHour, literal.lastMinute, users, dankTimes, [],
+      literal.notifications, literal.multiplier, literal.autoLeaderboards, literal.firstNotifications,
+      literal.hardcoreMode);
+  }
+
+  public awaitingResetConfirmation = -1;
+
+  private myId: number;
+  private myTimezone: string;
+  private myLastHour: number;
+  private myLastMinute: number;
+  private myNumberOfRandomTimes: number;
+  private myPointsPerRandomTime: number;
+  private myMultiplier: number;
+  private myLastLeaderboard?: Leaderboard = undefined;
+
+  /**
+   * Creates a new Chat object.
+   * @param id The chat's unique Telegram id.
+   * @param timezone The timezone the users are in.
+   * @param running Whether this bot is running for this chat.
+   * @param numberOfRandomTimes The number of randomly generated dank times to generate each day.
+   * @param pointsPerRandomTime The number of points each randomly generated dank time is worth.
+   * @param lastHour The hour of the last valid dank time being proclaimed.
+   * @param lastMinute The minute of the last valid dank time being proclaimed.
+   * @param users A map with the users, indexed by user id's.
+   * @param dankTimes The dank times known in this chat.
+   * @param randomDankTimes The daily randomly generated dank times in this chat.
+   * @param notifications Whether this chat automatically sends notifications for dank times.
+   * @param multiplier The multiplier applied to the score of the first user to score.
+   * @param autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
+   * @param firstNotifications Whether this chat announces the first user to score.
+   * @param hardcoreMode Whether this chat punishes users that haven't scored in the last 24 hours.
+   */
+  constructor(id: number, timezone = "Europe/Amsterdam", public running = false, numberOfRandomTimes = 1,
+              pointsPerRandomTime = 10, lastHour = 0, lastMinute = 0, private readonly users = new Map<number, User>(),
+              public readonly dankTimes = new Array<DankTime>(), public randomDankTimes = new Array<DankTime>(),
+              public notifications = true, multiplier = 2, public autoLeaderboards = true,
+              public firstNotifications = true, public hardcoreMode = false) {
+
+    this.id = id;
+    this.timezone = timezone;
+    this.lastHour = lastHour;
+    this.lastMinute = lastMinute;
+    this.numberOfRandomTimes = numberOfRandomTimes;
+    this.pointsPerRandomTime = pointsPerRandomTime;
+    this.multiplier = multiplier;
   }
 
   public set id(id: number) {
     if (id % 1 !== 0) {
       throw new RangeError("The id must be a whole number!");
     }
-    this._id = id;
+    this.myId = id;
   }
 
   public get id(): number {
-    return this._id;
+    return this.myId;
   }
 
   public set timezone(timezone: string) {
     if (moment.tz.zone(timezone) === null) {
       throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
     }
-    this._timezone = timezone;
+    this.myTimezone = timezone;
   }
 
   public get timezone(): string {
-    return this._timezone;
+    return this.myTimezone;
   }
 
   public set lastHour(lastHour: number) {
     if (lastHour < 0 || lastHour > 23 || lastHour % 1 !== 0) {
       throw new RangeError("The hour must be a whole number between 0 and 23!");
     }
-    this._lastHour = lastHour;
+    this.myLastHour = lastHour;
   }
 
   public get lastHour(): number {
-    return this._lastHour;
+    return this.myLastHour;
   }
 
   public set lastMinute(lastMinute: number) {
     if (lastMinute < 0 || lastMinute > 59 || lastMinute % 1 !== 0) {
       throw new RangeError("The minute must be a whole number between 0 and 59!");
     }
-    this._lastMinute = lastMinute;
+    this.myLastMinute = lastMinute;
   }
 
   public get lastMinute(): number {
-    return this._lastMinute;
+    return this.myLastMinute;
   }
 
   public set numberOfRandomTimes(numberOfRandomTimes: number) {
     if (numberOfRandomTimes < 0 || numberOfRandomTimes > 24 || numberOfRandomTimes % 1 !== 0) {
       throw new RangeError("The number of times must be a whole number between 0 and 24!");
     }
-    this._numberOfRandomTimes = numberOfRandomTimes;
+    this.myNumberOfRandomTimes = numberOfRandomTimes;
     this.randomDankTimes.splice(numberOfRandomTimes);
   }
 
   public get numberOfRandomTimes(): number {
-    return this._numberOfRandomTimes;
+    return this.myNumberOfRandomTimes;
   }
 
   public set multiplier(multiplier: number) {
     if (multiplier < 1 || multiplier > 10) {
       throw new RangeError("The multiplier must be a number between 1 and 10!");
     }
-    this._multiplier = multiplier;
+    this.myMultiplier = multiplier;
   }
 
   public get multiplier(): number {
-    return this._multiplier;
+    return this.myMultiplier;
   }
 
   public set pointsPerRandomTime(pointsPerRandomTime: number) {
     if (pointsPerRandomTime < 1 || pointsPerRandomTime > 100 || pointsPerRandomTime % 1 !== 0) {
       throw new RangeError("The points must be a whole number between 1 and 100!");
     }
-    this._pointsPerRandomTime = pointsPerRandomTime;
+    this.myPointsPerRandomTime = pointsPerRandomTime;
   }
 
   public get pointsPerRandomTime(): number {
-    return this._pointsPerRandomTime;
+    return this.myPointsPerRandomTime;
   }
 
   /**
@@ -190,12 +192,12 @@ export class Chat {
    */
   public generateRandomDankTimes(): DankTime[] {
     this.randomDankTimes = new Array<DankTime>();
-    for (let i = 0; i < this._numberOfRandomTimes; i++) {
+    for (let i = 0; i < this.myNumberOfRandomTimes; i++) {
       const now = moment().tz(this.timezone);
       now.add(now.hours() + Math.floor(Math.random() * 23), "hours");
       now.minutes(Math.floor(Math.random() * 59));
       const text = util.padNumber(now.hours().toString()) + util.padNumber(now.minutes.toString());
-      this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this._pointsPerRandomTime));
+      this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
     }
     return this.randomDankTimes;
   }
@@ -205,10 +207,20 @@ export class Chat {
    */
   public toJSON(): BasicChat {
     return {
-      id: this._id, timezone: this._timezone, running: this.running, numberOfRandomTimes: this._numberOfRandomTimes,
-      pointsPerRandomTime: this._pointsPerRandomTime, lastHour: this._lastHour, lastMinute: this._lastMinute, users: this.sortedUsers(),
-      dankTimes: this.dankTimes, notifications: this.notifications, multiplier: this._multiplier,
-      autoLeaderboards: this.autoLeaderboards, firstNotifications: this.firstNotifications, hardcoreMode: this.hardcoreMode,
+      autoLeaderboards: this.autoLeaderboards,
+      dankTimes: this.dankTimes,
+      firstNotifications: this.firstNotifications,
+      hardcoreMode: this.hardcoreMode,
+      id: this.myId,
+      lastHour: this.myLastHour,
+      lastMinute: this.myLastMinute,
+      multiplier: this.myMultiplier,
+      notifications: this.notifications,
+      numberOfRandomTimes: this.myNumberOfRandomTimes,
+      pointsPerRandomTime: this.myPointsPerRandomTime,
+      running: this.running,
+      timezone: this.myTimezone,
+      users: this.sortedUsers(),
     };
   }
 
@@ -230,7 +242,7 @@ export class Chat {
       this.awaitingResetConfirmation = -1;
       if (msgText.toUpperCase() === "YES") {
         const message = "Leaderboard has been reset!\n\n" + this.generateLeaderboard(true);
-        this.users.forEach((user) => user.resetScore());
+        this.users.forEach((user0) => user0.resetScore());
         return message;
       }
     }
@@ -262,11 +274,11 @@ export class Chat {
       if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
 
         // If cache needs resetting, do so and award DOUBLE points to the calling user.
-        if (this.lastHour !== dankTime.hour || this._lastMinute !== dankTime.minute) {
-          this.users.forEach((user) => user.called = false);
+        if (this.lastHour !== dankTime.hour || this.myLastMinute !== dankTime.minute) {
+          this.users.forEach((user0) => user0.called = false);
           this.lastHour = dankTime.hour;
           this.lastMinute = dankTime.minute;
-          user.addToScore(Math.round(dankTime.points * this._multiplier));
+          user.addToScore(Math.round(dankTime.points * this.myMultiplier));
           user.called = true;
           if (this.firstNotifications) {
             return user.name + " was the first to score!";
@@ -326,10 +338,10 @@ export class Chat {
   public generateLeaderboard(final = false): string {
 
     // Construct string to return.
-    const oldLeaderboard = this._lastLeaderboard;
-    this._lastLeaderboard = new Leaderboard(Array.from(this.users.values()));
+    const oldLeaderboard = this.myLastLeaderboard;
+    this.myLastLeaderboard = new Leaderboard(Array.from(this.users.values()));
     let leaderboard = "<b>--- " + (final ? "FINAL " : "") + "LEADERBOARD ---</b>\n";
-    leaderboard += this._lastLeaderboard.toString(oldLeaderboard);
+    leaderboard += this.myLastLeaderboard.toString(oldLeaderboard);
 
     // Reset last score change values of all users.
     const userIterator = this.users.values();

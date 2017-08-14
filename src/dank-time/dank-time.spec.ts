@@ -11,8 +11,8 @@ describe("DankTime.compare(a, b)", () => {
     { args: [new DankTime(15, 15, ["5"], 1), new DankTime(15, 30, ["1"], 5)], expected: -1 },
   ];
 
-  tests.forEach(function(test) {
-    it("Should compare correctly.", function() {
+  tests.forEach((test) => {
+    it("Should compare correctly.", () => {
       assert.equal(test.expected, DankTime.compare(test.args[0], test.args[1]));
     });
   });

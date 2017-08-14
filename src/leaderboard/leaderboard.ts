@@ -83,7 +83,7 @@ export class Leaderboard {
       const currentEntry = this.entries[currentPosition];
       const oldPosition = previousLeaderboard.indexOfEntryViaUserId(currentEntry.id);
       const change = oldPosition - currentPosition;
-      if (change > 0 || change < 0) {
+      if (change !== 0) {
         positionChanges.set(currentEntry.id, change);
       }
     }

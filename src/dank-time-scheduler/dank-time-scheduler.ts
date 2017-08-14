@@ -142,13 +142,16 @@ export class DankTimeScheduler {
    * Schedules a notification for a NORMAL dank time. Does NOT verify chat settings.
    */
   public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
-    const _this = this;
+    const thisRef = this;
     this.dankTimeNotifications.push({
-      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", function() {
+      chatId: chat.id,
+      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
         if (chat.running && chat.notifications) {
-          _this.tgClient.sendMessage(chat.id, "It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!");
+          thisRef.tgClient.sendMessage(chat.id, "It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!");
         }
       }, undefined, true, chat.timezone),
+      hour: dankTime.hour,
+      minute: dankTime.minute,
     });
   }
 
@@ -156,13 +159,16 @@ export class DankTimeScheduler {
    * Schedules a notification for a RANDOM dank time. Does NOT verify chat settings.
    */
   public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
-    const _this = this;
+    const thisRef = this;
     this.randomDankTimeNotifications.push({
-      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", function() {
+      chatId: chat.id,
+      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
         if (chat.running) {
-          _this.tgClient.sendMessage(chat.id, "Surprise dank time! Type '" + dankTime.texts[0] + "' for points!");
+          thisRef.tgClient.sendMessage(chat.id, "Surprise dank time! Type '" + dankTime.texts[0] + "' for points!");
         }
       }, undefined, true, chat.timezone),
+      hour: dankTime.hour,
+      minute: dankTime.minute,
     });
   }
 
@@ -185,13 +191,16 @@ export class DankTimeScheduler {
     }
 
     // Schedule the cron job.
-    const _this = this;
+    const thisRef = this;
     this.autoLeaderBoards.push({
-      chatId: chat.id, hour: dankTime.hour, minute: dankTime.minute, cronJob: new CronJob("0 " + minute + " " + hour + " * * *", function() {
+      chatId: chat.id,
+      cronJob: new CronJob("0 " + minute + " " + hour + " * * *", () => {
         if (chat.running && chat.autoLeaderboards && chat.leaderboardChanged()) {
-          _this.tgClient.sendMessage(chat.id, chat.generateLeaderboard());
+          thisRef.tgClient.sendMessage(chat.id, chat.generateLeaderboard());
         }
       }, undefined, true, chat.timezone),
+      hour: dankTime.hour,
+      minute: dankTime.minute,
     });
   }
 

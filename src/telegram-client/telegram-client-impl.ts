@@ -9,7 +9,7 @@ export class TelegramClientImpl implements TelegramClient {
 
   public readonly commands = new Map<string, TelegramBotCommand>();
   private bot: TelegramBot | undefined;
-  private _botname = "";
+  private myBotname = "";
   private readonly botNotInitializedMsg = "Bot not initialized - call #initialize(...) first!";
 
   public initialize(apiKey: string): void {
@@ -23,9 +23,9 @@ export class TelegramClientImpl implements TelegramClient {
     if (!this.bot) {
       throw new Error(this.botNotInitializedMsg);
     }
-    const _this = this;
+    const thisRef = this;
     return this.bot.getMe().then((me) => {
-      _this._botname = me.username;
+      thisRef.myBotname = me.username;
       return me.username;
     });
   }
@@ -34,7 +34,7 @@ export class TelegramClientImpl implements TelegramClient {
    * Gets the bot's name, or an empty string if this.retrieveBotName() wasn't called yet.
    */
   public get botname(): string {
-    return this._botname;
+    return this.myBotname;
 
   }
 
@@ -64,11 +64,11 @@ export class TelegramClientImpl implements TelegramClient {
 
     // Register the command with the bot accordingly.
     if (!command.adminOnly) {
-      this.bot.onText(command.getRegex(this._botname), (msg, match) => {
+      this.bot.onText(command.getRegex(this.myBotname), (msg, match) => {
         this.sendMessage(msg.chat.id, command.action.call(command.object, msg, match));
       });
     } else {
-      this.bot.onText(command.getRegex(this._botname), (msg, match) => {
+      this.bot.onText(command.getRegex(this.myBotname), (msg, match) => {
         this.callFunctionIfUserIsAdmin(msg, match, command.object, command.action);
       });
     }
@@ -79,15 +79,17 @@ export class TelegramClientImpl implements TelegramClient {
       throw new Error(this.botNotInitializedMsg);
     }
     this.bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" }).catch((reason) => {
-      console.warn("Telegram API returned HTTP status code " + reason.response.statusCode + " when this bot attempted to send a message to chat with id " + chatId
-        + ". Error description: '" + reason.response.body.description + "'.");
+      console.warn(`Telegram API returned HTTP status code ${reason.response.statusCode}`
+        + ` when this bot attempted to send a message to chat with id ${chatId}.`
+        + ` Error description: '${reason.response.body.description}'.`);
     });
   }
 
   /**
    * Calls the specified function, but only if the calling user is an admin in his chat, or it is a private chat.
    */
-  private callFunctionIfUserIsAdmin(msg: any, match: string[], object: any, action: ((msg: any, match: string[]) => string)): void {
+  private callFunctionIfUserIsAdmin(msg: any, match: string[], object: any,
+                                    action: ((msg: any, match: string[]) => string)): void {
     if (!this.bot) {
       throw new Error(this.botNotInitializedMsg);
     }
