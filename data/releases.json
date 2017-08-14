@@ -1,7 +1,7 @@
 [
   {
     "version": "1.3.0",
-    "date": "to be announced",
+    "date": "2017-08-14",
     "changes": [
       "Implemented a toggleable hardcore mode, in which every day, users who did not score the previous day are punished",
       "Fixed a bug that allowed a dank time to have the same text more than once",
