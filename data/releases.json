@@ -6,6 +6,7 @@
       "Implemented a toggleable hardcore mode, in which every day, users who did not score the previous day are punished",
       "Fixed a bug that allowed a dank time to have the same text more than once",
       "Renamed 'settings.json' to 'config.json' for semantic reasons",
+      "The 'What's new?' message is now sent only on the first bot launch. To resend the message on a subsequent launch, set the 'sendWhatsNewMsg' value in config.json to 'true'",
       "For developers: translated the entire bot from JavaScript to TypeScript!"
     ]
   },

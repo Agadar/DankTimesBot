@@ -51,19 +51,19 @@ export function loadConfigFromFile(): Config {
   }
   if (exists) {
     const configFromFile: Config = JSON.parse(fs.readFileSync(configOrSettingsFile, "utf8"));
-    if (configFromFile.apiKey) {
+    if (configFromFile.apiKey !== undefined) {
       config.apiKey = configFromFile.apiKey;
     }
-    if (configFromFile.persistenceRate) {
+    if (configFromFile.persistenceRate !== undefined) {
       config.persistenceRate = configFromFile.persistenceRate;
     }
-    if (configFromFile.sendWhatsNewMsg) {
+    if (configFromFile.sendWhatsNewMsg !== undefined) {
       config.sendWhatsNewMsg = configFromFile.sendWhatsNewMsg;
     }
   }
 
   // If there was an undefined/empty API key in the config file, try retrieve it from env.
-  if (!config.apiKey) {
+  if (config.apiKey === null || config.apiKey.length < 1) {
     const apiKeyFromEnv = process.env[apiKeyEnvKey];
     if (apiKeyFromEnv) {
       config.apiKey = apiKeyFromEnv;

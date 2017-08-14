@@ -9,11 +9,11 @@ import { TelegramClientImpl } from "./telegram-client/telegram-client-impl";
 import * as fileIO from "./util/file-io";
 
 // Global variables.
-const settings = fileIO.loadConfigFromFile();
+const config = fileIO.loadConfigFromFile();
 const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
 const releaseLog = fileIO.loadReleaseLogFromFile();
 const tgClient = new TelegramClientImpl();
-tgClient.initialize(settings.apiKey);
+tgClient.initialize(config.apiKey);
 const scheduler = new DankTimeScheduler(tgClient);
 const commands = new TelegramBotCommands(tgClient, chatRegistry, scheduler, releaseLog, "1.3.0");
 
@@ -77,7 +77,7 @@ tgClient.retrieveBotName().then(() => {
 setInterval(() => {
   fileIO.saveChatsToFile(chatRegistry.chats);
   console.info("Persisted data to file.");
-}, settings.persistenceRate * 60 * 1000);
+}, config.persistenceRate * 60 * 1000);
 
 // Schedule to persist chats map to file on program exit.
 nodeCleanup((exitCode, signal) => {
@@ -119,18 +119,22 @@ const dailyUpdate = new CronJob("0 0 0 * * *", () => {
 }, undefined, true);
 
 // Send a release log message to all chats, assuming there are release logs.
-if (releaseLog.length > 0) {
+if (config.sendWhatsNewMsg && releaseLog.length > 0) {
 
   // Prepare message.
-  let message = "<b>--- What's new in version " + releaseLog[0].version + " ? ---</b>\n\n";
+  let message = `<b>--- What's new in version ${releaseLog[0].version} ? ---</b>\n\n`;
   releaseLog[0].changes.forEach((change) => {
-    message += "- " + change + "\n";
+    message += `- ${change}\n`;
   });
 
   // Send it to all chats.
   chatRegistry.chats.forEach((chat) => {
     tgClient.sendMessage(chat.id, message);
   });
+
+  // Update config so the what's new message is not sent on subsequent bot startups.
+  config.sendWhatsNewMsg = false;
+  fileIO.saveConfigToFile(config);
 }
 
 // Inform server.
