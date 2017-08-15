@@ -1,7 +1,3 @@
-/**
- * Exposes file I/O related functions for DankTimesBot.
- */
-
 import * as fs from "fs";
 import { BasicChat } from "../chat/basic-chat";
 import { Chat } from "../chat/chat";
@@ -14,7 +10,7 @@ const backupFile = dataFolder + "/backup.json";
 const configFile = dataFolder + "/config.json";
 // settings.json is deprecated, using config.json instead. Here for backwards compatibility.
 const settingsFile = dataFolder + "/settings.json";
-const releasesFile = dataFolder + "/releases.json";
+const releasesFile = "./releases.json";
 const apiKeyEnvKey = "DANK_TIMES_BOT_API_KEY";
 const jsonIndentation = 2;
 
