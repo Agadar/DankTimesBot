@@ -1,4 +1,4 @@
-import assert = require("assert");
+import { assert } from "chai";
 import "mocha";
 import { Chat } from "../chat/chat";
 import { DankTimeScheduler } from "../dank-time-scheduler/dank-time-scheduler";

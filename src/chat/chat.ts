@@ -196,7 +196,7 @@ export class Chat {
       const now = moment().tz(this.timezone);
       now.add(now.hours() + Math.floor(Math.random() * 23), "hours");
       now.minutes(Math.floor(Math.random() * 59));
-      const text = util.padNumber(now.hours().toString()) + util.padNumber(now.minutes.toString());
+      const text = util.padNumber(now.hours()) + util.padNumber(now.minutes());
       this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
     }
     return this.randomDankTimes;

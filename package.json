@@ -24,10 +24,12 @@
     "node-telegram-bot-api": "^0.27.1"
   },
   "devDependencies": {
+    "@types/chai": "^4.0.3",
     "@types/cron": "^1.2.1",
     "@types/mocha": "^2.2.41",
     "@types/moment-timezone": "^0.2.34",
     "@types/node": "^8.0.19",
-    "mocha": "^3.4.2"
+    "chai": "^4.1.1",
+    "mocha": "^3.5.0"
   }
 }

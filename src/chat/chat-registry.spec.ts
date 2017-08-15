@@ -1,4 +1,4 @@
-import assert = require("assert");
+import { assert } from "chai";
 import "mocha";
 import { ChatRegistry } from "./chat-registry";
 
