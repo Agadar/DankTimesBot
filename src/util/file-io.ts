@@ -3,6 +3,8 @@ import { BasicChat } from "../chat/basic-chat";
 import { Chat } from "../chat/chat";
 import { Config } from "../config";
 import { Release } from "../release";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
+import * as ts from "typescript";
 
 // Constants.
 const dataFolder = "./data";
@@ -140,4 +142,29 @@ function mapReplacer(key: any, value: any): any[] {
     return array;
   }
   return value;
+}
+
+/**
+ * Discover, Compile and load external plugins
+ * from the plugins/ directory.
+ * 
+ * Returns 0..n plugins.
+ */
+export function GetAvailablePlugins(): AbstractPlugin[]
+{
+  // Directory in which to find plugins.
+  const DIRECTORY: string = "plugins/";
+  // Plugins to return.
+  let plugins: AbstractPlugin[] = [];
+
+  // Plugin directories
+  let directories: string[] = (fs.readdirSync(DIRECTORY).filter(f => fs.statSync(DIRECTORY + "/" + f).isDirectory()));
+
+  // Compile
+  (ts.createProgram(directories
+    .filter(pluginDir => fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`)) // Get all directories with a plugin.ts
+    .map(pluginDir => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();             // Rewrite Directory -> Directory.ts & Compile
+
+  // Load & Return plugins.
+  return directories.map(plugin => {return new(require(`../../plugins/${plugin}/plugin.js`)).Plugin()});
 }
