@@ -23,12 +23,8 @@ export class PluginHost
   constructor(_plugins: AbstractPlugin[]) 
   {
     this.Plugins = _plugins;
-
-    console.log("Plugin Host initialized...");
-    console.log("Active plugins:");
-    this.Plugins.forEach(plugin => {
-      console.log(plugin.Name + " - " + plugin.Version);
-    });
+    //TODO: Track this shit
+    this.Plugins.forEach(plugin => plugin.Enabled = true);
   }
 
   /**
@@ -37,16 +33,20 @@ export class PluginHost
    */
   public HandleInput(_input: string): string[]
   {
-    let Output: string[] = [];
-    for(var i = 0, len = this.Plugins.length; i < len; i++)
-      {
-          Output.push("I ("+this.Plugins[i].Name+") replied with: " + this.Plugins[i].PreMessageProcess(_input));
-      }
+    return (<string[]>[])
+      .concat(this.processPreHooks(_input))
+      .concat(this.processPostHooks(_input));
+  }
 
-    for(var i = 0, len = this.Plugins.length; i < len; i++)
-      {
-          Output.push("I ("+this.Plugins[i].Name+") replied with: " + this.Plugins[i].PostMessageProcess(_input));
-      }
-      return Output;
+  // Process pre-messaging.
+  processPreHooks(_input: string): string[]
+  {
+    return this.Plugins.map(plugin => (plugin.Enabled) ? plugin.PreMessageProcess(_input) : "").filter(output => !!output);
+  }
+
+  // Process post-messaging
+  processPostHooks(_input: string): string[]
+  {
+    return this.Plugins.map(plugin => (plugin.Enabled) ? plugin.PostMessageProcess(_input) : "").filter(output => !!output);
   }
 }
