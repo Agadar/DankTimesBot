@@ -154,8 +154,6 @@ export function GetAvailablePlugins(): AbstractPlugin[]
 {
   // Directory in which to find plugins.
   const DIRECTORY: string = "plugins/";
-  // Plugins to return.
-  let plugins: AbstractPlugin[] = [];
 
   // Plugin directories
   let directories: string[] = (fs.readdirSync(DIRECTORY).filter(f => fs.statSync(DIRECTORY + "/" + f).isDirectory()));
