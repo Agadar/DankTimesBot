@@ -29,7 +29,7 @@ export abstract class AbstractPlugin
    * @param _data Any optional data that might require to be stored
    *              for this plugin.
    */
-  constructor(_name: string, _version: string, _data: string) 
+  constructor(_name: string, _version: string, _data: any) 
   {
     this.Name    = _name;
     this.Version = _version;
