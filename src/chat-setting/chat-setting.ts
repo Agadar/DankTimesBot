@@ -1,9 +1,18 @@
 import { ChatSettingTemplate } from "./chat-setting-template";
+import { Validation } from "./validation";
 
+/** Describes a setting of a chat, based on a setting template. */
 export class ChatSetting<T> {
 
+  /** This setting's value for a chat. */
   private myValue: T;
 
+  /**
+   * Constructs a new setting based on a template and with the supplied value.
+   * @param template The template to base this on.
+   * @param value A starting value, or the template's default value if undefined.
+   * @throws Error if the starting value fails validation.
+   */
   constructor(public readonly template: ChatSettingTemplate<T>, value?: T) {
     if (value) {
       this.value = value;
@@ -14,16 +23,20 @@ export class ChatSetting<T> {
 
   /**
    * Does the same as the setter further below, but instead of throwing an Error if
-   * the new value is invalid, it simply returns the feedback message.
+   * the new value is invalid, it simply returns the Validation object.
    */
-  public setValueAndGetFeedback(value: T): string {
+  public trySet(value: T): Validation {
     const validation = this.template.validator(value, this.myValue);
     if (validation.succes) {
       this.myValue = value;
     }
-    return validation.message;
+    return validation;
   }
 
+  /**
+   * Sets this setting's value.
+   * @throws Error if the new value failed validation.
+   */
   public set value(value: T) {
     const validation = this.template.validator(value, this.myValue);
     if (!validation.succes) {
@@ -32,6 +45,9 @@ export class ChatSetting<T> {
     this.myValue = value;
   }
 
+  /**
+   * Gets this setting's value.
+   */
   public get value(): T {
     return this.myValue;
   }
