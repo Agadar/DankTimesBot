@@ -1,4 +1,14 @@
 /**
+ * Plugin events that plugins may subscribe to.
+ */
+export enum PLUGIN_EVENT 
+{
+  PLUGIN_EVENT_PRE_MESSAGE,
+  PLUGIN_EVENT_POST_MESSAGE,
+  PLUGIN_EVENT_PLAYER_SCORE,
+}
+
+/**
  * Class defining the interface every plugin should adhere to.
  */
 export abstract class AbstractPlugin 
@@ -12,15 +22,20 @@ export abstract class AbstractPlugin
    */
   public Version: string;
   /**
-   * Internal plugin state.
-   */
-  protected Data: any;
-  /**
    * Boolean indicating the status of this plugin.
    * Disabled plugins will not receive messages
    * from its Plugin Host.
    */
   public Enabled: boolean;
+  /**
+   * Internal plugin state.
+   */
+  protected Data: any;
+  /**
+   * Event triggers. Plugins can hook functions to certain Plugin Events.
+   * These plugin events are defined in the PLUGIN_EVENT enumeration.
+   */
+  private pluginEventTriggers: Map<PLUGIN_EVENT, (data: any) => any>;
 
   /**
    * Create a new Plugin instance.
@@ -31,22 +46,35 @@ export abstract class AbstractPlugin
    */
   constructor(_name: string, _version: string, _data: any) 
   {
-    this.Name    = _name;
+    this.Name = _name;
     this.Version = _version;
-    this.Data    = _data;
-   };
+    this.Data = _data;
+    this.pluginEventTriggers = new Map<PLUGIN_EVENT, (data: any) => any>();
+  };
 
   /**
-   * Pre-Message Process Hook.
-   * Define any behaviour that occurs before DankTimesBot handles an incoming message.
-   * @param _input Pre-Message Process input.
+   * Subscribe to a certain PLUGIN_EVENT.
+   * @param _event Plugin event to describe to.
+   * @param _eventFn Function to execute when a certain event is triggered.
    */
-  abstract PreMessageProcess(_input: string): string;
+  protected subscribeToPluginEvent(_event: PLUGIN_EVENT, _eventFn: (data: any) => any): void
+  {
+    this.pluginEventTriggers.set(_event, _eventFn);
+  }
+
   /**
-   * Post-Message Process Hook.
-   * Define any behaviour that occurs after DankTimesBot has handled an incoming message
-   * and is ready to return some response.
-   * @param _input Post-Message Process input.
+   * Trigger a certain PLUGIN_EVENT on this plugin.
+   * @param _event PLUGIN_EVENT to trigger.
    */
-  abstract PostMessageProcess(_input: string): string;
+  public Trigger(_event: PLUGIN_EVENT): string
+  {
+    let output: string = "";
+
+    if (this.pluginEventTriggers.has(_event))
+    {
+      output = (<(data: any) => any>this.pluginEventTriggers.get(_event))("")
+    }
+
+    return output;
+  }
 }

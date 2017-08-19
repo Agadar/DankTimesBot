@@ -1,4 +1,4 @@
-import { AbstractPlugin } from "./plugin/plugin";
+import { AbstractPlugin, PLUGIN_EVENT } from "./plugin/plugin";
 
 /**
  * Class exposing the Plugin Host concept.
@@ -31,22 +31,10 @@ export class PluginHost
    * Handle external text input. Return zero or more messages.
    * @param _input Text input.
    */
-  public HandleInput(_input: string): string[]
+  public HandleInput(_event: PLUGIN_EVENT, _input: string): string[]
   {
     return (<string[]>[])
-      .concat(this.processPreHooks(_input))
-      .concat(this.processPostHooks(_input));
-  }
-
-  // Process pre-messaging.
-  processPreHooks(_input: string): string[]
-  {
-    return this.Plugins.map(plugin => (plugin.Enabled) ? plugin.PreMessageProcess(_input) : "").filter(output => !!output);
-  }
-
-  // Process post-messaging
-  processPostHooks(_input: string): string[]
-  {
-    return this.Plugins.map(plugin => (plugin.Enabled) ? plugin.PostMessageProcess(_input) : "").filter(output => !!output);
+      .concat(this.Plugins
+        .map(output => output.Trigger(_event)))
   }
 }
