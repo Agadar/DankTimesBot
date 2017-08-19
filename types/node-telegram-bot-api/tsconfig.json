@@ -17,6 +17,6 @@
     },
     "files": [
         "index.d.ts",
-        "node-cleanup-tests.ts"
+        "node-telegram-bot-api-tests.ts"
     ]
 }
