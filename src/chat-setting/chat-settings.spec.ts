@@ -8,9 +8,9 @@ import { Validation } from "./validation";
 
 function testValidator(newValue: number, oldValue: number): Validation {
   if (newValue > 6) {
-    return { succes: true, message: "successMessage" };
+    return { success: true, message: "successMessage" };
   }
-  return { succes: false, message: "errorMessage" };
+  return { success: false, message: "errorMessage" };
 }
 
 const settingName = "newsetting";
@@ -56,28 +56,28 @@ describe("ChatSettings.trySet", () => {
   it("Should fail if the setting is unknown.", () => {
     const settings = new ChatSettings(undefined, templates);
     const validation = settings.trySetFromString("randomgibberish", "20");
-    assert.isFalse(validation.succes);
+    assert.isFalse(validation.success);
     assert.equal((settings.settings.get(settingName) as ChatSetting<any>).value, templates[0].defaultValue);
   });
 
   it("Should fail if the type of the setting does not equal the supplied value's type", () => {
     const settings = new ChatSettings(undefined, templates);
     const validation = settings.trySetFromString(settingName, "twenty");
-    assert.isFalse(validation.succes);
+    assert.isFalse(validation.success);
     assert.equal((settings.settings.get(settingName) as ChatSetting<any>).value, templates[0].defaultValue);
   });
 
   it("Should fail if the setting is supplied an invalid value", () => {
     const settings = new ChatSettings(undefined, templates);
     const validation = settings.trySetFromString(settingName, "5");
-    assert.isFalse(validation.succes);
+    assert.isFalse(validation.success);
     assert.equal((settings.settings.get(settingName) as ChatSetting<any>).value, templates[0].defaultValue);
   });
 
   it("Should succeed if the setting is found and the supplied value is wholly valid", () => {
     const settings = new ChatSettings(undefined, templates);
     const validation = settings.trySetFromString(settingName, "8");
-    assert.isTrue(validation.succes);
+    assert.isTrue(validation.success);
     assert.equal((settings.settings.get(settingName) as ChatSetting<any>).value, 8);
   });
 });

@@ -5,9 +5,9 @@ import { Validation } from "./validation";
 
 function testValidator(newValue: number, oldValue: number): Validation {
   if (newValue === 5) {
-    return { succes: true, message: "successMessage" };
+    return { success: true, message: "successMessage" };
   }
-  return { succes: false, message: "errorMessage" };
+  return { success: false, message: "errorMessage" };
 }
 
 function testCoercer(newValue: string): number | undefined {

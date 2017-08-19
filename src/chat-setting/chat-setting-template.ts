@@ -20,7 +20,7 @@ export class ChatSettingTemplate<T> {
               public readonly validator: ((newValue: T, currentValue?: T) => Validation),
               public readonly coercer: ((newValue: string) => T | undefined)) {
     const validation = this.validator(defaultValue);
-    if (!validation.succes) {
+    if (!validation.success) {
       throw new Error(`Default value does not pass validator! Message: '${validation.message}'`);
     }
   }

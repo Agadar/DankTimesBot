@@ -37,10 +37,10 @@ export class ChatSetting<T> {
   public trySetFromString(value: string): Validation {
     const coerced = this.template.coercer(value);
     if (coerced === undefined) {
-      return { succes: false, message: `This setting requires a value of type '${typeof this.myValue}'!` };
+      return { success: false, message: `This setting requires a value of type '${typeof this.myValue}'!` };
     }
     const validation = this.template.validator(coerced, this.myValue);
-    if (validation.succes) {
+    if (validation.success) {
       this.myValue = coerced;
     }
     return validation;
@@ -52,7 +52,7 @@ export class ChatSetting<T> {
    */
   public set value(value: T) {
     const validation = this.template.validator(value, this.myValue);
-    if (!validation.succes) {
+    if (!validation.success) {
       throw new Error(validation.message);
     }
     this.myValue = value;

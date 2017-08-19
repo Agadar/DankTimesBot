@@ -6,4 +6,5 @@ import * as validators from "./validators";
 
 export const ChatSettingTemplates: Array<ChatSettingTemplate<any>> = [
   new ChatSettingTemplate("running", "Whether the bot is running", false, validators.running, coercers.toBoolean),
+  // new ChatSettingTemplate("firstnotifications", "")
 ];

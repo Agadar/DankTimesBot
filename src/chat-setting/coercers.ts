@@ -1,3 +1,5 @@
+import * as moment from "moment-timezone";
+
 // This file contains all the coercers used by ChatSettingTemplates.
 
 export function toBoolean(input: string): boolean | undefined {
@@ -19,4 +21,8 @@ export function toNumber(input: string): number | undefined {
 export function toWholeNumber(input: string): number | undefined {
   const coerced = Number(input);
   return Number.isNaN(coerced) || coerced % 1 !== 0 ? undefined : coerced;
+}
+
+export function toTimezone(input: string): string | undefined {
+  return moment.tz.zone(input) === null ? undefined : input;
 }

@@ -45,7 +45,7 @@ export class ChatSettings {
   public trySetFromString(settingName: string, value: string): Validation {
     const setting = this.settings.get(settingName);
     if (!setting) {
-      return { succes: false, message: "This setting does not exist!" };
+      return { success: false, message: "This setting does not exist!" };
     }
     return setting.trySetFromString(value);
   }

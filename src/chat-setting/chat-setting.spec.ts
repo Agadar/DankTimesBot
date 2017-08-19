@@ -6,9 +6,9 @@ import { Validation } from "./validation";
 
 function testValidator(newValue: number, oldValue: number): Validation {
   if (newValue > 6) {
-    return { succes: true, message: "successMessage" };
+    return { success: true, message: "successMessage" };
   }
-  return { succes: false, message: "errorMessage" };
+  return { success: false, message: "errorMessage" };
 }
 
 function testCoercer(newValue: string): number | undefined {
@@ -52,7 +52,7 @@ describe("ChatSetting.trySetValue", () => {
   it("Should succeed validation and set the value.", () => {
     const setting = new ChatSetting(template, 8);
     const validation = setting.trySetFromString("12");
-    assert.isTrue(validation.succes);
+    assert.isTrue(validation.success);
     assert.equal(validation.message, "successMessage");
     assert.equal(setting.value, 12);
   });
@@ -60,7 +60,7 @@ describe("ChatSetting.trySetValue", () => {
   it("Should fail validation and not set the value", () => {
     const setting = new ChatSetting(template, 8);
     const validation = setting.trySetFromString("6");
-    assert.isFalse(validation.succes);
+    assert.isFalse(validation.success);
     assert.equal(validation.message, "errorMessage");
     assert.equal(setting.value, 8);
   });
@@ -68,7 +68,7 @@ describe("ChatSetting.trySetValue", () => {
   it("Should fail coercion and not set the value", () => {
     const setting = new ChatSetting(template, 8);
     const validation = setting.trySetFromString("twelve");
-    assert.isFalse(validation.succes);
+    assert.isFalse(validation.success);
     assert.equal(setting.value, 8);
   });
 });
