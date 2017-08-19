@@ -11,7 +11,15 @@ function testValidator(newValue: number, oldValue: number): Validation {
   return { succes: false, message: "errorMessage" };
 }
 
-const template = new ChatSettingTemplate("newsetting", "newdescription", 10, testValidator);
+function testCoercer(newValue: string): number | undefined {
+  const coerced = Number(newValue);
+  if (!Number.isNaN(coerced)) {
+    return coerced;
+  }
+  return undefined;
+}
+
+const template = new ChatSettingTemplate("newsetting", "newdescription", 10, testValidator, testCoercer);
 
 describe("ChatSetting.constructor and ChatSetting.value", () => {
 
@@ -26,7 +34,16 @@ describe("ChatSetting.constructor and ChatSetting.value", () => {
   });
 
   it("Should throw an error if the starting value fails validation.", () => {
-    assert.throws(() => new ChatSetting(template, 6), "errorMessage");
+    assert.throws(() => new ChatSetting(template, 6));
+  });
+
+  it("Should instantiate an instance with the supplied starting value as a string.", () => {
+    const setting = new ChatSetting(template, "8");
+    assert.equal(setting.value, 8);
+  });
+
+  it("Should throw an error if the starting value fails coercion.", () => {
+    assert.throws(() => new ChatSetting(template, "eight"));
   });
 });
 
@@ -34,7 +51,7 @@ describe("ChatSetting.trySetValue", () => {
 
   it("Should succeed validation and set the value.", () => {
     const setting = new ChatSetting(template, 8);
-    const validation = setting.trySet(12);
+    const validation = setting.trySetFromString("12");
     assert.isTrue(validation.succes);
     assert.equal(validation.message, "successMessage");
     assert.equal(setting.value, 12);
@@ -42,9 +59,16 @@ describe("ChatSetting.trySetValue", () => {
 
   it("Should fail validation and not set the value", () => {
     const setting = new ChatSetting(template, 8);
-    const validation = setting.trySet(6);
+    const validation = setting.trySetFromString("6");
     assert.isFalse(validation.succes);
     assert.equal(validation.message, "errorMessage");
+    assert.equal(setting.value, 8);
+  });
+
+  it("Should fail coercion and not set the value", () => {
+    const setting = new ChatSetting(template, 8);
+    const validation = setting.trySetFromString("twelve");
+    assert.isFalse(validation.succes);
     assert.equal(setting.value, 8);
   });
 });
