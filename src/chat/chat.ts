@@ -313,7 +313,7 @@ export class Chat {
   public removeDankTime(hour: number, minute: number): boolean {
     const dankTime = this.getDankTime(hour, minute);
     if (dankTime) {
-      this.dankTimes.splice(this.dankTimes.indexOf(dankTime));
+      this.dankTimes.splice(this.dankTimes.indexOf(dankTime), 1);
       return true;
     }
     return false;

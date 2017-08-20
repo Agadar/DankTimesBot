@@ -15,7 +15,7 @@ const releaseLog = fileIO.loadReleaseLogFromFile();
 const tgClient = new TelegramClientImpl();
 tgClient.initialize(config.apiKey);
 const scheduler = new DankTimeScheduler(tgClient);
-const commands = new TelegramBotCommands(tgClient, chatRegistry, scheduler, releaseLog, "1.3.0");
+const commands = new TelegramBotCommands(tgClient, chatRegistry, scheduler, releaseLog, "1.3.2");
 
 // Register available Telegram bot commands, after retrieving the bot name.
 tgClient.retrieveBotName().then(() => {
