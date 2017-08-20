@@ -7,6 +7,8 @@ import { TelegramBotCommand } from "./telegram-bot-command/telegram-bot-command"
 import { TelegramBotCommands } from "./telegram-bot-command/telegram-bot-commands";
 import { TelegramClientImpl } from "./telegram-client/telegram-client-impl";
 import * as fileIO from "./util/file-io";
+import { PluginHost } from "./plugin-host/plugin-host";
+import { Chat } from "./chat/chat";
 
 // Global variables.
 const config = fileIO.loadConfigFromFile();
@@ -16,6 +18,7 @@ const tgClient = new TelegramClientImpl();
 tgClient.initialize(config.apiKey);
 const scheduler = new DankTimeScheduler(tgClient);
 const commands = new TelegramBotCommands(tgClient, chatRegistry, scheduler, releaseLog, "1.3.0");
+const plugins = fileIO.GetAvailablePlugins();
 
 // Register available Telegram bot commands, after retrieving the bot name.
 tgClient.retrieveBotName().then(() => {
@@ -66,8 +69,11 @@ tgClient.retrieveBotName().then(() => {
       chatRegistry.setChatId(msg.chat.id, msg.migrate_to_chat_id);
     } else if (msg.text) {
       // Else, just let the appropriate chat process the message.
-      return chatRegistry.getOrCreateChat(msg.chat.id)
-        .processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
+      let chat: Chat = chatRegistry.getOrCreateChat(msg.chat.id);
+      if(chat.pluginHost == null) chat.pluginHost = new PluginHost(plugins);
+        chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date).forEach(message => {
+          tgClient.sendMessage(msg.chat.id, message);
+        })
     }
     return "";
   });

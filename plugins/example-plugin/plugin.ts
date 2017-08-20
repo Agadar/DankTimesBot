@@ -1,4 +1,8 @@
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
+import { PLUGIN_EVENT } from "../../src/plugin-host/plugin-events/plugin-event-types"
+import { UserScoreChangedPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PrePostMessagePluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import { LeaderboardResetPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 
 /**
  * Example of the simplest DankTimesBot
@@ -15,26 +19,21 @@ export class Plugin extends AbstractPlugin
   constructor()
   {
     super("Example Plugin", "1.0.0", {});
-  }
-
-  /**
-   * Pre-Message Process Hook.
-   * Define any behaviour that occurs before DankTimesBot handles an incoming message.
-   * @param _input Pre-Message Process input.
-   */
-  PreMessageProcess(_input: string): string
-  {
-    return "Example Plugin Pre Message Hook";
-  }
-
-  /**
-   * Post-Message Process Hook.
-   * Define any behaviour that occurs after DankTimesBot has handled an incoming message
-   * and is ready to return some response.
-   * @param _input Post-Message Process input.
-   */
-  PostMessageProcess(_input: string): string
-  {
-    return "Example Plugin Post Message Hook";
+    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_PRE_MESSAGE, (_data: PrePostMessagePluginEventArguments) =>
+    {
+      return `Example of a Pre Message Event`;
+    });
+    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, (_data: UserScoreChangedPluginEventArguments) =>
+    {
+      return `A player changed score! Player: ${_data.User.name}, change: ${_data.ChangeInScore}`;
+    });
+    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_POST_MESSAGE, (_data: PrePostMessagePluginEventArguments) =>
+    {
+      return `Example of a Post Message Event`;
+    });
+    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, (_data: LeaderboardResetPluginEventArguments) =>
+    {
+      return `The leaderboard was reset for chat: ${_data.Chat.id}`
+    });
   }
 } 

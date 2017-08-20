@@ -1,12 +1,8 @@
-/**
- * Plugin events that plugins may subscribe to.
- */
-export enum PLUGIN_EVENT 
-{
-  PLUGIN_EVENT_PRE_MESSAGE,
-  PLUGIN_EVENT_POST_MESSAGE,
-  PLUGIN_EVENT_PLAYER_SCORE,
-}
+import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
+import { PLUGIN_EVENT } from "../plugin-events/plugin-event-types";
+import { UserScoreChangedPluginEventArguments } from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PrePostMessagePluginEventArguments } from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import { LeaderboardResetPluginEventArguments } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -52,12 +48,17 @@ export abstract class AbstractPlugin
     this.pluginEventTriggers = new Map<PLUGIN_EVENT, (data: any) => any>();
   };
 
+  /* Function overload list */
+  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_PRE_MESSAGE, _eventFn: (_data: PrePostMessagePluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_POST_MESSAGE, _eventFn: (_data: PrePostMessagePluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, _eventFn: (_data: UserScoreChangedPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, _eventFn: (_data: LeaderboardResetPluginEventArguments) => any): void;
   /**
    * Subscribe to a certain PLUGIN_EVENT.
    * @param _event Plugin event to describe to.
    * @param _eventFn Function to execute when a certain event is triggered.
    */
-  protected subscribeToPluginEvent(_event: PLUGIN_EVENT, _eventFn: (data: any) => any): void
+  protected subscribeToPluginEvent(_event: PLUGIN_EVENT, _eventFn: (_data: any) => any): void
   {
     this.pluginEventTriggers.set(_event, _eventFn);
   }
@@ -66,13 +67,15 @@ export abstract class AbstractPlugin
    * Trigger a certain PLUGIN_EVENT on this plugin.
    * @param _event PLUGIN_EVENT to trigger.
    */
-  public Trigger(_event: PLUGIN_EVENT): string
+  public Trigger(_event: PLUGIN_EVENT, _data: PluginEventArguments): string
   {
     let output: string = "";
 
+    if (!this.Enabled) return output;
+
     if (this.pluginEventTriggers.has(_event))
     {
-      output = (<(data: any) => any>this.pluginEventTriggers.get(_event))("")
+      output = (<(data: any) => any>this.pluginEventTriggers.get(_event))(_data);
     }
 
     return output;
