@@ -6,6 +6,14 @@ import { LeaderboardResetPluginEventArguments } from "../../src/plugin-host/plug
 import { TimerTickPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/timer-tick-plugin-event-arguments";
 
 /**
+ * Example of auxiliary data classes.
+ */
+class ExamplePluginData
+{
+  public TestNumber: number = 0;
+}
+
+/**
  * Example of the simplest DankTimesBot
  * plugin. Can be used as a template to
  * build new plugins.
@@ -22,7 +30,8 @@ export class Plugin extends AbstractPlugin
     super("Example Plugin", "1.0.0", {});
 
     // Example of sample data
-    this.Data.testNumber = 1;
+    this.Data = new ExamplePluginData();
+    this.Data.TestNumber = 1;
 
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_PRE_MESSAGE, (_data: PrePostMessagePluginEventArguments) =>
     {
@@ -41,7 +50,7 @@ export class Plugin extends AbstractPlugin
       return `The leaderboard was reset for chat: ${_data.Chat.id}`
     });
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_TIMER_TICK, (_data: TimerTickPluginEventArguments) => {
-      return `Example of a timer tick event with saved Plugin State! Here's your number: ${this.Data.testNumber++}`;
+      return `Example of a timer tick event with saved Plugin State! Here's your number: ${this.Data.TestNumber++}`;
     });
   }
 } 
