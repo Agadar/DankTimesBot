@@ -9,6 +9,8 @@ import { TelegramClientImpl } from "./telegram-client/telegram-client-impl";
 import * as fileIO from "./util/file-io";
 import { PluginHost } from "./plugin-host/plugin-host";
 import { Chat } from "./chat/chat";
+import { PLUGIN_EVENT } from "./plugin-host/plugin-events/plugin-event-types";
+import { PrePostMessagePluginEventArguments } from "./plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 
 // Global variables.
 const config = fileIO.loadConfigFromFile();
@@ -84,6 +86,15 @@ setInterval(() => {
   fileIO.saveChatsToFile(chatRegistry.chats);
   console.info("Persisted data to file.");
 }, config.persistenceRate * 60 * 1000);
+
+// Global timer for Plugin Host Timer
+setInterval(() => {
+  chatRegistry.chats.forEach((chat) => {
+    if(chat.pluginHost == null) return;
+    let messages: string[] = chat.pluginHost.Trigger(PLUGIN_EVENT.PLUGIN_EVENT_TIMER_TICK, new PrePostMessagePluginEventArguments("Timer!"));
+    if(messages.length > 0) messages.forEach((message) => tgClient.sendMessage(chat.id, message));
+  })
+}, 5000)
 
 // Schedule to persist chats map to file on program exit.
 nodeCleanup((exitCode, signal) => {

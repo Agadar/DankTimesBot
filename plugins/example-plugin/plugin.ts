@@ -3,6 +3,7 @@ import { PLUGIN_EVENT } from "../../src/plugin-host/plugin-events/plugin-event-t
 import { UserScoreChangedPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PrePostMessagePluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import { LeaderboardResetPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+import { TimerTickPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/timer-tick-plugin-event-arguments";
 
 /**
  * Example of the simplest DankTimesBot
@@ -19,6 +20,10 @@ export class Plugin extends AbstractPlugin
   constructor()
   {
     super("Example Plugin", "1.0.0", {});
+
+    // Example of sample data
+    this.Data.testNumber = 1;
+
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_PRE_MESSAGE, (_data: PrePostMessagePluginEventArguments) =>
     {
       return `Example of a Pre Message Event`;
@@ -34,6 +39,9 @@ export class Plugin extends AbstractPlugin
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, (_data: LeaderboardResetPluginEventArguments) =>
     {
       return `The leaderboard was reset for chat: ${_data.Chat.id}`
+    });
+    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_TIMER_TICK, (_data: TimerTickPluginEventArguments) => {
+      return `Example of a timer tick event with saved Plugin State! Here's your number: ${this.Data.testNumber++}`;
     });
   }
 } 
