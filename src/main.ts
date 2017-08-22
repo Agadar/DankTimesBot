@@ -103,7 +103,7 @@ nodeCleanup((exitCode, signal) => {
   return true;
 });
 
-// Generate new random dank times and chedule everything.
+// Generate new random dank times and schedule everything.
 chatRegistry.chats.forEach((chat) => {
   chat.generateRandomDankTimes();
   scheduler.scheduleAllOfChat(chat);
