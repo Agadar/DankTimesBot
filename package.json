@@ -29,6 +29,8 @@
     "@types/mocha": "^2.2.41",
     "@types/moment-timezone": "^0.2.34",
     "@types/node": "^8.0.19",
+    "@types/node-cleanup": "^2.1.0",
+    "@types/node-telegram-bot-api": "^0.28.0",
     "chai": "^4.1.1",
     "mocha": "^3.5.0",
     "rimraf": "^2.6.2"
