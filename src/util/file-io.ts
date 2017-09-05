@@ -161,14 +161,12 @@ export function GetAvailablePlugins(_pluginsToActivate: string[]): AbstractPlugi
 
   // Plugin directories
   let directories: string[] = (fs.readdirSync(DIRECTORY).filter(f => fs.statSync(DIRECTORY + "/" + f).isDirectory()));
-  console.log(directories);
 
   // Get active plugins
   let activePlugins: string[] = directories.filter(pluginDir => fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`) && _pluginsToActivate.indexOf(pluginDir) > -1);
   // Compile
   // Get all directories with plugin.ts
   // Rewrite Directory -> Directory/plugin.ts & Compile
-  console.log(activePlugins);
   (ts.createProgram(activePlugins
     .map(pluginDir => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
 
