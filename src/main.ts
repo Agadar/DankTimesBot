@@ -20,7 +20,7 @@ const tgClient = new TelegramClientImpl();
 tgClient.initialize(config.apiKey);
 const scheduler = new DankTimeScheduler(tgClient);
 const commands = new TelegramBotCommands(tgClient, chatRegistry, scheduler, releaseLog, "1.3.2");
-const plugins = fileIO.GetAvailablePlugins();
+const plugins = fileIO.GetAvailablePlugins(config.plugins);
 
 // Register available Telegram bot commands, after retrieving the bot name.
 tgClient.retrieveBotName().then(() => {
@@ -74,7 +74,7 @@ tgClient.retrieveBotName().then(() => {
       let chat: Chat = chatRegistry.getOrCreateChat(msg.chat.id);
       if(chat.pluginHost == null) chat.pluginHost = new PluginHost(plugins);
         chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date).forEach(message => {
-          tgClient.sendMessage(msg.chat.id, message);
+          if(message.length !== 0) tgClient.sendMessage(msg.chat.id, message);
         })
     }
     return "";
@@ -92,7 +92,7 @@ setInterval(() => {
   chatRegistry.chats.forEach((chat) => {
     if(chat.pluginHost == null) return;
     let messages: string[] = chat.pluginHost.Trigger(PLUGIN_EVENT.PLUGIN_EVENT_TIMER_TICK, new PrePostMessagePluginEventArguments("Timer!"));
-    if(messages.length > 0) messages.forEach((message) => tgClient.sendMessage(chat.id, message));
+    if(messages.length > 0) messages.forEach((message) => {if(message.length === 0) return; console.log(message); tgClient.sendMessage(chat.id, message[0])});
   })
 }, 5000)
 
