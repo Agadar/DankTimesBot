@@ -4,6 +4,7 @@ import { UserScoreChangedPluginEventArguments } from "../plugin-events/event-arg
 import { PrePostMessagePluginEventArguments } from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import { LeaderboardResetPluginEventArguments } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import { TimerTickPluginEventArguments } from "../plugin-events/event-arguments/timer-tick-plugin-event-arguments";
+import { NoArgumentsPluginEventArguments } from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -55,6 +56,7 @@ export abstract class AbstractPlugin
   protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, _eventFn: (_data: UserScoreChangedPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, _eventFn: (_data: LeaderboardResetPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_TIMER_TICK, _eventFn: (_data: TimerTickPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, _eventFn: (_data: NoArgumentsPluginEventArguments) => any): void;
   /**
    * Subscribe to a certain PLUGIN_EVENT.
    * @param _event Plugin event to describe to.
