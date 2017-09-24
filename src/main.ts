@@ -11,6 +11,7 @@ import { PluginHost } from "./plugin-host/plugin-host";
 import { Chat } from "./chat/chat";
 import { PLUGIN_EVENT } from "./plugin-host/plugin-events/plugin-event-types";
 import { PrePostMessagePluginEventArguments } from "./plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import { NoArgumentsPluginEventArguments } from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 
 // Global variables.
 const config = fileIO.loadConfigFromFile();
@@ -98,6 +99,11 @@ setInterval(() => {
 
 // Schedule to persist chats map to file on program exit.
 nodeCleanup((exitCode, signal) => {
+  // Tell all plugins that we're shutting down.
+  chatRegistry.chats.forEach(chat => {
+    if(chat.pluginHost == null) return;
+    chat.pluginHost.Trigger(PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, new NoArgumentsPluginEventArguments());
+  })
   console.info("Persisting data to file before exiting...");
   fileIO.saveChatsToFile(chatRegistry.chats);
   return true;
