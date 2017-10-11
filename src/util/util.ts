@@ -36,3 +36,21 @@ export function mapToSortedArray<T>(map: Map<any, T>, comparator: ((a: T, b: T) 
 export function padNumber(theNumber: string | number): string {
   return ("0" + theNumber.toString()).slice(-2);
 }
+
+/**
+ * Check if a is later than b
+ * @param {number} hourA
+ * @param {number} minuteA
+ * @param {number} hourB
+ * @param {number} minuteB
+ * @returns {number}
+ */
+export function timeCheck(hourA:number,minuteA:number, hourB:number,minuteB:number):number{
+    if (hourA > hourB ) {
+        return 1;
+    }
+    else if(hourA === hourB && (minuteA> minuteB || minuteA == minuteB)){
+        return 1;
+    }
+    return 0;
+}
