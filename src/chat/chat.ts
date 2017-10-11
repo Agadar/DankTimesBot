@@ -187,21 +187,46 @@ export class Chat {
     return usersArr;
   }
 
-  /**
-   * Generates new random dank times for this chat, clearing old ones.
-   */
-  public generateRandomDankTimes(): DankTime[] {
-    this.randomDankTimes = new Array<DankTime>();
-    for (let i = 0; i < this.myNumberOfRandomTimes; i++) {
-      const now = moment().tz(this.timezone);
-      now.add(now.hours() + Math.floor(Math.random() * 23), "hours");
-      now.minutes(Math.floor(Math.random() * 59));
-      const text = util.padNumber(now.hours()) + util.padNumber(now.minutes());
-      this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
+    /**
+     * Generates new random dank times for this chat, clearing old ones.
+     */
+    public generateRandomDankTimes(): DankTime[] {
+      this.randomDankTimes = new Array<DankTime>();
+      for (let i = 0; i < this.myNumberOfRandomTimes; i++) {
+        let time = moment().tz(this.timezone);
+        let unused = false;
+        while (!unused) {
+            time = moment().tz(this.timezone);
+            time.add(time.hours() + Math.floor(Math.random() * 23), "hours");
+            time.minutes(Math.floor(Math.random() * 59));
+            let dankTime = new DankTime(time.hours(), time.minutes(), [], 1);
+            if(!this.IsUsedDanktime(this.dankTimes, dankTime) && !this.IsUsedDanktime(this.randomDankTimes, dankTime)){
+                unused = true;
+            }
+        }
+        const text = util.padNumber(time.hours()) + util.padNumber(time.minutes());
+        this.randomDankTimes.push(new DankTime(time.hours(), time.minutes(), [text], this.myPointsPerRandomTime));
+      }
+      return this.randomDankTimes;
     }
-    return this.randomDankTimes;
-  }
 
+    /**
+     * Checks if the danktime is  already defined in the list to avoid conflicts
+     * helper function for generateRandomDankTimes()
+     * @param {DankTime[]} dankTimesList used to check if the danktime is in this list
+     * @param {DankTime} dankTime2 used to check if it is in the list
+     * @returns {boolean} true if it exists in the list
+     * @constructor
+     */
+    private IsUsedDanktime(dankTimesList:DankTime[], dankTime2:DankTime):boolean{
+      for(let i = 0;i<dankTimesList.length; i++){
+        let dankTime = dankTimesList[i];
+        if(DankTime.compare(dankTime, dankTime2) === 0){
+          return true;
+        }
+      }
+      return false
+    }
   /**
    * Used by JSON.stringify. Returns a literal representation of this.
    */
