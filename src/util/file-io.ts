@@ -3,6 +3,8 @@ import { BasicChat } from "../chat/basic-chat";
 import { Chat } from "../chat/chat";
 import { Config } from "../config";
 import { Release } from "../release";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
+import * as ts from "typescript";
 
 // Constants.
 const dataFolder = "./data";
@@ -36,6 +38,7 @@ export function loadConfigFromFile(): Config {
     apiKey: "",
     persistenceRate: 60,
     sendWhatsNewMsg: true,
+    plugins: []
   };
 
   // If there is a config file, load its valid values into config obj.
@@ -56,6 +59,9 @@ export function loadConfigFromFile(): Config {
     if (configFromFile.sendWhatsNewMsg !== undefined) {
       config.sendWhatsNewMsg = configFromFile.sendWhatsNewMsg;
     }
+    if(configFromFile.plugins !== undefined) {
+      config.plugins = configFromFile.plugins;
+      }
   }
 
   // If there was an undefined/empty API key in the config file, try retrieve it from env.
@@ -140,4 +146,30 @@ function mapReplacer(key: any, value: any): any[] {
     return array;
   }
   return value;
+}
+
+/**
+ * Discover, Compile and load external plugins
+ * from the plugins/ directory.
+ * 
+ * Returns 0..n plugins.
+ */
+export function GetAvailablePlugins(_pluginsToActivate: string[]): AbstractPlugin[]
+{
+  // Directory in which to find plugins.
+  const DIRECTORY: string = "plugins/";
+
+  // Plugin directories
+  let directories: string[] = (fs.readdirSync(DIRECTORY).filter(f => fs.statSync(DIRECTORY + "/" + f).isDirectory()));
+
+  // Get active plugins
+  let activePlugins: string[] = directories.filter(pluginDir => fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`) && _pluginsToActivate.indexOf(pluginDir) > -1);
+  // Compile
+  // Get all directories with plugin.ts
+  // Rewrite Directory -> Directory/plugin.ts & Compile
+  (ts.createProgram(activePlugins
+    .map(pluginDir => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
+
+  // Load & Return plugins.
+  return activePlugins.map(plugin => {return new(require(`../../plugins/${plugin}/plugin.js`)).Plugin()});
 }

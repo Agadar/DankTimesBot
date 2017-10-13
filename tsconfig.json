@@ -15,10 +15,6 @@
     "experimentalDecorators": true,
     "module": "commonjs",
     "baseUrl": "types",
-    "typeRoots": [
-      "./types",
-      "node_modules/@types"
-    ],
     "forceConsistentCasingInFileNames": true
   },
   "include": [

@@ -7,6 +7,11 @@ import { TelegramBotCommand } from "./telegram-bot-command/telegram-bot-command"
 import { TelegramBotCommands } from "./telegram-bot-command/telegram-bot-commands";
 import { TelegramClientImpl } from "./telegram-client/telegram-client-impl";
 import * as fileIO from "./util/file-io";
+import { PluginHost } from "./plugin-host/plugin-host";
+import { Chat } from "./chat/chat";
+import { PLUGIN_EVENT } from "./plugin-host/plugin-events/plugin-event-types";
+import { PrePostMessagePluginEventArguments } from "./plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import { NoArgumentsPluginEventArguments } from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 
 // Global variables.
 const config = fileIO.loadConfigFromFile();
@@ -16,6 +21,7 @@ const tgClient = new TelegramClientImpl();
 tgClient.initialize(config.apiKey);
 const scheduler = new DankTimeScheduler(tgClient);
 const commands = new TelegramBotCommands(tgClient, chatRegistry, scheduler, releaseLog, "1.3.2");
+const plugins = fileIO.GetAvailablePlugins(config.plugins);
 
 // Register available Telegram bot commands, after retrieving the bot name.
 tgClient.retrieveBotName().then(() => {
@@ -66,8 +72,11 @@ tgClient.retrieveBotName().then(() => {
       chatRegistry.setChatId(msg.chat.id, msg.migrate_to_chat_id);
     } else if (msg.text) {
       // Else, just let the appropriate chat process the message.
-      return chatRegistry.getOrCreateChat(msg.chat.id)
-        .processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
+      let chat: Chat = chatRegistry.getOrCreateChat(msg.chat.id);
+      if(chat.pluginHost == null) chat.pluginHost = new PluginHost(plugins);
+        chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date).forEach(message => {
+          if(message.length !== 0) tgClient.sendMessage(msg.chat.id, message);
+        })
     }
     return "";
   });
@@ -79,8 +88,22 @@ setInterval(() => {
   console.info("Persisted data to file.");
 }, config.persistenceRate * 60 * 1000);
 
+// Global timer for Plugin Host Timer
+setInterval(() => {
+  chatRegistry.chats.forEach((chat) => {
+    if(chat.pluginHost == null) return;
+    let messages: string[] = chat.pluginHost.Trigger(PLUGIN_EVENT.PLUGIN_EVENT_TIMER_TICK, new PrePostMessagePluginEventArguments("Timer!"));
+    if(messages.length > 0) messages.forEach((message) => {if(message.length === 0) return; console.log(message); tgClient.sendMessage(chat.id, message[0])});
+  })
+}, 5000)
+
 // Schedule to persist chats map to file on program exit.
 nodeCleanup((exitCode, signal) => {
+  // Tell all plugins that we're shutting down.
+  chatRegistry.chats.forEach(chat => {
+    if(chat.pluginHost == null) return;
+    chat.pluginHost.Trigger(PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, new NoArgumentsPluginEventArguments());
+  })
   console.info("Persisting data to file before exiting...");
   fileIO.saveChatsToFile(chatRegistry.chats);
   return true;
