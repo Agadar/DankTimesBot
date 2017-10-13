@@ -4,6 +4,7 @@ import { DankTime } from "../dank-time/dank-time";
 import { Release } from "../release";
 import { TelegramClient } from "../telegram-client/telegram-client";
 import * as util from "../util/util";
+import * as moment from "moment-timezone";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export class TelegramBotCommands {
@@ -153,10 +154,24 @@ export class TelegramBotCommands {
       return "The points must be a number!";
     }
 
+    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+
+    // if a random dank time is scheduled at the same time, it will add 1 minute to it
+    chat.randomDankTimes.forEach((randomDankTime)=>{
+      if(randomDankTime.hour === hour && randomDankTime.minute === minute){
+        let currentTime = moment().tz(chat.timezone);
+        if(util.timeCheck(currentTime.hour(),currentTime.minute(), randomDankTime.hour,randomDankTime.minute) === 1) {
+            this.scheduler.unscheduleDankTime(chat, randomDankTime);
+            let newDankTime = new DankTime(randomDankTime.hour +(randomDankTime.minute + 1 >59?1:0), (randomDankTime.minute + 1) % 59, randomDankTime.texts, randomDankTime.points);
+            this.scheduler.scheduleRandomDankTime(chat, newDankTime);
+            chat.randomDankTimes.push(newDankTime);
+        }
+      }
+    });
+
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
       const dankTime = new DankTime(hour, minute, texts, points);
-      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
       chat.addDankTime(dankTime);
 
       // Reschedule notifications just to make sure, if applicable.
