@@ -1,21 +1,19 @@
-import { CronJob } from "cron";
-import * as moment from "moment-timezone";
-import nodeCleanup = require("node-cleanup");
-import { ChatRegistry } from "./chat/chat-registry";
-import { DankTimeScheduler } from "./dank-time-scheduler/dank-time-scheduler";
+import * as contextRoot from "./context-root";
 import { TelegramBotCommand } from "./telegram-bot-command/telegram-bot-command";
-import { TelegramBotCommands } from "./telegram-bot-command/telegram-bot-commands";
-import { TelegramClientImpl } from "./telegram-client/telegram-client-impl";
-import * as fileIO from "./util/file-io";
 
 // Global variables.
-const config = fileIO.loadConfigFromFile();
-const chatRegistry = new ChatRegistry(fileIO.loadChatsFromFile());
+const fileIO = contextRoot.fileIO;
+const chatRegistry = contextRoot.chatRegistry;
 const releaseLog = fileIO.loadReleaseLogFromFile();
-const tgClient = new TelegramClientImpl();
-tgClient.initialize(config.apiKey);
-const scheduler = new DankTimeScheduler(tgClient);
-const commands = new TelegramBotCommands(tgClient, chatRegistry, scheduler, releaseLog, "1.3.2");
+const tgClient = contextRoot.telegramClient;
+const scheduler = contextRoot.dankTimeScheduler;
+const commands = contextRoot.telegramBotCommands;
+const config = contextRoot.config;
+const nodeCleanup = contextRoot.nodeCleanup;
+const moment = contextRoot.moment;
+const cronJob = contextRoot.cronJob;
+commands.setReleaseLogs(releaseLog);
+commands.setVersion("1.4.0");
 
 // Register available Telegram bot commands, after retrieving the bot name.
 tgClient.retrieveBotName().then(() => {
@@ -94,7 +92,7 @@ chatRegistry.chats.forEach((chat) => {
 
 // Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00.
 // Also, punishes players that have not scored in the past 24 hours.
-const dailyUpdate = new CronJob("0 0 0 * * *", () => {
+const dailyUpdate = new cronJob("0 0 0 * * *", () => {
   console.info("Generating random dank times for all chats and punishing"
     + " users that haven't scored in the past 24 hours!");
   const now = moment().unix();

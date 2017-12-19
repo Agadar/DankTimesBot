@@ -1,4 +1,4 @@
-import * as moment from "moment-timezone";
+import * as moment from "moment-timezone";  // TODO: refactor to context root.
 import { BasicUser } from "./basic-user";
 
 export class User implements BasicUser {
@@ -37,8 +37,14 @@ export class User implements BasicUser {
    * @param called Whether the user called the last dank time already.
    * @param myLastScoreChange The last change to the user's score.
    */
-  constructor(public readonly id: number, public name: string, private myScore = 0,
-              private myLastScoreTimestamp = 0, public called = false, private myLastScoreChange = 0) {
+  constructor(
+    public readonly id: number,
+    public name: string,
+    private myScore = 0,
+    private myLastScoreTimestamp = 0,
+    public called = false,
+    private myLastScoreChange = 0,
+  ) {
     if (this.myScore % 1 !== 0) {
       throw new RangeError("The score should be a whole number!");
     }

@@ -1,18 +1,30 @@
-import { ChatRegistry } from "../chat/chat-registry";
-import { DankTimeScheduler } from "../dank-time-scheduler/dank-time-scheduler";
+import { IChatRegistry } from "../chat/i-chat-registry";
+import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
 import { DankTime } from "../dank-time/dank-time";
-import { Release } from "../release";
-import { TelegramClient } from "../telegram-client/telegram-client";
-import * as util from "../util/util";
+import { Release } from "../misc/release";
+import { ITelegramClient } from "../telegram-client/i-telegram-client";
+import { IUtil } from "../util/i-util";
+import { ITelegramBotCommands } from "./i-telegram-bot-commands";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
-export class TelegramBotCommands {
+export class TelegramBotCommands implements ITelegramBotCommands {
 
-  constructor(private readonly tgClient: TelegramClient,
-              private readonly chatRegistry: ChatRegistry,
-              private readonly scheduler: DankTimeScheduler,
-              private readonly releaseLog: Release[],
-              private readonly version: string) {
+  private releaseLog: Release[] = [];
+  private version: string = "x.y.z";
+
+  constructor(
+    private readonly tgClient: ITelegramClient,
+    private readonly chatRegistry: IChatRegistry,
+    private readonly scheduler: IDankTimeScheduler,
+    private readonly util: IUtil,
+  ) { }
+
+  // TODO: refactor these away to constructor.
+  public setReleaseLogs(releaseLog: Release[]): void {
+    this.releaseLog = releaseLog;
+  }
+  public setVersion(version: string): void {
+    this.version = version;
   }
 
   /**
@@ -94,7 +106,8 @@ export class TelegramBotCommands {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     for (const time of chat.dankTimes) {
       dankTimes +=
-        `\ntime: ${util.padNumber(time.hour)}:${util.padNumber(time.minute)}:00    points: ${time.points}    texts:`;
+        `\ntime: ${this.util.padNumber(time.hour)}:`
+        + `${this.util.padNumber(time.minute)}:00    points: ${time.points}    texts:`;
       for (const text of time.texts) {
         dankTimes += ` ${text}`;
       }

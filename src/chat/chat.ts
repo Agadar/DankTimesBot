@@ -1,9 +1,11 @@
-import * as moment from "moment-timezone";
+import * as moment from "moment-timezone";  // TODO: refactor to context root.
 import { DankTime } from "../dank-time/dank-time";
 import { Leaderboard } from "../leaderboard/leaderboard";
 import { User } from "../user/user";
-import * as util from "../util/util";
+import { Util } from "../util/util";  // TODO: refactor to context root.
 import { BasicChat } from "./basic-chat";
+
+const util = new Util();  // TODO: refactor to context root.
 
 export class Chat {
 
@@ -64,11 +66,22 @@ export class Chat {
    * @param firstNotifications Whether this chat announces the first user to score.
    * @param hardcoreMode Whether this chat punishes users that haven't scored in the last 24 hours.
    */
-  constructor(id: number, timezone = "Europe/Amsterdam", public running = false, numberOfRandomTimes = 1,
-              pointsPerRandomTime = 10, lastHour = 0, lastMinute = 0, private readonly users = new Map<number, User>(),
-              public readonly dankTimes = new Array<DankTime>(), public randomDankTimes = new Array<DankTime>(),
-              public notifications = true, multiplier = 2, public autoLeaderboards = true,
-              public firstNotifications = true, public hardcoreMode = false) {
+  constructor(
+    id: number,
+    timezone = "Europe/Amsterdam",
+    public running = false,
+    numberOfRandomTimes = 1,
+    pointsPerRandomTime = 10,
+    lastHour = 0,
+    lastMinute = 0,
+    private readonly users = new Map<number, User>(),
+    public readonly dankTimes = new Array<DankTime>(),
+    public randomDankTimes = new Array<DankTime>(),
+    public notifications = true,
+    multiplier = 2,
+    public autoLeaderboards = true,
+    public firstNotifications = true,
+    public hardcoreMode = false) {
 
     this.id = id;
     this.timezone = timezone;

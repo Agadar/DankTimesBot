@@ -2,7 +2,7 @@ import { assert } from "chai";
 import "mocha";
 import * as moment from "moment-timezone";
 import { User } from "../user/user";
-import * as util from "../util/util";
+import { Util } from "../util/util";
 import { Chat } from "./chat";
 
 describe("Chat.hardcoreModeCheck", () => {
@@ -43,6 +43,7 @@ describe("Chat.hardcoreModeCheck", () => {
 describe("Chat.generateRandomDankTimes", () => {
 
   it("should generate correct # of random dank times with correct hours, minutes, and texts", () => {
+    const util = new Util();
     const chat = new Chat(0);
     chat.numberOfRandomTimes = 10;
     chat.pointsPerRandomTime = 10;

@@ -1,25 +1,27 @@
-import { CronJob } from "cron";
 import { Chat } from "../chat/chat";
 import { DankTime } from "../dank-time/dank-time";
-import { TelegramClient } from "../telegram-client/telegram-client";
+import { ITelegramClient } from "../telegram-client/i-telegram-client";
+import { IDankTimeScheduler } from "./i-dank-time-scheduler";
 
 interface ScheduledItem {
   chatId: number;
   hour: number;
   minute: number;
-  cronJob: CronJob;
+  cronJob: any;
 }
 
 /**
  * Responsible for scheduling notification messages about dank times.
  */
-export class DankTimeScheduler {
+export class DankTimeScheduler implements IDankTimeScheduler {
 
   public randomDankTimeNotifications = new Array<ScheduledItem>();
   public dankTimeNotifications = new Array<ScheduledItem>();
   public autoLeaderBoards = new Array<ScheduledItem>();
 
-  constructor(private readonly tgClient: TelegramClient) { }
+  constructor(
+    private readonly tgClient: ITelegramClient,
+    private readonly cronJob: any) { }
 
   /**
    * Schedules all normal and random dank times notifications and auto-leaderboards of a chat.
@@ -145,7 +147,7 @@ export class DankTimeScheduler {
     const thisRef = this;
     this.dankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
+      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
         if (chat.running && chat.notifications) {
           thisRef.tgClient.sendMessage(chat.id, "It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!");
         }
@@ -162,7 +164,7 @@ export class DankTimeScheduler {
     const thisRef = this;
     this.randomDankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
+      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
         if (chat.running) {
           thisRef.tgClient.sendMessage(chat.id, "Surprise dank time! Type '" + dankTime.texts[0] + "' for points!");
         }
@@ -194,7 +196,7 @@ export class DankTimeScheduler {
     const thisRef = this;
     this.autoLeaderBoards.push({
       chatId: chat.id,
-      cronJob: new CronJob("0 " + minute + " " + hour + " * * *", () => {
+      cronJob: new this.cronJob("0 " + minute + " " + hour + " * * *", () => {
         if (chat.running && chat.autoLeaderboards && chat.leaderboardChanged()) {
           thisRef.tgClient.sendMessage(chat.id, chat.generateLeaderboard());
         }

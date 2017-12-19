@@ -1,16 +1,13 @@
 import { DankTime } from "../dank-time/dank-time";
 import { Chat } from "./chat";
+import { IChatRegistry } from "./i-chat-registry";
 
 /**
  * Keeps track of all the chats.
  */
-export class ChatRegistry {
+export class ChatRegistry implements IChatRegistry {
 
-  /**
-   * Instantiates a new chat registry.
-   * @param chats The initial chats.
-   */
-  constructor(public readonly chats = new Map<number, Chat>()) { }
+  public chats = new Map<number, Chat>();
 
   /**
    * Re-maps the chat mapped to the supplied oldId to the specified newId.
@@ -40,5 +37,9 @@ export class ChatRegistry {
     chat.addDankTime(new DankTime(22, 22, ["2222"], 5));
     this.chats.set(id, chat);
     return chat;
+  }
+
+  public setInitialChats(chats: Map<number, Chat>): void {
+    this.chats = chats;
   }
 }
