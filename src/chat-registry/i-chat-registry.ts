@@ -1,9 +1,12 @@
-import { Chat } from "./chat";
+import { BasicChat } from "../chat/basic-chat";
+import { Chat } from "../chat/chat";
 
 /**
  * Keeps track of all the chats.
  */
 export interface IChatRegistry {
+
+  readonly chats: Map<number, Chat>;
 
   /**
    * Re-maps the chat mapped to the supplied oldId to the specified newId.
@@ -15,5 +18,5 @@ export interface IChatRegistry {
    */
   getOrCreateChat(id: number): Chat;
 
-  setInitialChats(chats: Map<number, Chat>): void;
+  loadFromJSON(literals: BasicChat[]): void;
 }

@@ -1,41 +1,10 @@
-import * as moment from "moment-timezone";  // TODO: refactor to context root.
 import { DankTime } from "../dank-time/dank-time";
-import { Leaderboard } from "../leaderboard/leaderboard";
-import { User } from "../user/user";
-import { Util } from "../util/util";  // TODO: refactor to context root.
+import { IUtil } from "../util/i-util";
 import { BasicChat } from "./basic-chat";
-
-const util = new Util();  // TODO: refactor to context root.
+import { Leaderboard } from "./leaderboard/leaderboard";
+import { User } from "./user/user";
 
 export class Chat {
-
-  /**
-   * Returns a new Chat parsed from a literal.
-   */
-  public static fromJSON(literal: BasicChat): Chat {
-
-    // For backwards compatibility with v.1.1.0.
-    if (!literal.multiplier) {
-      literal.multiplier = 2;
-    }
-    if (!literal.autoLeaderboards) {
-      literal.autoLeaderboards = true;
-    }
-    if (!literal.firstNotifications) {
-      literal.firstNotifications = true;
-    }
-
-    const dankTimes = new Array<DankTime>();
-    literal.dankTimes.forEach((dankTime) => dankTimes.push(DankTime.fromJSON(dankTime)));
-
-    const users = new Map();
-    literal.users.forEach((user) => users.set(user.id, User.fromJSON(user)));
-
-    return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes,
-      literal.pointsPerRandomTime, literal.lastHour, literal.lastMinute, users, dankTimes, [],
-      literal.notifications, literal.multiplier, literal.autoLeaderboards, literal.firstNotifications,
-      literal.hardcoreMode);
-  }
 
   public awaitingResetConfirmation = -1;
 
@@ -50,6 +19,7 @@ export class Chat {
 
   /**
    * Creates a new Chat object.
+   * @param moment Reference to timezone import.
    * @param id The chat's unique Telegram id.
    * @param timezone The timezone the users are in.
    * @param running Whether this bot is running for this chat.
@@ -67,6 +37,8 @@ export class Chat {
    * @param hardcoreMode Whether this chat punishes users that haven't scored in the last 24 hours.
    */
   constructor(
+    private readonly moment: any,
+    private readonly util: IUtil,
     id: number,
     timezone = "Europe/Amsterdam",
     public running = false,
@@ -104,7 +76,7 @@ export class Chat {
   }
 
   public set timezone(timezone: string) {
-    if (moment.tz.zone(timezone) === null) {
+    if (this.moment.tz.zone(timezone) === null) {
       throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
     }
     this.myTimezone = timezone;
@@ -206,10 +178,10 @@ export class Chat {
   public generateRandomDankTimes(): DankTime[] {
     this.randomDankTimes = new Array<DankTime>();
     for (let i = 0; i < this.myNumberOfRandomTimes; i++) {
-      const now = moment().tz(this.timezone);
+      const now = this.moment().tz(this.timezone);
       now.add(now.hours() + Math.floor(Math.random() * 23), "hours");
       now.minutes(Math.floor(Math.random() * 59));
-      const text = util.padNumber(now.hours()) + util.padNumber(now.minutes());
+      const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
       this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
     }
     return this.randomDankTimes;
@@ -244,11 +216,11 @@ export class Chat {
   public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string {
 
     // Ignore the message if it was sent more than 1 minute ago.
-    const now = moment().tz(this.timezone);
+    const now = this.moment().tz(this.timezone);
     if (now.unix() - msgUnixTime >= 60) {
       return "";
     }
-    msgText = util.cleanText(msgText);
+    msgText = this.util.cleanText(msgText);
 
     // If we are awaiting reset confirmation...
     if (this.awaitingResetConfirmation === userId) {
@@ -291,15 +263,15 @@ export class Chat {
           this.users.forEach((user0) => user0.called = false);
           this.lastHour = dankTime.hour;
           this.lastMinute = dankTime.minute;
-          user.addToScore(Math.round(dankTime.points * this.myMultiplier));
+          user.addToScore(Math.round(dankTime.points * this.myMultiplier), now.unix());
           user.called = true;
           if (this.firstNotifications) {
             return user.name + " was the first to score!";
           }
         } else if (user.called) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.points);
+          user.addToScore(-dankTime.points, now.unix());
         } else {  // Else, award point.
-          user.addToScore(dankTime.points);
+          user.addToScore(dankTime.points, now.unix());
           user.called = true;
         }
         return "";
@@ -308,7 +280,7 @@ export class Chat {
       }
     }
     // If no match was found, punish the user.
-    user.addToScore(-subtractBy);
+    user.addToScore(-subtractBy, now.unix());
     return "";
   }
 
@@ -385,7 +357,7 @@ export class Chat {
       const punishBy = 10;
       this.users.forEach((user) => {
         if (timestamp - user.lastScoreTimestamp >= day && user.score - punishBy >= 0) {
-          user.addToScore(-punishBy);
+          user.addToScore(-punishBy, timestamp);
         }
       });
     }

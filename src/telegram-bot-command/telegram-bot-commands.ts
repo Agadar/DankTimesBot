@@ -1,4 +1,4 @@
-import { IChatRegistry } from "../chat/i-chat-registry";
+import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
 import { DankTime } from "../dank-time/dank-time";
 import { Release } from "../misc/release";
@@ -9,23 +9,14 @@ import { ITelegramBotCommands } from "./i-telegram-bot-commands";
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export class TelegramBotCommands implements ITelegramBotCommands {
 
-  private releaseLog: Release[] = [];
-  private version: string = "x.y.z";
-
   constructor(
     private readonly tgClient: ITelegramClient,
     private readonly chatRegistry: IChatRegistry,
     private readonly scheduler: IDankTimeScheduler,
     private readonly util: IUtil,
+    private readonly releaseLog: Release[],
+    private readonly version: string,
   ) { }
-
-  // TODO: refactor these away to constructor.
-  public setReleaseLogs(releaseLog: Release[]): void {
-    this.releaseLog = releaseLog;
-  }
-  public setVersion(version: string): void {
-    this.version = version;
-  }
 
   /**
    * Starts the specified chat so that it records dank time texts.

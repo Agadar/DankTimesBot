@@ -1,10 +1,11 @@
+import { Chat } from "./chat/chat";
 import * as contextRoot from "./context-root";
 import { TelegramBotCommand } from "./telegram-bot-command/telegram-bot-command";
 
 // Global variables.
 const fileIO = contextRoot.fileIO;
 const chatRegistry = contextRoot.chatRegistry;
-const releaseLog = fileIO.loadReleaseLogFromFile();
+const releaseLog = contextRoot.releaseLog;
 const tgClient = contextRoot.telegramClient;
 const scheduler = contextRoot.dankTimeScheduler;
 const commands = contextRoot.telegramBotCommands;
@@ -12,8 +13,6 @@ const config = contextRoot.config;
 const nodeCleanup = contextRoot.nodeCleanup;
 const moment = contextRoot.moment;
 const cronJob = contextRoot.cronJob;
-commands.setReleaseLogs(releaseLog);
-commands.setVersion("1.4.0");
 
 // Register available Telegram bot commands, after retrieving the bot name.
 tgClient.retrieveBotName().then(() => {
@@ -85,7 +84,7 @@ nodeCleanup((exitCode, signal) => {
 });
 
 // Generate new random dank times and schedule everything.
-chatRegistry.chats.forEach((chat) => {
+chatRegistry.chats.forEach((chat: Chat) => {
   chat.generateRandomDankTimes();
   scheduler.scheduleAllOfChat(chat);
 });
@@ -96,7 +95,7 @@ const dailyUpdate = new cronJob("0 0 0 * * *", () => {
   console.info("Generating random dank times for all chats and punishing"
     + " users that haven't scored in the past 24 hours!");
   const now = moment().unix();
-  chatRegistry.chats.forEach((chat) => {
+  chatRegistry.chats.forEach((chat: Chat) => {
     if (chat.running) {
 
       // Unschedule
@@ -126,7 +125,7 @@ if (config.sendWhatsNewMsg && releaseLog.length > 0) {
   });
 
   // Send it to all chats.
-  chatRegistry.chats.forEach((chat) => {
+  chatRegistry.chats.forEach((chat: Chat) => {
     tgClient.sendMessage(chat.id, message);
   });
 

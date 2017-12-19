@@ -81,23 +81,17 @@ export class FileIO implements IFileIO {
     return config;
   }
 
-  /**
-   * Parses the JSON data in the file to a Map of Chat objects.
-   */
-  public loadChatsFromFile(): Map<number, Chat> {
+  public loadChatsFromFile(): BasicChat[] {
 
     // Create the data folder if it doesn't exist yet.I
     if (!this.fs.existsSync(this.dataFolder)) {
       this.fs.mkdirSync(this.dataFolder);
     }
-    const chats = new Map<number, Chat>();
 
-    // If the data file exists, load and parse the data to an object.
     if (this.fs.existsSync(this.backupFile)) {
-      (JSON.parse(this.fs.readFileSync(this.backupFile, "utf8")) as BasicChat[])
-        .forEach((chat) => chats.set(chat.id, Chat.fromJSON(chat)));
+      return JSON.parse(this.fs.readFileSync(this.backupFile, "utf8"));
     }
-    return chats;
+    return [];
   }
 
   /**

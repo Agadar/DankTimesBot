@@ -1,9 +1,11 @@
 import { assert } from "chai";
 import "mocha";
 import * as moment from "moment-timezone";
-import { User } from "../user/user";
 import { Util } from "../util/util";
 import { Chat } from "./chat";
+import { User } from "./user/user";
+
+const util = new Util();
 
 describe("Chat.hardcoreModeCheck", () => {
   const now = moment().unix();
@@ -15,7 +17,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", startingScore, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
+    const chat = new Chat(
+      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, startingScore);
   });
@@ -25,7 +28,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", startingScore, nowMinusAlmost24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const chat = new Chat(
+      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, startingScore);
   });
@@ -34,7 +38,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 10, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const chat = new Chat(
+      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, 0);
   });
@@ -43,8 +48,7 @@ describe("Chat.hardcoreModeCheck", () => {
 describe("Chat.generateRandomDankTimes", () => {
 
   it("should generate correct # of random dank times with correct hours, minutes, and texts", () => {
-    const util = new Util();
-    const chat = new Chat(0);
+    const chat = new Chat(moment, util, 0);
     chat.numberOfRandomTimes = 10;
     chat.pointsPerRandomTime = 10;
 

@@ -1,3 +1,4 @@
+import { BasicChat } from "../../chat/basic-chat";
 import { Chat } from "../../chat/chat";
 import { Config } from "../../misc/config";
 import { Release } from "../../misc/release";
@@ -12,10 +13,7 @@ export interface IFileIO {
    */
   loadConfigFromFile(): Config;
 
-  /**
-   * Parses the JSON data in the file to a Map of Chat objects.
-   */
-  loadChatsFromFile(): Map<number, Chat>;
+  loadChatsFromFile(): BasicChat[];
 
   /**
    * Parses a Map of Chat objects to JSON and saves it to a file.

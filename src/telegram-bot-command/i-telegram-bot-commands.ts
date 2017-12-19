@@ -3,10 +3,6 @@ import { Release } from "../misc/release";
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export interface ITelegramBotCommands {
 
-  setReleaseLogs(releaseLog: Release[]): void;
-
-  setVersion(version: string): void;
-
   /**
    * Starts the specified chat so that it records dank time texts.
    * Only prints a warning if the chat is already running.
