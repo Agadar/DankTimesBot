@@ -164,6 +164,12 @@ export class Chat {
     this.users.set(user.id, user);
   }
 
+  public removeUser(userId: number): User | null {
+    const userToRemove = this.users.get(userId);
+    this.users.delete(userId);
+    return userToRemove ? userToRemove : null;
+  }
+
   /**
    * Gets an array of the users, sorted by scores.
    */

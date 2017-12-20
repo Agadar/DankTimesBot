@@ -61,13 +61,22 @@ tgClient.retrieveBotName().then(() => {
     "toggles whether every day, users are punished if they haven't scored the previous day",
     commands, commands.toggleHardcoreMode, true));
   tgClient.setOnAnyText((msg) => {
-    if (msg.migrate_to_chat_id) {
-      // If the chat was migrated, then update the registry.
+
+    if (msg.migrate_to_chat_id) { // If the chat was migrated, then update the registry.
       chatRegistry.setChatId(msg.chat.id, msg.migrate_to_chat_id);
-    } else if (msg.text) {
-      // Else, just let the appropriate chat process the message.
-      return chatRegistry.getOrCreateChat(msg.chat.id)
-        .processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
+
+    } else if (msg.left_chat_member) { // If a chat member left, remove him from the chat scores.
+      const chat = chatRegistry.getOrCreateChat(msg.chat.id);
+      const removedUser = chat.removeUser(msg.left_chat_member.id);
+
+      if (removedUser) {
+        return `${removedUser.name} left! Their final score was ${removedUser.score}!`;
+      }
+
+    } else if (msg.text) { // Let the appropriate chat process the message.
+      const chat = chatRegistry.getOrCreateChat(msg.chat.id);
+      return chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
+
     }
     return "";
   });
