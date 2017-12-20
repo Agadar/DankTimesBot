@@ -21,18 +21,18 @@
     "cron": "^1.3.0",
     "moment-timezone": "^0.5.14",
     "node-cleanup": "^2.1.2",
-    "node-telegram-bot-api": "^0.27.1"
+    "node-telegram-bot-api": "^0.29.0"
   },
   "devDependencies": {
     "@types/chai": "^4.0.10",
     "@types/cron": "^1.2.1",
     "@types/mocha": "^2.2.44",
-    "@types/moment-timezone": "^0.2.35",
+    "@types/moment-timezone": "^0.5.2",
     "@types/node": "^8.5.1",
     "@types/node-cleanup": "^2.1.0",
     "@types/node-telegram-bot-api": "^0.28.2",
     "chai": "^4.1.2",
-    "mocha": "^3.5.3",
+    "mocha": "^4.0.1",
     "rimraf": "^2.6.2"
   }
 }
