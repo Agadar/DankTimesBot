@@ -62,3 +62,24 @@ describe("Chat.generateRandomDankTimes", () => {
     });
   });
 });
+
+describe("Chat.timezone", () => {
+
+  it("should correct a valid but (for the cron library) improperly capitalized timezone", () => {
+    const chat = new Chat(moment, util, 0);
+    chat.timezone = "jaPaN";
+    assert.equal(chat.timezone, "Japan");
+  });
+
+  it("should throw an error on an invalid timezone", () => {
+    const chat = new Chat(moment, util, 0);
+    try {
+      chat.timezone = "invalid/timezone";
+      assert.fail(0, 1, "Expected RangeError!");
+    } catch (err) {
+      if (!(err instanceof RangeError)) {
+        throw err;
+      }
+    }
+  });
+});

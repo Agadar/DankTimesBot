@@ -76,10 +76,12 @@ export class Chat {
   }
 
   public set timezone(timezone: string) {
-    if (this.moment.tz.zone(timezone) === null) {
+    const momentTimezone = this.moment.tz.zone(timezone);
+
+    if (momentTimezone === null) {
       throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
     }
-    this.myTimezone = timezone;
+    this.myTimezone = momentTimezone.name;
   }
 
   public get timezone(): string {
