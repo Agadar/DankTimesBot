@@ -98,10 +98,11 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     for (const time of chat.dankTimes) {
       dankTimes +=
         `\ntime: ${this.util.padNumber(time.hour)}:`
-        + `${this.util.padNumber(time.minute)}:00    points: ${time.points}    texts:`;
+        + `${this.util.padNumber(time.minute)}:00    points: ${time.points}    texts: `;
       for (const text of time.texts) {
-        dankTimes += ` ${text}`;
+        dankTimes += `${text}, `;
       }
+      dankTimes = dankTimes.slice(0, -2);
     }
     return dankTimes;
   }
@@ -136,17 +137,19 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
    */
   public addTime(msg: any, match: any): string {
 
-    // Split string and ensure it contains at least 4 items.
-    const split = match.input.split(" ");
-    if (split.length < 5) {
-      return "Not enough arguments! Format: /addtime [hour] [minute] [points] [text1] [text2] etc.";
+    const commaSplit: string[] = match.input.split(",").filter((part: string) => !!part);
+    const spaceSplit: string[] = commaSplit[0].split(" ").filter((part: string) => !!part);
+
+    // Ensure it contains at least 4 items.
+    if (spaceSplit.length < 5) {
+      return "Not enough arguments! Format: /addtime [hour] [minute] [points] [text1],[text2], etc.";
     }
 
     // Identify and verify arguments.
-    const hour = Number(split[1]);
-    const minute = Number(split[2]);
-    const points = Number(split[3]);
-    const texts = split.slice(4);
+    const hour = Number(spaceSplit[1]);
+    const minute = Number(spaceSplit[2]);
+    const points = Number(spaceSplit[3]);
+
     if (isNaN(hour)) {
       return "The hour must be a number!";
     }
@@ -156,6 +159,12 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (isNaN(points)) {
       return "The points must be a number!";
     }
+
+    // Construct the texts.
+    for (let i = 0; i < commaSplit.length; i++) {
+      commaSplit[i] = commaSplit[i].trim();
+    }
+    const texts = [spaceSplit.slice(4).join(" ")].concat(commaSplit.slice(1));
 
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
