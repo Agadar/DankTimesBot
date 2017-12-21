@@ -1,7 +1,7 @@
 import { Release } from "../misc/release";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
-export interface ITelegramBotCommands {
+export interface IDankTimesBotCommands {
 
   /**
    * Starts the specified chat so that it records dank time texts.

@@ -1,4 +1,4 @@
-import { TelegramBotCommand } from "../telegram-bot-command/telegram-bot-command";
+import { BotCommand } from "../bot-commands/bot-command";
 import { ITelegramClient } from "./i-telegram-client";
 
 /**
@@ -6,7 +6,7 @@ import { ITelegramClient } from "./i-telegram-client";
  */
 export class TelegramClient implements ITelegramClient {
 
-  public readonly commands = new Map<string, TelegramBotCommand>();
+  public readonly commands = new Map<string, BotCommand>();
   private myBotname = "";
 
   constructor(private readonly bot: any) { }
@@ -45,7 +45,7 @@ export class TelegramClient implements ITelegramClient {
   /**
    * Registers a new command, overriding any with the same name.
    */
-  public registerCommand(command: TelegramBotCommand): void {
+  public registerCommand(command: BotCommand): void {
     this.commands.set(command.name, command);
 
     // Register the command with the bot accordingly.

@@ -1,10 +1,10 @@
 import { assert } from "chai";
 import "mocha";
-import { TelegramBotCommand } from "./telegram-bot-command";
+import { BotCommand } from "./bot-command";
 
-describe("TelegramBotCommand.getRegex()", () => {
+describe("BotCommand.getRegex()", () => {
 
-  const regex = new TelegramBotCommand("command", "command description", {},
+  const regex = new BotCommand("command", "command description", {},
     (msg, match) => "", false, false).getRegex("DankTimesBot");
 
   const tests = [

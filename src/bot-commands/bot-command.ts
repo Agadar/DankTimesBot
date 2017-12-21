@@ -1,4 +1,4 @@
-export class TelegramBotCommand {
+export class BotCommand {
 
   /**
    * Defines a new command for the Telegram bot.

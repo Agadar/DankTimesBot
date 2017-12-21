@@ -1,9 +1,9 @@
-import { TelegramBotCommand } from "../telegram-bot-command/telegram-bot-command";
+import { BotCommand } from "../bot-commands/bot-command";
 import { ITelegramClient } from "./i-telegram-client";
 
 export class TelegramClientMock implements ITelegramClient {
 
-  public readonly commands = new Map<string, TelegramBotCommand>();
+  public readonly commands = new Map<string, BotCommand>();
   public readonly botname = "testbot";
 
   public retrieveBotName(): Promise<string> {
@@ -16,7 +16,7 @@ export class TelegramClientMock implements ITelegramClient {
     // Don't do anything, this is a mock.
    }
 
-  public registerCommand(command: TelegramBotCommand): void {
+  public registerCommand(command: BotCommand): void {
     // Don't do anything, this is a mock.
   }
 

@@ -4,10 +4,10 @@ import { DankTime } from "../dank-time/dank-time";
 import { Release } from "../misc/release";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { IUtil } from "../util/i-util";
-import { ITelegramBotCommands } from "./i-telegram-bot-commands";
+import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
-export class TelegramBotCommands implements ITelegramBotCommands {
+export class DankTimesBotCommands implements IDankTimesBotCommands {
 
   constructor(
     private readonly tgClient: ITelegramClient,
