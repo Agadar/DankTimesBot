@@ -185,12 +185,17 @@ export class Chat {
    */
   public generateRandomDankTimes(): DankTime[] {
     this.randomDankTimes = new Array<DankTime>();
+
     for (let i = 0; i < this.myNumberOfRandomTimes; i++) {
       const now = this.moment().tz(this.timezone);
-      now.add(now.hours() + Math.floor(Math.random() * 23), "hours");
+
+      now.add(Math.floor(Math.random() * 23), "hours");
       now.minutes(Math.floor(Math.random() * 59));
-      const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
-      this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
+
+      if (!this.hourAndMinuteAlreadyRegistered(now.hours(), now.minutes())) {
+        const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
+        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
+      }
     }
     return this.randomDankTimes;
   }
@@ -382,5 +387,19 @@ export class Chat {
       }
     }
     return found;
+  }
+
+  private hourAndMinuteAlreadyRegistered(hour: number, minute: number): boolean {
+    for (const dankTime of this.dankTimes) {
+      if (dankTime.hour === hour && dankTime.minute === minute) {
+        return true;
+      }
+    }
+    for (const dankTime of this.randomDankTimes) {
+      if (dankTime.hour === hour && dankTime.minute === minute) {
+        return true;
+      }
+    }
+    return false;
   }
 }

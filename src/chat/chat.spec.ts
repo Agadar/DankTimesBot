@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import "mocha";
 import * as moment from "moment-timezone";
+import { DankTime } from "../dank-time/dank-time";
 import { Util } from "../util/util";
 import { Chat } from "./chat";
 import { User } from "./user/user";
@@ -61,6 +62,53 @@ describe("Chat.generateRandomDankTimes", () => {
       assert.equal(time.texts[0], util.padNumber(time.hour) + util.padNumber(time.minute));
     });
   });
+
+  it("should not register random dank time of which the hour/minute is already registered to another NORMAL dank time",
+    () => {
+
+      // Arrange
+      const originalMath = global.Math;
+      const mockMath = Object.create(global.Math);
+      mockMath.random = () => 0;
+      global.Math = mockMath;
+
+      const chat = new Chat(moment, util, 0, "UTC");
+      const now = moment.tz("UTC");
+      now.minutes(0);
+      chat.numberOfRandomTimes = 10;
+      chat.pointsPerRandomTime = 10;
+      chat.addDankTime(new DankTime(now.hours(), now.minutes(), ["irrelevant"], 10));
+
+      // Act
+      const randomDankTimes = chat.generateRandomDankTimes();
+
+      // Assert
+      assert.equal(randomDankTimes.length, 0);
+
+      // Cleanup
+      global.Math = originalMath;
+    });
+
+  it("should not register random dank time of which the hour/minute is already registered to another RANDOM dank time",
+    () => {
+
+      // Arrange
+      const originalMath = global.Math;
+      const mockMath = Object.create(global.Math);
+      mockMath.random = () => 0;
+      global.Math = mockMath;
+
+      const chat = new Chat(moment, util, 0);
+
+      // Act
+      const randomDankTimes = chat.generateRandomDankTimes();
+
+      // Assert
+      assert.equal(randomDankTimes.length, 1);
+
+      // Cleanup
+      global.Math = originalMath;
+    });
 });
 
 describe("Chat.timezone", () => {
