@@ -2,6 +2,7 @@ import { assert } from "chai";
 import "mocha";
 import * as moment from "moment-timezone";
 import { DankTime } from "../dank-time/dank-time";
+import * as momentMock from "../misc/moment-mock";
 import { Util } from "../util/util";
 import { Chat } from "./chat";
 import { User } from "./user/user";
@@ -130,4 +131,103 @@ describe("Chat.timezone", () => {
       }
     }
   });
+});
+
+describe("Chat.processMessage", () => {
+
+  let chat: Chat;
+  const now = momentMock.tz("Europe/Amsterdam");
+  const dankTimePoints = 5;
+
+  beforeEach("Instantiate test variables", () => {
+    chat = new Chat(momentMock, util, 0);
+    chat.dankTimes.splice(0);
+    chat.addDankTime(new DankTime(1, 13, ["0113"], dankTimePoints));
+    chat.running = true;
+
+    for (let i = 0; i < 4; i++) {
+      const user = new User(i, `user#${i}`, i * 10);
+      chat.addUser(user);
+    }
+  });
+
+  it("should award handicap value if user that scores deserves it and was first", () => {
+
+    // Act
+    const res = chat.processMessage(0, "user#0", "0113", now.unix());
+
+    // Assert
+    assert.equal(res, "user#0 was the first to score!");
+    const sortedUsers = chat.sortedUsers();
+
+    const scorer = sortedUsers[2];
+    assert.equal(scorer.id, 0);
+    assert.equal(scorer.score, 15);
+  });
+
+  it("should NOT award handicap value if user that scores does not deserve it and was first", () => {
+
+    // Act
+    const res = chat.processMessage(3, "user#3", "0113", now.unix());
+
+    // Assert
+    assert.equal(res, "user#3 was the first to score!");
+    const sortedUsers = chat.sortedUsers();
+
+    const scorer = sortedUsers[0];
+    assert.equal(scorer.id, 3);
+    assert.equal(scorer.score, 40);
+  });
+
+  it("should award handicap value if user that scores deserves it and was NOT first", () => {
+
+    // Arrange
+    chat.processMessage(3, "user#3", "0113", now.unix());
+
+    // Act
+    const res = chat.processMessage(0, "user#0", "0113", now.unix());
+
+    // Assert
+    assert.equal(res, "");
+    const sortedUsers = chat.sortedUsers();
+
+    const scorer = sortedUsers[3];
+    assert.equal(scorer.id, 0);
+    assert.equal(scorer.score, 8);
+  });
+
+  it("should NOT award handicap value if user that scores does not deserve it and was NOT first", () => {
+
+    // Arrange
+    chat.processMessage(0, "user#0", "0113", now.unix());
+
+    // Act
+    const res = chat.processMessage(3, "user#3", "0113", now.unix());
+
+    // Assert
+    assert.equal(res, "");
+    const sortedUsers = chat.sortedUsers();
+
+    const scorer = sortedUsers[0];
+    assert.equal(scorer.id, 3);
+    assert.equal(scorer.score, 35);
+  });
+
+  it("should NOT award handicap value if user that scores deserves it and was first but handicap is disabled", () => {
+
+    // Arrange
+    chat.handicaps = false;
+
+    // Act
+    const res = chat.processMessage(0, "user#0", "0113", now.unix());
+
+    // Assert
+    assert.equal(res, "user#0 was the first to score!");
+    const sortedUsers = chat.sortedUsers();
+
+    const scorer = sortedUsers[2];
+    assert.equal(scorer.id, 0);
+    assert.equal(scorer.score, 10);
+  });
+
 });

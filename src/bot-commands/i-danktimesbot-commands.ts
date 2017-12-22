@@ -134,6 +134,14 @@ export interface IDankTimesBotCommands {
   toggleFirstNotifications(msg: any, match: any): string;
 
   /**
+   * Toggles whether the bottom 10% of players get a handicap multiplier bonus.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  toggleHandicaps(msg: any, match: any): string;
+
+  /**
    * Gets the entire release log, formatted neatly.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.

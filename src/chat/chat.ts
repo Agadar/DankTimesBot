@@ -4,6 +4,9 @@ import { BasicChat } from "./basic-chat";
 import { Leaderboard } from "./leaderboard/leaderboard";
 import { User } from "./user/user";
 
+const handicapMultiplier = 1.5;
+const bottomPartThatHasHandicap = 0.25;
+
 export class Chat {
 
   public awaitingResetConfirmation = -1;
@@ -53,7 +56,8 @@ export class Chat {
     multiplier = 2,
     public autoLeaderboards = true,
     public firstNotifications = true,
-    public hardcoreMode = false) {
+    public hardcoreMode = false,
+    public handicaps = true) {
 
     this.id = id;
     this.timezone = timezone;
@@ -208,6 +212,7 @@ export class Chat {
       autoLeaderboards: this.autoLeaderboards,
       dankTimes: this.dankTimes,
       firstNotifications: this.firstNotifications,
+      handicaps: this.handicaps,
       hardcoreMode: this.hardcoreMode,
       id: this.myId,
       lastHour: this.myLastHour,
@@ -229,7 +234,7 @@ export class Chat {
   public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string {
 
     // Ignore the message if it was sent more than 1 minute ago.
-    const now = this.moment().tz(this.timezone);
+    const now = this.moment.tz(this.timezone);
     if (now.unix() - msgUnixTime >= 60) {
       return "";
     }
@@ -266,8 +271,8 @@ export class Chat {
     if (user.name !== userName) {
       user.name = userName;
     }
-
     let subtractBy = 0;
+
     for (const dankTime of dankTimesByText) {
       if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
 
@@ -276,15 +281,23 @@ export class Chat {
           this.users.forEach((user0) => user0.called = false);
           this.lastHour = dankTime.hour;
           this.lastMinute = dankTime.minute;
-          user.addToScore(Math.round(dankTime.points * this.myMultiplier), now.unix());
+          let score = dankTime.points * this.myMultiplier;
+
+          if (this.userDeservesHandicapBonus(user.id)) {
+            score *= handicapMultiplier;
+          }
+          user.addToScore(Math.round(score), now.unix());
           user.called = true;
+
           if (this.firstNotifications) {
             return user.name + " was the first to score!";
           }
         } else if (user.called) { // Else if user already called this time, remove points.
           user.addToScore(-dankTime.points, now.unix());
         } else {  // Else, award point.
-          user.addToScore(dankTime.points, now.unix());
+          const score = Math.round(this.userDeservesHandicapBonus(user.id)
+            ? dankTime.points * handicapMultiplier : dankTime.points);
+          user.addToScore(score, now.unix());
           user.called = true;
         }
         return "";
@@ -397,6 +410,23 @@ export class Chat {
     }
     for (const dankTime of this.randomDankTimes) {
       if (dankTime.hour === hour && dankTime.minute === minute) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private userDeservesHandicapBonus(userId: number) {
+    if (!this.handicaps) {
+      return false;
+    }
+    const sortedUsers = this.sortedUsers();
+    let noOfHandicapped = sortedUsers.length * bottomPartThatHasHandicap;
+    noOfHandicapped = Math.round(noOfHandicapped);
+    const handicapped = sortedUsers.slice(-noOfHandicapped);
+
+    for (const entry of handicapped) {
+      if (entry.id === userId) {
         return true;
       }
     }

@@ -16,4 +16,5 @@ export interface BasicChat {
   autoLeaderboards: boolean;
   firstNotifications: boolean;
   hardcoreMode: boolean;
+  handicaps: boolean;
 }

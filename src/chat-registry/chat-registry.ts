@@ -51,7 +51,7 @@ export class ChatRegistry implements IChatRegistry {
 
   private fromJSON(literal: BasicChat): Chat {
 
-    // For backwards compatibility with v.1.1.0.
+    // For backwards compatibility with previous versions.
     if (!literal.multiplier) {
       literal.multiplier = 2;
     }
@@ -60,6 +60,9 @@ export class ChatRegistry implements IChatRegistry {
     }
     if (!literal.firstNotifications) {
       literal.firstNotifications = true;
+    }
+    if (!literal.handicaps) {
+      literal.handicaps = true;
     }
 
     const dankTimes = new Array<DankTime>();

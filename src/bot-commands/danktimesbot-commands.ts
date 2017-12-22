@@ -76,6 +76,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     settings += "\n<b>Auto-post leaderboards:</b> " + (chat.autoLeaderboards ? "on" : "off");
     settings += "\n<b>Chat time zone:</b> " + chat.timezone;
     settings += "\n<b>Dank time notifications:</b> " + (chat.notifications ? "on" : "off");
+    settings += "\n<b>Handicaps:</b> " + (chat.handicaps ? "on" : "off");
     settings += "\n<b>Hardcode mode:</b> " + (chat.hardcoreMode ? "on" : "off");
     settings += "\n<b>Multiplier:</b> x" + chat.multiplier;
     settings += "\n<b>Random dank times per day:</b> " + chat.numberOfRandomTimes;
@@ -406,6 +407,19 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     chat.firstNotifications = !chat.firstNotifications;
     return chat.firstNotifications ? "Announcements for first users to score are now enabled!"
       : "Announcements for first users to score are now disabled!";
+  }
+
+  /**
+   * Toggles whether the bottom x% of players get a handicap multiplier bonus.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  public toggleHandicaps(msg: any, match: any): string {
+    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+    chat.handicaps = !chat.handicaps;
+    return chat.handicaps ? "♿ Handicaps are now enabled! Users with the lowest scores now earn more points!"
+      : "♿ Handicaps are now disabled!";
   }
 
   /**

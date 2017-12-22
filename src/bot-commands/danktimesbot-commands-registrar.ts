@@ -73,6 +73,10 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
         "toggles whether this chat announces the first user to score",
         this.dankTimesBotCommands, this.dankTimesBotCommands.toggleFirstNotifications, true));
 
+      this.telegramClient.registerCommand(new BotCommand("togglehandicaps",
+        "toggles whether the users with the lowest scores earn more points",
+        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleHandicaps, true));
+
       this.telegramClient.registerCommand(new BotCommand("togglehardcoremode",
         "toggles whether every day, users are punished if they haven't scored the previous day",
         this.dankTimesBotCommands, this.dankTimesBotCommands.toggleHardcoreMode, true));
