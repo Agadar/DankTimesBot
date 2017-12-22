@@ -51,7 +51,7 @@ describe("DankTimesBotCommands.addTime", () => {
     assert.equal(dankTime.hour, 22);
     assert.equal(dankTime.minute, 33);
     assert.deepEqual(dankTime.texts, ["one"]);
-    assert.equal(res, "Added the new time!");
+    assert.equal(res, "⏰ Added the new time!");
   });
 
   it("Should create a dank time with as text a single sentence", () => {
@@ -68,7 +68,7 @@ describe("DankTimesBotCommands.addTime", () => {
     assert.equal(dankTime.hour, 22);
     assert.equal(dankTime.minute, 33);
     assert.deepEqual(dankTime.texts, ["abc def ghi"]);
-    assert.equal(res, "Added the new time!");
+    assert.equal(res, "⏰ Added the new time!");
   });
 
   it("Should create a dank time with as texts multiple single words", () => {
@@ -85,7 +85,7 @@ describe("DankTimesBotCommands.addTime", () => {
     assert.equal(dankTime.hour, 22);
     assert.equal(dankTime.minute, 33);
     assert.deepEqual(dankTime.texts, ["one", "two", "three"]);
-    assert.equal(res, "Added the new time!");
+    assert.equal(res, "⏰ Added the new time!");
   });
 
   it("Should create a dank time with as texts multiple sentences", () => {
@@ -102,7 +102,7 @@ describe("DankTimesBotCommands.addTime", () => {
     assert.equal(dankTime.hour, 22);
     assert.equal(dankTime.minute, 33);
     assert.deepEqual(dankTime.texts, ["abc def", "ghi jkl", "mno pqr"]);
-    assert.equal(res, "Added the new time!");
+    assert.equal(res, "⏰ Added the new time!");
   });
 
   it("Should create a dank time with as texts a mixture of single words and sentences", () => {
@@ -119,7 +119,7 @@ describe("DankTimesBotCommands.addTime", () => {
     assert.equal(dankTime.hour, 22);
     assert.equal(dankTime.minute, 33);
     assert.deepEqual(dankTime.texts, ["abc def", "one", "two"]);
-    assert.equal(res, "Added the new time!");
+    assert.equal(res, "⏰ Added the new time!");
   });
 
   it("Should throw an error when no texts are supplied", () => {
@@ -132,7 +132,7 @@ describe("DankTimesBotCommands.addTime", () => {
 
     // Assert
     assert.equal(chat.dankTimes.length, 0);
-    assert.equal(res, "Not enough arguments! Format: /addtime [hour] [minute] [points] [text1],[text2], etc.");
+    assert.equal(res, "⚠️ Not enough arguments! Format: /addtime [hour] [minute] [points] [text1],[text2], etc.");
   });
 
 });

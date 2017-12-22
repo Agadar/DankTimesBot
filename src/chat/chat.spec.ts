@@ -205,7 +205,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "user#0 was the first to score!");
+    assert.equal(res, "👏 user#0 was the first to score!");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[2];
@@ -219,7 +219,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(3, "user#3", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "user#3 was the first to score!");
+    assert.equal(res, "👏 user#3 was the first to score!");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[0];
@@ -270,7 +270,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "user#0 was the first to score!");
+    assert.equal(res, "👏 user#0 was the first to score!");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[2];

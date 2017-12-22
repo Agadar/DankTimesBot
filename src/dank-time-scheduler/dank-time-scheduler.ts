@@ -149,7 +149,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
       chatId: chat.id,
       cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
         if (chat.running && chat.notifications) {
-          thisRef.tgClient.sendMessage(chat.id, "It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!");
+          thisRef.tgClient.sendMessage(chat.id, "⏰ It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!");
         }
       }, undefined, true, chat.timezone),
       hour: dankTime.hour,
@@ -166,7 +166,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
       chatId: chat.id,
       cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
         if (chat.running) {
-          thisRef.tgClient.sendMessage(chat.id, "Surprise dank time! Type '" + dankTime.texts[0] + "' for points!");
+          thisRef.tgClient.sendMessage(chat.id, "🙀 Surprise dank time! Type '" + dankTime.texts[0] + "' for points!");
         }
       }, undefined, true, chat.timezone),
       hour: dankTime.hour,

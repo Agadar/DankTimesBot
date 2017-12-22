@@ -293,7 +293,7 @@ export class Chat {
           user.called = true;
 
           if (this.firstNotifications) {
-            return user.name + " was the first to score!";
+            return "👏 " + user.name + " was the first to score!";
           }
         } else if (user.called) { // Else if user already called this time, remove points.
           user.addToScore(-dankTime.points, now.unix());
@@ -354,7 +354,7 @@ export class Chat {
     // Construct string to return.
     const oldLeaderboard = this.myLastLeaderboard;
     this.myLastLeaderboard = new Leaderboard(Array.from(this.users.values()));
-    let leaderboard = "<b>--- " + (final ? "FINAL " : "") + "LEADERBOARD ---</b>\n";
+    let leaderboard = "<b>🏆 " + (final ? "FINAL " : "") + "LEADERBOARD</b>\n";
     leaderboard += this.myLastLeaderboard.toString(oldLeaderboard);
 
     // Reset last score change values of all users.

@@ -28,11 +28,11 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   public startChat(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     if (chat.running) {
-      return "The bot is already running!";
+      return "⚠️ The bot is already running!";
     }
     chat.running = true;
     this.scheduler.scheduleAllOfChat(chat);
-    return "The bot is now running! Hit '/help' for available commands.";
+    return "🏃 The bot is now running! Hit '/help' for available commands.";
   }
 
   /**
@@ -47,9 +47,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (chat.running) {
       chat.running = false;
       this.scheduler.unscheduleAllOfChat(chat);
-      return "The bot is now stopped! Hit '/start' to restart.";
+      return "🛑 The bot is now stopped! Hit '/start' to restart.";
     }
-    return "The bot is already stopped!";
+    return "⚠️ The bot is already stopped!";
   }
 
   /**
@@ -60,7 +60,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
    */
   public resetChat(msg: any, match: any): string {
     this.chatRegistry.getOrCreateChat(msg.chat.id).awaitingResetConfirmation = msg.from.id;
-    return "Are you sure? Type 'yes' to confirm.";
+    return "🤔 Are you sure? Type 'yes' to confirm.";
   }
 
   /**
@@ -71,7 +71,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
    */
   public chatSettings(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    let settings = "<b>--- SETTINGS ---</b>\n";
+    let settings = "<b>🛠️ SETTINGS</b>\n";
     settings += "\n<b>Announce first to score:</b> " + (chat.firstNotifications ? "on" : "off");
     settings += "\n<b>Auto-post leaderboards:</b> " + (chat.autoLeaderboards ? "on" : "off");
     settings += "\n<b>Chat time zone:</b> " + chat.timezone;
@@ -94,7 +94,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
    * @returns The response.
    */
   public dankTimes(msg: any, match: any): string {
-    let dankTimes = "<b>--- DANK TIMES ---</b>\n";
+    let dankTimes = "<b>⏰ DANK TIMES</b>\n";
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     for (const time of chat.dankTimes) {
       dankTimes +=
@@ -125,7 +125,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
    * @returns The response.
    */
   public help(msg: any, match: any): string {
-    let help = "<b>--- AVAILABLE COMMANDS ---</b>\n";
+    let help = "<b>ℹ️ AVAILABLE COMMANDS</b>\n";
     this.tgClient.commands.forEach((command) => help += "\n/" + command.name + " - " + command.description);
     return help;
   }
@@ -143,7 +143,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
     // Ensure it contains at least 4 items.
     if (spaceSplit.length < 5) {
-      return "Not enough arguments! Format: /addtime [hour] [minute] [points] [text1],[text2], etc.";
+      return "⚠️ Not enough arguments! Format: /addtime [hour] [minute] [points] [text1],[text2], etc.";
     }
 
     // Identify and verify arguments.
@@ -152,13 +152,13 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     const points = Number(spaceSplit[3]);
 
     if (isNaN(hour)) {
-      return "The hour must be a number!";
+      return "⚠️ The hour must be a number!";
     }
     if (isNaN(minute)) {
-      return "The minute must be a number!";
+      return "⚠️ The minute must be a number!";
     }
     if (isNaN(points)) {
-      return "The points must be a number!";
+      return "⚠️ The points must be a number!";
     }
 
     // Construct the texts.
@@ -184,9 +184,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
           this.scheduler.scheduleAutoLeaderboard(chat, dankTime);
         }
       }
-      return "Added the new time!";
+      return "⏰ Added the new time!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -201,17 +201,17 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     // Split string and ensure it contains at least 2 items.
     const split = match.input.split(" ");
     if (split.length < 3) {
-      return "Not enough arguments! Format: /removetime [hour] [minute]";
+      return "⚠️ Not enough arguments! Format: /removetime [hour] [minute]";
     }
 
     // Identify and verify arguments.
     const hour = Number(split[1]);
     const minute = Number(split[2]);
     if (isNaN(hour)) {
-      return "The hour must be a number!";
+      return "⚠️ The hour must be a number!";
     }
     if (isNaN(minute)) {
-      return "The minute must be a number!";
+      return "⚠️ The minute must be a number!";
     }
 
     // Remove dank time if it exists, otherwise just send an info message.
@@ -221,9 +221,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (dankTime !== null && chat.removeDankTime(hour, minute)) {
       this.scheduler.unscheduleDankTime(chat, dankTime);
       this.scheduler.unscheduleAutoLeaderboard(chat, dankTime);
-      return "Removed the time!";
+      return "🚮 Removed the time!";
     } else {
-      return "No dank time known with that hour and minute!";
+      return "⚠️ No dank time known with that hour and minute!";
     }
   }
 
@@ -238,7 +238,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(" ");
     if (split.length < 2) {
-      return "Not enough arguments! Format: /settimezone [timezone]";
+      return "⚠️ Not enough arguments! Format: /settimezone [timezone]";
     }
 
     // Update the time zone.
@@ -249,9 +249,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       // Reschedule due to timezone change.
       this.scheduler.unscheduleAllOfChat(chat);
       this.scheduler.scheduleAllOfChat(chat);
-      return "Updated the time zone!";
+      return "🎉 Updated the time zone!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -266,20 +266,20 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(" ");
     if (split.length < 2) {
-      return "Not enough arguments! Format: /setmultiplier [number]";
+      return "⚠️ Not enough arguments! Format: /setmultiplier [number]";
     }
 
     const multiplier = Number(split[1]);
     if (isNaN(multiplier)) {
-      return "The multiplier must be a number!";
+      return "⚠️ The multiplier must be a number!";
     }
 
     // Update the time zone.
     try {
       this.chatRegistry.getOrCreateChat(msg.chat.id).multiplier = multiplier;
-      return "Updated the multiplier!";
+      return "🎉 Updated the multiplier!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -294,12 +294,12 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(" ");
     if (split.length < 2) {
-      return "Not enough arguments! Format: /setdailyrandomfrequency [number]";
+      return "⚠️ Not enough arguments! Format: /setdailyrandomfrequency [number]";
     }
 
     const dailyRandomTimes = Number(split[1]);
     if (isNaN(dailyRandomTimes)) {
-      return "The frequency must be a number!";
+      return "⚠️ The frequency must be a number!";
     }
 
     // Do the update.
@@ -317,9 +317,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
           this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
         }
       }
-      return "Updated the number of random dank times per day!";
+      return "🎉 Updated the number of random dank times per day!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -334,19 +334,19 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(" ");
     if (split.length < 2) {
-      return "Not enough arguments! Format: /setdailyrandompoints [number]";
+      return "⚠️ Not enough arguments! Format: /setdailyrandompoints [number]";
     }
 
     const pointsPerRandomTime = Number(split[1]);
     if (isNaN(pointsPerRandomTime)) {
-      return "The points must be a number!";
+      return "⚠️ The points must be a number!";
     }
 
     try {
       this.chatRegistry.getOrCreateChat(msg.chat.id).pointsPerRandomTime = pointsPerRandomTime;
-      return "Updated the points for random daily dank times!";
+      return "🎉 Updated the points for random daily dank times!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -364,12 +364,12 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       if (chat.running) {
         this.scheduler.scheduleDankTimesOfChat(chat);
       }
-      return "Normal dank time notifications are now enabled!";
+      return "🔔 Normal dank time notifications are now enabled!";
     } else {
       if (chat.running) {
         this.scheduler.unscheduleDankTimesOfChat(chat);
       }
-      return "Normal dank time notifications are now disabled! (Random dank time notifications remain enabled.)";
+      return "🔕 Normal dank time notifications are now disabled! (Random dank time notifications remain enabled.)";
     }
   }
 
@@ -387,12 +387,12 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       if (chat.running) {
         this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
       }
-      return "Automatic leaderboard posting is now enabled!";
+      return "🔔 Automatic leaderboard posting is now enabled!";
     } else {
       if (chat.running) {
         this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
       }
-      return "Automatic leaderboard posting is now disabled!";
+      return "🔕 Automatic leaderboard posting is now disabled!";
     }
   }
 
@@ -405,8 +405,8 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   public toggleFirstNotifications(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.firstNotifications = !chat.firstNotifications;
-    return chat.firstNotifications ? "Announcements for first users to score are now enabled!"
-      : "Announcements for first users to score are now disabled!";
+    return chat.firstNotifications ? "🔔 Announcements for first users to score are now enabled!"
+      : "🔕 Announcements for first users to score are now disabled!";
   }
 
   /**
@@ -419,7 +419,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.handicaps = !chat.handicaps;
     return chat.handicaps ? "♿ Handicaps are now enabled! Users with the lowest scores now earn more points!"
-      : "♿ Handicaps are now disabled!";
+      : "🚴 Handicaps are now disabled!";
   }
 
   /**
@@ -429,7 +429,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
    * @returns The response.
    */
   public getReleaseLog(msg: any, match: any): string {
-    let reply = "<b>--- RELEASES ---</b>\n";
+    let reply = "<b>🗒️ RELEASES</b>\n";
     this.releaseLog.forEach((release) => {
       reply += "\n";
       reply += "<b>Version:</b> " + release.version + "\n";
@@ -452,7 +452,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.hardcoreMode = !chat.hardcoreMode;
     return chat.hardcoreMode
-      ? "Hardcore mode is now enabled! Every day, those who did not score the previous day are punished!"
-      : "Hardcore mode is now disabled!";
+      ? "☠️ Hardcore mode is now enabled! Every day, those who did not score the previous day are punished!"
+      : "👶 Hardcore mode is now disabled!";
   }
 }
