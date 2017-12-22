@@ -1,19 +1,22 @@
-import { ChatRegistry } from "../chat/chat-registry";
-import { DankTimeScheduler } from "../dank-time-scheduler/dank-time-scheduler";
+import { IChatRegistry } from "../chat-registry/i-chat-registry";
+import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
 import { DankTime } from "../dank-time/dank-time";
-import { Release } from "../release";
-import { TelegramClient } from "../telegram-client/telegram-client";
-import * as util from "../util/util";
+import { Release } from "../misc/release";
+import { ITelegramClient } from "../telegram-client/i-telegram-client";
+import { IUtil } from "../util/i-util";
+import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
-export class TelegramBotCommands {
+export class DankTimesBotCommands implements IDankTimesBotCommands {
 
-  constructor(private readonly tgClient: TelegramClient,
-              private readonly chatRegistry: ChatRegistry,
-              private readonly scheduler: DankTimeScheduler,
-              private readonly releaseLog: Release[],
-              private readonly version: string) {
-  }
+  constructor(
+    private readonly tgClient: ITelegramClient,
+    private readonly chatRegistry: IChatRegistry,
+    private readonly scheduler: IDankTimeScheduler,
+    private readonly util: IUtil,
+    private readonly releaseLog: Release[],
+    private readonly version: string,
+  ) { }
 
   /**
    * Starts the specified chat so that it records dank time texts.
@@ -25,11 +28,11 @@ export class TelegramBotCommands {
   public startChat(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     if (chat.running) {
-      return "The bot is already running!";
+      return "⚠️ The bot is already running!";
     }
     chat.running = true;
     this.scheduler.scheduleAllOfChat(chat);
-    return "The bot is now running! Hit '/help' for available commands.";
+    return "🏃 The bot is now running! Hit '/help' for available commands.";
   }
 
   /**
@@ -44,9 +47,9 @@ export class TelegramBotCommands {
     if (chat.running) {
       chat.running = false;
       this.scheduler.unscheduleAllOfChat(chat);
-      return "The bot is now stopped! Hit '/start' to restart.";
+      return "🛑 The bot is now stopped! Hit '/start' to restart.";
     }
-    return "The bot is already stopped!";
+    return "⚠️ The bot is already stopped!";
   }
 
   /**
@@ -57,7 +60,7 @@ export class TelegramBotCommands {
    */
   public resetChat(msg: any, match: any): string {
     this.chatRegistry.getOrCreateChat(msg.chat.id).awaitingResetConfirmation = msg.from.id;
-    return "Are you sure? Type 'yes' to confirm.";
+    return "🤔 Are you sure? Type 'yes' to confirm.";
   }
 
   /**
@@ -68,12 +71,13 @@ export class TelegramBotCommands {
    */
   public chatSettings(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    let settings = "<b>--- SETTINGS ---</b>\n";
+    let settings = "<b>🛠️ SETTINGS</b>\n";
     settings += "\n<b>Announce first to score:</b> " + (chat.firstNotifications ? "on" : "off");
     settings += "\n<b>Auto-post leaderboards:</b> " + (chat.autoLeaderboards ? "on" : "off");
     settings += "\n<b>Chat time zone:</b> " + chat.timezone;
     settings += "\n<b>Dank time notifications:</b> " + (chat.notifications ? "on" : "off");
-    settings += "\n<b>Hardcode mode:</b> " + (chat.hardcoreMode ? "on" : "off");
+    settings += "\n<b>Handicaps:</b> " + (chat.handicaps ? "on" : "off");
+    settings += "\n<b>Hardcore mode:</b> " + (chat.hardcoreMode ? "on" : "off");
     settings += "\n<b>Multiplier:</b> x" + chat.multiplier;
     settings += "\n<b>Random dank times per day:</b> " + chat.numberOfRandomTimes;
     settings += "\n<b>Random dank time points:</b> " + chat.pointsPerRandomTime;
@@ -90,14 +94,16 @@ export class TelegramBotCommands {
    * @returns The response.
    */
   public dankTimes(msg: any, match: any): string {
-    let dankTimes = "<b>--- DANK TIMES ---</b>\n";
+    let dankTimes = "<b>⏰ DANK TIMES</b>\n";
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     for (const time of chat.dankTimes) {
       dankTimes +=
-        `\ntime: ${util.padNumber(time.hour)}:${util.padNumber(time.minute)}:00    points: ${time.points}    texts:`;
+        `\ntime: ${this.util.padNumber(time.hour)}:`
+        + `${this.util.padNumber(time.minute)}:00    points: ${time.points}    texts: `;
       for (const text of time.texts) {
-        dankTimes += ` ${text}`;
+        dankTimes += `${text}, `;
       }
+      dankTimes = dankTimes.slice(0, -2);
     }
     return dankTimes;
   }
@@ -119,7 +125,7 @@ export class TelegramBotCommands {
    * @returns The response.
    */
   public help(msg: any, match: any): string {
-    let help = "<b>--- AVAILABLE COMMANDS ---</b>\n";
+    let help = "<b>ℹ️ AVAILABLE COMMANDS</b>\n";
     this.tgClient.commands.forEach((command) => help += "\n/" + command.name + " - " + command.description);
     return help;
   }
@@ -132,26 +138,34 @@ export class TelegramBotCommands {
    */
   public addTime(msg: any, match: any): string {
 
-    // Split string and ensure it contains at least 4 items.
-    const split = match.input.split(" ");
-    if (split.length < 5) {
-      return "Not enough arguments! Format: /addtime [hour] [minute] [points] [text1] [text2] etc.";
+    const commaSplit: string[] = match.input.split(",").filter((part: string) => !!part);
+    const spaceSplit: string[] = commaSplit[0].split(" ").filter((part: string) => !!part);
+
+    // Ensure it contains at least 4 items.
+    if (spaceSplit.length < 5) {
+      return "⚠️ Not enough arguments! Format: /addtime [hour] [minute] [points] [text1],[text2], etc.";
     }
 
     // Identify and verify arguments.
-    const hour = Number(split[1]);
-    const minute = Number(split[2]);
-    const points = Number(split[3]);
-    const texts = split.slice(4);
+    const hour = Number(spaceSplit[1]);
+    const minute = Number(spaceSplit[2]);
+    const points = Number(spaceSplit[3]);
+
     if (isNaN(hour)) {
-      return "The hour must be a number!";
+      return "⚠️ The hour must be a number!";
     }
     if (isNaN(minute)) {
-      return "The minute must be a number!";
+      return "⚠️ The minute must be a number!";
     }
     if (isNaN(points)) {
-      return "The points must be a number!";
+      return "⚠️ The points must be a number!";
     }
+
+    // Construct the texts.
+    for (let i = 0; i < commaSplit.length; i++) {
+      commaSplit[i] = commaSplit[i].trim();
+    }
+    const texts = [spaceSplit.slice(4).join(" ")].concat(commaSplit.slice(1));
 
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
@@ -170,9 +184,9 @@ export class TelegramBotCommands {
           this.scheduler.scheduleAutoLeaderboard(chat, dankTime);
         }
       }
-      return "Added the new time!";
+      return "⏰ Added the new time!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -187,17 +201,17 @@ export class TelegramBotCommands {
     // Split string and ensure it contains at least 2 items.
     const split = match.input.split(" ");
     if (split.length < 3) {
-      return "Not enough arguments! Format: /removetime [hour] [minute]";
+      return "⚠️ Not enough arguments! Format: /removetime [hour] [minute]";
     }
 
     // Identify and verify arguments.
     const hour = Number(split[1]);
     const minute = Number(split[2]);
     if (isNaN(hour)) {
-      return "The hour must be a number!";
+      return "⚠️ The hour must be a number!";
     }
     if (isNaN(minute)) {
-      return "The minute must be a number!";
+      return "⚠️ The minute must be a number!";
     }
 
     // Remove dank time if it exists, otherwise just send an info message.
@@ -207,9 +221,9 @@ export class TelegramBotCommands {
     if (dankTime !== null && chat.removeDankTime(hour, minute)) {
       this.scheduler.unscheduleDankTime(chat, dankTime);
       this.scheduler.unscheduleAutoLeaderboard(chat, dankTime);
-      return "Removed the time!";
+      return "🚮 Removed the time!";
     } else {
-      return "No dank time known with that hour and minute!";
+      return "⚠️ No dank time known with that hour and minute!";
     }
   }
 
@@ -224,7 +238,7 @@ export class TelegramBotCommands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(" ");
     if (split.length < 2) {
-      return "Not enough arguments! Format: /settimezone [timezone]";
+      return "⚠️ Not enough arguments! Format: /settimezone [timezone]";
     }
 
     // Update the time zone.
@@ -235,9 +249,9 @@ export class TelegramBotCommands {
       // Reschedule due to timezone change.
       this.scheduler.unscheduleAllOfChat(chat);
       this.scheduler.scheduleAllOfChat(chat);
-      return "Updated the time zone!";
+      return "🎉 Updated the time zone!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -252,20 +266,20 @@ export class TelegramBotCommands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(" ");
     if (split.length < 2) {
-      return "Not enough arguments! Format: /setmultiplier [number]";
+      return "⚠️ Not enough arguments! Format: /setmultiplier [number]";
     }
 
     const multiplier = Number(split[1]);
     if (isNaN(multiplier)) {
-      return "The multiplier must be a number!";
+      return "⚠️ The multiplier must be a number!";
     }
 
     // Update the time zone.
     try {
       this.chatRegistry.getOrCreateChat(msg.chat.id).multiplier = multiplier;
-      return "Updated the multiplier!";
+      return "🎉 Updated the multiplier!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -280,12 +294,12 @@ export class TelegramBotCommands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(" ");
     if (split.length < 2) {
-      return "Not enough arguments! Format: /setdailyrandomfrequency [number]";
+      return "⚠️ Not enough arguments! Format: /setdailyrandomfrequency [number]";
     }
 
     const dailyRandomTimes = Number(split[1]);
     if (isNaN(dailyRandomTimes)) {
-      return "The frequency must be a number!";
+      return "⚠️ The frequency must be a number!";
     }
 
     // Do the update.
@@ -303,9 +317,9 @@ export class TelegramBotCommands {
           this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
         }
       }
-      return "Updated the number of random dank times per day!";
+      return "🎉 Updated the number of random dank times per day!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -320,19 +334,19 @@ export class TelegramBotCommands {
     // Split string and ensure it contains at least 1 item.
     const split = match.input.split(" ");
     if (split.length < 2) {
-      return "Not enough arguments! Format: /setdailyrandompoints [number]";
+      return "⚠️ Not enough arguments! Format: /setdailyrandompoints [number]";
     }
 
     const pointsPerRandomTime = Number(split[1]);
     if (isNaN(pointsPerRandomTime)) {
-      return "The points must be a number!";
+      return "⚠️ The points must be a number!";
     }
 
     try {
       this.chatRegistry.getOrCreateChat(msg.chat.id).pointsPerRandomTime = pointsPerRandomTime;
-      return "Updated the points for random daily dank times!";
+      return "🎉 Updated the points for random daily dank times!";
     } catch (err) {
-      return err.message;
+      return "⚠️ " + err.message;
     }
   }
 
@@ -350,12 +364,12 @@ export class TelegramBotCommands {
       if (chat.running) {
         this.scheduler.scheduleDankTimesOfChat(chat);
       }
-      return "Normal dank time notifications are now enabled!";
+      return "🔔 Normal dank time notifications are now enabled!";
     } else {
       if (chat.running) {
         this.scheduler.unscheduleDankTimesOfChat(chat);
       }
-      return "Normal dank time notifications are now disabled! (Random dank time notifications remain enabled.)";
+      return "🔕 Normal dank time notifications are now disabled! (Random dank time notifications remain enabled.)";
     }
   }
 
@@ -373,12 +387,12 @@ export class TelegramBotCommands {
       if (chat.running) {
         this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
       }
-      return "Automatic leaderboard posting is now enabled!";
+      return "🔔 Automatic leaderboard posting is now enabled!";
     } else {
       if (chat.running) {
         this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
       }
-      return "Automatic leaderboard posting is now disabled!";
+      return "🔕 Automatic leaderboard posting is now disabled!";
     }
   }
 
@@ -391,8 +405,21 @@ export class TelegramBotCommands {
   public toggleFirstNotifications(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.firstNotifications = !chat.firstNotifications;
-    return chat.firstNotifications ? "Announcements for first users to score are now enabled!"
-      : "Announcements for first users to score are now disabled!";
+    return chat.firstNotifications ? "🔔 Announcements for first users to score are now enabled!"
+      : "🔕 Announcements for first users to score are now disabled!";
+  }
+
+  /**
+   * Toggles whether the bottom x% of players get a handicap multiplier bonus.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  public toggleHandicaps(msg: any, match: any): string {
+    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+    chat.handicaps = !chat.handicaps;
+    return chat.handicaps ? "♿ Handicaps are now enabled! Users with the lowest scores now earn more points!"
+      : "🚴 Handicaps are now disabled!";
   }
 
   /**
@@ -402,7 +429,7 @@ export class TelegramBotCommands {
    * @returns The response.
    */
   public getReleaseLog(msg: any, match: any): string {
-    let reply = "<b>--- RELEASES ---</b>\n";
+    let reply = "<b>🗒️ RELEASES</b>\n";
     this.releaseLog.forEach((release) => {
       reply += "\n";
       reply += "<b>Version:</b> " + release.version + "\n";
@@ -425,7 +452,7 @@ export class TelegramBotCommands {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.hardcoreMode = !chat.hardcoreMode;
     return chat.hardcoreMode
-      ? "Hardcore mode is now enabled! Every day, those who did not score the previous day are punished!"
-      : "Hardcore mode is now disabled!";
+      ? "☠️ Hardcore mode is now enabled! Every day, those who did not score the previous day are punished!"
+      : "👶 Hardcore mode is now disabled!";
   }
 }

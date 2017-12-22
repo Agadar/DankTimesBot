@@ -1,39 +1,16 @@
-import * as moment from "moment-timezone";
 import { DankTime } from "../dank-time/dank-time";
-import { Leaderboard } from "../leaderboard/leaderboard";
-import { User } from "../user/user";
-import * as util from "../util/util";
+import { IUtil } from "../util/i-util";
 import { BasicChat } from "./basic-chat";
+import { Leaderboard } from "./leaderboard/leaderboard";
+import { User } from "./user/user";
+
+const handicapMultiplier = 1.5;
+const bottomPartThatHasHandicap = 0.25;
+
+const punishByFraction = 0.1;
+const punishByPoints = 10;
 
 export class Chat {
-
-  /**
-   * Returns a new Chat parsed from a literal.
-   */
-  public static fromJSON(literal: BasicChat): Chat {
-
-    // For backwards compatibility with v.1.1.0.
-    if (!literal.multiplier) {
-      literal.multiplier = 2;
-    }
-    if (!literal.autoLeaderboards) {
-      literal.autoLeaderboards = true;
-    }
-    if (!literal.firstNotifications) {
-      literal.firstNotifications = true;
-    }
-
-    const dankTimes = new Array<DankTime>();
-    literal.dankTimes.forEach((dankTime) => dankTimes.push(DankTime.fromJSON(dankTime)));
-
-    const users = new Map();
-    literal.users.forEach((user) => users.set(user.id, User.fromJSON(user)));
-
-    return new Chat(literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes,
-      literal.pointsPerRandomTime, literal.lastHour, literal.lastMinute, users, dankTimes, [],
-      literal.notifications, literal.multiplier, literal.autoLeaderboards, literal.firstNotifications,
-      literal.hardcoreMode);
-  }
 
   public awaitingResetConfirmation = -1;
 
@@ -48,6 +25,7 @@ export class Chat {
 
   /**
    * Creates a new Chat object.
+   * @param moment Reference to timezone import.
    * @param id The chat's unique Telegram id.
    * @param timezone The timezone the users are in.
    * @param running Whether this bot is running for this chat.
@@ -64,11 +42,25 @@ export class Chat {
    * @param firstNotifications Whether this chat announces the first user to score.
    * @param hardcoreMode Whether this chat punishes users that haven't scored in the last 24 hours.
    */
-  constructor(id: number, timezone = "Europe/Amsterdam", public running = false, numberOfRandomTimes = 1,
-              pointsPerRandomTime = 10, lastHour = 0, lastMinute = 0, private readonly users = new Map<number, User>(),
-              public readonly dankTimes = new Array<DankTime>(), public randomDankTimes = new Array<DankTime>(),
-              public notifications = true, multiplier = 2, public autoLeaderboards = true,
-              public firstNotifications = true, public hardcoreMode = false) {
+  constructor(
+    private readonly moment: any,
+    private readonly util: IUtil,
+    id: number,
+    timezone = "Europe/Amsterdam",
+    public running = false,
+    numberOfRandomTimes = 1,
+    pointsPerRandomTime = 10,
+    lastHour = 0,
+    lastMinute = 0,
+    private readonly users = new Map<number, User>(),
+    public readonly dankTimes = new Array<DankTime>(),
+    public randomDankTimes = new Array<DankTime>(),
+    public notifications = true,
+    multiplier = 2,
+    public autoLeaderboards = true,
+    public firstNotifications = true,
+    public hardcoreMode = false,
+    public handicaps = true) {
 
     this.id = id;
     this.timezone = timezone;
@@ -91,10 +83,12 @@ export class Chat {
   }
 
   public set timezone(timezone: string) {
-    if (moment.tz.zone(timezone) === null) {
+    const momentTimezone = this.moment.tz.zone(timezone);
+
+    if (momentTimezone === null) {
       throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
     }
-    this.myTimezone = timezone;
+    this.myTimezone = momentTimezone.name;
   }
 
   public get timezone(): string {
@@ -177,6 +171,12 @@ export class Chat {
     this.users.set(user.id, user);
   }
 
+  public removeUser(userId: number): User | null {
+    const userToRemove = this.users.get(userId);
+    this.users.delete(userId);
+    return userToRemove ? userToRemove : null;
+  }
+
   /**
    * Gets an array of the users, sorted by scores.
    */
@@ -192,12 +192,17 @@ export class Chat {
    */
   public generateRandomDankTimes(): DankTime[] {
     this.randomDankTimes = new Array<DankTime>();
+
     for (let i = 0; i < this.myNumberOfRandomTimes; i++) {
-      const now = moment().tz(this.timezone);
-      now.add(now.hours() + Math.floor(Math.random() * 23), "hours");
+      const now = this.moment().tz(this.timezone);
+
+      now.add(Math.floor(Math.random() * 23), "hours");
       now.minutes(Math.floor(Math.random() * 59));
-      const text = util.padNumber(now.hours()) + util.padNumber(now.minutes());
-      this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
+
+      if (!this.hourAndMinuteAlreadyRegistered(now.hours(), now.minutes())) {
+        const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
+        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
+      }
     }
     return this.randomDankTimes;
   }
@@ -210,6 +215,7 @@ export class Chat {
       autoLeaderboards: this.autoLeaderboards,
       dankTimes: this.dankTimes,
       firstNotifications: this.firstNotifications,
+      handicaps: this.handicaps,
       hardcoreMode: this.hardcoreMode,
       id: this.myId,
       lastHour: this.myLastHour,
@@ -231,11 +237,11 @@ export class Chat {
   public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string {
 
     // Ignore the message if it was sent more than 1 minute ago.
-    const now = moment().tz(this.timezone);
+    const now = this.moment.tz(this.timezone);
     if (now.unix() - msgUnixTime >= 60) {
       return "";
     }
-    msgText = util.cleanText(msgText);
+    msgText = this.util.cleanText(msgText);
 
     // If we are awaiting reset confirmation...
     if (this.awaitingResetConfirmation === userId) {
@@ -268,8 +274,8 @@ export class Chat {
     if (user.name !== userName) {
       user.name = userName;
     }
-
     let subtractBy = 0;
+
     for (const dankTime of dankTimesByText) {
       if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
 
@@ -278,15 +284,23 @@ export class Chat {
           this.users.forEach((user0) => user0.called = false);
           this.lastHour = dankTime.hour;
           this.lastMinute = dankTime.minute;
-          user.addToScore(Math.round(dankTime.points * this.myMultiplier));
+          let score = dankTime.points * this.myMultiplier;
+
+          if (this.userDeservesHandicapBonus(user.id)) {
+            score *= handicapMultiplier;
+          }
+          user.addToScore(Math.round(score), now.unix());
           user.called = true;
+
           if (this.firstNotifications) {
-            return user.name + " was the first to score!";
+            return "👏 " + user.name + " was the first to score!";
           }
         } else if (user.called) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.points);
+          user.addToScore(-dankTime.points, now.unix());
         } else {  // Else, award point.
-          user.addToScore(dankTime.points);
+          const score = Math.round(this.userDeservesHandicapBonus(user.id)
+            ? dankTime.points * handicapMultiplier : dankTime.points);
+          user.addToScore(score, now.unix());
           user.called = true;
         }
         return "";
@@ -295,7 +309,7 @@ export class Chat {
       }
     }
     // If no match was found, punish the user.
-    user.addToScore(-subtractBy);
+    user.addToScore(-subtractBy, now.unix());
     return "";
   }
 
@@ -340,7 +354,7 @@ export class Chat {
     // Construct string to return.
     const oldLeaderboard = this.myLastLeaderboard;
     this.myLastLeaderboard = new Leaderboard(Array.from(this.users.values()));
-    let leaderboard = "<b>--- " + (final ? "FINAL " : "") + "LEADERBOARD ---</b>\n";
+    let leaderboard = "<b>🏆 " + (final ? "FINAL " : "") + "LEADERBOARD</b>\n";
     leaderboard += this.myLastLeaderboard.toString(oldLeaderboard);
 
     // Reset last score change values of all users.
@@ -369,10 +383,15 @@ export class Chat {
   public hardcoreModeCheck(timestamp: number) {
     if (this.hardcoreMode) {
       const day = 24 * 60 * 60;
-      const punishBy = 10;
       this.users.forEach((user) => {
-        if (timestamp - user.lastScoreTimestamp >= day && user.score - punishBy >= 0) {
-          user.addToScore(-punishBy);
+        if (timestamp - user.lastScoreTimestamp >= day) {
+          let punishBy = Math.round(user.score * punishByFraction);
+          punishBy = Math.max(punishBy, punishByPoints);
+
+          if (user.score - punishBy < 0) {
+            punishBy = user.score;
+          }
+          user.addToScore(-punishBy, timestamp);
         }
       });
     }
@@ -389,5 +408,36 @@ export class Chat {
       }
     }
     return found;
+  }
+
+  private hourAndMinuteAlreadyRegistered(hour: number, minute: number): boolean {
+    for (const dankTime of this.dankTimes) {
+      if (dankTime.hour === hour && dankTime.minute === minute) {
+        return true;
+      }
+    }
+    for (const dankTime of this.randomDankTimes) {
+      if (dankTime.hour === hour && dankTime.minute === minute) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private userDeservesHandicapBonus(userId: number) {
+    if (!this.handicaps) {
+      return false;
+    }
+    const sortedUsers = this.sortedUsers();
+    let noOfHandicapped = sortedUsers.length * bottomPartThatHasHandicap;
+    noOfHandicapped = Math.round(noOfHandicapped);
+    const handicapped = sortedUsers.slice(-noOfHandicapped);
+
+    for (const entry of handicapped) {
+      if (entry.id === userId) {
+        return true;
+      }
+    }
+    return false;
   }
 }

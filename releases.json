@@ -1,9 +1,22 @@
 [
   {
+    "version": "1.4.0",
+    "date": "2017-12-22",
+    "changes": [
+      "Added a toggleable handicap mode, which rewards the users with the lowest scores",
+      "It is now possible to have sentences as texts for dank times",
+      "Increased hardcore mode punishment to user scores from 10 points to 10% of user scores",
+      "When a user leaves a chat, they are now removed from the leaderboard",
+      "Added emoji's here and there to lighten the mood",
+      "Fixed a bug that caused random dank times to sometimes overlap with other (random) dank times",
+      "Fixed a bug that caused timezones starting with lowercase to sometimes crash the server"
+    ]
+  },
+  {
     "version": "1.3.2",
     "date": "2017-08-20",
     "changes": [
-      "Fixed a bug where removing a DankTime would remove that DankTime and every DankTime after it."
+      "Fixed a bug where removing a DankTime would remove that DankTime and every DankTime after it"
     ]
   },
   {

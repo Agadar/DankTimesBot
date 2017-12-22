@@ -1,4 +1,3 @@
-import * as moment from "moment-timezone";
 import { BasicUser } from "./basic-user";
 
 export class User implements BasicUser {
@@ -37,8 +36,14 @@ export class User implements BasicUser {
    * @param called Whether the user called the last dank time already.
    * @param myLastScoreChange The last change to the user's score.
    */
-  constructor(public readonly id: number, public name: string, private myScore = 0,
-              private myLastScoreTimestamp = 0, public called = false, private myLastScoreChange = 0) {
+  constructor(
+    public readonly id: number,
+    public name: string,
+    private myScore = 0,
+    private myLastScoreTimestamp = 0,
+    public called = false,
+    private myLastScoreChange = 0,
+  ) {
     if (this.myScore % 1 !== 0) {
       throw new RangeError("The score should be a whole number!");
     }
@@ -71,14 +76,14 @@ export class User implements BasicUser {
   /**
    * Adds an amount to the user's DankTimes score.
    */
-  public addToScore(amount: number): void {
+  public addToScore(amount: number, timestamp: number): void {
     if (amount % 1 !== 0) {
       throw new RangeError("The amount should be a whole number!");
     }
     this.myScore += amount;
     this.myLastScoreChange += amount;
     if (amount > 0) {
-      this.myLastScoreTimestamp = moment().unix();
+      this.myLastScoreTimestamp = timestamp;
     }
   }
 

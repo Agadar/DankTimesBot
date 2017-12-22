@@ -1,8 +1,10 @@
 import { assert } from "chai";
 import "mocha";
-import * as util from "./util";
+import { Util } from "./util";
 
 describe("util.padNumber(msg)", () => {
+
+  const util = new Util();
   const tests = [
     { arg: "0", expected: "00" },
     { arg: "7", expected: "07" },
