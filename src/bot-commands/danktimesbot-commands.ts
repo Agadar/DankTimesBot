@@ -77,7 +77,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     settings += "\n<b>Chat time zone:</b> " + chat.timezone;
     settings += "\n<b>Dank time notifications:</b> " + (chat.notifications ? "on" : "off");
     settings += "\n<b>Handicaps:</b> " + (chat.handicaps ? "on" : "off");
-    settings += "\n<b>Hardcode mode:</b> " + (chat.hardcoreMode ? "on" : "off");
+    settings += "\n<b>Hardcore mode:</b> " + (chat.hardcoreMode ? "on" : "off");
     settings += "\n<b>Multiplier:</b> x" + chat.multiplier;
     settings += "\n<b>Random dank times per day:</b> " + chat.numberOfRandomTimes;
     settings += "\n<b>Random dank time points:</b> " + chat.pointsPerRandomTime;

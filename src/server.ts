@@ -101,7 +101,7 @@ export class Server {
     if (this.config.sendWhatsNewMsg && this.releaseLog.length > 0) {
 
       // Prepare message.
-      let message = `<b>--- What's new in version ${this.releaseLog[0].version} ? ---</b>\n\n`;
+      let message = `<b>🗒️ What's new in version ${this.releaseLog[0].version} ?</b>\n\n`;
       this.releaseLog[0].changes.forEach((change) => {
         message += `- ${change}\n`;
       });
