@@ -45,6 +45,54 @@ describe("Chat.hardcoreModeCheck", () => {
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, 0);
   });
+
+  it("punished player with score of which 10% > 10 should get 10% punishment", () => {
+
+    // Arrange
+    const user = new User(0, "user0", 250, nowMinus24Hours, false, 0);
+    const users = new Map<number, User>();
+    users.set(user.id, user);
+    const chat = new Chat(
+      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+
+    // Act
+    chat.hardcoreModeCheck(now);
+
+    // Assert
+    assert.equal(user.score, 225);
+  });
+
+  it("punished player with score of which 10% <= 10 >= 10 should get 10 points punishment", () => {
+
+    // Arrange
+    const user = new User(0, "user0", 50, nowMinus24Hours, false, 0);
+    const users = new Map<number, User>();
+    users.set(user.id, user);
+    const chat = new Chat(
+      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+
+    // Act
+    chat.hardcoreModeCheck(now);
+
+    // Assert
+    assert.equal(user.score, 40);
+  });
+
+  it("punished player with score < 10 should have score set to 0", () => {
+
+    // Arrange
+    const user = new User(0, "user0", 5, nowMinus24Hours, false, 0);
+    const users = new Map<number, User>();
+    users.set(user.id, user);
+    const chat = new Chat(
+      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+
+    // Act
+    chat.hardcoreModeCheck(now);
+
+    // Assert
+    assert.equal(user.score, 0);
+  });
 });
 
 describe("Chat.generateRandomDankTimes", () => {

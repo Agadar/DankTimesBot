@@ -7,6 +7,9 @@ import { User } from "./user/user";
 const handicapMultiplier = 1.5;
 const bottomPartThatHasHandicap = 0.25;
 
+const punishByFraction = 0.1;
+const punishByPoints = 10;
+
 export class Chat {
 
   public awaitingResetConfirmation = -1;
@@ -380,9 +383,14 @@ export class Chat {
   public hardcoreModeCheck(timestamp: number) {
     if (this.hardcoreMode) {
       const day = 24 * 60 * 60;
-      const punishBy = 10;
       this.users.forEach((user) => {
-        if (timestamp - user.lastScoreTimestamp >= day && user.score - punishBy >= 0) {
+        if (timestamp - user.lastScoreTimestamp >= day) {
+          let punishBy = Math.round(user.score * punishByFraction);
+          punishBy = Math.max(punishBy, punishByPoints);
+
+          if (user.score - punishBy < 0) {
+            punishBy = user.score;
+          }
           user.addToScore(-punishBy, timestamp);
         }
       });
