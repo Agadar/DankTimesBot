@@ -93,7 +93,7 @@ export class Server {
           // Your punishment must be more severe!
           chat.hardcoreModeCheck(now);
 
-          // Remove plebeans whose score is 0.
+          // Remove plebs whose score is 0.
           chat.removeUsersWithZeroScore();
         }
       });
