@@ -425,7 +425,7 @@ export class Chat {
   }
 
   private userDeservesHandicapBonus(userId: number) {
-    if (!this.handicaps) {
+    if (!this.handicaps || this.users.size < 2) {
       return false;
     }
     const sortedUsers = this.sortedUsers();

@@ -310,4 +310,23 @@ describe("Chat.processMessage", () => {
     assert.equal(scorer.score, 10);
   });
 
+  it("should NOT award handicap value if user that scores deserves it and was first but is only one in chat", () => {
+
+    // Arrange
+    chat.removeUser(1);
+    chat.removeUser(2);
+    chat.removeUser(3);
+
+    // Act
+    const res = chat.processMessage(0, "user#0", "0113", now.unix());
+
+    // Assert
+    assert.equal(res, "👏 user#0 was the first to score!");
+    const sortedUsers = chat.sortedUsers();
+
+    const scorer = sortedUsers[0];
+    assert.equal(scorer.id, 0);
+    assert.equal(scorer.score, 10);
+  });
+
 });
