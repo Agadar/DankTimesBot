@@ -6,17 +6,11 @@ export class TelegramClientMock implements ITelegramClient {
   public readonly commands = new Map<string, BotCommand>();
   public readonly botname = "testbot";
 
-  public retrieveBotName(): Promise<string> {
-    return new Promise(() => {
-      return this.botname;
-    });
-  }
-
   public setOnAnyText(action: (msg: any, match: string[]) => string): void {
     // Don't do anything, this is a mock.
    }
 
-  public registerCommand(command: BotCommand): void {
+  public async registerCommand(command: BotCommand): Promise<void> {
     // Don't do anything, this is a mock.
   }
 

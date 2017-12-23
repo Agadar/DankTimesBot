@@ -7,28 +7,11 @@ import { ITelegramClient } from "./i-telegram-client";
 export class TelegramClient implements ITelegramClient {
 
   public readonly commands = new Map<string, BotCommand>();
-  private myBotname = "";
+
+  private cachedBotUsername = "";
+  private botUsernamePromise: Promise<string> | null = null;
 
   constructor(private readonly bot: any) { }
-
-  /**
-   * Retrieves and stores the bot's name from the API.
-   */
-  public retrieveBotName(): Promise<string> {
-    const thisRef = this;
-    return this.bot.getMe().then((me: any) => {
-      thisRef.myBotname = me.username;
-      return me.username;
-    });
-  }
-
-  /**
-   * Gets the bot's name, or an empty string if this.retrieveBotName() wasn't called yet.
-   */
-  public get botname(): string {
-    return this.myBotname;
-
-  }
 
   /**
    * Sets the action to do on ANY incoming text.
@@ -45,16 +28,17 @@ export class TelegramClient implements ITelegramClient {
   /**
    * Registers a new command, overriding any with the same name.
    */
-  public registerCommand(command: BotCommand): void {
+  public async registerCommand(command: BotCommand): Promise<void> {
     this.commands.set(command.name, command);
+    const botUsername = await this.getBotUsername();
 
     // Register the command with the bot accordingly.
     if (!command.adminOnly) {
-      this.bot.onText(command.getRegex(this.myBotname), (msg: any, match: string[]) => {
+      this.bot.onText(command.getRegex(botUsername), (msg: any, match: string[]) => {
         this.sendMessage(msg.chat.id, command.action.call(command.object, msg, match));
       });
     } else {
-      this.bot.onText(command.getRegex(this.myBotname), (msg: any, match: string[]) => {
+      this.bot.onText(command.getRegex(botUsername), (msg: any, match: string[]) => {
         this.callFunctionIfUserIsAdmin(msg, match, command.object, command.action);
       });
     }
@@ -66,6 +50,24 @@ export class TelegramClient implements ITelegramClient {
         + ` when this bot attempted to send a message to chat with id ${chatId}.`
         + ` Error description: '${reason.response.body.description}'.`);
     });
+  }
+
+  /**
+   * Retrieves and stores the bot's username from the API.
+   */
+  private async getBotUsername(): Promise<string> {
+    if (this.cachedBotUsername !== "") {
+      return this.cachedBotUsername;
+    }
+    if (this.botUsernamePromise !== null) {
+      return this.botUsernamePromise;
+    }
+    return this.botUsernamePromise = this.bot.getMe()
+      .then((me: any) => {
+        this.cachedBotUsername = me.username;
+        this.botUsernamePromise = null;
+        return this.cachedBotUsername;
+      });
   }
 
   /**
