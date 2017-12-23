@@ -2,12 +2,12 @@ import { assert } from "chai";
 import "mocha";
 import * as moment from "moment-timezone";
 
-import { ChatRegistryMock } from "../chat-registry/chat-registry-mock";
-import { Chat } from "../chat/chat";
-import { DankTimeSchedulerMock } from "../dank-time-scheduler/dank-time-scheduler-mock";
-import { TelegramClientMock } from "../telegram-client/telegram-client-mock";
-import { Util } from "../util/util";
-import { BotCommand } from "./bot-command";
+import { ChatRegistryMock } from "../../chat-registry/chat-registry-mock";
+import { Chat } from "../../chat/chat";
+import { DankTimeSchedulerMock } from "../../dank-time-scheduler/dank-time-scheduler-mock";
+import { TelegramClientMock } from "../../telegram-client/telegram-client-mock";
+import { Util } from "../../util/util";
+import { BotCommand } from "../bot-command";
 import { DankTimesBotCommands } from "./danktimesbot-commands";
 
 describe("DankTimesBotCommands.addTime", () => {

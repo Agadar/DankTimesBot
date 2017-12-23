@@ -1,9 +1,9 @@
-import { IChatRegistry } from "../chat-registry/i-chat-registry";
-import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
-import { DankTime } from "../dank-time/dank-time";
-import { Release } from "../misc/release";
-import { ITelegramClient } from "../telegram-client/i-telegram-client";
-import { IUtil } from "../util/i-util";
+import { IChatRegistry } from "../../chat-registry/i-chat-registry";
+import { IDankTimeScheduler } from "../../dank-time-scheduler/i-dank-time-scheduler";
+import { DankTime } from "../../dank-time/dank-time";
+import { Release } from "../../misc/release";
+import { ITelegramClient } from "../../telegram-client/i-telegram-client";
+import { IUtil } from "../../util/i-util";
 import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */

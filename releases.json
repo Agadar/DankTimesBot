@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.5.0",
+    "date": "2017-12-23",
+    "changes": [
+      "Users whose score is 0 are now removed from the leaderboard on nightly updates",
+      "When a user is the only user in a chat, they no longer benefit from handicap mode",
+      "The bot now prints its version in the console on launch",
+      "Gave the developer (i.e. me) admin-level access to all bot commands",
+      "Fixed a bug that caused hardcore mode to set a user's score to 0 if their score was negative"
+    ]
+  },
+  {
     "version": "1.4.0",
     "date": "2017-12-22",
     "changes": [

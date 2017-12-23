@@ -93,6 +93,38 @@ describe("Chat.hardcoreModeCheck", () => {
     // Assert
     assert.equal(user.score, 0);
   });
+
+  it("should NOT punish or otherwise alter a player's score if their score is 0", () => {
+
+    // Arrange
+    const user = new User(0, "user0", 0, nowMinus24Hours, false, 0);
+    const users = new Map<number, User>();
+    users.set(user.id, user);
+    const chat = new Chat(
+      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+
+    // Act
+    chat.hardcoreModeCheck(now);
+
+    // Assert
+    assert.equal(user.score, 0);
+  });
+
+  it("should NOT punish or otherwise alter a player's score if their score is < 0", () => {
+
+    // Arrange
+    const user = new User(0, "user0", -10, nowMinus24Hours, false, 0);
+    const users = new Map<number, User>();
+    users.set(user.id, user);
+    const chat = new Chat(
+      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+
+    // Act
+    chat.hardcoreModeCheck(now);
+
+    // Assert
+    assert.equal(user.score, -10);
+  });
 });
 
 describe("Chat.generateRandomDankTimes", () => {
@@ -278,4 +310,51 @@ describe("Chat.processMessage", () => {
     assert.equal(scorer.score, 10);
   });
 
+  it("should NOT award handicap value if user that scores deserves it and was first but is only one in chat", () => {
+
+    // Arrange
+    chat.removeUser(1);
+    chat.removeUser(2);
+    chat.removeUser(3);
+
+    // Act
+    const res = chat.processMessage(0, "user#0", "0113", now.unix());
+
+    // Assert
+    assert.equal(res, "👏 user#0 was the first to score!");
+    const sortedUsers = chat.sortedUsers();
+
+    const scorer = sortedUsers[0];
+    assert.equal(scorer.id, 0);
+    assert.equal(scorer.score, 10);
+  });
+
+});
+
+describe("Chat.removeUsersWithZeroScore", () => {
+
+  let chat: Chat;
+
+  beforeEach("Instantiate test variables", () => {
+    chat = new Chat(momentMock, util, 0);
+
+    for (let i = 0; i < 4; i++) {
+      const user = new User(i, `user#${i}`, i * 10);
+      chat.addUser(user);
+    }
+  });
+
+  it("should remove users with score of 0", () => {
+
+    // Act
+    chat.removeUsersWithZeroScore();
+
+    // Assert
+    const users = chat.sortedUsers();
+    assert.equal(users.length, 3);
+
+    for (const user of users) {
+      assert.notEqual(user.id, 0);
+    }
+  });
 });

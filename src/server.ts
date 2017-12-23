@@ -1,4 +1,4 @@
-import { IDankTimesBotCommandsRegistrar } from "./bot-commands/i-danktimesbot-commands-registrar";
+import { IDankTimesBotCommandsRegistrar } from "./bot-commands/registrar/i-danktimesbot-commands-registrar";
 import { IChatRegistry } from "./chat-registry/i-chat-registry";
 import { Chat } from "./chat/chat";
 import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler";
@@ -22,6 +22,7 @@ export class Server {
     private readonly moment: any,
     private readonly cronJob: any,
     private readonly dankTimesBotCommandsRegistrar: IDankTimesBotCommandsRegistrar,
+    private readonly version: string,
   ) { }
 
   public run(): void {
@@ -46,7 +47,7 @@ export class Server {
     this.sendWhatsNewMessageIfApplicable();
 
     // Inform server.
-    console.info("Bot is now running!");
+    console.info(`Bot is now running! Version: ${this.version}.`);
   }
 
   private scheduleChatsPersistence(): void {
@@ -73,8 +74,7 @@ export class Server {
 
   private scheduleNightlyUpdates(): void {
     this.dailyUpdate = new this.cronJob("0 0 0 * * *", () => {
-      console.info("Generating random dank times for all chats and punishing"
-        + " users that haven't scored in the past 24 hours!");
+      console.info("Doing the nightly update!");
       const now = this.moment().unix();
       this.chatRegistry.chats.forEach((chat: Chat) => {
         if (chat.running) {
@@ -92,6 +92,9 @@ export class Server {
 
           // Your punishment must be more severe!
           chat.hardcoreModeCheck(now);
+
+          // Remove plebs whose score is 0.
+          chat.removeUsersWithZeroScore();
         }
       });
     }, undefined, true);

@@ -384,7 +384,7 @@ export class Chat {
     if (this.hardcoreMode) {
       const day = 24 * 60 * 60;
       this.users.forEach((user) => {
-        if (timestamp - user.lastScoreTimestamp >= day) {
+        if (timestamp - user.lastScoreTimestamp >= day && user.score > 0) {
           let punishBy = Math.round(user.score * punishByFraction);
           punishBy = Math.max(punishBy, punishByPoints);
 
@@ -395,6 +395,14 @@ export class Chat {
         }
       });
     }
+  }
+
+  public removeUsersWithZeroScore(): void {
+    this.users.forEach((user, id) => {
+      if (user.score === 0) {
+        this.users.delete(id);
+      }
+    });
   }
 
   /**
@@ -425,7 +433,7 @@ export class Chat {
   }
 
   private userDeservesHandicapBonus(userId: number) {
-    if (!this.handicaps) {
+    if (!this.handicaps || this.users.size < 2) {
       return false;
     }
     const sortedUsers = this.sortedUsers();
