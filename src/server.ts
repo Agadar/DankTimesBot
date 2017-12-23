@@ -22,6 +22,7 @@ export class Server {
     private readonly moment: any,
     private readonly cronJob: any,
     private readonly dankTimesBotCommandsRegistrar: IDankTimesBotCommandsRegistrar,
+    private readonly version: string,
   ) { }
 
   public run(): void {
@@ -46,7 +47,7 @@ export class Server {
     this.sendWhatsNewMessageIfApplicable();
 
     // Inform server.
-    console.info("Bot is now running!");
+    console.info(`Bot is now running! Version: ${this.version}.`);
   }
 
   private scheduleChatsPersistence(): void {

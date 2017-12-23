@@ -12,11 +12,12 @@ import { TelegramClient } from "./telegram-client/telegram-client";
 import { FileIO } from "./util/file-io/file-io";
 import { Util } from "./util/util";
 
+// tslint:disable-next-line:no-var-requires
+export const version = require("../package.json").version;
 export const fileIO = new FileIO(fs);
 
 const initialChats = fileIO.loadChatsFromFile();
 const util = new Util();
-const version = "1.4.0";
 
 export const chatRegistry = new ChatRegistry(momentImport, util);
 chatRegistry.loadFromJSON(initialChats);
