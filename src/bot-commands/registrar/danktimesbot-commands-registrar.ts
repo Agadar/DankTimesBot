@@ -1,7 +1,7 @@
-import { IChatRegistry } from "../chat-registry/i-chat-registry";
-import { ITelegramClient } from "../telegram-client/i-telegram-client";
-import { BotCommand } from "./bot-command";
-import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
+import { IChatRegistry } from "../../chat-registry/i-chat-registry";
+import { ITelegramClient } from "../../telegram-client/i-telegram-client";
+import { BotCommand } from "../bot-command";
+import { IDankTimesBotCommands } from "../commands/i-danktimesbot-commands";
 import { IDankTimesBotCommandsRegistrar } from "./i-danktimesbot-commands-registrar";
 
 export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegistrar {

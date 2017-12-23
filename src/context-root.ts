@@ -4,8 +4,8 @@ import * as momentImport from "moment-timezone";
 import nodeCleanupImport = require("node-cleanup");
 import TelegramBot = require("node-telegram-bot-api");
 
-import { DankTimesBotCommands } from "./bot-commands/danktimesbot-commands";
-import { DankTimesBotCommandsRegistrar } from "./bot-commands/danktimesbot-commands-registrar";
+import { DankTimesBotCommands } from "./bot-commands/commands/danktimesbot-commands";
+import { DankTimesBotCommandsRegistrar } from "./bot-commands/registrar/danktimesbot-commands-registrar";
 import { ChatRegistry } from "./chat-registry/chat-registry";
 import { DankTimeScheduler } from "./dank-time-scheduler/dank-time-scheduler";
 import { TelegramClient } from "./telegram-client/telegram-client";

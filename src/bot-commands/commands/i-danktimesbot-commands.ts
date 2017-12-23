@@ -1,4 +1,4 @@
-import { Release } from "../misc/release";
+import { Release } from "../../misc/release";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export interface IDankTimesBotCommands {

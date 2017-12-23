@@ -1,4 +1,4 @@
-import { IDankTimesBotCommandsRegistrar } from "./bot-commands/i-danktimesbot-commands-registrar";
+import { IDankTimesBotCommandsRegistrar } from "./bot-commands/registrar/i-danktimesbot-commands-registrar";
 import { IChatRegistry } from "./chat-registry/i-chat-registry";
 import { Chat } from "./chat/chat";
 import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler";
