@@ -330,3 +330,31 @@ describe("Chat.processMessage", () => {
   });
 
 });
+
+describe("Chat.removeUsersWithZeroScore", () => {
+
+  let chat: Chat;
+
+  beforeEach("Instantiate test variables", () => {
+    chat = new Chat(momentMock, util, 0);
+
+    for (let i = 0; i < 4; i++) {
+      const user = new User(i, `user#${i}`, i * 10);
+      chat.addUser(user);
+    }
+  });
+
+  it("should remove users with score of 0", () => {
+
+    // Act
+    chat.removeUsersWithZeroScore();
+
+    // Assert
+    const users = chat.sortedUsers();
+    assert.equal(users.length, 3);
+
+    for (const user of users) {
+      assert.notEqual(user.id, 0);
+    }
+  });
+});

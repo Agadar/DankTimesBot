@@ -397,6 +397,14 @@ export class Chat {
     }
   }
 
+  public removeUsersWithZeroScore(): void {
+    this.users.forEach((user, id) => {
+      if (user.score === 0) {
+        this.users.delete(id);
+      }
+    });
+  }
+
   /**
    * Gets both normal and random dank times that have the specified text.
    */

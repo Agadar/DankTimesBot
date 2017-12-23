@@ -74,8 +74,7 @@ export class Server {
 
   private scheduleNightlyUpdates(): void {
     this.dailyUpdate = new this.cronJob("0 0 0 * * *", () => {
-      console.info("Generating random dank times for all chats and punishing"
-        + " users that haven't scored in the past 24 hours!");
+      console.info("Doing the nightly update!");
       const now = this.moment().unix();
       this.chatRegistry.chats.forEach((chat: Chat) => {
         if (chat.running) {
@@ -93,6 +92,9 @@ export class Server {
 
           // Your punishment must be more severe!
           chat.hardcoreModeCheck(now);
+
+          // Remove plebeans whose score is 0.
+          chat.removeUsersWithZeroScore();
         }
       });
     }, undefined, true);
