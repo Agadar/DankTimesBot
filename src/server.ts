@@ -2,7 +2,7 @@ import { IDankTimesBotCommandsRegistrar } from "./bot-commands/registrar/i-dankt
 import { IChatRegistry } from "./chat-registry/i-chat-registry";
 import { Chat } from "./chat/chat";
 import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler";
-import { IDankTimeBotController } from "./danktimebot-controller/i-danktimebot-controller";
+import { IDankTimesBotController } from "./danktimesbot-controller/i-danktimesbot-controller";
 import { Config } from "./misc/config";
 import { Release } from "./misc/release";
 import { ITelegramClient } from "./telegram-client/i-telegram-client";
@@ -25,7 +25,7 @@ export class Server {
     private readonly cronJob: any,
     private readonly dankTimesBotCommandsRegistrar: IDankTimesBotCommandsRegistrar,
     private readonly version: string,
-    private readonly danktimebotController: IDankTimeBotController,
+    private readonly danktimesbotController: IDankTimesBotController,
   ) { }
 
   public run(): void {
@@ -78,7 +78,7 @@ export class Server {
   private scheduleNightlyUpdates(): void {
     this.dailyUpdate = new this.cronJob("0 0 0 * * *", () => {
       console.info("Doing the nightly update!");
-      this.danktimebotController.doNightlyUpdate();
+      this.danktimesbotController.doNightlyUpdate();
     }, undefined, true);
   }
 

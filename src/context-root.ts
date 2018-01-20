@@ -8,7 +8,7 @@ import { DankTimesBotCommands } from "./bot-commands/commands/danktimesbot-comma
 import { DankTimesBotCommandsRegistrar } from "./bot-commands/registrar/danktimesbot-commands-registrar";
 import { ChatRegistry } from "./chat-registry/chat-registry";
 import { DankTimeScheduler } from "./dank-time-scheduler/dank-time-scheduler";
-import { DankTimeBotController } from "./danktimebot-controller/danktimebot-controller";
+import { DankTimesBotController } from "./danktimesbot-controller/danktimesbot-controller";
 import { TelegramClient } from "./telegram-client/telegram-client";
 import { FileIO } from "./util/file-io/file-io";
 import { Util } from "./util/util";
@@ -35,7 +35,7 @@ export const telegramClient = new TelegramClient(telegramBot);
 
 export const dankTimeScheduler = new DankTimeScheduler(telegramClient, CronJob);
 
-export const danktimebotController = new DankTimeBotController(momentImport, chatRegistry,
+export const danktimesbotController = new DankTimesBotController(momentImport, chatRegistry,
   dankTimeScheduler, telegramClient);
 
 const dankTimesBotCommands = new DankTimesBotCommands(

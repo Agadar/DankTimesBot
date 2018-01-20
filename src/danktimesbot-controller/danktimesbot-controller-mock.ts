@@ -1,7 +1,7 @@
 import { Chat } from "../chat/chat";
-import { IDankTimeBotController } from "./i-danktimebot-controller";
+import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
-export class DankTimeBotControllerMock implements IDankTimeBotController {
+export class DankTimesBotControllerMock implements IDankTimesBotController {
 
   public doNightlyUpdateCalled = false;
   public onErrorFromApiCalledWith: { chatId: number, error: any } | null = null;

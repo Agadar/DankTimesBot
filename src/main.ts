@@ -16,7 +16,7 @@ const server = new Server(
   contextRoot.cronJob,
   contextRoot.dankTimesBotCommandsRegistrar,
   contextRoot.version,
-  contextRoot.danktimebotController,
+  contextRoot.danktimesbotController,
 );
 
 server.run();

@@ -47,6 +47,7 @@ export class ChatRegistry implements IChatRegistry {
     chat.addDankTime(new DankTime(16, 20, ["420"], 10));
     chat.addDankTime(new DankTime(22, 22, ["2222"], 5));
 
+    chat.generateRandomDankTimes();
     this.chats.set(id, chat);
     this.listeners.forEach((listener) => listener.onChatCreated(chat));
     return chat;

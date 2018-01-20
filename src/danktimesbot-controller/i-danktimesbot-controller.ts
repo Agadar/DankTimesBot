@@ -4,7 +4,7 @@ import { ITelegramClientListener } from "../telegram-client/i-telegram-client-li
 /**
  * Listens to events from various services and takes actions accordingly.
  */
-export interface IDankTimeBotController extends ITelegramClientListener, IChatRegistryListener {
+export interface IDankTimesBotController extends ITelegramClientListener, IChatRegistryListener {
 
   /**
    * Does a nightly update, which does the following for all chats:

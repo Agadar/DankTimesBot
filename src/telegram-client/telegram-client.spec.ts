@@ -4,8 +4,8 @@ import "mocha";
 
 import { BotCommand } from "../bot-commands/bot-command";
 import {
-  DankTimeBotControllerMock,
-} from "../danktimebot-controller/danktimebot-controller-mock";
+  DankTimesBotControllerMock,
+} from "../danktimesbot-controller/danktimesbot-controller-mock";
 import * as nodeTelegramBotApiMock from "../misc/node-telegram-bot-api-mock";
 import { TelegramClient } from "./telegram-client";
 
@@ -135,10 +135,10 @@ describe("TelegramClient #executeCommand", () => {
 describe("TelegramClient #sendMessage", () => {
 
   let telegramClient: TelegramClient;
-  let dankController: DankTimeBotControllerMock;
+  let dankController: DankTimesBotControllerMock;
 
   beforeEach("Set up test variables", () => {
-    dankController = new DankTimeBotControllerMock();
+    dankController = new DankTimesBotControllerMock();
     telegramClient = new TelegramClient(nodeTelegramBotApiMock);
     telegramClient.subscribe(dankController);
   });

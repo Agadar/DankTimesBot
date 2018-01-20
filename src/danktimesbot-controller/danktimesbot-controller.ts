@@ -2,9 +2,9 @@ import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
-import { IDankTimeBotController } from "./i-danktimebot-controller";
+import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
-export class DankTimeBotController implements IDankTimeBotController {
+export class DankTimesBotController implements IDankTimesBotController {
 
   private readonly forbiddenStatusCode = 403;
 
