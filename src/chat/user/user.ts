@@ -44,8 +44,8 @@ export class User implements BasicUser {
     public called = false,
     private myLastScoreChange = 0,
   ) {
-    if (this.myScore % 1 !== 0) {
-      throw new RangeError("The score should be a whole number!");
+    if (this.myScore % 1 !== 0 || this.myScore < 0) {
+      throw new RangeError("The score should be a whole, positive number!");
     }
     if (this.myLastScoreTimestamp % 1 !== 0) {
       throw new RangeError("The last score timestamp should be a whole number!");
@@ -80,8 +80,10 @@ export class User implements BasicUser {
     if (amount % 1 !== 0) {
       throw new RangeError("The amount should be a whole number!");
     }
+    amount = Math.max(amount, -this.myScore);
     this.myScore += amount;
     this.myLastScoreChange += amount;
+
     if (amount > 0) {
       this.myLastScoreTimestamp = timestamp;
     }

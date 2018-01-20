@@ -34,6 +34,8 @@ export class ChatRegistry implements IChatRegistry {
       return this.chats.get(id) as Chat;
     }
     const chat = new Chat(this.moment, this.util, id);
+
+    // These default dank times should be moved to a configurable .json file at some point.
     chat.addDankTime(new DankTime(0, 0, ["0000"], 5));
     chat.addDankTime(new DankTime(4, 20, ["420"], 15));
     chat.addDankTime(new DankTime(11, 11, ["1111"], 5));
@@ -41,6 +43,7 @@ export class ChatRegistry implements IChatRegistry {
     chat.addDankTime(new DankTime(13, 37, ["1337"], 10));
     chat.addDankTime(new DankTime(16, 20, ["420"], 10));
     chat.addDankTime(new DankTime(22, 22, ["2222"], 5));
+
     this.chats.set(id, chat);
     return chat;
   }
@@ -69,7 +72,10 @@ export class ChatRegistry implements IChatRegistry {
     literal.dankTimes.forEach((dankTime) => dankTimes.push(DankTime.fromJSON(dankTime)));
 
     const users = new Map();
-    literal.users.forEach((user) => users.set(user.id, User.fromJSON(user)));
+    literal.users.forEach((user) => {
+      user.score = Math.max(0, user.score); // For backwards compatibility with previous versions
+      users.set(user.id, User.fromJSON(user));
+    });
 
     return new Chat(this.moment, this.util, literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes,
       literal.pointsPerRandomTime, literal.lastHour, literal.lastMinute, users, dankTimes, [],
