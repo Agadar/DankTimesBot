@@ -1,4 +1,5 @@
 import { BotCommand } from "../bot-commands/bot-command";
+import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { ITelegramClient } from "./i-telegram-client";
 
 /**
@@ -10,9 +11,13 @@ export class TelegramClient implements ITelegramClient {
 
   private cachedBotUsername = "";
   private botUsernamePromise: Promise<string> | null = null;
-  private developerUserId = 100805902;
 
-  constructor(private readonly bot: any) { }
+  private readonly forbiddenStatusCode = 403;
+  private readonly developerUserId = 100805902;
+
+  constructor(
+    private readonly bot: any,
+    private readonly chatRegistry: IChatRegistry) { }
 
   /**
    * Sets the action to do on ANY incoming text.
@@ -45,7 +50,14 @@ export class TelegramClient implements ITelegramClient {
 
   public sendMessage(chatId: number, htmlMessage: string): Promise<any> {
     return this.bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" })
-      .catch((reason: any) => console.error(reason));
+      .catch((reason: any) => {
+        if (reason.response.statusCode === this.forbiddenStatusCode) {
+          this.chatRegistry.removeChat(chatId);
+          console.info(`Bot was blocked by chat with id ${chatId}, removed corresponding chat data from bot!`);
+        } else {
+          console.error(reason);  // Unknown error, print everything.
+        }
+      });
   }
 
   public async executeCommand(msg: any, match: string[], botCommand: BotCommand): Promise<string> {

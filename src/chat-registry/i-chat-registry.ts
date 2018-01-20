@@ -18,5 +18,13 @@ export interface IChatRegistry {
    */
   getOrCreateChat(id: number): Chat;
 
+  /**
+   * Removes the chat with the supplied id.
+   */
+  removeChat(id: number): void;
+
+  /**
+   * Fills this registry with data parsed directly from JSON.
+   */
   loadFromJSON(literals: BasicChat[]): void;
 }

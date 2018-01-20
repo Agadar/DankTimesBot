@@ -48,6 +48,10 @@ export class ChatRegistry implements IChatRegistry {
     return chat;
   }
 
+  public removeChat(id: number): void {
+    this.chats.delete(id);
+  }
+
   public loadFromJSON(literals: BasicChat[]): void {
     literals.forEach((chat) => this.chats.set(chat.id, this.fromJSON(chat)));
   }

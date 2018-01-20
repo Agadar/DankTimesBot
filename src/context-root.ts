@@ -26,7 +26,7 @@ export const releaseLog = fileIO.loadReleaseLogFromFile();
 
 const telegramBot = new TelegramBot(config.apiKey, { polling: true });
 
-export const telegramClient = new TelegramClient(telegramBot);
+export const telegramClient = new TelegramClient(telegramBot, chatRegistry);
 export const dankTimeScheduler = new DankTimeScheduler(telegramClient, CronJob);
 const dankTimesBotCommands = new DankTimesBotCommands(
   telegramClient, chatRegistry, dankTimeScheduler, util, releaseLog, version);
