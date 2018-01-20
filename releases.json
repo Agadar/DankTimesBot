@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.6.0",
+    "date": "2018-01-20",
+    "changes": [
+      "It is no longer possible to have a negative score",
+      "Replaced /releases with /whatsnew, which shows the release notes of the current version only",
+      "Chats from which the bot is removed are now removed from the bot data",
+      "Fixed a bug that caused the arrow emojis on the leaderboard to sometimes be incorrect"
+    ]
+  },
+  {
     "version": "1.5.0",
     "date": "2017-12-23",
     "changes": [

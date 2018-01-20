@@ -28,9 +28,6 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       this.telegramClient.registerCommand(new BotCommand("leaderboard", "shows the leaderboard",
         this.dankTimesBotCommands, this.dankTimesBotCommands.leaderBoard)),
 
-      this.telegramClient.registerCommand(new BotCommand("releases", "shows the release log",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.getReleaseLog)),
-
       this.telegramClient.registerCommand(new BotCommand("removetime", "removes a dank time. format: [hour] [minute]",
         this.dankTimesBotCommands, this.dankTimesBotCommands.removeTime, true)),
 
@@ -80,6 +77,9 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       this.telegramClient.registerCommand(new BotCommand("togglehardcoremode",
         "toggles whether every day, users are punished if they haven't scored the previous day",
         this.dankTimesBotCommands, this.dankTimesBotCommands.toggleHardcoreMode, true)),
+
+      this.telegramClient.registerCommand(new BotCommand("whatsnew", "shows the release notes of the current version",
+        this.dankTimesBotCommands, this.dankTimesBotCommands.whatsNewMessage)),
     ]);
 
     this.telegramClient.setOnAnyText((msg) => this.onAnyText(msg));

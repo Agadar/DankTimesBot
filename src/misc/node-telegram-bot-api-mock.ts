@@ -14,8 +14,14 @@ export async function getChatAdministrators(chatId: number) {
   ];
 }
 
-export async function sendMessage(chatId: number, htmlMessage: string, options: any) {
-  /**/
+export async function sendMessage(chatId: number | string, text: string, options?: any): Promise<any> {
+  if (chatId === -1) {
+    throw {
+      response: {
+        statusCode: 403,
+      },
+    };
+  }
 }
 
 export function onText(regexp: RegExp, callback: ((msg: any, match: RegExpExecArray | null) => void)): void {

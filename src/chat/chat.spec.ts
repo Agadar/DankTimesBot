@@ -109,22 +109,6 @@ describe("Chat.hardcoreModeCheck", () => {
     // Assert
     assert.equal(user.score, 0);
   });
-
-  it("should NOT punish or otherwise alter a player's score if their score is < 0", () => {
-
-    // Arrange
-    const user = new User(0, "user0", -10, nowMinus24Hours, false, 0);
-    const users = new Map<number, User>();
-    users.set(user.id, user);
-    const chat = new Chat(
-      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
-
-    // Act
-    chat.hardcoreModeCheck(now);
-
-    // Assert
-    assert.equal(user.score, -10);
-  });
 });
 
 describe("Chat.generateRandomDankTimes", () => {

@@ -423,23 +423,13 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   /**
-   * Gets the entire release log, formatted neatly.
+   * Gets the release notes of the current version.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public getReleaseLog(msg: any, match: any): string {
-    let reply = "<b>🗒️ RELEASES</b>\n";
-    this.releaseLog.forEach((release) => {
-      reply += "\n";
-      reply += "<b>Version:</b> " + release.version + "\n";
-      reply += "<b>Date:</b> " + release.date + "\n";
-      reply += "<b>Changes:</b>\n";
-      release.changes.forEach((change) => {
-        reply += "- " + change + "\n";
-      });
-    });
-    return reply;
+  public whatsNewMessage(msg: any, match: any): string {
+    return this.util.releaseLogToWhatsNewMessage(this.releaseLog);
   }
 
   /**

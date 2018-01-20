@@ -384,13 +384,9 @@ export class Chat {
     if (this.hardcoreMode) {
       const day = 24 * 60 * 60;
       this.users.forEach((user) => {
-        if (timestamp - user.lastScoreTimestamp >= day && user.score > 0) {
+        if (timestamp - user.lastScoreTimestamp >= day) {
           let punishBy = Math.round(user.score * punishByFraction);
           punishBy = Math.max(punishBy, punishByPoints);
-
-          if (user.score - punishBy < 0) {
-            punishBy = user.score;
-          }
           user.addToScore(-punishBy, timestamp);
         }
       });

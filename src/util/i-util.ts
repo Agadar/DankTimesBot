@@ -1,3 +1,5 @@
+import { Release } from "../misc/release";
+
 export interface IUtil {
 
   /**
@@ -22,4 +24,10 @@ export interface IUtil {
    * @param theNumber The number to prepend 0 to.
    */
   padNumber(theNumber: string | number): string;
+
+  /**
+   * Takes an array of releases and gets the 'What's New?' message of the first entry.
+   * If the array is empty, returns a default error message.
+   */
+  releaseLogToWhatsNewMessage(releaseLog: Release[]): string;
 }

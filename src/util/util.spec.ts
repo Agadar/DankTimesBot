@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import "mocha";
+import { Release } from "../misc/release";
 import { Util } from "./util";
 
 describe("util.padNumber(msg)", () => {
@@ -30,4 +31,28 @@ describe("util.padNumber(msg)", () => {
       assert.deepEqual(test.expected, util.padNumber(test.args[0]) + util.padNumber(test.args[1]));
     });
   });
+});
+
+describe("util.releaseLogToWhatsNewMessage", () => {
+
+  let util: Util;
+
+  beforeEach(() => {
+    util = new Util();
+  });
+
+  it("Returns default error message on empty log", () => {
+    const message = util.releaseLogToWhatsNewMessage([]);
+    assert.equal(message, "⚠️ Release notes are unavailable!");
+  });
+
+  it("Returns neatly formatted string of first entry of non-empty log", () => {
+    const releases = [
+      new Release("10.10.10", "November 5th, 1933", ["A", "B", "C"]),
+      new Release("9.9.9", "September 5th, 1921", ["1", "2", "3"]),
+    ];
+    const message = util.releaseLogToWhatsNewMessage(releases);
+    assert.equal(message, "<b>🗒️ What's new in version 10.10.10 ?</b>\n\n- A\n- B\n- C\n");
+  });
+
 });

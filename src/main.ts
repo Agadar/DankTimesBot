@@ -5,6 +5,7 @@ import * as contextRoot from "./context-root";
 import { Server } from "./server";
 
 const server = new Server(
+  contextRoot.util,
   contextRoot.fileIO,
   contextRoot.chatRegistry,
   contextRoot.releaseLog,

@@ -17,8 +17,8 @@ export const version = require("../package.json").version;
 export const fileIO = new FileIO(fs);
 
 const initialChats = fileIO.loadChatsFromFile();
-const util = new Util();
 
+export const util = new Util();
 export const chatRegistry = new ChatRegistry(momentImport, util);
 chatRegistry.loadFromJSON(initialChats);
 export const config = fileIO.loadConfigFromFile();
@@ -26,7 +26,7 @@ export const releaseLog = fileIO.loadReleaseLogFromFile();
 
 const telegramBot = new TelegramBot(config.apiKey, { polling: true });
 
-export const telegramClient = new TelegramClient(telegramBot);
+export const telegramClient = new TelegramClient(telegramBot, chatRegistry);
 export const dankTimeScheduler = new DankTimeScheduler(telegramClient, CronJob);
 const dankTimesBotCommands = new DankTimesBotCommands(
   telegramClient, chatRegistry, dankTimeScheduler, util, releaseLog, version);
