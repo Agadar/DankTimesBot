@@ -64,13 +64,8 @@ export class Leaderboard {
   /**
    * Gets the index of the entry that has the specified user id. If no such user exists, returns -1.
    */
-  private indexOfEntryViaUserId(userId: number): number {
-    for (let i = 0; i < this.entries.length; i++) {
-      if (this.entries[i].id === userId) {
-        return i;
-      }
-    }
-    return -1;
+  private getIndexOfEntryViaUserId(userId: number): number {
+    return this.entries.findIndex((user) => user.id === userId);
   }
 
   /**
@@ -79,12 +74,13 @@ export class Leaderboard {
    */
   private calculatePositionChanges(previousLeaderboard: Leaderboard): Map<number, number> {
     const positionChanges = new Map();
-    for (let currentPosition = 0; currentPosition < this.entries.length; currentPosition++) {
-      const currentEntry = this.entries[currentPosition];
-      const oldPosition = previousLeaderboard.indexOfEntryViaUserId(currentEntry.id);
-      const change = oldPosition - currentPosition;
-      if (change !== 0) {
-        positionChanges.set(currentEntry.id, change);
+
+    for (let currentEntryIndex = 0; currentEntryIndex < this.entries.length; currentEntryIndex++) {
+      const currentEntry = this.entries[currentEntryIndex];
+      const oldEntryIndex = previousLeaderboard.getIndexOfEntryViaUserId(currentEntry.id);
+
+      if (oldEntryIndex !== -1) {
+        positionChanges.set(currentEntry.id, oldEntryIndex - currentEntryIndex);
       }
     }
     return positionChanges;

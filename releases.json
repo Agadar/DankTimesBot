@@ -3,7 +3,8 @@
     "version": "1.6.0",
     "date": "2018-01-20",
     "changes": [
-      "It is no longer possible to have a negative score"
+      "It is no longer possible to have a negative score",
+      "Fixed a bug that caused the arrow emojis on the leaderboard to sometimes be incorrect"
     ]
   },
   {
