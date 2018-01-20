@@ -13,10 +13,10 @@ const server = new Server(
   contextRoot.dankTimeScheduler,
   contextRoot.config,
   contextRoot.nodeCleanup,
-  contextRoot.moment,
   contextRoot.cronJob,
   contextRoot.dankTimesBotCommandsRegistrar,
   contextRoot.version,
+  contextRoot.danktimebotController,
 );
 
 server.run();

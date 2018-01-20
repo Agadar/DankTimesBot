@@ -8,30 +8,42 @@ import { DankTimesBotCommands } from "./bot-commands/commands/danktimesbot-comma
 import { DankTimesBotCommandsRegistrar } from "./bot-commands/registrar/danktimesbot-commands-registrar";
 import { ChatRegistry } from "./chat-registry/chat-registry";
 import { DankTimeScheduler } from "./dank-time-scheduler/dank-time-scheduler";
+import { DankTimeBotController } from "./danktimebot-controller/danktimebot-controller";
 import { TelegramClient } from "./telegram-client/telegram-client";
 import { FileIO } from "./util/file-io/file-io";
 import { Util } from "./util/util";
 
 // tslint:disable-next-line:no-var-requires
 export const version = require("../package.json").version;
+
 export const fileIO = new FileIO(fs);
 
 const initialChats = fileIO.loadChatsFromFile();
 
 export const util = new Util();
+
 export const chatRegistry = new ChatRegistry(momentImport, util);
 chatRegistry.loadFromJSON(initialChats);
+
 export const config = fileIO.loadConfigFromFile();
+
 export const releaseLog = fileIO.loadReleaseLogFromFile();
 
 const telegramBot = new TelegramBot(config.apiKey, { polling: true });
 
-export const telegramClient = new TelegramClient(telegramBot, chatRegistry);
+export const telegramClient = new TelegramClient(telegramBot);
+
 export const dankTimeScheduler = new DankTimeScheduler(telegramClient, CronJob);
+
+export const danktimebotController = new DankTimeBotController(momentImport, chatRegistry,
+  dankTimeScheduler, telegramClient);
+
 const dankTimesBotCommands = new DankTimesBotCommands(
   telegramClient, chatRegistry, dankTimeScheduler, util, releaseLog, version);
+
 export const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(
   telegramClient, chatRegistry, dankTimesBotCommands);
+
 export const cronJob = CronJob;
 export const moment = momentImport;
 export const nodeCleanup = nodeCleanupImport;

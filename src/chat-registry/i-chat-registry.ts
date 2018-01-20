@@ -1,5 +1,6 @@
 import { BasicChat } from "../chat/basic-chat";
 import { Chat } from "../chat/chat";
+import { IChatRegistryListener } from "./i-chat-registry-listener";
 
 /**
  * Keeps track of all the chats.
@@ -21,10 +22,15 @@ export interface IChatRegistry {
   /**
    * Removes the chat with the supplied id.
    */
-  removeChat(id: number): void;
+  removeChat(id: number): Chat | null;
 
   /**
    * Fills this registry with data parsed directly from JSON.
    */
   loadFromJSON(literals: BasicChat[]): void;
+
+  /**
+   * Subscribes to this chat registry to receive updates.
+   */
+  subscribe(subscriber: IChatRegistryListener): void;
 }

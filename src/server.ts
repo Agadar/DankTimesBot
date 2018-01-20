@@ -2,6 +2,7 @@ import { IDankTimesBotCommandsRegistrar } from "./bot-commands/registrar/i-dankt
 import { IChatRegistry } from "./chat-registry/i-chat-registry";
 import { Chat } from "./chat/chat";
 import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler";
+import { IDankTimeBotController } from "./danktimebot-controller/i-danktimebot-controller";
 import { Config } from "./misc/config";
 import { Release } from "./misc/release";
 import { ITelegramClient } from "./telegram-client/i-telegram-client";
@@ -21,10 +22,10 @@ export class Server {
     private readonly scheduler: IDankTimeScheduler,
     private readonly config: Config,
     private readonly nodeCleanup: any,
-    private readonly moment: any,
     private readonly cronJob: any,
     private readonly dankTimesBotCommandsRegistrar: IDankTimesBotCommandsRegistrar,
     private readonly version: string,
+    private readonly danktimebotController: IDankTimeBotController,
   ) { }
 
   public run(): void {
@@ -77,28 +78,7 @@ export class Server {
   private scheduleNightlyUpdates(): void {
     this.dailyUpdate = new this.cronJob("0 0 0 * * *", () => {
       console.info("Doing the nightly update!");
-      const now = this.moment().unix();
-      this.chatRegistry.chats.forEach((chat: Chat) => {
-        if (chat.running) {
-
-          // Unschedule
-          this.scheduler.unscheduleRandomDankTimesOfChat(chat);
-          this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
-
-          // Generate random dank times
-          chat.generateRandomDankTimes();
-
-          // Reschedule
-          this.scheduler.scheduleRandomDankTimesOfChat(chat);
-          this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
-
-          // Your punishment must be more severe!
-          chat.hardcoreModeCheck(now);
-
-          // Remove plebs whose score is 0.
-          chat.removeUsersWithZeroScore();
-        }
-      });
+      this.danktimebotController.doNightlyUpdate();
     }, undefined, true);
   }
 

@@ -3,8 +3,9 @@ const assert = chai.assert;
 import "mocha";
 
 import { BotCommand } from "../bot-commands/bot-command";
-import { ChatRegistryMock } from "../chat-registry/chat-registry-mock";
-import { chatRegistry } from "../context-root";
+import {
+  DankTimeBotControllerMock,
+} from "../danktimebot-controller/danktimebot-controller-mock";
 import * as nodeTelegramBotApiMock from "../misc/node-telegram-bot-api-mock";
 import { TelegramClient } from "./telegram-client";
 
@@ -43,7 +44,7 @@ describe("TelegramClient #executeCommand", () => {
   };
 
   beforeEach("Set up test variables", () => {
-    telegramClient = new TelegramClient(nodeTelegramBotApiMock, new ChatRegistryMock());
+    telegramClient = new TelegramClient(nodeTelegramBotApiMock);
     nonAdminCommandCalled = false;
     adminCommandCalled = false;
     msg = {
@@ -134,21 +135,26 @@ describe("TelegramClient #executeCommand", () => {
 describe("TelegramClient #sendMessage", () => {
 
   let telegramClient: TelegramClient;
-  let chatRegistryMock: ChatRegistryMock;
+  let dankController: DankTimeBotControllerMock;
 
   beforeEach("Set up test variables", () => {
-    chatRegistryMock = new ChatRegistryMock();
-    telegramClient = new TelegramClient(nodeTelegramBotApiMock, chatRegistryMock);
+    dankController = new DankTimeBotControllerMock();
+    telegramClient = new TelegramClient(nodeTelegramBotApiMock);
+    telegramClient.subscribe(dankController);
   });
 
   it("Should NOT instruct the chat registry to remove a chat if the Telegram API returned OK", async () => {
     await telegramClient.sendMessage(1, "some html");
-    assert.isNull(chatRegistryMock.removeChatCalledWithId);
+    assert.isNull(dankController.onErrorFromApiCalledWith);
   });
 
   it("Should instruct the chat registry to remove a chat if the Telegram API returned a 403", async () => {
     await telegramClient.sendMessage(-1, "some html");
-    assert.equal(chatRegistryMock.removeChatCalledWithId, -1);
+    assert.isDefined(dankController.onErrorFromApiCalledWith);
+    assert.isNotNull(dankController.onErrorFromApiCalledWith);
+    const calledWith = dankController.onErrorFromApiCalledWith as any;
+    assert.equal(calledWith.chatId, -1);
+    assert.equal(calledWith.error.response.statusCode, 403);
   });
 
 });

@@ -4,11 +4,14 @@ import { User } from "../chat/user/user";
 import { DankTime } from "../dank-time/dank-time";
 import { IUtil } from "../util/i-util";
 import { IChatRegistry } from "./i-chat-registry";
+import { IChatRegistryListener } from "./i-chat-registry-listener";
 
 /**
  * Keeps track of all the chats.
  */
 export class ChatRegistry implements IChatRegistry {
+
+  private readonly listeners: IChatRegistryListener[] = [];
 
   constructor(
     private readonly moment: any,
@@ -45,15 +48,29 @@ export class ChatRegistry implements IChatRegistry {
     chat.addDankTime(new DankTime(22, 22, ["2222"], 5));
 
     this.chats.set(id, chat);
+    this.listeners.forEach((listener) => listener.onChatCreated(chat));
     return chat;
   }
 
-  public removeChat(id: number): void {
-    this.chats.delete(id);
+  public removeChat(id: number): Chat | null {
+    const chatToRemove = this.chats.get(id);
+
+    if (chatToRemove) {
+      this.chats.delete(id);
+      return chatToRemove;
+    } else {
+      return null;
+    }
   }
 
   public loadFromJSON(literals: BasicChat[]): void {
     literals.forEach((chat) => this.chats.set(chat.id, this.fromJSON(chat)));
+  }
+
+  public subscribe(subscriber: IChatRegistryListener): void {
+    if (this.listeners.indexOf(subscriber) === -1) {
+      this.listeners.push(subscriber);
+    }
   }
 
   private fromJSON(literal: BasicChat): Chat {

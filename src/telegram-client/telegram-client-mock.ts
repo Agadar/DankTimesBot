@@ -1,5 +1,6 @@
 import { BotCommand } from "../bot-commands/bot-command";
 import { ITelegramClient } from "./i-telegram-client";
+import { ITelegramClientListener } from "./i-telegram-client-listener";
 
 export class TelegramClientMock implements ITelegramClient {
 
@@ -19,6 +20,10 @@ export class TelegramClientMock implements ITelegramClient {
   }
 
   public async sendMessage(chatId: number, htmlMessage: string): Promise<void> {
+    // Don't do anything, this is a mock.
+  }
+
+  public subscribe(subscriber: ITelegramClientListener): void {
     // Don't do anything, this is a mock.
   }
 }

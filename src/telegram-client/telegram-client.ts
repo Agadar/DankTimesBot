@@ -1,6 +1,6 @@
 import { BotCommand } from "../bot-commands/bot-command";
-import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { ITelegramClient } from "./i-telegram-client";
+import { ITelegramClientListener } from "./i-telegram-client-listener";
 
 /**
  * The Telegram Client that communicates with the API via the 'node-telegram-bot-api' library.
@@ -12,12 +12,11 @@ export class TelegramClient implements ITelegramClient {
   private cachedBotUsername = "";
   private botUsernamePromise: Promise<string> | null = null;
 
-  private readonly forbiddenStatusCode = 403;
   private readonly developerUserId = 100805902;
+  private readonly listeners: ITelegramClientListener[] = [];
 
   constructor(
-    private readonly bot: any,
-    private readonly chatRegistry: IChatRegistry) { }
+    private readonly bot: any) { }
 
   /**
    * Sets the action to do on ANY incoming text.
@@ -51,12 +50,7 @@ export class TelegramClient implements ITelegramClient {
   public sendMessage(chatId: number, htmlMessage: string): Promise<any> {
     return this.bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" })
       .catch((reason: any) => {
-        if (reason.response.statusCode === this.forbiddenStatusCode) {
-          this.chatRegistry.removeChat(chatId);
-          console.info(`Bot was blocked by chat with id ${chatId}, removed corresponding chat data from bot!`);
-        } else {
-          console.error(reason);  // Unknown error, print everything.
-        }
+        this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
       });
   }
 
@@ -75,6 +69,12 @@ export class TelegramClient implements ITelegramClient {
     }
 
     return botCommand.action.call(botCommand.object, msg, match);
+  }
+
+  public subscribe(subscriber: ITelegramClientListener): void {
+    if (this.listeners.indexOf(subscriber) === -1) {
+      this.listeners.push(subscriber);
+    }
   }
 
   private async userIsAllowedToExecuteCommand(msg: any, botCommand: BotCommand): Promise<boolean> {
