@@ -6,12 +6,14 @@ import { Config } from "./misc/config";
 import { Release } from "./misc/release";
 import { ITelegramClient } from "./telegram-client/i-telegram-client";
 import { IFileIO } from "./util/file-io/i-file-io";
+import { IUtil } from "./util/i-util";
 
 export class Server {
 
   private dailyUpdate = null;
 
   constructor(
+    private readonly util: IUtil,
     private readonly fileIO: IFileIO,
     private readonly chatRegistry: IChatRegistry,
     private readonly releaseLog: Release[],
@@ -101,13 +103,10 @@ export class Server {
   }
 
   private sendWhatsNewMessageIfApplicable(): void {
-    if (this.config.sendWhatsNewMsg && this.releaseLog.length > 0) {
+    if (this.config.sendWhatsNewMsg) {
 
       // Prepare message.
-      let message = `<b>🗒️ What's new in version ${this.releaseLog[0].version} ?</b>\n\n`;
-      this.releaseLog[0].changes.forEach((change) => {
-        message += `- ${change}\n`;
-      });
+      const message = this.util.releaseLogToWhatsNewMessage(this.releaseLog);
 
       // Send it to all chats.
       this.chatRegistry.chats.forEach((chat: Chat) => {

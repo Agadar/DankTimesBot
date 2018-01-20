@@ -1,3 +1,4 @@
+import { Release } from "../misc/release";
 import { IUtil } from "./i-util";
 
 export class Util implements IUtil {
@@ -39,5 +40,12 @@ export class Util implements IUtil {
    */
   public padNumber(theNumber: string | number): string {
     return ("0" + theNumber.toString()).slice(-2);
+  }
+
+  public releaseLogToWhatsNewMessage(releaseLog: Release[]): string {
+    if (releaseLog && releaseLog.length > 0 && releaseLog[0]) {
+      return releaseLog[0].getWhatsNewMessage();
+    }
+    return "⚠️ Release notes are unavailable!";
   }
 }

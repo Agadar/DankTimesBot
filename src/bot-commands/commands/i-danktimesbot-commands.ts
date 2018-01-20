@@ -142,12 +142,12 @@ export interface IDankTimesBotCommands {
   toggleHandicaps(msg: any, match: any): string;
 
   /**
-   * Gets the entire release log, formatted neatly.
+   * Gets the release notes of the current version.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  getReleaseLog(msg: any, match: any): string;
+  whatsNewMessage(msg: any, match: any): string;
 
   /**
    * Toggles hardcore mode.
