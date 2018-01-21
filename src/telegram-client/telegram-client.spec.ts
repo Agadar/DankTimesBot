@@ -143,12 +143,12 @@ describe("TelegramClient #sendMessage", () => {
     telegramClient.subscribe(dankController);
   });
 
-  it("Should NOT instruct the chat registry to remove a chat if the Telegram API returned OK", async () => {
+  it("Should NOT inform listeners if the Telegram API returned OK", async () => {
     await telegramClient.sendMessage(1, "some html");
     assert.isNull(dankController.onErrorFromApiCalledWith);
   });
 
-  it("Should instruct the chat registry to remove a chat if the Telegram API returned a 403", async () => {
+  it("Should inform listeners if the Telegram API returned an error", async () => {
     await telegramClient.sendMessage(-1, "some html");
     assert.isDefined(dankController.onErrorFromApiCalledWith);
     assert.isNotNull(dankController.onErrorFromApiCalledWith);

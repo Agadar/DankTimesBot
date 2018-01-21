@@ -4,8 +4,12 @@ import { IDankTimeScheduler } from "./i-dank-time-scheduler";
 
 export class DankTimeSchedulerMock implements IDankTimeScheduler {
 
+  public scheduleAllOfChatCalledWith: Chat | null = null;
+  public unscheduleAllOfChatCalledWith: Chat | null = null;
+  public resetCalled = false;
+
   public scheduleAllOfChat(chat: Chat): void {
-    /**/
+    this.scheduleAllOfChatCalledWith = chat;
   }
   public scheduleDankTimesOfChat(chat: Chat): void {
     /**/
@@ -17,7 +21,7 @@ export class DankTimeSchedulerMock implements IDankTimeScheduler {
     /**/
   }
   public unscheduleAllOfChat(chat: Chat): void {
-    /**/
+    this.unscheduleAllOfChatCalledWith = chat;
   }
   public unscheduleDankTimesOfChat(chat: Chat): void {
     /**/
@@ -29,7 +33,7 @@ export class DankTimeSchedulerMock implements IDankTimeScheduler {
     /**/
   }
   public reset(): void {
-    /**/
+    this.resetCalled = true;
   }
   public unscheduleDankTime(chat: Chat, dankTime: DankTime): void {
     /**/

@@ -19,7 +19,14 @@ export class ChatRegistryMock implements IChatRegistry {
 
   public removeChat(id: number): Chat | null {
     this.removeChatCalledWithId = id;
-    return null;
+    const chatToRemove = this.chats.get(id);
+
+    if (chatToRemove) {
+      this.chats.delete(id);
+      return chatToRemove;
+    } else {
+      return null;
+    }
   }
 
   public loadFromJSON(literals: BasicChat[]): void {
