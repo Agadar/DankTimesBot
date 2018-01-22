@@ -18,14 +18,16 @@ export const version = require("../package.json").version;
 
 export const fileIO = new FileIO(fs);
 
-const initialChats = fileIO.loadChatsFromFile();
 
 export const util = new Util();
 
-export const chatRegistry = new ChatRegistry(momentImport, util);
-chatRegistry.loadFromJSON(initialChats);
-
 export const config = fileIO.loadConfigFromFile();
+
+export const plugins = fileIO.GetAvailablePlugins(config.plugins);
+const initialChats = fileIO.loadChatsFromFile();
+
+export const chatRegistry = new ChatRegistry(momentImport, util, plugins);
+chatRegistry.loadFromJSON(initialChats);
 
 export const releaseLog = fileIO.loadReleaseLogFromFile();
 
@@ -47,3 +49,4 @@ export const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(
 export const cronJob = CronJob;
 export const moment = momentImport;
 export const nodeCleanup = nodeCleanupImport;
+

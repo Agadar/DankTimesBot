@@ -3,6 +3,8 @@ import { Chat } from "../../chat/chat";
 import { Config } from "../../misc/config";
 import { Release } from "../../misc/release";
 import { IFileIO } from "./i-file-io";
+import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
+import * as ts from "typescript";
 
 export class FileIO implements IFileIO {
 
@@ -39,6 +41,7 @@ export class FileIO implements IFileIO {
       apiKey: "",
       persistenceRate: 60,
       sendWhatsNewMsg: true,
+      plugins: []
     };
 
     // If there is a config file, load its valid values into config obj.
@@ -58,6 +61,9 @@ export class FileIO implements IFileIO {
       }
       if (configFromFile.sendWhatsNewMsg !== undefined) {
         config.sendWhatsNewMsg = configFromFile.sendWhatsNewMsg;
+      }
+      if (configFromFile.plugins !== undefined) {
+        config.plugins = configFromFile.plugins;
       }
     }
 
@@ -124,6 +130,33 @@ export class FileIO implements IFileIO {
     }
     return releases;
   }
+
+
+/**
+ * Discover, Compile and load external plugins
+ * from the plugins/ directory.
+ * 
+ * Returns 0..n plugins.
+ */
+   public GetAvailablePlugins(_pluginsToActivate: string[]): AbstractPlugin[]
+    {
+  // Directory in which to find plugins.
+  const DIRECTORY: string = "plugins/";
+
+  // Plugin directories
+  let directories: string[] = (this.fs.readdirSync(DIRECTORY).filter((f: any) => this.fs.statSync(DIRECTORY + "/" + f).isDirectory()));
+
+  // Get active plugins
+  let activePlugins: string[] = directories.filter(pluginDir => this.fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`) && _pluginsToActivate.indexOf(pluginDir) > -1);
+  // Compile
+  // Get all directories with plugin.ts
+  // Rewrite Directory -> Directory/plugin.ts & Compile
+  (ts.createProgram(activePlugins
+    .map(pluginDir => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
+
+  // Load & Return plugins.
+  return activePlugins.map(plugin => {return new(require(`../../../plugins/${plugin}/plugin.js`)).Plugin()});
+}
 
   /**
    * Used by JSON.stringify(...) for parsing maps to arrays, because

@@ -11,7 +11,7 @@ export class TelegramClientMock implements ITelegramClient {
     return "";
   }
 
-  public setOnAnyText(action: (msg: any, match: string[]) => string): void {
+  public setOnAnyText(action: (msg: any, match: string[]) => string[]): void {
     // Don't do anything, this is a mock.
   }
 

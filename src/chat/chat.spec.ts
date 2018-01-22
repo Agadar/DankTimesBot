@@ -6,6 +6,7 @@ import * as momentMock from "../misc/moment-mock";
 import { Util } from "../util/util";
 import { Chat } from "./chat";
 import { User } from "./user/user";
+import { PluginHost } from "../plugin-host/plugin-host";
 
 const util = new Util();
 
@@ -20,7 +21,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
+      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, startingScore);
   });
@@ -31,7 +32,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, startingScore);
   });
@@ -41,7 +42,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, 0);
   });
@@ -53,7 +54,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -69,7 +70,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -85,7 +86,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -101,7 +102,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0, "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -114,7 +115,7 @@ describe("Chat.hardcoreModeCheck", () => {
 describe("Chat.generateRandomDankTimes", () => {
 
   it("should generate correct # of random dank times with correct hours, minutes, and texts", () => {
-    const chat = new Chat(moment, util, 0);
+    const chat = new Chat(moment, util, 0, new PluginHost([]));
     chat.numberOfRandomTimes = 10;
     chat.pointsPerRandomTime = 10;
 
@@ -137,7 +138,7 @@ describe("Chat.generateRandomDankTimes", () => {
       mockMath.random = () => 0;
       global.Math = mockMath;
 
-      const chat = new Chat(moment, util, 0, "UTC");
+      const chat = new Chat(moment, util, 0, new PluginHost([]), "UTC");
       const now = moment.tz("UTC");
       now.minutes(0);
       chat.numberOfRandomTimes = 10;
@@ -163,7 +164,7 @@ describe("Chat.generateRandomDankTimes", () => {
       mockMath.random = () => 0;
       global.Math = mockMath;
 
-      const chat = new Chat(moment, util, 0);
+      const chat = new Chat(moment, util, 0, new PluginHost([]));
 
       // Act
       const randomDankTimes = chat.generateRandomDankTimes();
@@ -179,13 +180,13 @@ describe("Chat.generateRandomDankTimes", () => {
 describe("Chat.timezone", () => {
 
   it("should correct a valid but (for the cron library) improperly capitalized timezone", () => {
-    const chat = new Chat(moment, util, 0);
+    const chat = new Chat(moment, util, 0, new PluginHost([]));
     chat.timezone = "jaPaN";
     assert.equal(chat.timezone, "Japan");
   });
 
   it("should throw an error on an invalid timezone", () => {
-    const chat = new Chat(moment, util, 0);
+    const chat = new Chat(moment, util, 0, new PluginHost([]));
     try {
       chat.timezone = "invalid/timezone";
       assert.fail(0, 1, "Expected RangeError!");
@@ -204,7 +205,7 @@ describe("Chat.processMessage", () => {
   const dankTimePoints = 5;
 
   beforeEach("Instantiate test variables", () => {
-    chat = new Chat(momentMock, util, 0);
+    chat = new Chat(momentMock, util, 0, new PluginHost([]));
     chat.dankTimes.splice(0);
     chat.addDankTime(new DankTime(1, 13, ["0113"], dankTimePoints));
     chat.running = true;
@@ -221,7 +222,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "👏 user#0 was the first to score!");
+    assert.equal(res[0], "👏 user#0 was the first to score!");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[2];
@@ -235,7 +236,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(3, "user#3", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "👏 user#3 was the first to score!");
+    assert.equal(res[0], "👏 user#3 was the first to score!");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[0];
@@ -252,7 +253,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "");
+    assert.equal(res[0], "");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[3];
@@ -269,7 +270,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(3, "user#3", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "");
+    assert.equal(res[0], "");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[0];
@@ -286,7 +287,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "👏 user#0 was the first to score!");
+    assert.equal(res[0], "👏 user#0 was the first to score!");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[2];
@@ -305,7 +306,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
 
     // Assert
-    assert.equal(res, "👏 user#0 was the first to score!");
+    assert.equal(res[0], "👏 user#0 was the first to score!");
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[0];
@@ -320,7 +321,7 @@ describe("Chat.removeUsersWithZeroScore", () => {
   let chat: Chat;
 
   beforeEach("Instantiate test variables", () => {
-    chat = new Chat(momentMock, util, 0);
+    chat = new Chat(momentMock, util, 0, new PluginHost([]));
 
     for (let i = 0; i < 4; i++) {
       const user = new User(i, `user#${i}`, i * 10);

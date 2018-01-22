@@ -9,6 +9,7 @@ import { TelegramClientMock } from "../../telegram-client/telegram-client-mock";
 import { Util } from "../../util/util";
 import { BotCommand } from "../bot-command";
 import { DankTimesBotCommands } from "./danktimesbot-commands";
+import { PluginHost } from "../../plugin-host/plugin-host";
 
 describe("DankTimesBotCommands.addTime", () => {
 
@@ -30,7 +31,7 @@ describe("DankTimesBotCommands.addTime", () => {
   beforeEach("Instantiate test variables", () => {
     chatRegistry = new ChatRegistryMock();
     dankTimesBotCommands = new DankTimesBotCommands(clientMock, chatRegistry, scheduler, util, [], "x.y.z");
-    chat = new Chat(moment, util, 0);
+    chat = new Chat(moment, util, 0, new PluginHost([]));
     match.input = "/addtime 22 33 5";
 
     chat.dankTimes.splice(0);

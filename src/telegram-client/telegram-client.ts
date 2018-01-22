@@ -21,11 +21,11 @@ export class TelegramClient implements ITelegramClient {
   /**
    * Sets the action to do on ANY incoming text.
    */
-  public setOnAnyText(action: ((msg: any, match: string[]) => string)): void {
+  public setOnAnyText(action: ((msg: any, match: string[]) => string[])): void {
     this.bot.on("message", (msg: any, match: string[]) => {
       const output = action(msg, match);
       if (output) {
-        this.sendMessage(msg.chat.id, output);
+        output.forEach(out => this.sendMessage(msg.chat.id, out));
       }
     });
   }

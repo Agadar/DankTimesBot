@@ -17,6 +17,7 @@ const server = new Server(
   contextRoot.dankTimesBotCommandsRegistrar,
   contextRoot.version,
   contextRoot.danktimesbotController,
+  contextRoot.plugins
 );
 
 server.run();

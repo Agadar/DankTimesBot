@@ -1,5 +1,6 @@
 import { BasicDankTime } from "../dank-time/basic-dank-time";
 import { BasicUser } from "./user/basic-user";
+import { PluginHost } from "../plugin-host/plugin-host";
 
 export interface BasicChat {
   id: number;
@@ -17,4 +18,5 @@ export interface BasicChat {
   firstNotifications: boolean;
   hardcoreMode: boolean;
   handicaps: boolean;
+  pluginhost: PluginHost;
 }

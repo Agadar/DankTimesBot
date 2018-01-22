@@ -33,6 +33,7 @@
     "@types/node-telegram-bot-api": "^0.28.2",
     "chai": "^4.1.2",
     "mocha": "^4.0.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "typescript": "^2.4.2"
   }
 }

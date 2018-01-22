@@ -85,7 +85,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
     this.telegramClient.setOnAnyText((msg) => this.onAnyText(msg));
   }
 
-  private onAnyText(msg: any): string {
+  private onAnyText(msg: any): string[] {
     if (msg.migrate_to_chat_id) { // If the chat was migrated, then update the registry.
       this.chatRegistry.setChatId(msg.chat.id, msg.migrate_to_chat_id);
 
@@ -94,7 +94,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       const removedUser = chat.removeUser(msg.left_chat_member.id);
 
       if (removedUser) {
-        return `${removedUser.name} left! Their final score was ${removedUser.score}!`;
+        return [`${removedUser.name} left! Their final score was ${removedUser.score}!`];
       }
 
     } else if (msg.text) { // Let the appropriate chat process the message.
@@ -102,6 +102,6 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       return chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
 
     }
-    return "";
+    return [];
   }
 }
