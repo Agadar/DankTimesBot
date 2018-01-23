@@ -9,6 +9,7 @@ import { PLUGIN_EVENT } from "../plugin-host/plugin-events/plugin-event-types";
 import { PrePostMessagePluginEventArguments } from "../plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import { UserScoreChangedPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { LeaderboardResetPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+import { ChatServices } from "../plugin-host/plugin-chat-services/chat-services";
 
 const handicapMultiplier = 1.5;
 const bottomPartThatHasHandicap = 0.25;
@@ -76,6 +77,7 @@ export class Chat {
     this.numberOfRandomTimes = numberOfRandomTimes;
     this.pointsPerRandomTime = pointsPerRandomTime;
     this.multiplier = multiplier;
+    this.pluginhost.AttachChatServices(this);
   }
 
   public set id(id: number) {
@@ -192,6 +194,11 @@ export class Chat {
     this.users.forEach((user) => usersArr.push(user));
     usersArr.sort(User.compare);
     return usersArr;
+  }
+
+  public createServices(): ChatServices 
+  {
+    return new ChatServices(this);
   }
 
   /**

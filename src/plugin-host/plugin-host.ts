@@ -4,6 +4,9 @@ import { PrePostMessagePluginEventArguments } from "./plugin-events/event-argume
 import { UserScoreChangedPluginEventArguments } from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { LeaderboardResetPluginEventArguments } from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+import { ChatServices } from "./plugin-chat-services/chat-services";
+import { Chat } from "../chat/chat";
+import { plugins } from "../context-root";
 
 /**
  * Class exposing the Plugin Host concept.
@@ -17,6 +20,7 @@ export class PluginHost
    * Collection of plugins currently running.
    */
   public readonly Plugins: AbstractPlugin[];
+  private Services: ChatServices;
 
   /**
    * Create a new Plugin Host.
@@ -33,6 +37,14 @@ export class PluginHost
     this.Plugins.forEach(plugin => plugin.Enabled = true);
   }
 
+  public AttachChatServices(_chat: Chat): void
+  {
+    this.Services = new ChatServices(_chat);
+    plugins.forEach(plugin => {
+      plugin.Services = () => { return this.Services; }
+    });
+  }
+
   /* Overload List */
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_PRE_MESSAGE, _input: PrePostMessagePluginEventArguments): string[];
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_POST_MESSAGE, _input: PrePostMessagePluginEventArguments): string[];
@@ -46,6 +58,11 @@ export class PluginHost
    */
   public Trigger(_event: PLUGIN_EVENT, _input: any): string[]
   {
-    return (<string[]>[]).concat(this.Plugins.map(output => output.Trigger(_event, _input)));
+    let out: string[] = [];
+    this.Plugins.forEach(plugin => {
+      let output: string[] = plugin.Trigger(_event, _input);
+      out = out.concat(output);
+    });
+    return out;
   }
 }
