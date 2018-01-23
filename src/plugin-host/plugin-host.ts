@@ -3,7 +3,6 @@ import { PLUGIN_EVENT } from "./plugin-events/plugin-event-types";
 import { PrePostMessagePluginEventArguments } from "./plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import { UserScoreChangedPluginEventArguments } from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { LeaderboardResetPluginEventArguments } from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import { TimerTickPluginEventArguments } from "./plugin-events/event-arguments/timer-tick-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 
 /**
@@ -39,7 +38,6 @@ export class PluginHost
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_POST_MESSAGE, _input: PrePostMessagePluginEventArguments): string[];
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, _input: UserScoreChangedPluginEventArguments): string[];
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, _input: LeaderboardResetPluginEventArguments): string[];
-  public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_TIMER_TICK, _input: TimerTickPluginEventArguments): string[];
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, _input: NoArgumentsPluginEventArguments): string[];
   /**
    * Trigger a certain event on this Plugin Host's plugins.

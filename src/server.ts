@@ -9,7 +9,6 @@ import { ITelegramClient } from "./telegram-client/i-telegram-client";
 import { IFileIO } from "./util/file-io/i-file-io";
 import { IUtil } from "./util/i-util";
 import { AbstractPlugin } from "./plugin-host/plugin/plugin";
-import { TimerTickPluginEventArguments } from "./plugin-host/plugin-events/event-arguments/timer-tick-plugin-event-arguments";
 import { PLUGIN_EVENT } from "./plugin-host/plugin-events/plugin-event-types";
 
 export class Server {
@@ -50,9 +49,6 @@ export class Server {
     // Also, punishes players that have not scored in the past 24 hours.
     this.scheduleNightlyUpdates();
 
-    // Enable overal Plugin  timer
-    this.schedulePluginTimer();
-
     // Send a release log message to all chats, assuming there are release logs.
     this.sendWhatsNewMessageIfApplicable();
 
@@ -87,16 +83,6 @@ export class Server {
       console.info("Doing the nightly update!");
       this.danktimesbotController.doNightlyUpdate();
     }, undefined, true);
-  }
-
-  private schedulePluginTimer(): void {
-    setInterval(() => {
-      this.chatRegistry.chats.forEach(x => {
-        x.pluginhost.Trigger(PLUGIN_EVENT.PLUGIN_EVENT_TIMER_TICK, new TimerTickPluginEventArguments()).forEach((_msg) => {
-          this.telegramClient.sendMessage(x.id, _msg);
-        });
-      });
-     }, 1000);
   }
 
   private sendWhatsNewMessageIfApplicable(): void {
