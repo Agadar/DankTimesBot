@@ -66,11 +66,11 @@ export class PluginHost
     return out;
   }
 
-  public TriggerCommand(_command: string): string[]
+  public TriggerCommand(_command: string, _params: string[]): string[]
   {
     let out: string[] = [];
     this.Plugins.forEach(plugin => {
-      let output: string[] = plugin.triggerCommand(_command);
+      let output: string[] = plugin.triggerCommand(_command, _params);
       out = out.concat(output);
     });
     return out;

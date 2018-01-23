@@ -89,7 +89,7 @@ export abstract class AbstractPlugin
    * @param _command /{command} of the function. Without preceding '/'
    * @param _commandFn Function that returns an array of possible output strings.
    */
-  protected registerCommand(_command: string, _commandFn: () => string[])
+  protected registerCommand(_command: string, _commandFn: (_params: string[]) => string[])
   {
     this.pluginCommandTriggers.push(new PluginCommand(_command, _commandFn));
   }
@@ -98,15 +98,14 @@ export abstract class AbstractPlugin
    * Trigger a plugin command if one is available.
    * @param _command command to trigger.
    */
-  public triggerCommand(_command: string): string[]
+  public triggerCommand(_command: string, _params: string[]): string[]
   {
     let output: string[] = [];
 
     var trigger = this.pluginCommandTriggers.find(commands => commands.CommandString === _command);
-    console.log(`Found: ${trigger} for ${_command}`);
     if(trigger)
     {
-      output = output.concat(trigger.Invoke());
+      output = output.concat(trigger.Invoke(_params));
     }
 
     return output;

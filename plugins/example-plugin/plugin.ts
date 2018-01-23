@@ -56,9 +56,9 @@ export class Plugin extends AbstractPlugin
       console.log("Shutting down plugin! " + this.Name);
     });
 
-    this.registerCommand("test", () => 
+    this.registerCommand("test", (_params: string[]) => 
     {
-      return [`success!`]; 
+      return [`success: ${JSON.stringify(_params)}`]; 
     })
   }
 } 
