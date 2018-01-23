@@ -29,25 +29,27 @@ export class Plugin extends AbstractPlugin
   {
     super("Example Plugin", "1.0.0", {});
 
-    // Example of sample data
+    // Example of sample dat
     this.Data = new ExamplePluginData();
     this.Data.TestNumber = 1;
 
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_PRE_MESSAGE, (_data: PrePostMessagePluginEventArguments) =>
     {
-      return `Example of a Pre Message Event`;
+      return [`Example of a Pre Message Event`];
     });
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, (_data: UserScoreChangedPluginEventArguments) =>
     {
-      return `A player changed score! Player: ${_data.User.name}, change: ${_data.ChangeInScore}`;
+      return [`A player changed score! Player: ${_data.User.name}, change: ${_data.ChangeInScore}`,
+              `Example of current leaderboard:`,
+              `${JSON.stringify(this.Services().Leaderboard().entries)} Okay.`];
     });
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_POST_MESSAGE, (_data: PrePostMessagePluginEventArguments) =>
     {
-      return `Example of a Post Message Event`;
+      return [`Example of a Post Message Event`];
     });
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, (_data: LeaderboardResetPluginEventArguments) =>
     {
-      return `The leaderboard was reset for chat: ${_data.Chat.id}`
+      return [`The leaderboard was reset for chat: ${_data.Chat.id}`];
     });
     this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, (_data: NoArgumentsPluginEventArguments) => 
     {

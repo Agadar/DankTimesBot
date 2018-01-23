@@ -4,6 +4,7 @@ import { UserScoreChangedPluginEventArguments } from "../plugin-events/event-arg
 import { PrePostMessagePluginEventArguments } from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import { LeaderboardResetPluginEventArguments } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+import { ChatServices } from "../plugin-chat-services/chat-services";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -28,6 +29,12 @@ export abstract class AbstractPlugin
    * Internal plugin state.
    */
   protected Data: any;
+
+  /**
+   * Services for this chat
+   */
+  public Services: () => ChatServices;
+
   /**
    * Event triggers. Plugins can hook functions to certain Plugin Events.
    * These plugin events are defined in the PLUGIN_EVENT enumeration.
@@ -71,15 +78,15 @@ export abstract class AbstractPlugin
    * Trigger a certain PLUGIN_EVENT on this plugin.
    * @param _event PLUGIN_EVENT to trigger.
    */
-  public Trigger(_event: PLUGIN_EVENT, _data: PluginEventArguments): string
+  public Trigger(_event: PLUGIN_EVENT, _data: PluginEventArguments): string[]
   {
-    let output: string = "";
+    let output: string[] = [];
 
     if (!this.Enabled) return output;
 
     if (this.pluginEventTriggers.has(_event))
     {
-      output = (<(data: any) => any>this.pluginEventTriggers.get(_event))(_data);
+      output = output.concat((<(data: any) => any>this.pluginEventTriggers.get(_event))(_data));
     }
 
     return output;
