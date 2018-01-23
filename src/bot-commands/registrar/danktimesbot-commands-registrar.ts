@@ -98,10 +98,19 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       }
 
     } else if (msg.text) { // Let the appropriate chat process the message.
-      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-      let output: string[] = chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
-      output = output.filter(msg => msg.length > 0);
-      return output;
+        const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+        let output: string[] = [];
+        if(msg.text.length > 1 && msg.text[0] === "/")
+        {
+          let params: string[] = msg.text.slice(1).split(" ").slice(1);
+          output = chat.pluginhost.TriggerCommand(msg.text.slice(1).split(" ")[0], (params) ? params : []);
+        }
+        else
+        {
+          output = chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
+        }
+        output = output.filter(msg => msg.length > 0);
+        return output;
     }
     return [];
   }

@@ -5,6 +5,7 @@ import { PrePostMessagePluginEventArguments } from "../plugin-events/event-argum
 import { LeaderboardResetPluginEventArguments } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 import { ChatServices } from "../plugin-chat-services/chat-services";
+import { PluginCommand } from "./plugin-command";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -42,6 +43,12 @@ export abstract class AbstractPlugin
   private pluginEventTriggers: Map<PLUGIN_EVENT, (data: any) => any>;
 
   /**
+   * Command triggers. Plugins can hook functions to certain commands.
+   * these commands can be set in the constructor of a plugin.
+   */
+  private pluginCommandTriggers: PluginCommand[];
+
+  /**
    * Create a new Plugin instance.
    * @param _name Semantic name of this plugin.
    * @param _version Version of this plugin.
@@ -54,6 +61,7 @@ export abstract class AbstractPlugin
     this.Version = _version;
     this.Data = _data;
     this.pluginEventTriggers = new Map<PLUGIN_EVENT, (data: any) => any>();
+    this.pluginCommandTriggers = [];
 
     console.log("+ Loaded plugin: " + this.Name);
   };
@@ -75,10 +83,39 @@ export abstract class AbstractPlugin
   }
 
   /**
+   * Register a new plugin commands.
+   * These are custom /commands that can be invoked
+   * by users in a chat.
+   * @param _command /{command} of the function. Without preceding '/'
+   * @param _commandFn Function that returns an array of possible output strings.
+   */
+  protected registerCommand(_command: string, _commandFn: (_params: string[]) => string[])
+  {
+    this.pluginCommandTriggers.push(new PluginCommand(_command, _commandFn));
+  }
+
+  /**
+   * Trigger a plugin command if one is available.
+   * @param _command command to trigger.
+   */
+  public triggerCommand(_command: string, _params: string[]): string[]
+  {
+    let output: string[] = [];
+
+    var trigger = this.pluginCommandTriggers.find(commands => commands.CommandString === _command);
+    if(trigger)
+    {
+      output = output.concat(trigger.Invoke(_params));
+    }
+
+    return output;
+  }
+
+  /**
    * Trigger a certain PLUGIN_EVENT on this plugin.
    * @param _event PLUGIN_EVENT to trigger.
    */
-  public Trigger(_event: PLUGIN_EVENT, _data: PluginEventArguments): string[]
+  public triggerEvent(_event: PLUGIN_EVENT, _data: PluginEventArguments): string[]
   {
     let output: string[] = [];
 
