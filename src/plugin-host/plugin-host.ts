@@ -20,7 +20,7 @@ export class PluginHost
    * Collection of plugins currently running.
    */
   public readonly Plugins: AbstractPlugin[];
-  private Services: ChatServices;
+  private Services: () => ChatServices;
 
   /**
    * Create a new Plugin Host.
@@ -39,9 +39,9 @@ export class PluginHost
 
   public AttachChatServices(_chat: Chat): void
   {
-    this.Services = new ChatServices(_chat);
+    this.Services = () => new ChatServices(_chat);
     plugins.forEach(plugin => {
-      plugin.Services = () => { return this.Services; }
+      plugin.Services = () => { return this.Services(); }
     });
   }
 

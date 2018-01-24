@@ -14,7 +14,7 @@ export class ChatServices
    * Instance of the Chat this ChatServices
    * belongs to.
    */
-  private readonly Instance: Chat;
+  private readonly Instance: () => Chat;
   
   /**
    * Constructor.
@@ -22,7 +22,7 @@ export class ChatServices
    */
   constructor(_instance: Chat)
   {
-    this.Instance = _instance;
+    this.Instance = () => _instance;
   }
 
   /**
@@ -32,7 +32,7 @@ export class ChatServices
   {
     let _rTimes: DankTime[];
 
-    _rTimes = Array.from(this.Instance.dankTimes);
+    _rTimes = Array.from(this.Instance().dankTimes);
 
     return _rTimes;
   }
@@ -43,7 +43,7 @@ export class ChatServices
   public Users(): User[]
   {
     let _rUsers: User[]; 
-    _rUsers = Array.from(this.Instance.sortedUsers());
+    _rUsers = Array.from(this.Instance().sortedUsers());
     return _rUsers;
   }
 

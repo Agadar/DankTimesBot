@@ -103,7 +103,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
         if(msg.text.length > 1 && msg.text[0] === "/")
         {
           let params: string[] = msg.text.slice(1).split(" ").slice(1);
-          output = chat.pluginhost.TriggerCommand(msg.text.slice(1).split(" ")[0], (params) ? params : []);
+          output = chat.pluginhost().TriggerCommand(msg.text.slice(1).split(" ")[0], (params) ? params : []);
         }
         else
         {

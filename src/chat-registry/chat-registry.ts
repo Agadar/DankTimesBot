@@ -94,7 +94,7 @@ export class ChatRegistry implements IChatRegistry {
     }
 
     if(!literal.pluginhost) {
-      literal.pluginhost = new PluginHost(this.availablePlugins);
+      //literal.pluginhost
     }
 
     const dankTimes = new Array<DankTime>();

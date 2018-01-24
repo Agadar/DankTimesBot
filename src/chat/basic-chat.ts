@@ -18,5 +18,5 @@ export interface BasicChat {
   firstNotifications: boolean;
   hardcoreMode: boolean;
   handicaps: boolean;
-  pluginhost: PluginHost;
+  pluginhost: () => PluginHost;
 }
