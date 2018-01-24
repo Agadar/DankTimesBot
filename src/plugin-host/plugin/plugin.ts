@@ -37,6 +37,11 @@ export abstract class AbstractPlugin
   public Services: () => ChatServices;
 
   /**
+   * Plugin ID
+   */
+  public PID: () => string;
+
+  /**
    * Event triggers. Plugins can hook functions to certain Plugin Events.
    * These plugin events are defined in the PLUGIN_EVENT enumeration.
    */
@@ -63,7 +68,7 @@ export abstract class AbstractPlugin
     this.pluginEventTriggers = new Map<PLUGIN_EVENT, (data: any) => any>();
     this.pluginCommandTriggers = [];
 
-    console.log("+ Loaded plugin: " + this.Name);
+    console.log("+ Loaded plugin: " + this.Name + " (" + this.PID + ")");
   };
 
   /* Function overload list */
@@ -101,6 +106,8 @@ export abstract class AbstractPlugin
   public triggerCommand(_command: string, _params: string[]): string[]
   {
     let output: string[] = [];
+
+    if (!this.Enabled) return output;
 
     var trigger = this.pluginCommandTriggers.find(commands => commands.CommandString === _command);
     if(trigger)

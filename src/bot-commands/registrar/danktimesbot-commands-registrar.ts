@@ -28,6 +28,9 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       this.telegramClient.registerCommand(new BotCommand("leaderboard", "shows the leaderboard",
         this.dankTimesBotCommands, this.dankTimesBotCommands.leaderBoard)),
 
+        this.telegramClient.registerCommand(new BotCommand("plugins", "interacts with the plugins subsystem. usage: [command] [parameter]. Try /plugins help",
+      this.dankTimesBotCommands, this.dankTimesBotCommands.plugins, true)),
+
       this.telegramClient.registerCommand(new BotCommand("removetime", "removes a dank time. format: [hour] [minute]",
         this.dankTimesBotCommands, this.dankTimesBotCommands.removeTime, true)),
 

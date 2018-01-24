@@ -5,6 +5,8 @@ import { Release } from "../../misc/release";
 import { ITelegramClient } from "../../telegram-client/i-telegram-client";
 import { IUtil } from "../../util/i-util";
 import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
+import { PluginHost } from "../../plugin-host/plugin-host";
+import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export class DankTimesBotCommands implements IDankTimesBotCommands {
@@ -188,6 +190,74 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     } catch (err) {
       return "⚠️ " + err.message;
     }
+  }
+
+  /**
+   * Interacts with the plugin subsystem.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response
+   */
+  public plugins(msg: any, match: any): string {
+    const split: string[] = match.input.split(" ");
+    let out: string = "";
+
+    if(split.length < 2) {
+      out = "⚠️ Not enough arguments! Try: /plugins help"
+    } else {
+      switch(split[1].toUpperCase()) {
+        case "HELP":
+          out = this.pluginsHelp();
+        break;
+        case "LIST":
+          out = this.pluginsList(msg);
+        break;
+        case "ENABLE":
+          out = this.pluginsSetEnabled(msg, split[2], true);
+        break;
+        case "DISABLE":
+          out = this.pluginsSetEnabled(msg, split[2], false);
+        break;
+      }
+    }
+
+    return out;
+  }
+
+  private pluginsHelp(): string
+  {
+    return `Plugin Help: The plugin subsystem supports several commands:
+/plugins help - Shows this help
+/plugins list - Lists available plugins
+/plugins enable [pluginname] - Enables [pluginname] for this chat if it is loaded
+/plugins disable [pluginname] - Disables [pluginname] for this chat if it is loaded`;
+  }
+
+  private pluginsList(msg: any): string 
+  {
+    var out = "The current list of plugins:\n";
+    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+    chat.pluginhost().Plugins.forEach((plugin: AbstractPlugin) => {
+      out += `${plugin.Name} (${plugin.PID()}) E: ${plugin.Enabled}\n`
+    });
+    return out;
+  }
+
+  private pluginsSetEnabled(msg: any, plugin: string, isEnabled: boolean): string
+  {
+      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+      let out: string = "";
+      
+      let matchedPlugin: AbstractPlugin | undefined = (<PluginHost>(chat.pluginhost())).Plugins.find((e: AbstractPlugin) => e.PID() === plugin);
+      if(matchedPlugin) {
+        matchedPlugin.Enabled = isEnabled;
+        out = `Okay! ${isEnabled ? "Enabled" : "Disabled"} ${matchedPlugin.Name}`;
+      }
+      else {
+        out = `Oops! I don't know a plugin by that ID.`;
+      }
+
+      return out;
   }
 
   /**
