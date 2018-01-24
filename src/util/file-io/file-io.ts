@@ -156,7 +156,8 @@ export class FileIO implements IFileIO {
 
   // Load & Return plugins.
   return activePlugins
-  .map(plugin => {return ([plugin, new(require(`../../../plugins/${plugin}/plugin.js`)).Plugin()])})
+  .map(plugin => {return ([plugin, ((()=>{try {return new(require(`../../../plugins/${plugin}/plugin.js`)).Plugin();} catch {return null;}}))()])})
+  .filter(unfiltered => unfiltered[1])
   .map(pluginMap =>  {
     pluginMap[1].PID = () => pluginMap[0];
     return pluginMap[1];
