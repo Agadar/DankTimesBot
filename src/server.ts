@@ -10,6 +10,7 @@ import { IFileIO } from "./util/file-io/i-file-io";
 import { IUtil } from "./util/i-util";
 import { AbstractPlugin } from "./plugin-host/plugin/plugin";
 import { PLUGIN_EVENT } from "./plugin-host/plugin-events/plugin-event-types";
+import { NoArgumentsPluginEventArguments } from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 
 export class Server {
 
@@ -67,6 +68,9 @@ export class Server {
     this.nodeCleanup((exitCode: number | null, signal: string | null) => {
       console.info("Persisting data to file before exiting...");
       this.fileIO.saveChatsToFile(this.chatRegistry.chats);
+      this.chatRegistry.chats.forEach((chat: Chat) => {
+        chat.pluginhost().Trigger(PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, new NoArgumentsPluginEventArguments());
+      });
       return true;
     });
   }

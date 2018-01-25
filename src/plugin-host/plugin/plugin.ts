@@ -77,6 +77,7 @@ export abstract class AbstractPlugin
   protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, _eventFn: (_data: UserScoreChangedPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, _eventFn: (_data: LeaderboardResetPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, _eventFn: (_data: NoArgumentsPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_POST_INIT, _eventFn: (_data: NoArgumentsPluginEventArguments) => any): void;
   /**
    * Subscribe to a certain PLUGIN_EVENT.
    * @param _event Plugin event to describe to.

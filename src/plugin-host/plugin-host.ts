@@ -51,6 +51,7 @@ export class PluginHost
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, _input: UserScoreChangedPluginEventArguments): string[];
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, _input: LeaderboardResetPluginEventArguments): string[];
   public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, _input: NoArgumentsPluginEventArguments): string[];
+  public Trigger(_event: PLUGIN_EVENT.PLUGIN_EVENT_POST_INIT, _input: NoArgumentsPluginEventArguments): string[];
   /**
    * Trigger a certain event on this Plugin Host's plugins.
    * @param _event Event to trigger.

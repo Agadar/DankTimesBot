@@ -80,6 +80,7 @@ export class Chat {
     this.multiplier = multiplier;
     this.pluginhost = () => pluginhost
     this.pluginhost().AttachChatServices(this);
+    this.pluginhost().Trigger(PLUGIN_EVENT.PLUGIN_EVENT_POST_INIT, "");
   }
 
   public set id(id: number) {
