@@ -159,7 +159,7 @@ export class FileIO implements IFileIO {
   .map(plugin => {return ([plugin, ((()=>{try {return new(require(`../../../plugins/${plugin}/plugin.js`)).Plugin();} catch {return null;}}))()])})
   .filter(unfiltered => unfiltered[1])
   .map(pluginMap =>  {
-    pluginMap[1].PID = () => pluginMap[0];
+    pluginMap[1].pID = () => pluginMap[0];
     return pluginMap[1];
   }); /* So Sorry */
 }
