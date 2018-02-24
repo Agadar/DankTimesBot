@@ -161,7 +161,7 @@ export class FileIO implements IFileIO {
   .map(pluginMap =>  {
     pluginMap[1].PID = () => pluginMap[0];
     return pluginMap[1];
-  });
+  }); /* So Sorry */
 }
 
   /**

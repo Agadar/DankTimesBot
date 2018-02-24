@@ -30,9 +30,6 @@ export class PluginHost {
    */
   constructor(plugins: AbstractPlugin[]) {
     this.plugins = plugins;
-
-    // Activate all plugins until a mechanism to enable/disable has been created.
-    this.plugins.forEach(plugin => plugin.enabled = true);
   }
 
   public attachChatServices(chat: Chat): void {
