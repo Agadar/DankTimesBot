@@ -199,8 +199,7 @@ export class Chat {
     return usersArr;
   }
 
-  public createServices(): ChatServices 
-  {
+  public createServices(): ChatServices {
     return new ChatServices(this);
   }
 
@@ -253,10 +252,10 @@ export class Chat {
    * @returns A reply, or nothing if no reply is suitable/needed.
    */
   public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
-    let output:string [] = [];
+    let output: string[] = [];
     let now: Moment = this.moment.tz(this.timezone);
     let messageTimeout: boolean = now.unix() - msgUnixTime >= 60;
-    let awaitingReset:boolean = (this.awaitingResetConfirmation === userId);
+    let awaitingReset: boolean = (this.awaitingResetConfirmation === userId);
 
     // Ignore the message if it was sent more than 1 minute ago.
     if (now.unix() - msgUnixTime >= 60) {
@@ -266,8 +265,10 @@ export class Chat {
     output = output.concat(this.pluginhost().trigger(PluginEvent.PreMesssage, new PrePostMessagePluginEventArguments(msgText)));
 
     // Check if leaderboard should be instead.
-    if(awaitingReset) output = output.concat(this.handleAwaitingReset(userId, userName, msgText, msgUnixTime)); 
-    else if(this.running) // If we're running => Process dank time!
+    if (awaitingReset) {
+      output = output.concat(this.handleAwaitingReset(userId, userName, msgText, msgUnixTime));
+    }
+    else if (this.running) // If we're running => Process dank time!
     {
       output = output.concat(this.handleDankTimeInputMessage(userId, userName, msgText, msgUnixTime, now));
     }
@@ -278,43 +279,36 @@ export class Chat {
     return output;
   }
 
-  private handleAwaitingReset(userId: number, userName: string, msgText: string, msgUnixTime: number): string[]
-  {
+  private handleAwaitingReset(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
     let output: string[] = [];
 
-    if(this.awaitingResetConfirmation === userId)
-      {
-        this.awaitingResetConfirmation = -1;
-        if(msgText.toUpperCase() === "YES")
-          {
-            output.push("Leaderboard has been reset!\n\n" + this.generateLeaderboard(true));
-            this.users.forEach((user) => user.resetScore());
-            output = output.concat(this.pluginhost().trigger(PluginEvent.LeaderboardReset, new LeaderboardResetPluginEventArguments(this)));
-          }
+    if (this.awaitingResetConfirmation === userId) {
+      this.awaitingResetConfirmation = -1;
+      if (msgText.toUpperCase() === "YES") {
+        output.push("Leaderboard has been reset!\n\n" + this.generateLeaderboard(true));
+        this.users.forEach((user) => user.resetScore());
+        output = output.concat(this.pluginhost().trigger(PluginEvent.LeaderboardReset, new LeaderboardResetPluginEventArguments(this)));
       }
+    }
     return output;
   }
 
-  private handleDankTimeInputMessage(userId: number, userName: string, msgText: string, msgUnixTime: number, now: Moment): string[]
-  {
+  private handleDankTimeInputMessage(userId: number, userName: string, msgText: string, msgUnixTime: number, now: Moment): string[] {
     let output: string[] = [];
     // Gather dank times from the sent text, returning if none was found.
     const dankTimesByText = this.getDankTimesByText(msgText);
-    if(dankTimesByText.length < 1)
-    {
+    if (dankTimesByText.length < 1) {
       return output;
     }
 
     // Get the player, creating him if he doesn't exist yet.
-    if(!this.users.has(userId))
-    {
+    if (!this.users.has(userId)) {
       this.users.set(userId, new User(userId, userName));
     }
     const user = this.users.get(userId) as User;
 
     // Update user name if needed.
-    if(user.name !== userName)
-    {
+    if (user.name !== userName) {
       user.name = userName;
     }
     let subtractBy = 0;
@@ -323,8 +317,7 @@ export class Chat {
       if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
 
         // If cache needs resetting, do so and award DOUBLE points to the calling user.
-        if(this.lastHour !== dankTime.hour || this.myLastMinute !== dankTime.minute)
-        {
+        if (this.lastHour !== dankTime.hour || this.myLastMinute !== dankTime.minute) {
           this.users.forEach((user0) => user0.called = false);
           this.lastHour = dankTime.hour;
           this.lastMinute = dankTime.minute;
@@ -345,14 +338,13 @@ export class Chat {
           output = output.concat(this.pluginhost().trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, -dankTime.points)));
         } else {  // Else, award point.
           const score = Math.round(this.userDeservesHandicapBonus(user.id)
-        ? dankTime.points * handicapMultiplier : dankTime.points);
+            ? dankTime.points * handicapMultiplier : dankTime.points);
           user.addToScore(score, now.unix());
           output = output.concat(this.pluginhost().trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, score)));
           user.called = true;
         }
         return output;
-      } else if(dankTime.points > subtractBy)
-      {
+      } else if (dankTime.points > subtractBy) {
         subtractBy = dankTime.points;
       }
     }
