@@ -287,9 +287,9 @@ export class Chat {
         this.awaitingResetConfirmation = -1;
         if(msgText.toUpperCase() === "YES")
           {
+            output.push("Leaderboard has been reset!\n\n" + this.generateLeaderboard(true));
             this.users.forEach((user) => user.resetScore());
             output = output.concat(this.pluginhost().trigger(PluginEvent.LeaderboardReset, new LeaderboardResetPluginEventArguments(this)));
-            output.push("Leaderboard has been reset!\n\n" + this.generateLeaderboard(true));
           }
       }
     return output;
