@@ -103,7 +103,7 @@ export abstract class AbstractPlugin {
 
     if (!this.enabled) return output;
 
-    var trigger = this.pluginCommandTriggers.find(commands => commands.commandString === command);
+    let trigger = this.pluginCommandTriggers.find(commands => commands.commandString === command);
     if (trigger) {
       output = output.concat(trigger.invoke(params));
     }

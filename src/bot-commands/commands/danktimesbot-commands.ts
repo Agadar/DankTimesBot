@@ -235,7 +235,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
   private pluginsList(msg: any): string 
   {
-    var out = "The current list of plugins:\n";
+    let out = "The current list of plugins:\n";
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.pluginhost().plugins.forEach((plugin: AbstractPlugin) => {
       out += `${plugin.name} (${plugin.pID()}) E: ${plugin.enabled}\n`
