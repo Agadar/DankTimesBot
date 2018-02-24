@@ -226,19 +226,19 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
   private pluginsHelp(): string
   {
-    return `Plugin Help: The plugin subsystem supports several commands:
-/plugins help - Shows this help
-/plugins list - Lists available plugins
-/plugins enable [pluginname] - Enables [pluginname] for this chat if it is loaded
-/plugins disable [pluginname] - Disables [pluginname] for this chat if it is loaded`;
+    return `💊 Plugin Help: The plugin subsystem supports several commands:
+    👉 /plugins help - Shows this help
+    👉 /plugins list - Lists available plugins
+    👉 /plugins enable [pluginname] - Enables [pluginname] for this chat if it is loaded
+    👉 /plugins disable [pluginname] - Disables [pluginname] for this chat if it is loaded`;
   }
 
   private pluginsList(msg: any): string 
   {
-    let out = "The current list of plugins:\n";
+    let out = "💊 The current list of plugins:\n";
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.pluginhost().plugins.forEach((plugin: AbstractPlugin) => {
-      out += `${plugin.name} (${plugin.pID()}) E: ${plugin.enabled}\n`
+      out += `👉 ${plugin.name} (${plugin.pID()}) E: ${plugin.enabled}\n`
     });
     return out;
   }
@@ -251,10 +251,10 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       let matchedPlugin: AbstractPlugin | undefined = (<PluginHost>(chat.pluginhost())).plugins.find((e: AbstractPlugin) => e.pID() === plugin);
       if(matchedPlugin) {
         matchedPlugin.enabled = isEnabled;
-        out = `Okay! ${isEnabled ? "Enabled" : "Disabled"} ${matchedPlugin.name}`;
+        out = `👌 Okay! ${isEnabled ? "Enabled" : "Disabled"} ${matchedPlugin.name}`;
       }
       else {
-        out = `Oops! I don't know a plugin by that ID.`;
+        out = `🔥 Oops! I don't know a plugin by that ID.`;
       }
 
       return out;
