@@ -2,8 +2,8 @@ import { PluginEventArguments } from "../plugin-event-arguments";
 import { Chat } from "../../../chat/chat";
 
 /**
- * Leaderboard Reset Plugin Event Arguments.
- * Contains chat that has been reset.
+ * Explicit EventArguments class signalling that
+ * there are no arguments. Sort of a null-object for eventargs.
  */
 export class NoArgumentsPluginEventArguments extends PluginEventArguments {
   /**
