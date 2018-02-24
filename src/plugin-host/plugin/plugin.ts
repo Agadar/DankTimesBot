@@ -1,5 +1,5 @@
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
-import { PLUGIN_EVENT } from "../plugin-events/plugin-event-types";
+import { PluginEvent } from "../plugin-events/plugin-event-types";
 import { UserScoreChangedPluginEventArguments } from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PrePostMessagePluginEventArguments } from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import { LeaderboardResetPluginEventArguments } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -10,42 +10,41 @@ import { PluginCommand } from "./plugin-command";
 /**
  * Class defining the interface every plugin should adhere to.
  */
-export abstract class AbstractPlugin 
-{
+export abstract class AbstractPlugin {
   /**
    * Semantic identifier of this plugin. 
    */
-  public Name: string;
+  public name: string;
   /**
    * Version of this plugin.
    */
-  public Version: string;
+  public version: string;
   /**
    * Boolean indicating the status of this plugin.
    * Disabled plugins will not receive messages
    * from its Plugin Host.
    */
-  public Enabled: boolean;
+  public enabled: boolean;
   /**
    * Internal plugin state.
    */
-  protected Data: any;
+  protected data: any;
 
   /**
    * Services for this chat
    */
-  public Services: () => ChatServices;
+  public services: () => ChatServices;
 
   /**
    * Plugin ID
    */
-  public PID: () => string;
+  public pID: () => string;
 
   /**
    * Event triggers. Plugins can hook functions to certain Plugin Events.
    * These plugin events are defined in the PLUGIN_EVENT enumeration.
    */
-  private pluginEventTriggers: Map<PLUGIN_EVENT, (data: any) => any>;
+  private pluginEventTriggers: Map<PluginEvent, (data: any) => any>;
 
   /**
    * Command triggers. Plugins can hook functions to certain commands.
@@ -55,37 +54,33 @@ export abstract class AbstractPlugin
 
   /**
    * Create a new Plugin instance.
-   * @param _name Semantic name of this plugin.
-   * @param _version Version of this plugin.
-   * @param _data Any optional data that might require to be stored
+   * @param name Semantic name of this plugin.
+   * @param version Version of this plugin.
+   * @param data Any optional data that might require to be stored
    *              for this plugin.
    */
-  constructor(_name: string, _version: string, _data: any) 
-  {
-    this.Name = _name;
-    this.Version = _version;
-    this.Data = _data;
-    this.pluginEventTriggers = new Map<PLUGIN_EVENT, (data: any) => any>();
+  constructor(name: string, version: string, data: any) {
+    this.name = name;
+    this.version = version;
+    this.data = data;
+    this.pluginEventTriggers = new Map<PluginEvent, (data: any) => any>();
     this.pluginCommandTriggers = [];
-
-    console.log("+ Loaded plugin: " + this.Name + " (" + this.PID + ")");
   };
 
   /* Function overload list */
-  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_PRE_MESSAGE, _eventFn: (_data: PrePostMessagePluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_POST_MESSAGE, _eventFn: (_data: PrePostMessagePluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, _eventFn: (_data: UserScoreChangedPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, _eventFn: (_data: LeaderboardResetPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, _eventFn: (_data: NoArgumentsPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(_event: PLUGIN_EVENT.PLUGIN_EVENT_POST_INIT, _eventFn: (_data: NoArgumentsPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.PreMesssage, eventFn: (data: PrePostMessagePluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.PostMessage, eventFn: (data: PrePostMessagePluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.UserScoreChange, eventFn: (data: UserScoreChangedPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.LeaderboardReset, eventFn: (data: LeaderboardResetPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.DankShutdown, eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.PostInit, eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
   /**
    * Subscribe to a certain PLUGIN_EVENT.
    * @param _event Plugin event to describe to.
-   * @param _eventFn Function to execute when a certain event is triggered.
+   * @param eventFn Function to execute when a certain event is triggered.
    */
-  protected subscribeToPluginEvent(_event: PLUGIN_EVENT, _eventFn: (_data: any) => any): void
-  {
-    this.pluginEventTriggers.set(_event, _eventFn);
+  protected subscribeToPluginEvent(event: PluginEvent, eventFn: (data: any) => any): void {
+    this.pluginEventTriggers.set(event, eventFn);
   }
 
   /**
@@ -93,27 +88,24 @@ export abstract class AbstractPlugin
    * These are custom /commands that can be invoked
    * by users in a chat.
    * @param _command /{command} of the function. Without preceding '/'
-   * @param _commandFn Function that returns an array of possible output strings.
+   * @param commandFn Function that returns an array of possible output strings.
    */
-  protected registerCommand(_command: string, _commandFn: (_params: string[]) => string[])
-  {
-    this.pluginCommandTriggers.push(new PluginCommand(_command, _commandFn));
+  protected registerCommand(command: string, commandFn: (params: string[]) => string[]) {
+    this.pluginCommandTriggers.push(new PluginCommand(command, commandFn));
   }
 
   /**
    * Trigger a plugin command if one is available.
    * @param _command command to trigger.
    */
-  public triggerCommand(_command: string, _params: string[]): string[]
-  {
+  public triggerCommand(command: string, params: string[]): string[] {
     let output: string[] = [];
 
-    if (!this.Enabled) return output;
+    if (!this.enabled) return output;
 
-    var trigger = this.pluginCommandTriggers.find(commands => commands.CommandString === _command);
-    if(trigger)
-    {
-      output = output.concat(trigger.Invoke(_params));
+    var trigger = this.pluginCommandTriggers.find(commands => commands.commandString === command);
+    if (trigger) {
+      output = output.concat(trigger.invoke(params));
     }
 
     return output;
@@ -121,17 +113,15 @@ export abstract class AbstractPlugin
 
   /**
    * Trigger a certain PLUGIN_EVENT on this plugin.
-   * @param _event PLUGIN_EVENT to trigger.
+   * @param event PLUGIN_EVENT to trigger.
    */
-  public triggerEvent(_event: PLUGIN_EVENT, _data: PluginEventArguments): string[]
-  {
+  public triggerEvent(event: PluginEvent, data: PluginEventArguments): string[] {
     let output: string[] = [];
 
-    if (!this.Enabled) return output;
+    if (!this.enabled) return output;
 
-    if (this.pluginEventTriggers.has(_event))
-    {
-      output = output.concat((<(data: any) => any>this.pluginEventTriggers.get(_event))(_data));
+    if (this.pluginEventTriggers.has(event)) {
+      output = output.concat((<(data: any) => any>this.pluginEventTriggers.get(event))(data));
     }
 
     return output;

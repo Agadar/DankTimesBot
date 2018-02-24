@@ -8,52 +8,39 @@ import { User } from "../../chat/user/user";
  * Used by plugins to request certain data from their
  * respective chats.
  */
-export class ChatServices 
-{
+export class ChatServices {
   /**
    * Instance of the Chat this ChatServices
    * belongs to.
    */
-  private readonly Instance: () => Chat;
-  
+  private readonly instance: () => Chat;
+
   /**
    * Constructor.
-   * @param _instance Chat this Services belongs to.
+   * @param instance Chat this Services belongs to.
    */
-  constructor(_instance: Chat)
-  {
-    this.Instance = () => _instance;
+  constructor(instance: Chat) {
+    this.instance = () => instance;
   }
 
   /**
    * Get DankTimes for chat.
    */
-  public DankTimes(): DankTime[]
-  {
-    let _rTimes: DankTime[];
-
-    _rTimes = Array.from(this.Instance().dankTimes);
-
-    return _rTimes;
+  public dankTimes(): DankTime[] {
+    return Array.from(this.instance().dankTimes);
   }
 
   /**
    * Get Users in chat.
    */
-  public Users(): User[]
-  {
-    let _rUsers: User[]; 
-    _rUsers = Array.from(this.Instance().sortedUsers());
-    return _rUsers;
+  public users(): User[] {
+    return Array.from(this.instance().sortedUsers());
   }
 
   /**
    * Get actual leaderboard from chat.
    */
-  public Leaderboard(): Leaderboard
-  {
-    let _rLeaderboard: Leaderboard;
-    _rLeaderboard = new Leaderboard(this.Users());
-    return _rLeaderboard;
+  public Leaderboard(): Leaderboard {
+    return new Leaderboard(this.users());
   }
 }

@@ -5,21 +5,19 @@ import { Chat } from "../../../chat/chat";
  * Leaderboard Reset Plugin Event Arguments.
  * Contains chat that has been reset.
  */
-export class LeaderboardResetPluginEventArguments extends PluginEventArguments
-{
+export class LeaderboardResetPluginEventArguments extends PluginEventArguments {
   /**
    * The chat that was reset.
    * TODO: Probably don't want to expose the entire chat interface with this event...
    */
-  public readonly Chat: Chat;
+  public readonly chat: Chat;
 
   /**
    * Constructor.
-   * @param _chat Chat that was reset.
+   * @param chat Chat that was reset.
    */
-  constructor(_chat: Chat)
-  {
+  constructor(chat: Chat) {
     super();
-    this.Chat = _chat;
+    this.chat = chat;
   }
 }

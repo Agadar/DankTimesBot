@@ -4,20 +4,18 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  * Event Arguments for the Pre / Post message.
  * Contains the message text.
  */
-export class PrePostMessagePluginEventArguments extends PluginEventArguments
-{
+export class PrePostMessagePluginEventArguments extends PluginEventArguments {
   /**
    * Raw message going into / coming out of the Dank Times Bot process.
    */
-  public readonly Message: string;
+  public readonly message: string;
 
   /**
    * Constructor.
-   * @param _message Raw telegram message.
+   * @param message Raw telegram message.
    */
-  constructor(_message: string)
-  {
+  constructor(message: string) {
     super();
-    this.Message = _message;
+    this.message = message;
   }
 }

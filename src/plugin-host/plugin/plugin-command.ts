@@ -1,4 +1,3 @@
-
 /**
  * Defines an interface for plugins
  * to register their own custom commands
@@ -6,16 +5,14 @@
  * 
  * A Plugin Command must have some additional output.
  */
-export class PluginCommand
-{
-  public readonly CommandString: string;
-  public readonly Invoke: (_params: string[]) => string[];
+export class PluginCommand {
+  public readonly commandString: string;
+  public readonly invoke: (params: string[]) => string[];
 
-  constructor(_command: string, _callback: (_params: string[]) => string[])
-  {
-    if(_command.length > 0 && _command[0] === '/')
-      _command = _command.slice(1);
-    this.CommandString = _command;
-    this.Invoke = _callback;
+  constructor(command: string, callback: (params: string[]) => string[]) {
+    if (command.length > 0 && command[0] === '/')
+      command = command.slice(1);
+    this.commandString = command;
+    this.invoke = callback;
   }
 }

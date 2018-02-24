@@ -5,13 +5,11 @@ import { Chat } from "../../../chat/chat";
  * Leaderboard Reset Plugin Event Arguments.
  * Contains chat that has been reset.
  */
-export class NoArgumentsPluginEventArguments extends PluginEventArguments
-{
+export class NoArgumentsPluginEventArguments extends PluginEventArguments {
   /**
    * Constructor.
    */
-  constructor()
-  {
+  constructor() {
     super();
   }
 }

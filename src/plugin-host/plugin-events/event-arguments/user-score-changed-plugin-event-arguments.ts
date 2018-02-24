@@ -5,26 +5,24 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  * Event Arguments for the User Score Changed event.
  * Contains user and delta score.
  */
-export class UserScoreChangedPluginEventArguments extends PluginEventArguments
-{
+export class UserScoreChangedPluginEventArguments extends PluginEventArguments {
   /**
    * User that changed score.
    */
-  public readonly User: BasicUser;
+  public readonly user: BasicUser;
   /**
    * Change in score.
    */
-  public readonly ChangeInScore: number;
+  public readonly changeInScore: number;
 
   /**
    * Constructor.
-   * @param _user User that changed score.
-   * @param _changeInScore Delta score.
+   * @param user User that changed score.
+   * @param changeInScore Delta score.
    */
-  constructor(_user: BasicUser, _changeInScore: number)
-  {
+  constructor(user: BasicUser, changeInScore: number) {
     super();
-    this.User = _user;
-    this.ChangeInScore = _changeInScore;
+    this.user = user;
+    this.changeInScore = changeInScore;
   }
 }

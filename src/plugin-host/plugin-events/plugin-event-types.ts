@@ -1,9 +1,8 @@
-export enum PLUGIN_EVENT
-{
-  PLUGIN_EVENT_PRE_MESSAGE,
-  PLUGIN_EVENT_POST_MESSAGE,
-  PLUGIN_EVENT_USER_CHANGED_SCORE,
-  PLUGIN_EVENT_LEADERBOARD_RESET,
-  PLUGIN_EVENT_DANKTIMES_SHUTDOWN,
-  PLUGIN_EVENT_POST_INIT
+export enum PluginEvent {
+  PreMesssage,
+  PostMessage,
+  UserScoreChange,
+  LeaderboardReset,
+  DankShutdown,
+  PostInit
 }

@@ -237,8 +237,8 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   {
     var out = "The current list of plugins:\n";
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    chat.pluginhost().Plugins.forEach((plugin: AbstractPlugin) => {
-      out += `${plugin.Name} (${plugin.PID()}) E: ${plugin.Enabled}\n`
+    chat.pluginhost().plugins.forEach((plugin: AbstractPlugin) => {
+      out += `${plugin.name} (${plugin.pID()}) E: ${plugin.enabled}\n`
     });
     return out;
   }
@@ -248,10 +248,10 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
       let out: string = "";
       
-      let matchedPlugin: AbstractPlugin | undefined = (<PluginHost>(chat.pluginhost())).Plugins.find((e: AbstractPlugin) => e.PID() === plugin);
+      let matchedPlugin: AbstractPlugin | undefined = (<PluginHost>(chat.pluginhost())).plugins.find((e: AbstractPlugin) => e.pID() === plugin);
       if(matchedPlugin) {
-        matchedPlugin.Enabled = isEnabled;
-        out = `Okay! ${isEnabled ? "Enabled" : "Disabled"} ${matchedPlugin.Name}`;
+        matchedPlugin.enabled = isEnabled;
+        out = `Okay! ${isEnabled ? "Enabled" : "Disabled"} ${matchedPlugin.name}`;
       }
       else {
         out = `Oops! I don't know a plugin by that ID.`;
