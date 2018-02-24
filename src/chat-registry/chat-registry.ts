@@ -93,10 +93,6 @@ export class ChatRegistry implements IChatRegistry {
       literal.handicaps = true;
     }
 
-    if(!literal.pluginhost) {
-      //literal.pluginhost
-    }
-
     const dankTimes = new Array<DankTime>();
     literal.dankTimes.forEach((dankTime) => dankTimes.push(DankTime.fromJSON(dankTime)));
 
