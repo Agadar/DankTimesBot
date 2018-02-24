@@ -1,5 +1,5 @@
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
-import { PLUGIN_EVENT } from "../../src/plugin-host/plugin-events/plugin-event-types"
+import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types"
 import { UserScoreChangedPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PrePostMessagePluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import { LeaderboardResetPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -30,30 +30,30 @@ export class Plugin extends AbstractPlugin
     super("Example Plugin", "1.0.0", {});
 
     // Example of sample dat
-    this.Data = new ExamplePluginData();
-    this.Data.TestNumber = 1;
+    this.data = new ExamplePluginData();
+    this.data.TestNumber = 1;
 
-    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_PRE_MESSAGE, (_data: PrePostMessagePluginEventArguments) =>
+    this.subscribeToPluginEvent(PluginEvent.PreMesssage, (_data: PrePostMessagePluginEventArguments) =>
     {
       return [`Example of a Pre Message Event`];
     });
-    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_USER_CHANGED_SCORE, (_data: UserScoreChangedPluginEventArguments) =>
+    this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (_data: UserScoreChangedPluginEventArguments) =>
     {
-      return [`A player changed score! Player: ${_data.User.name}, change: ${_data.ChangeInScore}`,
+      return [`A player changed score! Player: ${_data.user.name}, change: ${_data.changeInScore}`,
               `Example of current leaderboard:`,
-              `${JSON.stringify(this.Services().Leaderboard().entries)} Okay.`];
+              `${JSON.stringify(this.services().Leaderboard().entries)} Okay.`];
     });
-    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_POST_MESSAGE, (_data: PrePostMessagePluginEventArguments) =>
+    this.subscribeToPluginEvent(PluginEvent.PostMessage, (_data: PrePostMessagePluginEventArguments) =>
     {
       return [`Example of a Post Message Event`];
     });
-    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_LEADERBOARD_RESET, (_data: LeaderboardResetPluginEventArguments) =>
+    this.subscribeToPluginEvent(PluginEvent.LeaderboardReset, (_data: LeaderboardResetPluginEventArguments) =>
     {
-      return [`The leaderboard was reset for chat: ${_data.Chat.id}`];
+      return [`The leaderboard was reset for chat: ${_data.chat.id}`];
     });
-    this.subscribeToPluginEvent(PLUGIN_EVENT.PLUGIN_EVENT_DANKTIMES_SHUTDOWN, (_data: NoArgumentsPluginEventArguments) => 
+    this.subscribeToPluginEvent(PluginEvent.DankShutdown, (_data: NoArgumentsPluginEventArguments) => 
     {
-      console.log("Shutting down plugin! " + this.Name);
+      console.log("Shutting down plugin! " + this.name);
     });
 
     this.registerCommand("test", (_params: string[]) => 
