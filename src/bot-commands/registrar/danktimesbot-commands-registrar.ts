@@ -102,13 +102,12 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       }
 
     } else if (msg.text) { // Let the appropriate chat process the message.
-      let dtMessage = new ChatMessage(msg.text, (msg.reply_to_message) ? msg.reply_to_message.text : "");
 
-      console.log(msg.reply_to_message ? msg.reply_to_message.text : "");
         const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
         let output: string[] = [];
         if(msg.text.length > 1 && msg.text[0] === "/")
         {
+          let dtMessage = new ChatMessage(msg.text.split(" ").slice(1).join(" "), (msg.reply_to_message) ? msg.reply_to_message.text : "");
           output = chat.pluginhost.triggerCommand(msg.text.slice(1).split(" ")[0], dtMessage);
         }
         else
