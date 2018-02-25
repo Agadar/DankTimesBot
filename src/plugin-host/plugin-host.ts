@@ -7,6 +7,7 @@ import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments
 import { ChatServices } from "./plugin-chat-services/chat-services";
 import { Chat } from "../chat/chat";
 import { plugins } from "../context-root";
+import { ChatMessage } from "../chat/chat-message/chat-message";
 
 /**
  * Class exposing the Plugin Host concept.
@@ -59,10 +60,20 @@ export class PluginHost {
     return out;
   }
 
-  public triggerCommand(command: string, params: string[]): string[] {
+  // public triggerCommand(command: string, params: string[]): string[] {
+  //   let out: string[] = [];
+  //   this.plugins.forEach(plugin => {
+  //     let output: string[] = plugin.triggerCommand(command, params);
+  //     out = out.concat(output);
+  //   });
+  //   return out;
+  // }
+
+  public triggerCommand(command: string, chatmessage: ChatMessage): string[]
+  {
     let out: string[] = [];
     this.plugins.forEach(plugin => {
-      let output: string[] = plugin.triggerCommand(command, params);
+      let output: string[] = plugin.triggerCommand(command, chatmessage);
       out = out.concat(output);
     });
     return out;
