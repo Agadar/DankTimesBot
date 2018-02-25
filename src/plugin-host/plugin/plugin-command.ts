@@ -1,3 +1,5 @@
+import { ChatMessage } from "../../chat/chat-message/chat-message";
+
 /**
  * Defines an interface for plugins
  * to register their own custom commands
@@ -7,9 +9,9 @@
  */
 export class PluginCommand {
   public readonly commandString: string;
-  public readonly invoke: (params: string[]) => string[];
+  public readonly invoke: (message: ChatMessage) => string[];
 
-  constructor(command: string, callback: (params: string[]) => string[]) {
+  constructor(command: string, callback: (message: ChatMessage) => string[]) {
     if (command.length > 0 && command[0] === '/')
       command = command.slice(1);
     this.commandString = command;

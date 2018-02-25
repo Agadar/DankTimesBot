@@ -6,6 +6,7 @@ import { LeaderboardResetPluginEventArguments } from "../plugin-events/event-arg
 import { NoArgumentsPluginEventArguments } from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 import { ChatServices } from "../plugin-chat-services/chat-services";
 import { PluginCommand } from "./plugin-command";
+import { ChatMessage } from "../../chat/chat-message/chat-message";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -91,7 +92,7 @@ export abstract class AbstractPlugin {
    * @param _command /{command} of the function. Without preceding '/'
    * @param commandFn Function that returns an array of possible output strings.
    */
-  protected registerCommand(command: string, commandFn: (params: string[]) => string[]) {
+  protected registerCommand(command: string, commandFn: (message: ChatMessage) => string[]) {
     this.pluginCommandTriggers.push(new PluginCommand(command, commandFn));
   }
 
@@ -99,14 +100,17 @@ export abstract class AbstractPlugin {
    * Trigger a plugin command if one is available.
    * @param _command command to trigger.
    */
-  public triggerCommand(command: string, params: string[]): string[] {
+  public triggerCommand(command: string, message: ChatMessage): string[] {
     let output: string[] = [];
 
-    if (!this.enabled) return output;
+    if(!this.enabled)
+    {
+      return output;
+    }
 
     let trigger = this.pluginCommandTriggers.find(commands => commands.commandString === command);
-    if (trigger) {
-      output = output.concat(trigger.invoke(params));
+    if(trigger) { 
+      output = output.concat(trigger.invoke(message));
     }
 
     return output;
