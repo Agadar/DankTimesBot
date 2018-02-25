@@ -65,6 +65,7 @@ export abstract class AbstractPlugin {
     this.data = data;
     this.pluginEventTriggers = new Map<PluginEvent, (data: any) => any>();
     this.pluginCommandTriggers = [];
+    this.enabled = true;
   };
 
   /* Function overload list */
