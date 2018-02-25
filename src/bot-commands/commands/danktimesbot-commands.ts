@@ -237,7 +237,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   {
     let out = "🤔 The current list of plugins:\n";
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    chat.pluginhost().plugins.forEach((plugin: AbstractPlugin) => {
+    chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
       out += `👉 ${plugin.name} (${plugin.pID()}) E: ${plugin.enabled}\n`
     });
     return out;
@@ -248,7 +248,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
       let out: string = "";
       
-      let matchedPlugin = chat.pluginhost().plugins.find(x => x.pID() == plugin);
+      let matchedPlugin = chat.pluginhost.plugins.find(x => x.pID() == plugin);
       if(matchedPlugin) {
         matchedPlugin.enabled = isEnabled;
         out = `👌 Okay! ${isEnabled ? "Enabled" : "Disabled"} ${matchedPlugin.name}`;

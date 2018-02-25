@@ -33,32 +33,36 @@ export class Plugin extends AbstractPlugin
     this.data = new ExamplePluginData();
     this.data.TestNumber = 1;
 
-    this.subscribeToPluginEvent(PluginEvent.PreMesssage, (_data: PrePostMessagePluginEventArguments) =>
+    this.subscribeToPluginEvent(PluginEvent.PreMesssage, (data: PrePostMessagePluginEventArguments) =>
     {
       return [`Example of a Pre Message Event`];
     });
-    this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (_data: UserScoreChangedPluginEventArguments) =>
+    this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) =>
     {
-      return [`A player changed score! Player: ${_data.user.name}, change: ${_data.changeInScore}`,
+      return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`,
               `Example of current leaderboard:`,
-              `${JSON.stringify(this.services().Leaderboard().entries)} Okay.`];
+              `${JSON.stringify(this.services.Leaderboard().entries)} Okay.`];
     });
-    this.subscribeToPluginEvent(PluginEvent.PostMessage, (_data: PrePostMessagePluginEventArguments) =>
+    this.subscribeToPluginEvent(PluginEvent.PostMessage, (data: PrePostMessagePluginEventArguments) =>
     {
       return [`Example of a Post Message Event`];
     });
-    this.subscribeToPluginEvent(PluginEvent.LeaderboardReset, (_data: LeaderboardResetPluginEventArguments) =>
+    this.subscribeToPluginEvent(PluginEvent.LeaderboardReset, (data: LeaderboardResetPluginEventArguments) =>
     {
-      return [`The leaderboard was reset for chat: ${_data.chat.id}`];
+      return [`The leaderboard was reset for chat: ${data.chat.id}`];
     });
-    this.subscribeToPluginEvent(PluginEvent.DankShutdown, (_data: NoArgumentsPluginEventArguments) => 
+    this.subscribeToPluginEvent(PluginEvent.DankShutdown, (data: NoArgumentsPluginEventArguments) => 
     {
       console.log("Shutting down plugin! " + this.name);
     });
 
-    this.registerCommand("test", (_params: string[]) => 
+    this.registerCommand("test", (params: string[]) => 
     {
-      return [`success: ${JSON.stringify(_params)}`]; 
-    })
+      return [`success: ${JSON.stringify(params)}`]; 
+    });
+
+    this.registerCommand("test-services", (params: string[]) => {
+      return this.services.users().map((v,i) => `{${i}: ${v}`);
+    });
   }
 } 

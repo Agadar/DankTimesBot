@@ -19,7 +19,7 @@ export class PluginHost {
    * Collection of plugins currently running.
    */
   public readonly plugins: AbstractPlugin[];
-  private services: () => ChatServices;
+  private chatservices: ChatServices;
 
   /**
    * Create a new Plugin Host.
@@ -32,11 +32,10 @@ export class PluginHost {
     this.plugins = plugins;
   }
 
-  public attachChatServices(chat: Chat): void {
-    this.services = () => new ChatServices(chat);
-    plugins.forEach(plugin => {
-      plugin.services = () => { return this.services(); }
-    });
+  public set services (cServices: ChatServices)
+  {
+    this.chatservices = cServices;
+    plugins.forEach(plugin => plugin.services = this.chatservices);
   }
 
   /* Overload List */

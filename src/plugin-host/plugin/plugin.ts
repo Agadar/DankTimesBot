@@ -33,7 +33,7 @@ export abstract class AbstractPlugin {
   /**
    * Services for this chat
    */
-  public services: () => ChatServices;
+  public services: ChatServices;
 
   /**
    * Plugin ID
