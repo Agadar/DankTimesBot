@@ -81,6 +81,7 @@ export class Chat {
     this.multiplier = multiplier;
     this.pluginHost = pluginhost;
     this.pluginHost.services = new ChatServices(this);
+    this.pluginHost.trigger(PluginEvent.PostInit, "");
   }
 
   public set id(id: number) {
