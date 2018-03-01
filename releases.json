@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.7.0a1",
+    "date": "2018-03-01",
+    "changes": [
+      "Added support for Dank Plugins"
+    ]
+  },
+  {
     "version": "1.6.0",
     "date": "2018-01-20",
     "changes": [

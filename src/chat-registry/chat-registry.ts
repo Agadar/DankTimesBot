@@ -2,6 +2,8 @@ import { BasicChat } from "../chat/basic-chat";
 import { Chat } from "../chat/chat";
 import { User } from "../chat/user/user";
 import { DankTime } from "../dank-time/dank-time";
+import { PluginHost } from "../plugin-host/plugin-host";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { IUtil } from "../util/i-util";
 import { IChatRegistry } from "./i-chat-registry";
 import { IChatRegistryListener } from "./i-chat-registry-listener";
@@ -16,6 +18,7 @@ export class ChatRegistry implements IChatRegistry {
   constructor(
     private readonly moment: any,
     private readonly util: IUtil,
+    private readonly availablePlugins: AbstractPlugin[],
     public readonly chats = new Map<number, Chat>()) { }
 
   /**
@@ -36,7 +39,7 @@ export class ChatRegistry implements IChatRegistry {
     if (this.chats.has(id)) {
       return this.chats.get(id) as Chat;
     }
-    const chat = new Chat(this.moment, this.util, id);
+    const chat = new Chat(this.moment, this.util, id, new PluginHost(this.availablePlugins));
 
     // These default dank times should be moved to a configurable .json file at some point.
     chat.addDankTime(new DankTime(0, 0, ["0000"], 5));
@@ -99,7 +102,7 @@ export class ChatRegistry implements IChatRegistry {
       users.set(user.id, User.fromJSON(user));
     });
 
-    return new Chat(this.moment, this.util, literal.id, literal.timezone, literal.running, literal.numberOfRandomTimes,
+    return new Chat(this.moment, this.util, literal.id, new PluginHost(this.availablePlugins), literal.timezone, literal.running, literal.numberOfRandomTimes,
       literal.pointsPerRandomTime, literal.lastHour, literal.lastMinute, users, dankTimes, [],
       literal.notifications, literal.multiplier, literal.autoLeaderboards, literal.firstNotifications,
       literal.hardcoreMode);

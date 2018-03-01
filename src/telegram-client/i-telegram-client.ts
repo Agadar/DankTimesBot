@@ -7,7 +7,7 @@ export interface ITelegramClient {
 
   executeCommand(msg: any, match: string[], botCommand: BotCommand): Promise<string>;
 
-  setOnAnyText(action: ((msg: any, match: string[]) => string)): void;
+  setOnAnyText(action: ((msg: any, match: string[]) => string[])): void;
 
   registerCommand(command: BotCommand): Promise<void>;
 

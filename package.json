@@ -1,6 +1,6 @@
 {
   "name": "dank-times-bot",
-  "version": "1.6.0",
+  "version": "1.7.0a1",
   "description": "This Telegram bot keeps track of 'dank' times such as 13:37 and 04:20, and awards points to users who call them out.",
   "main": "built/main.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "prestart": "npm run clean && tsc",
     "start": "node ./built/main.js",
     "pretest": "npm run clean && tsc",
-    "test": "mocha $(find built -name '*.spec.js')",
+    "test": "mocha ./built --recursive --exit",
     "lint": "tslint -p tsconfig.json --fix"
   },
   "author": "Agadar",
@@ -33,6 +33,8 @@
     "@types/node-telegram-bot-api": "^0.28.2",
     "chai": "^4.1.2",
     "mocha": "^4.0.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "typescript": "^2.4.2",
+    "tslint": "^5.9.1"
   }
 }

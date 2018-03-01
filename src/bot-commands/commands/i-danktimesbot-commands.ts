@@ -70,6 +70,14 @@ export interface IDankTimesBotCommands {
   addTime(msg: any, match: any): string;
 
   /**
+   * Interacts with the plugin subsystem.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  plugins(msg: any, match: any): string;
+
+  /**
    * Removes a dank time from the chat.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.

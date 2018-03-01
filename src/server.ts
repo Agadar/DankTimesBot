@@ -5,6 +5,9 @@ import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler"
 import { IDankTimesBotController } from "./danktimesbot-controller/i-danktimesbot-controller";
 import { Config } from "./misc/config";
 import { Release } from "./misc/release";
+import { NoArgumentsPluginEventArguments } from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+import { PluginEvent } from "./plugin-host/plugin-events/plugin-event-types";
+import { AbstractPlugin } from "./plugin-host/plugin/plugin";
 import { ITelegramClient } from "./telegram-client/i-telegram-client";
 import { IFileIO } from "./util/file-io/i-file-io";
 import { IUtil } from "./util/i-util";
@@ -26,6 +29,7 @@ export class Server {
     private readonly dankTimesBotCommandsRegistrar: IDankTimesBotCommandsRegistrar,
     private readonly version: string,
     private readonly danktimesbotController: IDankTimesBotController,
+    private readonly plugins: AbstractPlugin[],
   ) { }
 
   public run(): void {
@@ -64,6 +68,9 @@ export class Server {
     this.nodeCleanup((exitCode: number | null, signal: string | null) => {
       console.info("Persisting data to file before exiting...");
       this.fileIO.saveChatsToFile(this.chatRegistry.chats);
+      this.chatRegistry.chats.forEach((chat: Chat) => {
+        chat.pluginhost.trigger(PluginEvent.DankShutdown, new NoArgumentsPluginEventArguments());
+      });
       return true;
     });
   }
