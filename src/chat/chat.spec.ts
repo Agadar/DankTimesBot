@@ -253,7 +253,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
 
     // Assert
-    assert.equal(res[0], "");
+    assert.isEmpty(res);
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[3];
@@ -270,7 +270,7 @@ describe("Chat.processMessage", () => {
     const res = chat.processMessage(3, "user#3", "0113", now.unix());
 
     // Assert
-    assert.equal(res[0], "");
+    assert.isEmpty(res);
     const sortedUsers = chat.sortedUsers();
 
     const scorer = sortedUsers[0];
