@@ -1,9 +1,9 @@
 import { IChatRegistry } from "../../chat-registry/i-chat-registry";
+import { ChatMessage } from "../../chat/chat-message/chat-message";
 import { ITelegramClient } from "../../telegram-client/i-telegram-client";
 import { BotCommand } from "../bot-command";
 import { IDankTimesBotCommands } from "../commands/i-danktimesbot-commands";
 import { IDankTimesBotCommandsRegistrar } from "./i-danktimesbot-commands-registrar";
-import { ChatMessage } from "../../chat/chat-message/chat-message";
 
 export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegistrar {
 
@@ -105,16 +105,13 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
 
         const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
         let output: string[] = [];
-        if(msg.text.length > 1 && msg.text[0] === "/")
-        {
-          let dtMessage = new ChatMessage(msg.text.split(" ").slice(1).join(" "), (msg.reply_to_message) ? msg.reply_to_message.text : "");
+        if (msg.text.length > 1 && msg.text[0] === "/") {
+          const dtMessage = new ChatMessage(msg.text.split(" ").slice(1).join(" "), (msg.reply_to_message) ? msg.reply_to_message.text : "");
           output = chat.pluginhost.triggerCommand(msg.text.slice(1).split(" ")[0], dtMessage);
-        }
-        else
-        {
+        } else {
           output = chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
         }
-        output = output.filter(msg => msg.length > 0);
+        output = output.filter((msg) => msg.length > 0);
         return output;
     }
     return [];

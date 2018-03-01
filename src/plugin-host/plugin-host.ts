@@ -1,13 +1,13 @@
-import { AbstractPlugin } from "./plugin/plugin";
-import { PluginEvent } from "./plugin-events/plugin-event-types";
-import { PrePostMessagePluginEventArguments } from "./plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { UserScoreChangedPluginEventArguments } from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { Chat } from "../chat/chat";
+import { ChatMessage } from "../chat/chat-message/chat-message";
+import { plugins } from "../context-root";
+import { ChatServices } from "./plugin-chat-services/chat-services";
 import { LeaderboardResetPluginEventArguments } from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import { ChatServices } from "./plugin-chat-services/chat-services";
-import { Chat } from "../chat/chat";
-import { plugins } from "../context-root";
-import { ChatMessage } from "../chat/chat-message/chat-message";
+import { PrePostMessagePluginEventArguments } from "./plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import { UserScoreChangedPluginEventArguments } from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PluginEvent } from "./plugin-events/plugin-event-types";
+import { AbstractPlugin } from "./plugin/plugin";
 
 /**
  * Class exposing the Plugin Host concept.
@@ -33,10 +33,9 @@ export class PluginHost {
     this.plugins = plugins;
   }
 
-  public set services (cServices: ChatServices)
-  {
+  public set services(cServices: ChatServices) {
     this.chatservices = cServices;
-    plugins.forEach(plugin => plugin.services = this.chatservices);
+    plugins.forEach((plugin) => plugin.services = this.chatservices);
   }
 
   /* Overload List */
@@ -53,8 +52,8 @@ export class PluginHost {
    */
   public trigger(event: PluginEvent, input: any): string[] {
     let out: string[] = [];
-    this.plugins.forEach(plugin => {
-      let output: string[] = plugin.triggerEvent(event, input);
+    this.plugins.forEach((plugin) => {
+      const output: string[] = plugin.triggerEvent(event, input);
       out = out.concat(output);
     });
     return out;
@@ -69,11 +68,10 @@ export class PluginHost {
   //   return out;
   // }
 
-  public triggerCommand(command: string, chatmessage: ChatMessage): string[]
-  {
+  public triggerCommand(command: string, chatmessage: ChatMessage): string[] {
     let out: string[] = [];
-    this.plugins.forEach(plugin => {
-      let output: string[] = plugin.triggerCommand(command, chatmessage);
+    this.plugins.forEach((plugin) => {
+      const output: string[] = plugin.triggerCommand(command, chatmessage);
       out = out.concat(output);
     });
     return out;

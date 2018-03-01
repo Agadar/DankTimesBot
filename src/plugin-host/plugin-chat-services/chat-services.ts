@@ -1,7 +1,7 @@
 import { Chat } from "../../chat/chat";
 import { Leaderboard } from "../../chat/leaderboard/leaderboard";
-import { DankTime } from "../../dank-time/dank-time";
 import { User } from "../../chat/user/user";
+import { DankTime } from "../../dank-time/dank-time";
 
 /**
  * Plugin to Chat interface.

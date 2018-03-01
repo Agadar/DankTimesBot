@@ -25,7 +25,7 @@ export class TelegramClient implements ITelegramClient {
     this.bot.on("message", (msg: any, match: string[]) => {
       const output = action(msg, match);
       if (output) {
-        output.forEach(out => this.sendMessage(msg.chat.id, out));
+        output.forEach((out) => this.sendMessage(msg.chat.id, out));
       }
     });
   }

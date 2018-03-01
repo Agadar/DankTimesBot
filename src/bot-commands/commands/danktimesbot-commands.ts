@@ -2,11 +2,11 @@ import { IChatRegistry } from "../../chat-registry/i-chat-registry";
 import { IDankTimeScheduler } from "../../dank-time-scheduler/i-dank-time-scheduler";
 import { DankTime } from "../../dank-time/dank-time";
 import { Release } from "../../misc/release";
+import { PluginHost } from "../../plugin-host/plugin-host";
+import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
 import { ITelegramClient } from "../../telegram-client/i-telegram-client";
 import { IUtil } from "../../util/i-util";
 import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
-import { PluginHost } from "../../plugin-host/plugin-host";
-import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export class DankTimesBotCommands implements IDankTimesBotCommands {
@@ -202,30 +202,29 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     const split: string[] = match.input.split(" ");
     let out: string = "";
 
-    if(split.length < 2) {
-      out = "⚠️ Not enough arguments! Try: /plugins help"
+    if (split.length < 2) {
+      out = "⚠️ Not enough arguments! Try: /plugins help";
     } else {
-      switch(split[1].toUpperCase()) {
+      switch (split[1].toUpperCase()) {
         case "HELP":
           out = this.pluginsHelp();
-        break;
+          break;
         case "LIST":
           out = this.pluginsList(msg);
-        break;
+          break;
         case "ENABLE":
           out = this.pluginsSetEnabled(msg, split[2], true);
-        break;
+          break;
         case "DISABLE":
           out = this.pluginsSetEnabled(msg, split[2], false);
-        break;
+          break;
       }
     }
 
     return out;
   }
 
-  private pluginsHelp(): string
-  {
+  private pluginsHelp(): string {
     return `💊 Plugin Help: The plugin subsystem supports several commands:
     👉 /plugins help - Shows this help
     👉 /plugins list - Lists available plugins
@@ -233,27 +232,24 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     👉 /plugins disable [pluginname] - Disables [pluginname] for this chat if it is loaded`;
   }
 
-  private pluginsList(msg: any): string 
-  {
+  private pluginsList(msg: any): string {
     let out = "🤔 The current list of plugins:\n";
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
-      out += `👉 ${plugin.name} (${plugin.pID()}) E: ${plugin.enabled}\n`
+      out += `👉 ${plugin.name} (${plugin.pID()}) E: ${plugin.enabled}\n`;
     });
     return out;
   }
 
-  private pluginsSetEnabled(msg: any, plugin: string, isEnabled: boolean): string
-  {
+  private pluginsSetEnabled(msg: any, plugin: string, isEnabled: boolean): string {
       const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
       let out: string = "";
-      
-      let matchedPlugin = chat.pluginhost.plugins.find(x => x.pID() == plugin);
-      if(matchedPlugin) {
+
+      const matchedPlugin = chat.pluginhost.plugins.find((x) => x.pID() == plugin);
+      if (matchedPlugin) {
         matchedPlugin.enabled = isEnabled;
         out = `👌 Okay! ${isEnabled ? "Enabled" : "Disabled"} ${matchedPlugin.name}`;
-      }
-      else {
+      } else {
         out = `🔥 Oops! I don't know a plugin by that ID.`;
       }
 

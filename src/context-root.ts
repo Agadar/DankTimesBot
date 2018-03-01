@@ -18,7 +18,6 @@ export const version = require("../package.json").version;
 
 export const fileIO = new FileIO(fs);
 
-
 export const util = new Util();
 
 export const config = fileIO.loadConfigFromFile();
@@ -49,4 +48,3 @@ export const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(
 export const cronJob = CronJob;
 export const moment = momentImport;
 export const nodeCleanup = nodeCleanupImport;
-

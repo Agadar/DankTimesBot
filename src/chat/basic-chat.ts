@@ -1,6 +1,6 @@
 import { BasicDankTime } from "../dank-time/basic-dank-time";
-import { BasicUser } from "./user/basic-user";
 import { PluginHost } from "../plugin-host/plugin-host";
+import { BasicUser } from "./user/basic-user";
 
 export interface BasicChat {
   id: number;

@@ -1,15 +1,15 @@
+import { Moment } from "moment";
 import { DankTime } from "../dank-time/dank-time";
+import { ChatServices } from "../plugin-host/plugin-chat-services/chat-services";
+import { LeaderboardResetPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+import { PrePostMessagePluginEventArguments } from "../plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import { UserScoreChangedPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
+import { PluginHost } from "../plugin-host/plugin-host";
 import { IUtil } from "../util/i-util";
 import { BasicChat } from "./basic-chat";
 import { Leaderboard } from "./leaderboard/leaderboard";
 import { User } from "./user/user";
-import { Moment } from "moment";
-import { PluginHost } from "../plugin-host/plugin-host";
-import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
-import { PrePostMessagePluginEventArguments } from "../plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { UserScoreChangedPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
-import { LeaderboardResetPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import { ChatServices } from "../plugin-host/plugin-chat-services/chat-services";
 
 const handicapMultiplier = 1.5;
 const bottomPartThatHasHandicap = 0.25;
@@ -243,7 +243,7 @@ export class Chat {
       pointsPerRandomTime: this.myPointsPerRandomTime,
       running: this.running,
       timezone: this.myTimezone,
-      users: this.sortedUsers()
+      users: this.sortedUsers(),
     };
   }
 
@@ -253,9 +253,9 @@ export class Chat {
    */
   public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
     let output: string[] = [];
-    let now: Moment = this.moment.tz(this.timezone);
-    let messageTimeout: boolean = now.unix() - msgUnixTime >= 60;
-    let awaitingReset: boolean = (this.awaitingResetConfirmation === userId);
+    const now: Moment = this.moment.tz(this.timezone);
+    const messageTimeout: boolean = now.unix() - msgUnixTime >= 60;
+    const awaitingReset: boolean = (this.awaitingResetConfirmation === userId);
 
     // Ignore the message if it was sent more than 1 minute ago.
     if (now.unix() - msgUnixTime >= 60) {
@@ -267,9 +267,7 @@ export class Chat {
     // Check if leaderboard should be instead.
     if (awaitingReset) {
       output = output.concat(this.handleAwaitingReset(userId, userName, msgText, msgUnixTime));
-    }
-    else if (this.running) // If we're running => Process dank time!
-    {
+    } else if (this.running) {
       output = output.concat(this.handleDankTimeInputMessage(userId, userName, msgText, msgUnixTime, now));
     }
     msgText = this.util.cleanText(msgText);

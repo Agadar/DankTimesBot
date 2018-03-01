@@ -5,11 +5,11 @@ import * as moment from "moment-timezone";
 import { ChatRegistryMock } from "../../chat-registry/chat-registry-mock";
 import { Chat } from "../../chat/chat";
 import { DankTimeSchedulerMock } from "../../dank-time-scheduler/dank-time-scheduler-mock";
+import { PluginHost } from "../../plugin-host/plugin-host";
 import { TelegramClientMock } from "../../telegram-client/telegram-client-mock";
 import { Util } from "../../util/util";
 import { BotCommand } from "../bot-command";
 import { DankTimesBotCommands } from "./danktimesbot-commands";
-import { PluginHost } from "../../plugin-host/plugin-host";
 
 describe("DankTimesBotCommands.addTime", () => {
 

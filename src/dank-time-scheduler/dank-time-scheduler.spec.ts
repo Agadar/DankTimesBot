@@ -5,9 +5,9 @@ import { Chat } from "../chat/chat";
 import { DankTimeScheduler } from "../dank-time-scheduler/dank-time-scheduler";
 import { DankTime } from "../dank-time/dank-time";
 import { CronJobMock } from "../misc/cronjob-mock";
+import { PluginHost } from "../plugin-host/plugin-host";
 import { TelegramClientMock } from "../telegram-client/telegram-client-mock";
 import { Util } from "../util/util";
-import { PluginHost } from "../plugin-host/plugin-host";
 
 const util = new Util();
 

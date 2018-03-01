@@ -5,12 +5,12 @@ import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler"
 import { IDankTimesBotController } from "./danktimesbot-controller/i-danktimesbot-controller";
 import { Config } from "./misc/config";
 import { Release } from "./misc/release";
+import { NoArgumentsPluginEventArguments } from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+import { PluginEvent } from "./plugin-host/plugin-events/plugin-event-types";
+import { AbstractPlugin } from "./plugin-host/plugin/plugin";
 import { ITelegramClient } from "./telegram-client/i-telegram-client";
 import { IFileIO } from "./util/file-io/i-file-io";
 import { IUtil } from "./util/i-util";
-import { AbstractPlugin } from "./plugin-host/plugin/plugin";
-import { PluginEvent } from "./plugin-host/plugin-events/plugin-event-types";
-import { NoArgumentsPluginEventArguments } from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 
 export class Server {
 
@@ -29,7 +29,7 @@ export class Server {
     private readonly dankTimesBotCommandsRegistrar: IDankTimesBotCommandsRegistrar,
     private readonly version: string,
     private readonly danktimesbotController: IDankTimesBotController,
-    private readonly plugins: AbstractPlugin[]
+    private readonly plugins: AbstractPlugin[],
   ) { }
 
   public run(): void {

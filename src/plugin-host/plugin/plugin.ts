@@ -1,19 +1,19 @@
-import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
-import { PluginEvent } from "../plugin-events/plugin-event-types";
-import { UserScoreChangedPluginEventArguments } from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
-import { PrePostMessagePluginEventArguments } from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import { ChatMessage } from "../../chat/chat-message/chat-message";
+import { ChatServices } from "../plugin-chat-services/chat-services";
 import { LeaderboardResetPluginEventArguments } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import { ChatServices } from "../plugin-chat-services/chat-services";
+import { PrePostMessagePluginEventArguments } from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import { UserScoreChangedPluginEventArguments } from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
+import { PluginEvent } from "../plugin-events/plugin-event-types";
 import { PluginCommand } from "./plugin-command";
-import { ChatMessage } from "../../chat/chat-message/chat-message";
 
 /**
  * Class defining the interface every plugin should adhere to.
  */
 export abstract class AbstractPlugin {
   /**
-   * Semantic identifier of this plugin. 
+   * Semantic identifier of this plugin.
    */
   public name: string;
   /**
@@ -67,7 +67,7 @@ export abstract class AbstractPlugin {
     this.pluginEventTriggers = new Map<PluginEvent, (data: any) => any>();
     this.pluginCommandTriggers = [];
     this.enabled = true;
-  };
+  }
 
   /* Function overload list */
   protected subscribeToPluginEvent(event: PluginEvent.PreMesssage, eventFn: (data: PrePostMessagePluginEventArguments) => any): void;
@@ -103,13 +103,12 @@ export abstract class AbstractPlugin {
   public triggerCommand(command: string, message: ChatMessage): string[] {
     let output: string[] = [];
 
-    if(!this.enabled)
-    {
+    if (!this.enabled) {
       return output;
     }
 
-    let trigger = this.pluginCommandTriggers.find(commands => commands.commandString === command);
-    if(trigger) { 
+    const trigger = this.pluginCommandTriggers.find((commands) => commands.commandString === command);
+    if (trigger) {
       output = output.concat(trigger.invoke(message));
     }
 
@@ -123,10 +122,10 @@ export abstract class AbstractPlugin {
   public triggerEvent(event: PluginEvent, data: PluginEventArguments): string[] {
     let output: string[] = [];
 
-    if (!this.enabled) return output;
+    if (!this.enabled) { return output; }
 
     if (this.pluginEventTriggers.has(event)) {
-      output = output.concat((<(data: any) => any>this.pluginEventTriggers.get(event))(data));
+      output = output.concat((this.pluginEventTriggers.get(event) as (data: any) => any)(data));
     }
 
     return output;

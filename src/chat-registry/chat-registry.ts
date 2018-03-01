@@ -2,11 +2,11 @@ import { BasicChat } from "../chat/basic-chat";
 import { Chat } from "../chat/chat";
 import { User } from "../chat/user/user";
 import { DankTime } from "../dank-time/dank-time";
+import { PluginHost } from "../plugin-host/plugin-host";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { IUtil } from "../util/i-util";
 import { IChatRegistry } from "./i-chat-registry";
 import { IChatRegistryListener } from "./i-chat-registry-listener";
-import { AbstractPlugin } from "../plugin-host/plugin/plugin";
-import { PluginHost } from "../plugin-host/plugin-host";
 
 /**
  * Keeps track of all the chats.

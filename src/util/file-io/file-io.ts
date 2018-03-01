@@ -1,10 +1,10 @@
+import * as ts from "typescript";
 import { BasicChat } from "../../chat/basic-chat";
 import { Chat } from "../../chat/chat";
 import { Config } from "../../misc/config";
 import { Release } from "../../misc/release";
-import { IFileIO } from "./i-file-io";
 import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
-import * as ts from "typescript";
+import { IFileIO } from "./i-file-io";
 
 export class FileIO implements IFileIO {
 
@@ -41,7 +41,7 @@ export class FileIO implements IFileIO {
       apiKey: "",
       persistenceRate: 60,
       sendWhatsNewMsg: true,
-      plugins: []
+      plugins: [],
     };
 
     // If there is a config file, load its valid values into config obj.
@@ -131,34 +131,32 @@ export class FileIO implements IFileIO {
     return releases;
   }
 
-
 /**
  * Discover, Compile and load external plugins
  * from the plugins/ directory.
- * 
+ *
  * Returns 0..n plugins.
  */
-   public GetAvailablePlugins(_pluginsToActivate: string[]): AbstractPlugin[]
-    {
+   public GetAvailablePlugins(_pluginsToActivate: string[]): AbstractPlugin[] {
   // Directory in which to find plugins.
   const DIRECTORY: string = "plugins/";
 
   // Plugin directories
-  let directories: string[] = (this.fs.readdirSync(DIRECTORY).filter((f: any) => this.fs.statSync(DIRECTORY + "/" + f).isDirectory()));
+  const directories: string[] = (this.fs.readdirSync(DIRECTORY).filter((f: any) => this.fs.statSync(DIRECTORY + "/" + f).isDirectory()));
 
   // Get active plugins
-  let activePlugins: string[] = directories.filter(pluginDir => this.fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`) && _pluginsToActivate.indexOf(pluginDir) > -1);
+  const activePlugins: string[] = directories.filter((pluginDir) => this.fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`) && _pluginsToActivate.indexOf(pluginDir) > -1);
   // Compile
   // Get all directories with plugin.ts
   // Rewrite Directory -> Directory/plugin.ts & Compile
   (ts.createProgram(activePlugins
-    .map(pluginDir => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
+    .map((pluginDir) => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
 
   // Load & Return plugins.
   return activePlugins
-  .map(plugin => {return ([plugin, ((()=>{try {return new(require(`../../../plugins/${plugin}/plugin.js`)).Plugin();} catch {return null;}}))()])})
-  .filter(unfiltered => unfiltered[1])
-  .map(pluginMap =>  {
+  .map((plugin) => ([plugin, ((() => {try {return new(require(`../../../plugins/${plugin}/plugin.js`)).Plugin(); } catch {return null; }}))()]))
+  .filter((unfiltered) => unfiltered[1])
+  .map((pluginMap) =>  {
     pluginMap[1].pID = () => pluginMap[0];
     return pluginMap[1];
   }); /* So Sorry */

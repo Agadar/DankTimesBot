@@ -3,10 +3,10 @@ import "mocha";
 import * as moment from "moment-timezone";
 import { DankTime } from "../dank-time/dank-time";
 import * as momentMock from "../misc/moment-mock";
+import { PluginHost } from "../plugin-host/plugin-host";
 import { Util } from "../util/util";
 import { Chat } from "./chat";
 import { User } from "./user/user";
-import { PluginHost } from "../plugin-host/plugin-host";
 
 const util = new Util();
 
@@ -21,7 +21,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
+      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, startingScore);
   });
@@ -42,7 +42,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, 0);
   });
@@ -54,7 +54,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -70,7 +70,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -86,7 +86,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -102,7 +102,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const chat = new Chat(
-      moment, util, 0,new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);

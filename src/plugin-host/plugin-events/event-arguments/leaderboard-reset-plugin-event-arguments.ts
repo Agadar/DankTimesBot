@@ -1,5 +1,5 @@
-import { PluginEventArguments } from "../plugin-event-arguments";
 import { Chat } from "../../../chat/chat";
+import { PluginEventArguments } from "../plugin-event-arguments";
 
 /**
  * Leaderboard Reset Plugin Event Arguments.
