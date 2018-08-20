@@ -20,8 +20,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", startingScore, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(
-      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
+    const chat = new Chat(moment, util, 0, new PluginHost([]),
+      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, startingScore);
   });
@@ -31,8 +31,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", startingScore, nowMinusAlmost24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(
-      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const chat = new Chat(moment, util, 0, new PluginHost([]),
+      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, startingScore);
   });
@@ -41,8 +41,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 10, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(
-      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const chat = new Chat(moment, util, 0, new PluginHost([]),
+      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
     chat.hardcoreModeCheck(now);
     assert.equal(user.score, 0);
   });
@@ -53,8 +53,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 250, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(
-      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const chat = new Chat(moment, util, 0, new PluginHost([]),
+      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -69,8 +69,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 50, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(
-      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const chat = new Chat(moment, util, 0, new PluginHost([]),
+      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -85,8 +85,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 5, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(
-      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const chat = new Chat(moment, util, 0, new PluginHost([]),
+      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -101,8 +101,8 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 0, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(
-      moment, util, 0, new PluginHost([]), "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const chat = new Chat(moment, util, 0, new PluginHost([]),
+      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
 
     // Act
     chat.hardcoreModeCheck(now);

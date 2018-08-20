@@ -1,17 +1,19 @@
-import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
-import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types"
-import { UserScoreChangedPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
-import { PrePostMessagePluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { LeaderboardResetPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import { NoArgumentsPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 import { ChatMessage } from "../../src/chat/chat-message/chat-message";
-
-/**
- * Example of auxiliary data classes.
- */
-class ExamplePluginData {
-  public TestNumber: number = 0;
-}
+import {
+  LeaderboardResetPluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+import {
+  NoArgumentsPluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+import {
+  PrePostMessagePluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import {
+  UserScoreChangedPluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
+import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
+import { ExamplePluginData } from "./example-plugin-data";
 
 /**
  * Example of the simplest DankTimesBot
@@ -53,12 +55,12 @@ export class Plugin extends AbstractPlugin {
       return [`success: ${msg.text}`];
     });
 
-    this.registerCommand("test-reply", (msg: ChatMessage) => {
-      return [`Succes: ${msg.reply_text}`];
+    this.registerCommand("testreply", (msg: ChatMessage) => {
+      return [`Succes: ${msg.replyText}`];
     });
 
-    this.registerCommand("test-services", (params: ChatMessage) => {
-      return this.services.users().map((v, i) => `{${i}: ${v}`);
+    this.registerCommand("testservices", (params: ChatMessage) => {
+      return this.services.users().map((v, i) => `{${i}: ${v.name}}`);
     });
   }
-} 
+}

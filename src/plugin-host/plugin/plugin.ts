@@ -1,9 +1,17 @@
 import { ChatMessage } from "../../chat/chat-message/chat-message";
 import { ChatServices } from "../plugin-chat-services/chat-services";
-import { LeaderboardResetPluginEventArguments } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import { NoArgumentsPluginEventArguments } from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import { PrePostMessagePluginEventArguments } from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { UserScoreChangedPluginEventArguments } from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import {
+  LeaderboardResetPluginEventArguments,
+} from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+import {
+  NoArgumentsPluginEventArguments,
+} from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+import {
+  PrePostMessagePluginEventArguments,
+} from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import {
+  UserScoreChangedPluginEventArguments,
+} from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
 import { PluginEvent } from "../plugin-events/plugin-event-types";
 import { PluginCommand } from "./plugin-command";
@@ -27,19 +35,18 @@ export abstract class AbstractPlugin {
    */
   public enabled: boolean;
   /**
-   * Internal plugin state.
-   */
-  protected data: any;
-
-  /**
    * Services for this chat
    */
   public services: ChatServices;
-
   /**
    * Plugin ID
    */
   public pID: () => string;
+
+  /**
+   * Internal plugin state.
+   */
+  protected data: any;
 
   /**
    * Event triggers. Plugins can hook functions to certain Plugin Events.
@@ -67,33 +74,6 @@ export abstract class AbstractPlugin {
     this.pluginEventTriggers = new Map<PluginEvent, (data: any) => any>();
     this.pluginCommandTriggers = [];
     this.enabled = true;
-  }
-
-  /* Function overload list */
-  protected subscribeToPluginEvent(event: PluginEvent.PreMesssage, eventFn: (data: PrePostMessagePluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.PostMessage, eventFn: (data: PrePostMessagePluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.UserScoreChange, eventFn: (data: UserScoreChangedPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.LeaderboardReset, eventFn: (data: LeaderboardResetPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.DankShutdown, eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.PostInit, eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
-  /**
-   * Subscribe to a certain PLUGIN_EVENT.
-   * @param _event Plugin event to describe to.
-   * @param eventFn Function to execute when a certain event is triggered.
-   */
-  protected subscribeToPluginEvent(event: PluginEvent, eventFn: (data: any) => any): void {
-    this.pluginEventTriggers.set(event, eventFn);
-  }
-
-  /**
-   * Register a new plugin commands.
-   * These are custom /commands that can be invoked
-   * by users in a chat.
-   * @param _command /{command} of the function. Without preceding '/'
-   * @param commandFn Function that returns an array of possible output strings.
-   */
-  protected registerCommand(command: string, commandFn: (message: ChatMessage) => string[]) {
-    this.pluginCommandTriggers.push(new PluginCommand(command, commandFn));
   }
 
   /**
@@ -129,5 +109,35 @@ export abstract class AbstractPlugin {
     }
 
     return output;
+  }
+
+  /* Function overload list */
+  protected subscribeToPluginEvent(event: PluginEvent.PreMesssage | PluginEvent.PostMessage,
+                                   eventFn: (data: PrePostMessagePluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.UserScoreChange,
+                                   eventFn: (data: UserScoreChangedPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.LeaderboardReset,
+                                   eventFn: (data: LeaderboardResetPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.DankShutdown | PluginEvent.PostInit,
+                                   eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
+
+  /**
+   * Subscribe to a certain PLUGIN_EVENT.
+   * @param _event Plugin event to describe to.
+   * @param eventFn Function to execute when a certain event is triggered.
+   */
+  protected subscribeToPluginEvent(event: PluginEvent, eventFn: (data: any) => any): void {
+    this.pluginEventTriggers.set(event, eventFn);
+  }
+
+  /**
+   * Register a new plugin commands.
+   * These are custom /commands that can be invoked
+   * by users in a chat.
+   * @param _command /{command} of the function. Without preceding '/'
+   * @param commandFn Function that returns an array of possible output strings.
+   */
+  protected registerCommand(command: string, commandFn: (message: ChatMessage) => string[]) {
+    this.pluginCommandTriggers.push(new PluginCommand(command, commandFn));
   }
 }

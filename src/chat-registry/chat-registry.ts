@@ -102,7 +102,8 @@ export class ChatRegistry implements IChatRegistry {
       users.set(user.id, User.fromJSON(user));
     });
 
-    return new Chat(this.moment, this.util, literal.id, new PluginHost(this.availablePlugins), literal.timezone, literal.running, literal.numberOfRandomTimes,
+    return new Chat(this.moment, this.util, literal.id,
+      new PluginHost(this.availablePlugins), literal.timezone, literal.running, literal.numberOfRandomTimes,
       literal.pointsPerRandomTime, literal.lastHour, literal.lastMinute, users, dankTimes, [],
       literal.notifications, literal.multiplier, literal.autoLeaderboards, literal.firstNotifications,
       literal.hardcoreMode);

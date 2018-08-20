@@ -9,10 +9,10 @@
  */
 export class ChatMessage {
     public readonly text: string;
-    public readonly reply_text: string;
+    public readonly replyText: string;
 
-    constructor(text = "", reply_text = "") {
+    constructor(text = "", replyText = "") {
         this.text = text;
-        this.reply_text = reply_text;
+        this.replyText = replyText;
     }
 }

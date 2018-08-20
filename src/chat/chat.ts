@@ -1,9 +1,15 @@
 import { Moment } from "moment";
 import { DankTime } from "../dank-time/dank-time";
 import { ChatServices } from "../plugin-host/plugin-chat-services/chat-services";
-import { LeaderboardResetPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import { PrePostMessagePluginEventArguments } from "../plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { UserScoreChangedPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import {
+  LeaderboardResetPluginEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+import {
+  PrePostMessagePluginEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
+import {
+  UserScoreChangedPluginEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { IUtil } from "../util/i-util";
@@ -20,7 +26,6 @@ const punishByPoints = 10;
 export class Chat {
 
   public awaitingResetConfirmation = -1;
-  // public pluginhost: () => PluginHost;
 
   private myId: number;
   private myTimezone: string;
@@ -262,7 +267,8 @@ export class Chat {
       return output;
     }
     // Pre-message event
-    output = output.concat(this.pluginHost.trigger(PluginEvent.PreMesssage, new PrePostMessagePluginEventArguments(msgText)));
+    output = output.concat(this.pluginHost.trigger(PluginEvent.PreMesssage,
+      new PrePostMessagePluginEventArguments(msgText)));
 
     // Check if leaderboard should be instead.
     if (awaitingReset) {
@@ -273,82 +279,8 @@ export class Chat {
     msgText = this.util.cleanText(msgText);
 
     // Post-message event
-    output = output.concat(this.pluginHost.trigger(PluginEvent.PostMessage, new PrePostMessagePluginEventArguments(msgText)));
-    return output;
-  }
-
-  private handleAwaitingReset(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
-    let output: string[] = [];
-
-    if (this.awaitingResetConfirmation === userId) {
-      this.awaitingResetConfirmation = -1;
-      if (msgText.toUpperCase() === "YES") {
-        output.push("Leaderboard has been reset!\n\n" + this.generateLeaderboard(true));
-        this.users.forEach((user) => user.resetScore());
-        output = output.concat(this.pluginHost.trigger(PluginEvent.LeaderboardReset, new LeaderboardResetPluginEventArguments(this)));
-      }
-    }
-    return output;
-  }
-
-  private handleDankTimeInputMessage(userId: number, userName: string, msgText: string, msgUnixTime: number, now: Moment): string[] {
-    let output: string[] = [];
-    // Gather dank times from the sent text, returning if none was found.
-    const dankTimesByText = this.getDankTimesByText(msgText);
-    if (dankTimesByText.length < 1) {
-      return output;
-    }
-
-    // Get the player, creating him if he doesn't exist yet.
-    if (!this.users.has(userId)) {
-      this.users.set(userId, new User(userId, userName));
-    }
-    const user = this.users.get(userId) as User;
-
-    // Update user name if needed.
-    if (user.name !== userName) {
-      user.name = userName;
-    }
-    let subtractBy = 0;
-
-    for (const dankTime of dankTimesByText) {
-      if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
-
-        // If cache needs resetting, do so and award DOUBLE points to the calling user.
-        if (this.lastHour !== dankTime.hour || this.myLastMinute !== dankTime.minute) {
-          this.users.forEach((user0) => user0.called = false);
-          this.lastHour = dankTime.hour;
-          this.lastMinute = dankTime.minute;
-          let score = dankTime.points * this.myMultiplier;
-
-          if (this.userDeservesHandicapBonus(user.id)) {
-            score *= handicapMultiplier;
-          }
-          user.addToScore(Math.round(score), now.unix());
-          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, Math.round(score))));
-          user.called = true;
-
-          if (this.firstNotifications) {
-            output.push("👏 " + user.name + " was the first to score!");
-          }
-        } else if (user.called) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.points, now.unix());
-          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, -dankTime.points)));
-        } else {  // Else, award point.
-          const score = Math.round(this.userDeservesHandicapBonus(user.id)
-            ? dankTime.points * handicapMultiplier : dankTime.points);
-          user.addToScore(score, now.unix());
-          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, score)));
-          user.called = true;
-        }
-        return output;
-      } else if (dankTime.points > subtractBy) {
-        subtractBy = dankTime.points;
-      }
-    }
-    // If no match was found, punish the user.
-    user.addToScore(-subtractBy, now.unix());
-    output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, -subtractBy)));
+    output = output.concat(this.pluginHost.trigger(PluginEvent.PostMessage,
+      new PrePostMessagePluginEventArguments(msgText)));
     return output;
   }
 
@@ -482,5 +414,86 @@ export class Chat {
       }
     }
     return false;
+  }
+
+  private handleAwaitingReset(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
+    let output: string[] = [];
+
+    if (this.awaitingResetConfirmation === userId) {
+      this.awaitingResetConfirmation = -1;
+      if (msgText.toUpperCase() === "YES") {
+        output.push("Leaderboard has been reset!\n\n" + this.generateLeaderboard(true));
+        this.users.forEach((user) => user.resetScore());
+        output = output.concat(this.pluginHost.trigger(PluginEvent.LeaderboardReset,
+          new LeaderboardResetPluginEventArguments(this)));
+      }
+    }
+    return output;
+  }
+
+  private handleDankTimeInputMessage(userId: number, userName: string, msgText: string,
+                                     msgUnixTime: number, now: Moment): string[] {
+    let output: string[] = [];
+    // Gather dank times from the sent text, returning if none was found.
+    const dankTimesByText = this.getDankTimesByText(msgText);
+    if (dankTimesByText.length < 1) {
+      return output;
+    }
+
+    // Get the player, creating him if he doesn't exist yet.
+    if (!this.users.has(userId)) {
+      this.users.set(userId, new User(userId, userName));
+    }
+    const user = this.users.get(userId) as User;
+
+    // Update user name if needed.
+    if (user.name !== userName) {
+      user.name = userName;
+    }
+    let subtractBy = 0;
+
+    for (const dankTime of dankTimesByText) {
+      if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
+
+        // If cache needs resetting, do so and award DOUBLE points to the calling user.
+        if (this.lastHour !== dankTime.hour || this.myLastMinute !== dankTime.minute) {
+          this.users.forEach((user0) => user0.called = false);
+          this.lastHour = dankTime.hour;
+          this.lastMinute = dankTime.minute;
+          let score = dankTime.points * this.myMultiplier;
+
+          if (this.userDeservesHandicapBonus(user.id)) {
+            score *= handicapMultiplier;
+          }
+          user.addToScore(Math.round(score), now.unix());
+          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
+            new UserScoreChangedPluginEventArguments(user, Math.round(score))));
+          user.called = true;
+
+          if (this.firstNotifications) {
+            output.push("👏 " + user.name + " was the first to score!");
+          }
+        } else if (user.called) { // Else if user already called this time, remove points.
+          user.addToScore(-dankTime.points, now.unix());
+          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
+            new UserScoreChangedPluginEventArguments(user, -dankTime.points)));
+        } else {  // Else, award point.
+          const score = Math.round(this.userDeservesHandicapBonus(user.id)
+            ? dankTime.points * handicapMultiplier : dankTime.points);
+          user.addToScore(score, now.unix());
+          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
+            new UserScoreChangedPluginEventArguments(user, score)));
+          user.called = true;
+        }
+        return output;
+      } else if (dankTime.points > subtractBy) {
+        subtractBy = dankTime.points;
+      }
+    }
+    // If no match was found, punish the user.
+    user.addToScore(-subtractBy, now.unix());
+    output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
+      new UserScoreChangedPluginEventArguments(user, -subtractBy)));
+    return output;
   }
 }
