@@ -1,6 +1,7 @@
 import { IDankTimesBotCommandsRegistrar } from "./bot-commands/registrar/i-danktimesbot-commands-registrar";
 import { IChatRegistry } from "./chat-registry/i-chat-registry";
 import { Chat } from "./chat/chat";
+import { ChatSettingsRegistry } from "./chat/settings/chat-settings-registry";
 import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler";
 import { IDankTimesBotController } from "./danktimesbot-controller/i-danktimesbot-controller";
 import { Config } from "./misc/config";
@@ -31,6 +32,7 @@ export class Server {
     private readonly dankTimesBotCommandsRegistrar: IDankTimesBotCommandsRegistrar,
     private readonly version: string,
     private readonly danktimesbotController: IDankTimesBotController,
+    private readonly chatSettingsRegistry: ChatSettingsRegistry,
     private readonly plugins: AbstractPlugin[],
   ) { }
 

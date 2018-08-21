@@ -14,6 +14,8 @@ import { PluginHost } from "../plugin-host/plugin-host";
 import { IUtil } from "../util/i-util";
 import { BasicChat } from "./basic-chat";
 import { Leaderboard } from "./leaderboard/leaderboard";
+import { ChatSetting } from "./settings/chat-setting";
+import { CoreSettingsNames } from "./settings/core-settings-names";
 import { User } from "./user/user";
 
 const handicapMultiplier = 1.5;
@@ -27,62 +29,41 @@ export class Chat {
   public awaitingResetConfirmation = -1;
 
   private myId: number;
-  private myTimezone: string;
   private myLastHour: number;
   private myLastMinute: number;
-  private myNumberOfRandomTimes: number;
-  private myPointsPerRandomTime: number;
-  private myMultiplier: number;
   private myLastLeaderboard?: Leaderboard = undefined;
   private pluginHost: PluginHost;
 
   /**
    * Creates a new Chat object.
    * @param moment Reference to timezone import.
+   * @param util Utility functions.
    * @param id The chat's unique Telegram id.
-   * @param timezone The timezone the users are in.
+   * @param pluginhost This chat's plugin host.
    * @param running Whether this bot is running for this chat.
-   * @param numberOfRandomTimes The number of randomly generated dank times to generate each day.
-   * @param pointsPerRandomTime The number of points each randomly generated dank time is worth.
    * @param lastHour The hour of the last valid dank time being proclaimed.
    * @param lastMinute The minute of the last valid dank time being proclaimed.
    * @param users A map with the users, indexed by user id's.
    * @param dankTimes The dank times known in this chat.
    * @param randomDankTimes The daily randomly generated dank times in this chat.
-   * @param notifications Whether this chat automatically sends notifications for dank times.
-   * @param multiplier The multiplier applied to the score of the first user to score.
-   * @param autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
-   * @param firstNotifications Whether this chat announces the first user to score.
-   * @param hardcoreMode Whether this chat punishes users that haven't scored in the last 24 hours.
+   * @param settings This chat's settings.
    */
   constructor(
     private readonly moment: any,
     private readonly util: IUtil,
     id: number,
     pluginhost: PluginHost,
-    timezone = "Europe/Amsterdam",
     public running = false,
-    numberOfRandomTimes = 1,
-    pointsPerRandomTime = 10,
     lastHour = 0,
     lastMinute = 0,
     private readonly users = new Map<number, User>(),
     public readonly dankTimes = new Array<DankTime>(),
     public randomDankTimes = new Array<DankTime>(),
-    public notifications = true,
-    multiplier = 2,
-    public autoLeaderboards = true,
-    public firstNotifications = true,
-    public hardcoreMode = false,
-    public handicaps = true) {
+    private readonly settings = new Map<string, ChatSetting<any>>()) {
 
     this.id = id;
-    this.timezone = timezone;
     this.lastHour = lastHour;
     this.lastMinute = lastMinute;
-    this.numberOfRandomTimes = numberOfRandomTimes;
-    this.pointsPerRandomTime = pointsPerRandomTime;
-    this.multiplier = multiplier;
     this.pluginHost = pluginhost;
     this.pluginHost.chat = this;
     this.pluginHost.trigger(PluginEvent.PostInit, "");
@@ -99,17 +80,8 @@ export class Chat {
     return this.myId;
   }
 
-  public set timezone(timezone: string) {
-    const momentTimezone = this.moment.tz.zone(timezone);
-
-    if (momentTimezone === null) {
-      throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
-    }
-    this.myTimezone = momentTimezone.name;
-  }
-
   public get timezone(): string {
-    return this.myTimezone;
+    return String(this.settings.get(CoreSettingsNames.timezone));
   }
 
   public set lastHour(lastHour: number) {
@@ -134,42 +106,34 @@ export class Chat {
     return this.myLastMinute;
   }
 
-  public set numberOfRandomTimes(numberOfRandomTimes: number) {
-    if (numberOfRandomTimes < 0 || numberOfRandomTimes > 24 || numberOfRandomTimes % 1 !== 0) {
-      throw new RangeError("The number of times must be a whole number between 0 and 24!");
-    }
-    this.myNumberOfRandomTimes = numberOfRandomTimes;
-    this.randomDankTimes.splice(numberOfRandomTimes);
-  }
-
   public get numberOfRandomTimes(): number {
-    return this.myNumberOfRandomTimes;
-  }
-
-  public set multiplier(multiplier: number) {
-    if (multiplier < 1 || multiplier > 10) {
-      throw new RangeError("The multiplier must be a number between 1 and 10!");
-    }
-    this.myMultiplier = multiplier;
+    return Number(this.settings.get(CoreSettingsNames.numberOfRandomTimes));
   }
 
   public get multiplier(): number {
-    return this.myMultiplier;
-  }
-
-  public set pointsPerRandomTime(pointsPerRandomTime: number) {
-    if (pointsPerRandomTime < 1 || pointsPerRandomTime > 100 || pointsPerRandomTime % 1 !== 0) {
-      throw new RangeError("The points must be a whole number between 1 and 100!");
-    }
-    this.myPointsPerRandomTime = pointsPerRandomTime;
+    return Number(this.settings.get(CoreSettingsNames.multiplier));
   }
 
   public get pointsPerRandomTime(): number {
-    return this.myPointsPerRandomTime;
+    return Number(this.settings.get(CoreSettingsNames.pointsPerRandomTime));
   }
 
   public get pluginhost(): PluginHost {
     return this.pluginHost;
+  }
+
+  /**
+   * Sets the setting with the supplied name, throwing an exception if the
+   * setting does not exist or the supplied value is incorrect.
+   * @param name The name of the setting to set.
+   * @param value The value of the setting to set.
+   */
+  public setSetting(name: string, value: string) {
+    if (!this.settings.has(name)) {
+      throw new RangeError("This setting does not exist!");
+    }
+    const setting = this.settings.get(name) as ChatSetting<any>;
+    setting.setValueFromString(value);
   }
 
   /**
@@ -214,7 +178,7 @@ export class Chat {
   public generateRandomDankTimes(): DankTime[] {
     this.randomDankTimes = new Array<DankTime>();
 
-    for (let i = 0; i < this.myNumberOfRandomTimes; i++) {
+    for (let i = 0; i < this.numberOfRandomTimes; i++) {
       const now = this.moment().tz(this.timezone);
 
       now.add(Math.floor(Math.random() * 23), "hours");
@@ -222,7 +186,7 @@ export class Chat {
 
       if (!this.hourAndMinuteAlreadyRegistered(now.hours(), now.minutes())) {
         const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
-        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
+        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.pointsPerRandomTime));
       }
     }
     return this.randomDankTimes;
@@ -232,21 +196,21 @@ export class Chat {
    * Used by JSON.stringify. Returns a literal representation of this.
    */
   public toJSON(): BasicChat {
+
+    const basicSettings = Array.from(this.settings.values()).map((setting) => {
+      return {
+        name: setting.name,
+        value: setting.value,
+      };
+    });
+
     return {
-      autoLeaderboards: this.autoLeaderboards,
       dankTimes: this.dankTimes,
-      firstNotifications: this.firstNotifications,
-      handicaps: this.handicaps,
-      hardcoreMode: this.hardcoreMode,
       id: this.myId,
       lastHour: this.myLastHour,
       lastMinute: this.myLastMinute,
-      multiplier: this.myMultiplier,
-      notifications: this.notifications,
-      numberOfRandomTimes: this.myNumberOfRandomTimes,
-      pointsPerRandomTime: this.myPointsPerRandomTime,
       running: this.running,
-      timezone: this.myTimezone,
+      settings: basicSettings,
       users: this.sortedUsers(),
     };
   }
@@ -371,6 +335,18 @@ export class Chat {
     });
   }
 
+  private get hardcoreMode(): boolean {
+    return Boolean(this.settings.get(CoreSettingsNames.hardcoreMode));
+  }
+
+  private get handicaps(): boolean {
+    return Boolean(this.settings.get(CoreSettingsNames.handicaps));
+  }
+
+  private get firstNotifications(): boolean {
+    return Boolean(this.settings.get(CoreSettingsNames.firstNotifications));
+  }
+
   /**
    * Gets both normal and random dank times that have the specified text.
    */
@@ -459,7 +435,7 @@ export class Chat {
           this.users.forEach((user0) => user0.called = false);
           this.lastHour = dankTime.hour;
           this.lastMinute = dankTime.minute;
-          let score = dankTime.points * this.myMultiplier;
+          let score = dankTime.points * this.multiplier;
 
           if (this.userDeservesHandicapBonus(user.id)) {
             score *= handicapMultiplier;

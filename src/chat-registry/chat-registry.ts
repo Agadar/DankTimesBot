@@ -1,5 +1,7 @@
 import { BasicChat } from "../chat/basic-chat";
 import { Chat } from "../chat/chat";
+import { ChatSetting } from "../chat/settings/chat-setting";
+import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { User } from "../chat/user/user";
 import { DankTime } from "../dank-time/dank-time";
 import { PluginHost } from "../plugin-host/plugin-host";
@@ -18,6 +20,7 @@ export class ChatRegistry implements IChatRegistry {
   constructor(
     private readonly moment: any,
     private readonly util: IUtil,
+    private readonly chatSettingsRegistry: ChatSettingsRegistry,
     private readonly availablePlugins: AbstractPlugin[],
     public readonly chats = new Map<number, Chat>()) { }
 
@@ -79,33 +82,26 @@ export class ChatRegistry implements IChatRegistry {
 
   private fromJSON(literal: BasicChat): Chat {
 
-    // For backwards compatibility with previous versions.
-    if (!literal.multiplier) {
-      literal.multiplier = 2;
-    }
-    if (!literal.autoLeaderboards) {
-      literal.autoLeaderboards = true;
-    }
-    if (!literal.firstNotifications) {
-      literal.firstNotifications = true;
-    }
-    if (!literal.handicaps) {
-      literal.handicaps = true;
-    }
-
     const dankTimes = new Array<DankTime>();
     literal.dankTimes.forEach((dankTime) => dankTimes.push(DankTime.fromJSON(dankTime)));
 
     const users = new Map();
     literal.users.forEach((user) => {
-      user.score = Math.max(0, user.score); // For backwards compatibility with previous versions
       users.set(user.id, User.fromJSON(user));
     });
 
+    const settings = this.chatSettingsRegistry.getChatSettings();
+    for (const basicSetting of literal.settings) {
+      if (settings.has(basicSetting.name)) {
+        const setting = settings.get(basicSetting.name) as ChatSetting<any>;
+        setting.setValueFromString(basicSetting.value);
+      }
+    }
+
     return new Chat(this.moment, this.util, literal.id,
-      new PluginHost(this.availablePlugins), literal.timezone, literal.running, literal.numberOfRandomTimes,
-      literal.pointsPerRandomTime, literal.lastHour, literal.lastMinute, users, dankTimes, [],
-      literal.notifications, literal.multiplier, literal.autoLeaderboards, literal.firstNotifications,
-      literal.hardcoreMode);
+      new PluginHost(this.availablePlugins), literal.running,
+      literal.lastHour, literal.lastMinute, users, dankTimes, [],
+      settings,
+    );
   }
 }

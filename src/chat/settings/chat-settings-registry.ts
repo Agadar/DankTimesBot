@@ -1,0 +1,116 @@
+import { Moment } from "moment";
+import { ChatSetting } from "./chat-setting";
+import { ChatSettingTemplate } from "./chat-setting-template";
+import { CoreSettingsNames } from "./core-settings-names";
+
+/** Responsible for registering chat setting templates and providing fresh new chat settings. */
+export class ChatSettingsRegistry {
+
+    private readonly templates = new Array<ChatSettingTemplate<any>>();
+
+    /** Constructor. Initializes all core settings templates. */
+    constructor(private readonly moment: any) {
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.autoLeaderboards,
+            "whether a leaderboard is auto-posted 1 minute after every dank time",
+            true, this.toBoolean, this.noValidation));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.firstNotifications,
+            "whether this chat announces the first user to score",
+            true, this.toBoolean, this.noValidation));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicaps,
+            "whether the users with the lowest scores earn more points",
+            true, this.toBoolean, this.noValidation));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.hardcoreMode,
+            "whether every day, users are punished if they haven't scored the previous day",
+            false, this.toBoolean, this.noValidation));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.multiplier,
+            "the multiplier for the score of the first user to score",
+            2, this.toNumber, this.multiplierValidation));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.notifications,
+            "whether notifications of normal dank times are sent",
+            true, this.toBoolean, this.noValidation));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.numberOfRandomTimes,
+            "the number of random dank times per day",
+            1, this.toNumber, this.numberOfRandomTimesValidation));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.pointsPerRandomTime,
+            "the points for random daily dank times",
+            10, this.toNumber, this.pointsPerRandomTimeValidation));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.timezone,
+            "this chat's timezone",
+            "Europe/Amsterdam", this.noParsing, this.timezoneValidation));
+    }
+
+    /**
+     * Gets a fresh new map of all chat settings.
+     */
+    public getChatSettings(): Map<string, ChatSetting<any>> {
+        const map = new Map<string, ChatSetting<any>>();
+        this.templates.forEach((template) => map.set(template.name, new ChatSetting(template)));
+        return map;
+    }
+
+    /**
+     * Registers a new chat setting template. Should only be done BEFORE chats
+     * are initialized, or chats that were already initialized won't have the
+     * new setting available to them.
+     * @param template The template to register.
+     */
+    public registerChatSetting(template: ChatSettingTemplate<any>) {
+        const index = this.templates.findIndex((existing) => existing.name === template.name);
+        if (index !== -1) {
+            throw new Error("A setting with this name already exists!");
+        }
+        this.templates.push(template);
+    }
+
+    private noParsing(original: string): string {
+        return original;
+    }
+
+    private toBoolean(original: string): boolean {
+        return original === "true";
+    }
+
+    private toNumber(original: string): number {
+        const asNumber = Number(original);
+        if (isNaN(asNumber)) {
+            throw new RangeError("⚠️ The value must be a number!");
+        }
+        return asNumber;
+    }
+
+    private noValidation(value: any) { /* */ }
+
+    private multiplierValidation(value: number) {
+        if (value < 1 || value > 10) {
+            throw new RangeError("⚠️ The value must be a number between 1 and 10!");
+        }
+    }
+
+    private numberOfRandomTimesValidation(value: number) {
+        if (value < 0 || value > 24 || value % 1 !== 0) {
+            throw new RangeError("⚠️ The value must be a whole number between 0 and 24!");
+        }
+    }
+
+    private pointsPerRandomTimeValidation(value: number) {
+        if (value < 1 || value > 100 || value % 1 !== 0) {
+            throw new RangeError("⚠️ The value must be a whole number between 1 and 100!");
+        }
+    }
+
+    private timezoneValidation(value: string) {
+        const momentTimezone = this.moment.tz.zone(value);
+        if (momentTimezone === null) {
+            throw new RangeError("⚠️ Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
+        }
+    }
+}

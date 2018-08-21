@@ -7,6 +7,7 @@ import TelegramBot = require("node-telegram-bot-api");
 import { DankTimesBotCommands } from "./bot-commands/commands/danktimesbot-commands";
 import { DankTimesBotCommandsRegistrar } from "./bot-commands/registrar/danktimesbot-commands-registrar";
 import { ChatRegistry } from "./chat-registry/chat-registry";
+import { ChatSettingsRegistry } from "./chat/settings/chat-settings-registry";
 import { DankTimeScheduler } from "./dank-time-scheduler/dank-time-scheduler";
 import { DankTimesBotController } from "./danktimesbot-controller/danktimesbot-controller";
 import { TelegramClient } from "./telegram-client/telegram-client";
@@ -25,7 +26,9 @@ export const config = fileIO.loadConfigFromFile();
 export const availablePlugins = fileIO.GetAvailablePlugins(config.plugins);
 const initialChats = fileIO.loadChatsFromFile();
 
-export const chatRegistry = new ChatRegistry(momentImport, util, availablePlugins);
+export const chatSettingsRegistry = new ChatSettingsRegistry(momentImport);
+
+export const chatRegistry = new ChatRegistry(momentImport, util, chatSettingsRegistry, availablePlugins);
 chatRegistry.loadFromJSON(initialChats);
 
 export const releaseLog = fileIO.loadReleaseLogFromFile();
