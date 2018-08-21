@@ -22,10 +22,10 @@ export const util = new Util();
 
 export const config = fileIO.loadConfigFromFile();
 
-export const plugins = fileIO.GetAvailablePlugins(config.plugins);
+export const availablePlugins = fileIO.GetAvailablePlugins(config.plugins);
 const initialChats = fileIO.loadChatsFromFile();
 
-export const chatRegistry = new ChatRegistry(momentImport, util, plugins);
+export const chatRegistry = new ChatRegistry(momentImport, util, availablePlugins);
 chatRegistry.loadFromJSON(initialChats);
 
 export const releaseLog = fileIO.loadReleaseLogFromFile();

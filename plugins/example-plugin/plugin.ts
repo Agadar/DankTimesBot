@@ -39,7 +39,7 @@ export class Plugin extends AbstractPlugin {
     this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) => {
       return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`,
         `Example of current leaderboard:`,
-      `${JSON.stringify(this.services.Leaderboard().entries)} Okay.`];
+      this.chat.generateLeaderboard(false)];
     });
     this.subscribeToPluginEvent(PluginEvent.PostMessage, (data: PrePostMessagePluginEventArguments) => {
       return [`Example of a Post Message Event`];
@@ -60,7 +60,7 @@ export class Plugin extends AbstractPlugin {
     });
 
     this.registerCommand("testservices", (params: ChatMessage) => {
-      return this.services.users().map((v, i) => `{${i}: ${v.name}}`);
+      return this.chat.sortedUsers().map((v, i) => `{${i}: ${v.name}}`);
     });
   }
 }

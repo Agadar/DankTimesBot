@@ -1,6 +1,5 @@
 import { Moment } from "moment";
 import { DankTime } from "../dank-time/dank-time";
-import { ChatServices } from "../plugin-host/plugin-chat-services/chat-services";
 import {
   LeaderboardResetPluginEventArguments,
 } from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -85,7 +84,7 @@ export class Chat {
     this.pointsPerRandomTime = pointsPerRandomTime;
     this.multiplier = multiplier;
     this.pluginHost = pluginhost;
-    this.pluginHost.services = new ChatServices(this);
+    this.pluginHost.chat = this;
     this.pluginHost.trigger(PluginEvent.PostInit, "");
   }
 

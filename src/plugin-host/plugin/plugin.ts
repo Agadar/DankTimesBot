@@ -1,5 +1,5 @@
+import { Chat } from "../../chat/chat";
 import { ChatMessage } from "../../chat/chat-message/chat-message";
-import { ChatServices } from "../plugin-chat-services/chat-services";
 import {
   LeaderboardResetPluginEventArguments,
 } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -35,9 +35,9 @@ export abstract class AbstractPlugin {
    */
   public enabled: boolean;
   /**
-   * Services for this chat
+   * Reference to the chat.
    */
-  public services: ChatServices;
+  public chat: Chat;
   /**
    * Plugin ID
    */

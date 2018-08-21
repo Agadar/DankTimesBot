@@ -1,13 +1,14 @@
 import { Chat } from "../chat/chat";
 import { ChatMessage } from "../chat/chat-message/chat-message";
-import { plugins } from "../context-root";
-import { ChatServices } from "./plugin-chat-services/chat-services";
-import { LeaderboardResetPluginEventArguments,
+import {
+  LeaderboardResetPluginEventArguments,
 } from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import { PrePostMessagePluginEventArguments,
+import {
+  PrePostMessagePluginEventArguments,
 } from "./plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { UserScoreChangedPluginEventArguments,
+import {
+  UserScoreChangedPluginEventArguments,
 } from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEvent } from "./plugin-events/plugin-event-types";
 import { AbstractPlugin } from "./plugin/plugin";
@@ -20,8 +21,6 @@ import { AbstractPlugin } from "./plugin/plugin";
  */
 export class PluginHost {
 
-  private chatservices: ChatServices;
-
   /**
    * Create a new Plugin Host.
    * The Plugin Host will not by itself try and
@@ -29,12 +28,10 @@ export class PluginHost {
    * a list of plugins to be provided.
    * @param plugins List of plugins this PluginHost should manage.
    */
-  // tslint:disable-next-line:no-shadowed-variable
   constructor(public readonly plugins: AbstractPlugin[]) { }
 
-  public set services(cServices: ChatServices) {
-    this.chatservices = cServices;
-    this.plugins.forEach((plugin) => plugin.services = this.chatservices);
+  public set chat(chat: Chat) {
+    this.plugins.forEach((plugin) => plugin.chat = chat);
   }
 
   /* Overload List */
