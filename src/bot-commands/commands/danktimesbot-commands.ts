@@ -1,4 +1,6 @@
 import { IChatRegistry } from "../../chat-registry/i-chat-registry";
+import { Chat } from "../../chat/chat";
+import { CoreSettingsNames } from "../../chat/settings/core-settings-names";
 import { IDankTimeScheduler } from "../../dank-time-scheduler/i-dank-time-scheduler";
 import { DankTime } from "../../dank-time/dank-time";
 import { Release } from "../../misc/release";
@@ -66,27 +68,63 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   /**
-   * Prints the current settings of the chat identified in the msg object.
+   * Prints the current settings values of the chat identified in the msg object.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  public chatSettings(msg: any, match: any): string {
+  public settings(msg: any, match: any): string {
     const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    let settings = "<b>🛠️ SETTINGS</b>\n";
-    settings += "\n<b>Announce first to score:</b> " + (chat.firstNotifications ? "on" : "off");
-    settings += "\n<b>Auto-post leaderboards:</b> " + (chat.autoLeaderboards ? "on" : "off");
-    settings += "\n<b>Chat time zone:</b> " + chat.timezone;
-    settings += "\n<b>Dank time notifications:</b> " + (chat.notifications ? "on" : "off");
-    settings += "\n<b>Handicaps:</b> " + (chat.handicaps ? "on" : "off");
-    settings += "\n<b>Hardcore mode:</b> " + (chat.hardcoreMode ? "on" : "off");
-    settings += "\n<b>Multiplier:</b> x" + chat.multiplier;
-    settings += "\n<b>Random dank times per day:</b> " + chat.numberOfRandomTimes;
-    settings += "\n<b>Random dank time points:</b> " + chat.pointsPerRandomTime;
-    settings += "\n<b>Server time:</b> " + new Date();
-    settings += "\n<b>Status:</b> " + (chat.running ? "running" : "awaiting start");
-    settings += "\n<b>Version:</b> " + this.version;
-    return settings;
+    return chat.getFormattedSettingsValues();
+  }
+
+  /**
+   * Prints the current settings descriptions of the chat identified in the msg object.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  public settingshelp(msg: any, match: any): string {
+    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+    return chat.getFormattedSettingsDescriptions();
+  }
+
+  /**
+   * Sets a setting of the chat identified in the msg object.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  public set(msg: any, match: any): string {
+
+    // Split string and ensure it contains at least 2 items.
+    const split = match.input.split(" ");
+    if (split.length < 3) {
+      return "⚠️ Not enough arguments! Format: /set [name] [value]";
+    }
+
+    // Update the chat setting
+    try {
+      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+      const settingname = split[1];
+      const settingvalue = split[2];
+      chat.setSetting(settingname, settingvalue);
+
+      // Altering some settings has side-effects:
+      if (settingname === CoreSettingsNames.timezone) {
+        this.doTimezoneSettingSideEffects(chat);
+      } else if (settingname === CoreSettingsNames.numberOfRandomTimes) {
+        this.doNumberOfRandomTimesSettingSideEffects(chat);
+      } else if (settingname === CoreSettingsNames.notifications) {
+        this.doNotificationsSettingSideEffects(chat);
+      } else if (settingname === CoreSettingsNames.autoLeaderboards) {
+        this.doAutoLeaderboardsSettingSideEffects(chat);
+      }
+
+      return "🎉 Updated the setting!";
+    } catch (err) {
+      return "⚠️ " + err.message;
+    }
   }
 
   /**
@@ -262,201 +300,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   /**
-   * Updates the chat's time zone.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public setTimezone(msg: any, match: any): string {
-
-    // Split string and ensure it contains at least 1 item.
-    const split = match.input.split(" ");
-    if (split.length < 2) {
-      return "⚠️ Not enough arguments! Format: /settimezone [timezone]";
-    }
-
-    // Update the time zone.
-    try {
-      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-      chat.timezone = split[1];
-
-      // Reschedule due to timezone change.
-      this.scheduler.unscheduleAllOfChat(chat);
-      this.scheduler.scheduleAllOfChat(chat);
-      return "🎉 Updated the time zone!";
-    } catch (err) {
-      return "⚠️ " + err.message;
-    }
-  }
-
-  /**
-   * Updates the chat's first score multiplier.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public setMultiplier(msg: any, match: any): string {
-
-    // Split string and ensure it contains at least 1 item.
-    const split = match.input.split(" ");
-    if (split.length < 2) {
-      return "⚠️ Not enough arguments! Format: /setmultiplier [number]";
-    }
-
-    const multiplier = Number(split[1]);
-    if (isNaN(multiplier)) {
-      return "⚠️ The multiplier must be a number!";
-    }
-
-    // Update the time zone.
-    try {
-      this.chatRegistry.getOrCreateChat(msg.chat.id).multiplier = multiplier;
-      return "🎉 Updated the multiplier!";
-    } catch (err) {
-      return "⚠️ " + err.message;
-    }
-  }
-
-  /**
-   * Sets the number of random dank times per day for the chat.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public setDailyRandomTimes(msg: any, match: any): string {
-
-    // Split string and ensure it contains at least 1 item.
-    const split = match.input.split(" ");
-    if (split.length < 2) {
-      return "⚠️ Not enough arguments! Format: /setdailyrandomfrequency [number]";
-    }
-
-    const dailyRandomTimes = Number(split[1]);
-    if (isNaN(dailyRandomTimes)) {
-      return "⚠️ The frequency must be a number!";
-    }
-
-    // Do the update.
-    try {
-      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-      chat.numberOfRandomTimes = dailyRandomTimes;
-
-      // Reschedule due to removed random times.
-      if (chat.running) {
-        this.scheduler.unscheduleRandomDankTimesOfChat(chat);
-        this.scheduler.scheduleRandomDankTimesOfChat(chat);
-
-        if (chat.autoLeaderboards) {
-          this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
-          this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
-        }
-      }
-      return "🎉 Updated the number of random dank times per day!";
-    } catch (err) {
-      return "⚠️ " + err.message;
-    }
-  }
-
-  /**
-   * Sets the points for random daily dank times for the chat.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public setDailyRandomTimesPoints(msg: any, match: any): string {
-
-    // Split string and ensure it contains at least 1 item.
-    const split = match.input.split(" ");
-    if (split.length < 2) {
-      return "⚠️ Not enough arguments! Format: /setdailyrandompoints [number]";
-    }
-
-    const pointsPerRandomTime = Number(split[1]);
-    if (isNaN(pointsPerRandomTime)) {
-      return "⚠️ The points must be a number!";
-    }
-
-    try {
-      this.chatRegistry.getOrCreateChat(msg.chat.id).pointsPerRandomTime = pointsPerRandomTime;
-      return "🎉 Updated the points for random daily dank times!";
-    } catch (err) {
-      return "⚠️ " + err.message;
-    }
-  }
-
-  /**
-   * Toggles whether the chat auto-posts notifications about NORMAL dank times.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public toggleNotifications(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    chat.notifications = !chat.notifications;
-
-    if (chat.notifications) {
-      if (chat.running) {
-        this.scheduler.scheduleDankTimesOfChat(chat);
-      }
-      return "🔔 Normal dank time notifications are now enabled!";
-    } else {
-      if (chat.running) {
-        this.scheduler.unscheduleDankTimesOfChat(chat);
-      }
-      return "🔕 Normal dank time notifications are now disabled! (Random dank time notifications remain enabled.)";
-    }
-  }
-
-  /**
-   * Toggles whether the chat auto-posts a leaderboard 1 minute after every dank time.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public toggleAutoLeaderboards(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    chat.autoLeaderboards = !chat.autoLeaderboards;
-
-    if (chat.autoLeaderboards) {
-      if (chat.running) {
-        this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
-      }
-      return "🔔 Automatic leaderboard posting is now enabled!";
-    } else {
-      if (chat.running) {
-        this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
-      }
-      return "🔕 Automatic leaderboard posting is now disabled!";
-    }
-  }
-
-  /**
-   * Toggles whether the chat announces the first user to score.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public toggleFirstNotifications(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    chat.firstNotifications = !chat.firstNotifications;
-    return chat.firstNotifications ? "🔔 Announcements for first users to score are now enabled!"
-      : "🔕 Announcements for first users to score are now disabled!";
-  }
-
-  /**
-   * Toggles whether the bottom x% of players get a handicap multiplier bonus.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public toggleHandicaps(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    chat.handicaps = !chat.handicaps;
-    return chat.handicaps ? "♿ Handicaps are now enabled! Users with the lowest scores now earn more points!"
-      : "🚴 Handicaps are now disabled!";
-  }
-
-  /**
    * Gets the release notes of the current version.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.
@@ -464,20 +307,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
    */
   public whatsNewMessage(msg: any, match: any): string {
     return this.util.releaseLogToWhatsNewMessage(this.releaseLog);
-  }
-
-  /**
-   * Toggles hardcore mode.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public toggleHardcoreMode(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    chat.hardcoreMode = !chat.hardcoreMode;
-    return chat.hardcoreMode
-      ? "☠️ Hardcore mode is now enabled! Every day, those who did not score the previous day are punished!"
-      : "👶 Hardcore mode is now disabled!";
   }
 
   private pluginsHelp(): string {
@@ -510,5 +339,42 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     }
 
     return out;
+  }
+
+  private doTimezoneSettingSideEffects(chat: Chat): void {
+    this.scheduler.unscheduleAllOfChat(chat);
+    this.scheduler.scheduleAllOfChat(chat);
+  }
+
+  private doNumberOfRandomTimesSettingSideEffects(chat: Chat): void {
+    if (chat.running) {
+      this.scheduler.unscheduleRandomDankTimesOfChat(chat);
+      this.scheduler.scheduleRandomDankTimesOfChat(chat);
+
+      if (chat.autoLeaderboards) {
+        this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
+        this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
+      }
+    }
+  }
+
+  private doNotificationsSettingSideEffects(chat: Chat): void {
+    if (chat.running) {
+      this.scheduler.unscheduleDankTimesOfChat(chat);
+
+      if (chat.notifications) {
+        this.scheduler.scheduleDankTimesOfChat(chat);
+      }
+    }
+  }
+
+  private doAutoLeaderboardsSettingSideEffects(chat: Chat): void {
+    if (chat.running) {
+      this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
+
+      if (chat.autoLeaderboards) {
+        this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
+      }
+    }
   }
 }

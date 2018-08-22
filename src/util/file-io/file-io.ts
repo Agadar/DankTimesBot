@@ -11,8 +11,6 @@ export class FileIO implements IFileIO {
   private readonly dataFolder = "./data";
   private readonly backupFile = this.dataFolder + "/backup.json";
   private readonly configFile = this.dataFolder + "/config.json";
-  // settings.json is deprecated, using config.json instead. Here for backwards compatibility.
-  private readonly settingsFile = this.dataFolder + "/settings.json";
   private readonly releasesFile = "./releases.json";
   private readonly apiKeyEnvKey = "DANK_TIMES_BOT_API_KEY";
   private readonly jsonIndentation = 2;
@@ -45,14 +43,8 @@ export class FileIO implements IFileIO {
     };
 
     // If there is a config file, load its valid values into config obj.
-    let configOrSettingsFile = this.configFile;
-    let exists = this.fs.existsSync(configOrSettingsFile);
-    if (!exists) {
-      configOrSettingsFile = this.settingsFile;
-      exists = this.fs.existsSync(configOrSettingsFile);
-    }
-    if (exists) {
-      const configFromFile: Config = JSON.parse(this.fs.readFileSync(configOrSettingsFile, "utf8"));
+    if (this.fs.existsSync(this.configFile)) {
+      const configFromFile: Config = JSON.parse(this.fs.readFileSync(this.configFile, "utf8"));
       if (configFromFile.apiKey !== undefined) {
         config.apiKey = configFromFile.apiKey;
       }

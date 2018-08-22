@@ -6,9 +6,13 @@ import * as momentMock from "../misc/moment-mock";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { Util } from "../util/util";
 import { Chat } from "./chat";
+import { ChatSetting } from "./settings/chat-setting";
+import { ChatSettingsRegistry } from "./settings/chat-settings-registry";
+import { CoreSettingsNames } from "./settings/core-settings-names";
 import { User } from "./user/user";
 
 const util = new Util();
+const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
 
 describe("Chat.hardcoreModeCheck", () => {
   const now = moment().unix();
@@ -16,34 +20,55 @@ describe("Chat.hardcoreModeCheck", () => {
   const nowMinusAlmost24Hours = nowMinus24Hours + 1;
 
   it("should not punish a user if hardcore mode is disabled", () => {
+
+    // Arrange
     const startingScore = 10;
     const user = new User(0, "user0", startingScore, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(moment, util, 0, new PluginHost([]),
-      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, false);
+    const settings = chatSettingRegistry.getChatSettings();
+    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = false;
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+
+    // Act
     chat.hardcoreModeCheck(now);
+
+    // Assert
     assert.equal(user.score, startingScore);
   });
 
   it("should not punish a user if hardcore mode is enabled but he scored in the last 24 hours", () => {
+
+    // Arrange
     const startingScore = 10;
     const user = new User(0, "user0", startingScore, nowMinusAlmost24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(moment, util, 0, new PluginHost([]),
-      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const settings = chatSettingRegistry.getChatSettings();
+    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+
+    // Act
     chat.hardcoreModeCheck(now);
+
+    // Assert
     assert.equal(user.score, startingScore);
   });
 
   it("should punish a user if hardcore mode is enabled and he did not score in the last 24 hours", () => {
+
+    // Arrange
     const user = new User(0, "user0", 10, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(moment, util, 0, new PluginHost([]),
-      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const settings = chatSettingRegistry.getChatSettings();
+    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+
+    // Act
     chat.hardcoreModeCheck(now);
+
+    // Assert
     assert.equal(user.score, 0);
   });
 
@@ -53,8 +78,9 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 250, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(moment, util, 0, new PluginHost([]),
-      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const settings = chatSettingRegistry.getChatSettings();
+    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -69,8 +95,9 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 50, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(moment, util, 0, new PluginHost([]),
-      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const settings = chatSettingRegistry.getChatSettings();
+    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -85,8 +112,9 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 5, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(moment, util, 0, new PluginHost([]),
-      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const settings = chatSettingRegistry.getChatSettings();
+    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -101,8 +129,9 @@ describe("Chat.hardcoreModeCheck", () => {
     const user = new User(0, "user0", 0, nowMinus24Hours, false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
-    const chat = new Chat(moment, util, 0, new PluginHost([]),
-      "Europe/Amsterdam", true, 0, 10, 0, 0, users, [], [], false, 2, false, false, true);
+    const settings = chatSettingRegistry.getChatSettings();
+    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -115,10 +144,14 @@ describe("Chat.hardcoreModeCheck", () => {
 describe("Chat.generateRandomDankTimes", () => {
 
   it("should generate correct # of random dank times with correct hours, minutes, and texts", () => {
-    const chat = new Chat(moment, util, 0, new PluginHost([]));
-    chat.numberOfRandomTimes = 10;
-    chat.pointsPerRandomTime = 10;
 
+    // Arrange
+    const settings = chatSettingRegistry.getChatSettings();
+    (settings.get(CoreSettingsNames.numberOfRandomTimes) as ChatSetting<number>).value = 10;
+    (settings.get(CoreSettingsNames.pointsPerRandomTime) as ChatSetting<number>).value = 10;
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+
+    // Act, Assert
     chat.generateRandomDankTimes().forEach((time) => {
       assert.isAtLeast(time.hour, 0);
       assert.isAtMost(time.hour, 23);
@@ -138,11 +171,13 @@ describe("Chat.generateRandomDankTimes", () => {
       mockMath.random = () => 0;
       global.Math = mockMath;
 
-      const chat = new Chat(moment, util, 0, new PluginHost([]), "UTC");
+      const settings = chatSettingRegistry.getChatSettings();
+      (settings.get(CoreSettingsNames.timezone) as ChatSetting<string>).value = "UTC";
+      (settings.get(CoreSettingsNames.numberOfRandomTimes) as ChatSetting<number>).value = 10;
+      (settings.get(CoreSettingsNames.pointsPerRandomTime) as ChatSetting<number>).value = 10;
+      const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
       const now = moment.tz("UTC");
       now.minutes(0);
-      chat.numberOfRandomTimes = 10;
-      chat.pointsPerRandomTime = 10;
       chat.addDankTime(new DankTime(now.hours(), now.minutes(), ["irrelevant"], 10));
 
       // Act
@@ -164,7 +199,8 @@ describe("Chat.generateRandomDankTimes", () => {
       mockMath.random = () => 0;
       global.Math = mockMath;
 
-      const chat = new Chat(moment, util, 0, new PluginHost([]));
+      const settings = chatSettingRegistry.getChatSettings();
+      const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
 
       // Act
       const randomDankTimes = chat.generateRandomDankTimes();
@@ -180,15 +216,27 @@ describe("Chat.generateRandomDankTimes", () => {
 describe("Chat.timezone", () => {
 
   it("should correct a valid but (for the cron library) improperly capitalized timezone", () => {
-    const chat = new Chat(moment, util, 0, new PluginHost([]));
-    chat.timezone = "jaPaN";
+
+    // Arrange
+    const settings = chatSettingRegistry.getChatSettings();
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+
+    // Act
+    chat.setSetting(CoreSettingsNames.timezone, "jaPaN");
+
+    // Assert
     assert.equal(chat.timezone, "Japan");
   });
 
   it("should throw an error on an invalid timezone", () => {
-    const chat = new Chat(moment, util, 0, new PluginHost([]));
+
+    // Arrange
+    const settings = chatSettingRegistry.getChatSettings();
+    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+
+    // Act, Assert
     try {
-      chat.timezone = "invalid/timezone";
+      chat.setSetting(CoreSettingsNames.timezone, "invalid/timezon");
       assert.fail(0, 1, "Expected RangeError!");
     } catch (err) {
       if (!(err instanceof RangeError)) {
@@ -205,7 +253,8 @@ describe("Chat.processMessage", () => {
   const dankTimePoints = 5;
 
   beforeEach("Instantiate test variables", () => {
-    chat = new Chat(momentMock, util, 0, new PluginHost([]));
+    const settings = chatSettingRegistry.getChatSettings();
+    chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
     chat.dankTimes.splice(0);
     chat.addDankTime(new DankTime(1, 13, ["0113"], dankTimePoints));
     chat.running = true;
@@ -281,7 +330,7 @@ describe("Chat.processMessage", () => {
   it("should NOT award handicap value if user that scores deserves it and was first but handicap is disabled", () => {
 
     // Arrange
-    chat.handicaps = false;
+    chat.setSetting(CoreSettingsNames.handicaps, String(false));
 
     // Act
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
@@ -321,7 +370,8 @@ describe("Chat.removeUsersWithZeroScore", () => {
   let chat: Chat;
 
   beforeEach("Instantiate test variables", () => {
-    chat = new Chat(momentMock, util, 0, new PluginHost([]));
+    const settings = chatSettingRegistry.getChatSettings();
+    chat = new Chat(momentMock, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
 
     for (let i = 0; i < 4; i++) {
       const user = new User(i, `user#${i}`, i * 10);

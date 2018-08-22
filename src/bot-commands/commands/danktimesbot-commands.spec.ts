@@ -4,6 +4,7 @@ import * as moment from "moment-timezone";
 
 import { ChatRegistryMock } from "../../chat-registry/chat-registry-mock";
 import { Chat } from "../../chat/chat";
+import { ChatSetting } from "../../chat/settings/chat-setting";
 import { DankTimeSchedulerMock } from "../../dank-time-scheduler/dank-time-scheduler-mock";
 import { PluginHost } from "../../plugin-host/plugin-host";
 import { TelegramClientMock } from "../../telegram-client/telegram-client-mock";
@@ -31,7 +32,7 @@ describe("DankTimesBotCommands.addTime", () => {
   beforeEach("Instantiate test variables", () => {
     chatRegistry = new ChatRegistryMock();
     dankTimesBotCommands = new DankTimesBotCommands(clientMock, chatRegistry, scheduler, util, [], "x.y.z");
-    chat = new Chat(moment, util, 0, new PluginHost([]));
+    chat = new Chat(moment, util, 0, new PluginHost([]), new Map<string, ChatSetting<any>>());
     match.input = "/addtime 22 33 5";
 
     chat.dankTimes.splice(0);

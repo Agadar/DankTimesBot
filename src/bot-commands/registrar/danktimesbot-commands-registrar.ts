@@ -23,7 +23,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       this.telegramClient.registerCommand(new BotCommand("danktimes", "shows the user-specified dank times",
         this.dankTimesBotCommands, this.dankTimesBotCommands.dankTimes)),
 
-      this.telegramClient.registerCommand(new BotCommand("help", "shows the available this.commands",
+      this.telegramClient.registerCommand(new BotCommand("help", "shows the available commands",
         this.dankTimesBotCommands, this.dankTimesBotCommands.help)),
 
       this.telegramClient.registerCommand(new BotCommand("leaderboard", "shows the leaderboard",
@@ -39,49 +39,20 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       this.telegramClient.registerCommand(new BotCommand("reset", "resets the scores",
         this.dankTimesBotCommands, this.dankTimesBotCommands.resetChat, true, true)),
 
-      this.telegramClient.registerCommand(new BotCommand("setdailyrandomfrequency",
-        "sets the number of random dank times per day. format: [number]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.setDailyRandomTimes, true)),
+      this.telegramClient.registerCommand(new BotCommand("settings", "shows the current settings values",
+        this.dankTimesBotCommands, this.dankTimesBotCommands.settings)),
 
-      this.telegramClient.registerCommand(new BotCommand("setdailyrandompoints",
-        "sets the points for random daily dank times. format: [number]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.setDailyRandomTimesPoints, true)),
+      this.telegramClient.registerCommand(new BotCommand("settingshelp", "shows the settings descriptions",
+        this.dankTimesBotCommands, this.dankTimesBotCommands.settingshelp)),
 
-      this.telegramClient.registerCommand(new BotCommand("setmultiplier",
-        "sets the multiplier for the score of the first user to score. format: [number]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.setMultiplier, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("settimezone", "sets the time zone. format: [timezone]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.setTimezone, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("settings", "shows the current settings",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.chatSettings)),
+      this.telegramClient.registerCommand(new BotCommand("set", "sets a setting. format: [name] [value]",
+        this.dankTimesBotCommands, this.dankTimesBotCommands.set, true)),
 
       this.telegramClient.registerCommand(new BotCommand("start", "starts keeping track of scores and sending messages",
         this.dankTimesBotCommands, this.dankTimesBotCommands.startChat, true)),
 
       this.telegramClient.registerCommand(new BotCommand("stop", "stops keeping track of scores and sending messages",
         this.dankTimesBotCommands, this.dankTimesBotCommands.stopChat, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("toggleautoleaderboards",
-        "toggles whether a leaderboard is auto-posted 1 minute after every dank time",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleAutoLeaderboards, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("toggledanktimenotifications",
-        "toggles whether notifications of normal dank times are sent",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleNotifications, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("togglefirstnotifications",
-        "toggles whether this chat announces the first user to score",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleFirstNotifications, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("togglehandicaps",
-        "toggles whether the users with the lowest scores earn more points",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleHandicaps, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("togglehardcoremode",
-        "toggles whether every day, users are punished if they haven't scored the previous day",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleHardcoreMode, true)),
 
       this.telegramClient.registerCommand(new BotCommand("whatsnew", "shows the release notes of the current version",
         this.dankTimesBotCommands, this.dankTimesBotCommands.whatsNewMessage)),

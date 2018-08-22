@@ -40,26 +40,26 @@ export class Chat {
    * @param util Utility functions.
    * @param id The chat's unique Telegram id.
    * @param pluginhost This chat's plugin host.
+   * @param settings This chat's settings.
    * @param running Whether this bot is running for this chat.
    * @param lastHour The hour of the last valid dank time being proclaimed.
    * @param lastMinute The minute of the last valid dank time being proclaimed.
    * @param users A map with the users, indexed by user id's.
    * @param dankTimes The dank times known in this chat.
    * @param randomDankTimes The daily randomly generated dank times in this chat.
-   * @param settings This chat's settings.
    */
   constructor(
     private readonly moment: any,
     private readonly util: IUtil,
     id: number,
     pluginhost: PluginHost,
+    private readonly settings: Map<string, ChatSetting<any>>,
     public running = false,
     lastHour = 0,
     lastMinute = 0,
     private readonly users = new Map<number, User>(),
     public readonly dankTimes = new Array<DankTime>(),
-    public randomDankTimes = new Array<DankTime>(),
-    private readonly settings = new Map<string, ChatSetting<any>>()) {
+    public randomDankTimes = new Array<DankTime>()) {
 
     this.id = id;
     this.lastHour = lastHour;
@@ -134,6 +134,11 @@ export class Chat {
     }
     const setting = this.settings.get(name) as ChatSetting<any>;
     setting.setValueFromString(value);
+
+    // Altering some settings has side-effects:
+    if (name === CoreSettingsNames.numberOfRandomTimes) {
+      this.randomDankTimes.splice(this.numberOfRandomTimes);
+    }
   }
 
   /**
@@ -333,6 +338,39 @@ export class Chat {
         this.users.delete(id);
       }
     });
+  }
+
+  /**
+   * Returns a formatted string representation of this chat's settings values.
+   */
+  public getFormattedSettingsValues(): string {
+    let formatted = "<b>🛠️ SETTINGS VALUES</b>\n";
+    this.settings.forEach((setting) => {
+      formatted += `\n<b>${setting.name}</b>: ${setting.value}`;
+    });
+    formatted += "---";
+    formatted += `\n<b>Server time:</b> ${new Date()}`;
+    formatted += `\n<b>Status:</b> ${(this.running ? "running" : "awaiting start")}`;
+    return formatted;
+  }
+
+  /**
+   * Returns a formatted string representation of this chat's settings descriptions.
+   */
+  public getFormattedSettingsDescriptions(): string {
+    let formatted = "<b>🛠️ SETTINGS DESCRIPTIONS</b>\n";
+    this.settings.forEach((setting) => {
+      formatted += `\n<b>${setting.name}</b>: ${setting.description}`;
+    });
+    return formatted;
+  }
+
+  public get notifications(): boolean {
+    return Boolean(this.settings.get(CoreSettingsNames.notifications));
+  }
+
+  public get autoLeaderboards(): boolean {
+    return Boolean(this.settings.get(CoreSettingsNames.autoLeaderboards));
   }
 
   private get hardcoreMode(): boolean {

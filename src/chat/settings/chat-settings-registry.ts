@@ -13,39 +13,39 @@ export class ChatSettingsRegistry {
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.autoLeaderboards,
             "whether a leaderboard is auto-posted 1 minute after every dank time",
-            true, this.toBoolean, this.noValidation));
+            true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.firstNotifications,
             "whether this chat announces the first user to score",
-            true, this.toBoolean, this.noValidation));
+            true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicaps,
             "whether the users with the lowest scores earn more points",
-            true, this.toBoolean, this.noValidation));
+            true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.hardcoreMode,
             "whether every day, users are punished if they haven't scored the previous day",
-            false, this.toBoolean, this.noValidation));
+            false, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.multiplier,
             "the multiplier for the score of the first user to score",
-            2, this.toNumber, this.multiplierValidation));
+            2, this.toNumber.bind(this), this.multiplierValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.notifications,
             "whether notifications of normal dank times are sent",
-            true, this.toBoolean, this.noValidation));
+            true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.numberOfRandomTimes,
             "the number of random dank times per day",
-            1, this.toNumber, this.numberOfRandomTimesValidation));
+            1, this.toNumber.bind(this), this.numberOfRandomTimesValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.pointsPerRandomTime,
             "the points for random daily dank times",
-            10, this.toNumber, this.pointsPerRandomTimeValidation));
+            10, this.toNumber.bind(this), this.pointsPerRandomTimeValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.timezone,
             "this chat's timezone",
-            "Europe/Amsterdam", this.noParsing, this.timezoneValidation));
+            "Europe/Amsterdam", this.noParsing.bind(this), this.timezoneValidation.bind(this)));
     }
 
     /**
@@ -82,7 +82,7 @@ export class ChatSettingsRegistry {
     private toNumber(original: string): number {
         const asNumber = Number(original);
         if (isNaN(asNumber)) {
-            throw new RangeError("⚠️ The value must be a number!");
+            throw new RangeError("The value must be a number!");
         }
         return asNumber;
     }
@@ -91,26 +91,26 @@ export class ChatSettingsRegistry {
 
     private multiplierValidation(value: number) {
         if (value < 1 || value > 10) {
-            throw new RangeError("⚠️ The value must be a number between 1 and 10!");
+            throw new RangeError("The value must be a number between 1 and 10!");
         }
     }
 
     private numberOfRandomTimesValidation(value: number) {
         if (value < 0 || value > 24 || value % 1 !== 0) {
-            throw new RangeError("⚠️ The value must be a whole number between 0 and 24!");
+            throw new RangeError("The value must be a whole number between 0 and 24!");
         }
     }
 
     private pointsPerRandomTimeValidation(value: number) {
         if (value < 1 || value > 100 || value % 1 !== 0) {
-            throw new RangeError("⚠️ The value must be a whole number between 1 and 100!");
+            throw new RangeError("The value must be a whole number between 1 and 100!");
         }
     }
 
     private timezoneValidation(value: string) {
         const momentTimezone = this.moment.tz.zone(value);
         if (momentTimezone === null) {
-            throw new RangeError("⚠️ Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
+            throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
         }
     }
 }

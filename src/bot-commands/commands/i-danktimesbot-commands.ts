@@ -30,12 +30,28 @@ export interface IDankTimesBotCommands {
   resetChat(msg: any, match: any): string;
 
   /**
-   * Prints the current settings of the chat identified in the msg object.
+   * Prints the current settings values of the chat identified in the msg object.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  chatSettings(msg: any, match: any): string;
+  settings(msg: any, match: any): string;
+
+  /**
+   * Prints the current settings descriptions of the chat identified in the msg object.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  settingshelp(msg: any, match: any): string;
+
+  /**
+   * Sets a setting of the chat identified in the msg object.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  set(msg: any, match: any): string;
 
   /**
    * Prints the NORMAL dank times of the chat identified in the msg object.
@@ -86,82 +102,10 @@ export interface IDankTimesBotCommands {
   removeTime(msg: any, match: any): string;
 
   /**
-   * Updates the chat's time zone.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  setTimezone(msg: any, match: any): string;
-
-  /**
-   * Updates the chat's first score multiplier.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  setMultiplier(msg: any, match: any): string;
-
-  /**
-   * Sets the number of random dank times per day for the chat.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  setDailyRandomTimes(msg: any, match: any): string;
-
-  /**
-   * Sets the points for random daily dank times for the chat.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  setDailyRandomTimesPoints(msg: any, match: any): string;
-
-  /**
-   * Toggles whether the chat auto-posts notifications about NORMAL dank times.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  toggleNotifications(msg: any, match: any): string;
-
-  /**
-   * Toggles whether the chat auto-posts a leaderboard 1 minute after every dank time.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  toggleAutoLeaderboards(msg: any, match: any): string;
-
-  /**
-   * Toggles whether the chat announces the first user to score.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  toggleFirstNotifications(msg: any, match: any): string;
-
-  /**
-   * Toggles whether the bottom 10% of players get a handicap multiplier bonus.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  toggleHandicaps(msg: any, match: any): string;
-
-  /**
    * Gets the release notes of the current version.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
   whatsNewMessage(msg: any, match: any): string;
-
-  /**
-   * Toggles hardcore mode.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  toggleHardcoreMode(msg: any, match: any): string;
 }

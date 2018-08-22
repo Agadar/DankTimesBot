@@ -39,10 +39,14 @@ export class ChatRegistry implements IChatRegistry {
    * Gets the chat with the supplied id, otherwise creates and returns a new one.
    */
   public getOrCreateChat(id: number): Chat {
+
     if (this.chats.has(id)) {
       return this.chats.get(id) as Chat;
     }
-    const chat = new Chat(this.moment, this.util, id, new PluginHost(this.availablePlugins));
+
+    const pluginhost = new PluginHost(this.availablePlugins);
+    const settings = this.chatSettingsRegistry.getChatSettings();
+    const chat = new Chat(this.moment, this.util, id, pluginhost, settings);
 
     // These default dank times should be moved to a configurable .json file at some point.
     chat.addDankTime(new DankTime(0, 0, ["0000"], 5));
@@ -91,17 +95,19 @@ export class ChatRegistry implements IChatRegistry {
     });
 
     const settings = this.chatSettingsRegistry.getChatSettings();
-    for (const basicSetting of literal.settings) {
-      if (settings.has(basicSetting.name)) {
-        const setting = settings.get(basicSetting.name) as ChatSetting<any>;
-        setting.setValueFromString(basicSetting.value);
+
+    if (literal.settings) {
+      for (const basicSetting of literal.settings) {
+        if (settings.has(basicSetting.name)) {
+          const setting = settings.get(basicSetting.name) as ChatSetting<any>;
+          setting.setValueFromString(basicSetting.value);
+        }
       }
     }
 
     return new Chat(this.moment, this.util, literal.id,
-      new PluginHost(this.availablePlugins), literal.running,
+      new PluginHost(this.availablePlugins), settings, literal.running,
       literal.lastHour, literal.lastMinute, users, dankTimes, [],
-      settings,
     );
   }
 }
