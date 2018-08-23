@@ -231,34 +231,17 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   /**
-   * Interacts with the plugin subsystem.
+   * Lists the names of the currently active plugins.
    * @param msg The message object from the Telegram api.
    * @param match The regex matched object from the Telegram api.
-   * @returns The response
+   * @returns The response.
    */
   public plugins(msg: any, match: any): string {
-    const split: string[] = match.input.split(" ");
-    let out: string = "";
-
-    if (split.length < 2) {
-      out = "⚠️ Not enough arguments! Try: /plugins help";
-    } else {
-      switch (split[1].toUpperCase()) {
-        case "HELP":
-          out = this.pluginsHelp();
-          break;
-        case "LIST":
-          out = this.pluginsList(msg);
-          break;
-        case "ENABLE":
-          out = this.pluginsSetEnabled(msg, split[2], true);
-          break;
-        case "DISABLE":
-          out = this.pluginsSetEnabled(msg, split[2], false);
-          break;
-      }
-    }
-
+    let out = "<b>🔌 PLUGINS</b>\n";
+    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+    chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
+      out += `\n- ${plugin.name}`;
+    });
     return out;
   }
 
@@ -307,38 +290,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
    */
   public whatsNewMessage(msg: any, match: any): string {
     return this.util.releaseLogToWhatsNewMessage(this.releaseLog);
-  }
-
-  private pluginsHelp(): string {
-    return `💊 Plugin Help: The plugin subsystem supports several commands:
-    👉 /plugins help - Shows this help
-    👉 /plugins list - Lists available plugins
-    👉 /plugins enable [pluginname] - Enables [pluginname] for this chat if it is loaded
-    👉 /plugins disable [pluginname] - Disables [pluginname] for this chat if it is loaded`;
-  }
-
-  private pluginsList(msg: any): string {
-    let out = "🤔 The current list of plugins:\n";
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
-      out += `👉 ${plugin.name} (${plugin.pID()}) E: ${plugin.enabled}\n`;
-    });
-    return out;
-  }
-
-  private pluginsSetEnabled(msg: any, plugin: string, isEnabled: boolean): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-    let out: string = "";
-
-    const matchedPlugin = chat.pluginhost.plugins.find((x) => x.pID() === plugin);
-    if (matchedPlugin) {
-      matchedPlugin.enabled = isEnabled;
-      out = `👌 Okay! ${isEnabled ? "Enabled" : "Disabled"} ${matchedPlugin.name}`;
-    } else {
-      out = `🔥 Oops! I don't know a plugin by that ID.`;
-    }
-
-    return out;
   }
 
   private doTimezoneSettingSideEffects(chat: Chat): void {

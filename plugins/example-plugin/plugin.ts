@@ -1,3 +1,4 @@
+import { Chat } from "../../src/chat/chat";
 import { ChatMessage } from "../../src/chat/chat-message/chat-message";
 import {
   LeaderboardResetPluginEventArguments,
@@ -39,7 +40,7 @@ export class Plugin extends AbstractPlugin {
     this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) => {
       return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`,
         `Example of current leaderboard:`,
-      this.chat.generateLeaderboard(false)];
+      data.chat.generateLeaderboard(false)];
     });
     this.subscribeToPluginEvent(PluginEvent.PostMessage, (data: PrePostMessagePluginEventArguments) => {
       return [`Example of a Post Message Event`];
@@ -51,16 +52,16 @@ export class Plugin extends AbstractPlugin {
       console.log("Shutting down plugin! " + this.name);
     });
 
-    this.registerCommand("test", (msg: ChatMessage) => {
+    this.registerCommand("test", (chat: Chat, msg: ChatMessage) => {
       return [`success: ${msg.text}`];
     });
 
-    this.registerCommand("testreply", (msg: ChatMessage) => {
+    this.registerCommand("testreply", (chat: Chat, msg: ChatMessage) => {
       return [`Succes: ${msg.replyText}`];
     });
 
-    this.registerCommand("testservices", (params: ChatMessage) => {
-      return this.chat.sortedUsers().map((v, i) => `{${i}: ${v.name}}`);
+    this.registerCommand("testservices", (chat: Chat, params: ChatMessage) => {
+      return chat.sortedUsers().map((v, i) => `{${i}: ${v.name}}`);
     });
   }
 }

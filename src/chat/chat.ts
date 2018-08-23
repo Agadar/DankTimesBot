@@ -59,8 +59,6 @@ export class Chat {
     this.lastHour = lastHour;
     this.lastMinute = lastMinute;
     this.pluginHost = pluginhost;
-    this.pluginHost.chat = this;
-    this.pluginHost.trigger(PluginEvent.PostInit, "");
   }
 
   public set id(id: number) {
@@ -243,7 +241,7 @@ export class Chat {
     }
     // Pre-message event
     output = output.concat(this.pluginHost.trigger(PluginEvent.PreMesssage,
-      new PrePostMessagePluginEventArguments(msgText)));
+      new PrePostMessagePluginEventArguments(this, msgText)));
 
     // Check if leaderboard should be reset instead.
     if (awaitingReset) {
@@ -255,7 +253,7 @@ export class Chat {
 
     // Post-message event
     output = output.concat(this.pluginHost.trigger(PluginEvent.PostMessage,
-      new PrePostMessagePluginEventArguments(msgText)));
+      new PrePostMessagePluginEventArguments(this, msgText)));
     return output;
   }
 
@@ -496,7 +494,7 @@ export class Chat {
           }
           user.addToScore(Math.round(score), now.unix());
           output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
-            new UserScoreChangedPluginEventArguments(user, Math.round(score))));
+            new UserScoreChangedPluginEventArguments(this, user, Math.round(score))));
           user.called = true;
 
           if (this.firstNotifications) {
@@ -505,13 +503,13 @@ export class Chat {
         } else if (user.called) { // Else if user already called this time, remove points.
           user.addToScore(-dankTime.points, now.unix());
           output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
-            new UserScoreChangedPluginEventArguments(user, -dankTime.points)));
+            new UserScoreChangedPluginEventArguments(this, user, -dankTime.points)));
         } else {  // Else, award point.
           const score = Math.round(this.userDeservesHandicapBonus(user.id)
             ? dankTime.points * this.handicapsMultiplier : dankTime.points);
           user.addToScore(score, now.unix());
           output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
-            new UserScoreChangedPluginEventArguments(user, score)));
+            new UserScoreChangedPluginEventArguments(this, user, score)));
           user.called = true;
         }
         return output;
@@ -522,7 +520,7 @@ export class Chat {
     // If no match was found, punish the user.
     user.addToScore(-subtractBy, now.unix());
     output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
-      new UserScoreChangedPluginEventArguments(user, -subtractBy)));
+      new UserScoreChangedPluginEventArguments(this, user, -subtractBy)));
     return output;
   }
 }

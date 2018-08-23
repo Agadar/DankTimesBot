@@ -4,5 +4,4 @@ export enum PluginEvent {
   UserScoreChange,
   LeaderboardReset,
   DankShutdown,
-  PostInit,
 }

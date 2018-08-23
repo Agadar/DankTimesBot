@@ -1,15 +1,21 @@
-import { BasicUser } from "../../../chat/user/basic-user";
+import { Chat } from "../../../chat/chat";
+import { User } from "../../../chat/user/user";
 import { PluginEventArguments } from "../plugin-event-arguments";
 
 /**
  * Event Arguments for the User Score Changed event.
- * Contains user and delta score.
+ * Contains chat, user, and delta score.
  */
 export class UserScoreChangedPluginEventArguments extends PluginEventArguments {
+
+  /**
+   * Chat in which the score change took place.
+   */
+  public readonly chat: Chat;
   /**
    * User that changed score.
    */
-  public readonly user: BasicUser;
+  public readonly user: User;
   /**
    * Change in score.
    */
@@ -17,11 +23,13 @@ export class UserScoreChangedPluginEventArguments extends PluginEventArguments {
 
   /**
    * Constructor.
+   * @param chat Chat in which the score change took place.
    * @param user User that changed score.
    * @param changeInScore Delta score.
    */
-  constructor(user: BasicUser, changeInScore: number) {
+  constructor(chat: Chat, user: User, changeInScore: number) {
     super();
+    this.chat = chat;
     this.user = user;
     this.changeInScore = changeInScore;
   }

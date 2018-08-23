@@ -28,20 +28,6 @@ export abstract class AbstractPlugin {
    * Version of this plugin.
    */
   public version: string;
-  /**
-   * Boolean indicating the status of this plugin.
-   * Disabled plugins will not receive messages
-   * from its Plugin Host.
-   */
-  public enabled: boolean;
-  /**
-   * Reference to the chat.
-   */
-  public chat: Chat;
-  /**
-   * Plugin ID
-   */
-  public pID: () => string;
 
   /**
    * Internal plugin state.
@@ -73,23 +59,18 @@ export abstract class AbstractPlugin {
     this.data = data;
     this.pluginEventTriggers = new Map<PluginEvent, (data: any) => any>();
     this.pluginCommandTriggers = [];
-    this.enabled = true;
   }
 
   /**
    * Trigger a plugin command if one is available.
    * @param _command command to trigger.
    */
-  public triggerCommand(command: string, message: ChatMessage): string[] {
+  public triggerCommand(command: string, chat: Chat, message: ChatMessage): string[] {
     let output: string[] = [];
-
-    if (!this.enabled) {
-      return output;
-    }
 
     const trigger = this.pluginCommandTriggers.find((commands) => commands.commandString === command);
     if (trigger) {
-      output = output.concat(trigger.invoke(message));
+      output = output.concat(trigger.invoke(chat, message));
     }
 
     return output;
@@ -101,8 +82,6 @@ export abstract class AbstractPlugin {
    */
   public triggerEvent(event: PluginEvent, data: PluginEventArguments): string[] {
     let output: string[] = [];
-
-    if (!this.enabled) { return output; }
 
     if (this.pluginEventTriggers.has(event)) {
       output = output.concat((this.pluginEventTriggers.get(event) as (data: any) => any)(data));
@@ -118,7 +97,7 @@ export abstract class AbstractPlugin {
                                    eventFn: (data: UserScoreChangedPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardReset,
                                    eventFn: (data: LeaderboardResetPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.DankShutdown | PluginEvent.PostInit,
+  protected subscribeToPluginEvent(event: PluginEvent.DankShutdown,
                                    eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
 
   /**
@@ -137,7 +116,7 @@ export abstract class AbstractPlugin {
    * @param _command /{command} of the function. Without preceding '/'
    * @param commandFn Function that returns an array of possible output strings.
    */
-  protected registerCommand(command: string, commandFn: (message: ChatMessage) => string[]) {
+  protected registerCommand(command: string, commandFn: (chat: Chat, message: ChatMessage) => string[]) {
     this.pluginCommandTriggers.push(new PluginCommand(command, commandFn));
   }
 }

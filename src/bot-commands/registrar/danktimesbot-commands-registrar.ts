@@ -29,14 +29,13 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       this.telegramClient.registerCommand(new BotCommand("leaderboard", "shows the leaderboard",
         this.dankTimesBotCommands, this.dankTimesBotCommands.leaderBoard)),
 
-      this.telegramClient.registerCommand(new BotCommand("plugins",
-        "interacts with the plugins subsystem. usage: [command] [parameter]. Try /plugins help",
+      this.telegramClient.registerCommand(new BotCommand("plugins", "shows the currently active plugins",
         this.dankTimesBotCommands, this.dankTimesBotCommands.plugins, true)),
 
       this.telegramClient.registerCommand(new BotCommand("removetime", "removes a dank time. format: [hour] [minute]",
         this.dankTimesBotCommands, this.dankTimesBotCommands.removeTime, true)),
 
-      this.telegramClient.registerCommand(new BotCommand("reset", "resets the scores",
+      this.telegramClient.registerCommand(new BotCommand("reset", "resets the leaderboard",
         this.dankTimesBotCommands, this.dankTimesBotCommands.resetChat, true, true)),
 
       this.telegramClient.registerCommand(new BotCommand("settings", "shows the current settings values",
@@ -74,13 +73,12 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       }
 
     } else if (msg.text) { // Let the appropriate chat process the message.
-
       const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
       let output: string[] = [];
       if (msg.text.length > 1 && msg.text[0] === "/") {
         const dtMessage = new ChatMessage(msg.text.split(" ").slice(1).join(" "),
           (msg.reply_to_message) ? msg.reply_to_message.text : "");
-        output = chat.pluginhost.triggerCommand(msg.text.slice(1).split(" ")[0], dtMessage);
+        output = chat.pluginhost.triggerCommand(msg.text.slice(1).split(" ")[0], chat, dtMessage);
       } else {
         output = chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
       }

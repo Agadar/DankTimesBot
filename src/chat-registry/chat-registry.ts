@@ -21,7 +21,7 @@ export class ChatRegistry implements IChatRegistry {
     private readonly moment: any,
     private readonly util: IUtil,
     private readonly chatSettingsRegistry: ChatSettingsRegistry,
-    private readonly availablePlugins: AbstractPlugin[],
+    private readonly pluginHost: PluginHost,
     public readonly chats = new Map<number, Chat>()) { }
 
   /**
@@ -44,9 +44,8 @@ export class ChatRegistry implements IChatRegistry {
       return this.chats.get(id) as Chat;
     }
 
-    const pluginhost = new PluginHost(this.availablePlugins);
     const settings = this.chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(this.moment, this.util, id, pluginhost, settings);
+    const chat = new Chat(this.moment, this.util, id, this.pluginHost, settings);
 
     // These default dank times should be moved to a configurable .json file at some point.
     chat.addDankTime(new DankTime(0, 0, ["0000"], 5));
@@ -106,7 +105,7 @@ export class ChatRegistry implements IChatRegistry {
     }
 
     return new Chat(this.moment, this.util, literal.id,
-      new PluginHost(this.availablePlugins), settings, literal.running,
+      this.pluginHost, settings, literal.running,
       literal.lastHour, literal.lastMinute, users, dankTimes, [],
     );
   }

@@ -30,17 +30,12 @@ export class PluginHost {
    */
   constructor(public readonly plugins: AbstractPlugin[]) { }
 
-  public set chat(chat: Chat) {
-    this.plugins.forEach((plugin) => plugin.chat = chat);
-  }
-
   /* Overload List */
   public trigger(event: PluginEvent.PreMesssage | PluginEvent.PostMessage,
                  input: PrePostMessagePluginEventArguments): string[];
   public trigger(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
   public trigger(event: PluginEvent.LeaderboardReset, input: LeaderboardResetPluginEventArguments): string[];
-  public trigger(event: PluginEvent.DankShutdown | PluginEvent.PostInit,
-                 input: NoArgumentsPluginEventArguments): string[];
+  public trigger(event: PluginEvent.DankShutdown, input: NoArgumentsPluginEventArguments): string[];
 
   /**
    * Trigger a certain event on this Plugin Host's plugins.
@@ -56,10 +51,10 @@ export class PluginHost {
     return out;
   }
 
-  public triggerCommand(command: string, chatmessage: ChatMessage): string[] {
+  public triggerCommand(command: string, chat: Chat, chatmessage: ChatMessage): string[] {
     let out: string[] = [];
     this.plugins.forEach((plugin) => {
-      const output: string[] = plugin.triggerCommand(command, chatmessage);
+      const output: string[] = plugin.triggerCommand(command, chat, chatmessage);
       out = out.concat(output);
     });
     return out;

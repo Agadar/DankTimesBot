@@ -1,3 +1,4 @@
+import { Chat } from "../../chat/chat";
 import { ChatMessage } from "../../chat/chat-message/chat-message";
 
 /**
@@ -9,9 +10,9 @@ import { ChatMessage } from "../../chat/chat-message/chat-message";
  */
 export class PluginCommand {
   public readonly commandString: string;
-  public readonly invoke: (message: ChatMessage) => string[];
+  public readonly invoke: (chat: Chat, message: ChatMessage) => string[];
 
-  constructor(command: string, callback: (message: ChatMessage) => string[]) {
+  constructor(command: string, callback: (chat: Chat, message: ChatMessage) => string[]) {
     if (command.length > 0 && command[0] === "/") {
       command = command.slice(1);
     }
