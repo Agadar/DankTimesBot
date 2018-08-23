@@ -23,9 +23,21 @@ export class ChatSettingsRegistry {
             "whether the users with the lowest scores earn more points",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicapsBottomFraction,
+            "the bottom fraction of users considered handicapped",
+            0.25, this.toNumber.bind(this), this.handicapsBottomFractionValidation.bind(this)));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicapsMultiplier,
+            "the multiplier bonus given to handicapped users",
+            1.5, this.toNumber.bind(this), this.multiplierValidation.bind(this)));
+
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.hardcoreMode,
             "whether every day, users are punished if they haven't scored the previous day",
             false, this.toBoolean.bind(this), this.noValidation.bind(this)));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.hardcorePunishFraction,
+            "the fraction of a user's score subtracted when punished by hardcode mode",
+            0.1, this.toNumber.bind(this), this.hardcorePunishFractionValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.multiplier,
             "the multiplier for the score of the first user to score",
@@ -100,7 +112,7 @@ export class ChatSettingsRegistry {
     private noValidation(value: any) { /* */ }
 
     private multiplierValidation(value: number) {
-        if (value < 1 || value > 10) {
+        if (value <= 1 || value > 10) {
             throw new RangeError("The value must be a number between 1 and 10!");
         }
     }
@@ -114,6 +126,18 @@ export class ChatSettingsRegistry {
     private pointsPerRandomTimeValidation(value: number) {
         if (value < 1 || value > 100 || value % 1 !== 0) {
             throw new RangeError("The value must be a whole number between 1 and 100!");
+        }
+    }
+
+    private handicapsBottomFractionValidation(value: number) {
+        if (value <= 0 || value > 0.5) {
+            throw new RangeError("The value must be a number between 0 and 0.5!");
+        }
+    }
+
+    private hardcorePunishFractionValidation(value: number) {
+        if (value <= 0 || value > 1) {
+            throw new RangeError("The value must be a number between 0 and 1!");
         }
     }
 }

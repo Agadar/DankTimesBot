@@ -8,5 +8,8 @@ export class CoreSettingsNames {
     public static readonly autoLeaderboards = "autoleaderboards";
     public static readonly firstNotifications = "firstnotifications";
     public static readonly hardcoreMode = "hardcoremode";
+    public static readonly hardcorePunishFraction = "hardcorepunishfraction";
     public static readonly handicaps = "handicaps";
+    public static readonly handicapsMultiplier = "handicapsmultiplier";
+    public static readonly handicapsBottomFraction = "handicapsbottomfraction";
 }

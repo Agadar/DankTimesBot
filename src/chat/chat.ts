@@ -18,12 +18,6 @@ import { ChatSetting } from "./settings/chat-setting";
 import { CoreSettingsNames } from "./settings/core-settings-names";
 import { User } from "./user/user";
 
-const handicapMultiplier = 1.5;
-const bottomPartThatHasHandicap = 0.25;
-
-const punishByFraction = 0.1;
-const punishByPoints = 10;
-
 export class Chat {
 
   public awaitingResetConfirmation = -1;
@@ -337,8 +331,8 @@ export class Chat {
       const day = 24 * 60 * 60;
       this.users.forEach((user) => {
         if (timestamp - user.lastScoreTimestamp >= day) {
-          let punishBy = Math.round(user.score * punishByFraction);
-          punishBy = Math.max(punishBy, punishByPoints);
+          let punishBy = Math.round(user.score * this.hardcorePunishFraction);
+          punishBy = Math.max(punishBy, 10);
           user.addToScore(-punishBy, timestamp);
         }
       });
@@ -387,12 +381,24 @@ export class Chat {
     return this.getSetting<boolean>(CoreSettingsNames.hardcoreMode);
   }
 
-  private get handicaps(): boolean {
-    return this.getSetting<boolean>(CoreSettingsNames.handicaps);
+  private get hardcorePunishFraction(): number {
+    return this.getSetting<number>(CoreSettingsNames.hardcorePunishFraction);
   }
 
   private get firstNotifications(): boolean {
     return this.getSetting<boolean>(CoreSettingsNames.firstNotifications);
+  }
+
+  private get handicaps(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.handicaps);
+  }
+
+  private get handicapsMultiplier(): number {
+    return this.getSetting<number>(CoreSettingsNames.handicapsMultiplier);
+  }
+
+  private get handicapsBottomFraction(): number {
+    return this.getSetting<number>(CoreSettingsNames.handicapsBottomFraction);
   }
 
   /**
@@ -427,7 +433,7 @@ export class Chat {
       return false;
     }
     const sortedUsers = this.sortedUsers();
-    let noOfHandicapped = sortedUsers.length * bottomPartThatHasHandicap;
+    let noOfHandicapped = sortedUsers.length * this.handicapsBottomFraction;
     noOfHandicapped = Math.round(noOfHandicapped);
     const handicapped = sortedUsers.slice(-noOfHandicapped);
 
@@ -486,7 +492,7 @@ export class Chat {
           let score = dankTime.points * this.multiplier;
 
           if (this.userDeservesHandicapBonus(user.id)) {
-            score *= handicapMultiplier;
+            score *= this.handicapsMultiplier;
           }
           user.addToScore(Math.round(score), now.unix());
           output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
@@ -502,7 +508,7 @@ export class Chat {
             new UserScoreChangedPluginEventArguments(user, -dankTime.points)));
         } else {  // Else, award point.
           const score = Math.round(this.userDeservesHandicapBonus(user.id)
-            ? dankTime.points * handicapMultiplier : dankTime.points);
+            ? dankTime.points * this.handicapsMultiplier : dankTime.points);
           user.addToScore(score, now.unix());
           output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange,
             new UserScoreChangedPluginEventArguments(user, score)));
