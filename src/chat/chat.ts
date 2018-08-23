@@ -81,7 +81,7 @@ export class Chat {
   }
 
   public get timezone(): string {
-    return String(this.settings.get(CoreSettingsNames.timezone));
+    return this.getSetting<string>(CoreSettingsNames.timezone);
   }
 
   public set lastHour(lastHour: number) {
@@ -107,15 +107,15 @@ export class Chat {
   }
 
   public get numberOfRandomTimes(): number {
-    return Number(this.settings.get(CoreSettingsNames.numberOfRandomTimes));
+    return this.getSetting<number>(CoreSettingsNames.numberOfRandomTimes);
   }
 
   public get multiplier(): number {
-    return Number(this.settings.get(CoreSettingsNames.multiplier));
+    return this.getSetting<number>(CoreSettingsNames.multiplier);
   }
 
   public get pointsPerRandomTime(): number {
-    return Number(this.settings.get(CoreSettingsNames.pointsPerRandomTime));
+    return this.getSetting<number>(CoreSettingsNames.pointsPerRandomTime);
   }
 
   public get pluginhost(): PluginHost {
@@ -123,14 +123,14 @@ export class Chat {
   }
 
   /**
-   * Sets the setting with the supplied name, throwing an exception if the
+   * Sets the setting with the supplied name. Throws an exception if the
    * setting does not exist or the supplied value is incorrect.
    * @param name The name of the setting to set.
    * @param value The value of the setting to set.
    */
   public setSetting(name: string, value: string) {
     if (!this.settings.has(name)) {
-      throw new RangeError("This setting does not exist!");
+      throw new RangeError(`Setting '${name}' does not exist!`);
     }
     const setting = this.settings.get(name) as ChatSetting<any>;
     setting.setValueFromString(value);
@@ -139,6 +139,19 @@ export class Chat {
     if (name === CoreSettingsNames.numberOfRandomTimes) {
       this.randomDankTimes.splice(this.numberOfRandomTimes);
     }
+  }
+
+  /**
+   * Gets the value of the setting with the supplied name. Throws an exception if the
+   * setting does not exist.
+   * @param name The name of the setting to get.
+   */
+  public getSetting<T>(name: string): T {
+    if (!this.settings.has(name)) {
+      throw new RangeError(`Setting '${name}' does not exist!`);
+    }
+    const setting = this.settings.get(name) as ChatSetting<any>;
+    return setting.value;
   }
 
   /**
@@ -238,7 +251,7 @@ export class Chat {
     output = output.concat(this.pluginHost.trigger(PluginEvent.PreMesssage,
       new PrePostMessagePluginEventArguments(msgText)));
 
-    // Check if leaderboard should be instead.
+    // Check if leaderboard should be reset instead.
     if (awaitingReset) {
       output = output.concat(this.handleAwaitingReset(userId, userName, msgText, msgUnixTime));
     } else if (this.running) {
@@ -346,11 +359,8 @@ export class Chat {
   public getFormattedSettingsValues(): string {
     let formatted = "<b>🛠️ SETTINGS VALUES</b>\n";
     this.settings.forEach((setting) => {
-      formatted += `\n<b>${setting.name}</b>: ${setting.value}`;
+      formatted += `\n<b>${setting.name}</b> - ${setting.value}`;
     });
-    formatted += "---";
-    formatted += `\n<b>Server time:</b> ${new Date()}`;
-    formatted += `\n<b>Status:</b> ${(this.running ? "running" : "awaiting start")}`;
     return formatted;
   }
 
@@ -360,29 +370,29 @@ export class Chat {
   public getFormattedSettingsDescriptions(): string {
     let formatted = "<b>🛠️ SETTINGS DESCRIPTIONS</b>\n";
     this.settings.forEach((setting) => {
-      formatted += `\n<b>${setting.name}</b>: ${setting.description}`;
+      formatted += `\n<b>${setting.name}</b> - ${setting.description}`;
     });
     return formatted;
   }
 
   public get notifications(): boolean {
-    return Boolean(this.settings.get(CoreSettingsNames.notifications));
+    return this.getSetting<boolean>(CoreSettingsNames.notifications);
   }
 
   public get autoLeaderboards(): boolean {
-    return Boolean(this.settings.get(CoreSettingsNames.autoLeaderboards));
+    return this.getSetting<boolean>(CoreSettingsNames.autoLeaderboards);
   }
 
   private get hardcoreMode(): boolean {
-    return Boolean(this.settings.get(CoreSettingsNames.hardcoreMode));
+    return this.getSetting<boolean>(CoreSettingsNames.hardcoreMode);
   }
 
   private get handicaps(): boolean {
-    return Boolean(this.settings.get(CoreSettingsNames.handicaps));
+    return this.getSetting<boolean>(CoreSettingsNames.handicaps);
   }
 
   private get firstNotifications(): boolean {
-    return Boolean(this.settings.get(CoreSettingsNames.firstNotifications));
+    return this.getSetting<boolean>(CoreSettingsNames.firstNotifications);
   }
 
   /**

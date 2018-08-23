@@ -45,7 +45,7 @@ export class ChatSettingsRegistry {
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.timezone,
             "this chat's timezone",
-            "Europe/Amsterdam", this.noParsing.bind(this), this.timezoneValidation.bind(this)));
+            "Europe/Amsterdam", this.toTimezoneString.bind(this), this.noValidation.bind(this)));
     }
 
     /**
@@ -71,12 +71,14 @@ export class ChatSettingsRegistry {
         this.templates.push(template);
     }
 
-    private noParsing(original: string): string {
-        return original;
-    }
-
     private toBoolean(original: string): boolean {
-        return original === "true";
+        original = original.toLowerCase();
+        if (original === "true" || original === "yes" || original === "1") {
+            return true;
+        } else if (original === "false" || original === "no" || original === "0") {
+            return false;
+        }
+        throw new RangeError("The value must be a boolean!");
     }
 
     private toNumber(original: string): number {
@@ -85,6 +87,14 @@ export class ChatSettingsRegistry {
             throw new RangeError("The value must be a number!");
         }
         return asNumber;
+    }
+
+    private toTimezoneString(original: string): string {
+        const momentTimezone = this.moment.tz.zone(original);
+        if (momentTimezone === null) {
+            throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
+        }
+        return momentTimezone.name;
     }
 
     private noValidation(value: any) { /* */ }
@@ -104,13 +114,6 @@ export class ChatSettingsRegistry {
     private pointsPerRandomTimeValidation(value: number) {
         if (value < 1 || value > 100 || value % 1 !== 0) {
             throw new RangeError("The value must be a whole number between 1 and 100!");
-        }
-    }
-
-    private timezoneValidation(value: string) {
-        const momentTimezone = this.moment.tz.zone(value);
-        if (momentTimezone === null) {
-            throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
         }
     }
 }

@@ -282,10 +282,10 @@ describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     chat.running = false;
-    chat.setSetting(CoreSettingsNames.notifications, String(true));
+    chat.setSetting(CoreSettingsNames.notifications, "true");
 
     if (!chat.autoLeaderboards) {
-      chat.setSetting(CoreSettingsNames.autoLeaderboards, String(!chat.autoLeaderboards));
+      chat.setSetting(CoreSettingsNames.autoLeaderboards, "true");
     }
 
     // Act and assert.
@@ -300,10 +300,10 @@ describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     chat.running = true;
-    chat.setSetting(CoreSettingsNames.notifications, String(true));
+    chat.setSetting(CoreSettingsNames.notifications, "false");
 
     if (chat.autoLeaderboards) {
-      chat.setSetting(CoreSettingsNames.autoLeaderboards, String(!chat.autoLeaderboards));
+      chat.setSetting(CoreSettingsNames.autoLeaderboards, "false");
     }
 
     // Act and assert.
@@ -318,10 +318,10 @@ describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     chat.running = true;
-    chat.setSetting(CoreSettingsNames.notifications, String(true));
+    chat.setSetting(CoreSettingsNames.notifications, "true");
 
     if (chat.autoLeaderboards) {
-      chat.setSetting(CoreSettingsNames.autoLeaderboards, String(!chat.autoLeaderboards));
+      chat.setSetting(CoreSettingsNames.autoLeaderboards, "false");
     }
 
     // Act and assert.
@@ -336,10 +336,10 @@ describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     chat.running = true;
-    chat.setSetting(CoreSettingsNames.notifications, String(false));
+    chat.setSetting(CoreSettingsNames.notifications, "false");
 
     if (!chat.autoLeaderboards) {
-      chat.setSetting(CoreSettingsNames.autoLeaderboards, String(!chat.autoLeaderboards));
+      chat.setSetting(CoreSettingsNames.autoLeaderboards, "true");
     }
 
     // Act and assert.
@@ -354,10 +354,10 @@ describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     chat.running = true;
-    chat.setSetting(CoreSettingsNames.notifications, String(true));
+    chat.setSetting(CoreSettingsNames.notifications, "true");
 
     if (!chat.autoLeaderboards) {
-      chat.setSetting(CoreSettingsNames.autoLeaderboards, String(!chat.autoLeaderboards));
+      chat.setSetting(CoreSettingsNames.autoLeaderboards, "true");
     }
 
     // Act and assert.

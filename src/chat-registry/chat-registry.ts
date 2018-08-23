@@ -100,7 +100,7 @@ export class ChatRegistry implements IChatRegistry {
       for (const basicSetting of literal.settings) {
         if (settings.has(basicSetting.name)) {
           const setting = settings.get(basicSetting.name) as ChatSetting<any>;
-          setting.setValueFromString(basicSetting.value);
+          setting.value = basicSetting.value;
         }
       }
     }

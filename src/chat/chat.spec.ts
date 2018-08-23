@@ -12,12 +12,12 @@ import { CoreSettingsNames } from "./settings/core-settings-names";
 import { User } from "./user/user";
 
 const util = new Util();
-const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
 
 describe("Chat.hardcoreModeCheck", () => {
   const now = moment().unix();
   const nowMinus24Hours = now - (24 * 60 * 60);
   const nowMinusAlmost24Hours = nowMinus24Hours + 1;
+  const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
 
   it("should not punish a user if hardcore mode is disabled", () => {
 
@@ -143,6 +143,8 @@ describe("Chat.hardcoreModeCheck", () => {
 
 describe("Chat.generateRandomDankTimes", () => {
 
+  const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
+
   it("should generate correct # of random dank times with correct hours, minutes, and texts", () => {
 
     // Arrange
@@ -215,6 +217,8 @@ describe("Chat.generateRandomDankTimes", () => {
 
 describe("Chat.timezone", () => {
 
+  const chatSettingRegistry = new ChatSettingsRegistry(moment);
+
   it("should correct a valid but (for the cron library) improperly capitalized timezone", () => {
 
     // Arrange
@@ -248,13 +252,14 @@ describe("Chat.timezone", () => {
 
 describe("Chat.processMessage", () => {
 
+  const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
   let chat: Chat;
   const now = momentMock.tz("Europe/Amsterdam");
   const dankTimePoints = 5;
 
   beforeEach("Instantiate test variables", () => {
     const settings = chatSettingRegistry.getChatSettings();
-    chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    chat = new Chat(momentMock, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
     chat.dankTimes.splice(0);
     chat.addDankTime(new DankTime(1, 13, ["0113"], dankTimePoints));
     chat.running = true;
@@ -330,7 +335,7 @@ describe("Chat.processMessage", () => {
   it("should NOT award handicap value if user that scores deserves it and was first but handicap is disabled", () => {
 
     // Arrange
-    chat.setSetting(CoreSettingsNames.handicaps, String(false));
+    chat.setSetting(CoreSettingsNames.handicaps, "false");
 
     // Act
     const res = chat.processMessage(0, "user#0", "0113", now.unix());
@@ -367,6 +372,7 @@ describe("Chat.processMessage", () => {
 
 describe("Chat.removeUsersWithZeroScore", () => {
 
+  const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
   let chat: Chat;
 
   beforeEach("Instantiate test variables", () => {

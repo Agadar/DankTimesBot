@@ -10,14 +10,10 @@ import { Util } from "../util/util";
 import { ChatRegistry } from "./chat-registry";
 
 const util = new Util();
-const chatSettingsRegistryMock = {
-  getChatSettings(): Map<string, ChatSetting<any>> {
-    return new Map<string, ChatSetting<any>>();
-  },
-} as ChatSettingsRegistry;
+const chatSettingsRegistry = new ChatSettingsRegistry(moment);
 
 describe("ChatRegistry.constructor", () => {
-  const instance = new ChatRegistry(moment, util, chatSettingsRegistryMock, []);
+  const instance = new ChatRegistry(moment, util, chatSettingsRegistry, []);
 
   it("should have created a new instance...", () => {
     assert.deepEqual(instance.chats.size, 0);
@@ -29,7 +25,7 @@ describe("ChatRegistry.getOrCreateChat", () => {
   it("Should create a new chat if the supplied id is unknown", () => {
 
     // Arrange
-    const instance = new ChatRegistry(moment, util, chatSettingsRegistryMock, []);
+    const instance = new ChatRegistry(moment, util, chatSettingsRegistry, []);
     const dankController = new DankTimesBotControllerMock();
     instance.subscribe(dankController);
     assert.equal(instance.chats.size, 0);
