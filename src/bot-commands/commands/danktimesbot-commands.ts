@@ -1,6 +1,6 @@
-import { IChatRegistry } from "../../chat-registry/i-chat-registry";
 import { Chat } from "../../chat/chat";
 import { CoreSettingsNames } from "../../chat/settings/core-settings-names";
+import { User } from "../../chat/user/user";
 import { IDankTimeScheduler } from "../../dank-time-scheduler/i-dank-time-scheduler";
 import { DankTime } from "../../dank-time/dank-time";
 import { Release } from "../../misc/release";
@@ -15,22 +15,13 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
   constructor(
     private readonly tgClient: ITelegramClient,
-    private readonly chatRegistry: IChatRegistry,
     private readonly scheduler: IDankTimeScheduler,
     private readonly util: IUtil,
     private readonly releaseLog: Release[],
     private readonly version: string,
   ) { }
 
-  /**
-   * Starts the specified chat so that it records dank time texts.
-   * Only prints a warning if the chat is already running.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public startChat(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+  public startChat(chat: Chat, user: User, msg: any, match: any): string {
     if (chat.running) {
       return "⚠️ The bot is already running!";
     }
@@ -39,15 +30,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return "🏃 The bot is now running! Hit '/help' for available commands.";
   }
 
-  /**
-   * Stops the specified chat so that it stops recording dank time texts.
-   * Only prints a warning if the chat isn't already stopped.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public stopChat(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+  public stopChat(chat: Chat, user: User, msg: any, match: any): string {
     if (chat.running) {
       chat.running = false;
       this.scheduler.unscheduleAllOfChat(chat);
@@ -56,46 +39,20 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return "⚠️ The bot is already stopped!";
   }
 
-  /**
-   * Resets the scores of the specified chat.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public resetChat(msg: any, match: any): string {
-    this.chatRegistry.getOrCreateChat(msg.chat.id).awaitingResetConfirmation = msg.from.id;
+  public resetChat(chat: Chat, user: User, msg: any, match: any): string {
+    chat.awaitingResetConfirmation = msg.from.id;
     return "🤔 Are you sure? Type 'yes' to confirm.";
   }
 
-  /**
-   * Prints the current settings values of the chat identified in the msg object.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public settings(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+  public settings(chat: Chat, user: User, msg: any, match: any): string {
     return chat.getFormattedSettingsValues();
   }
 
-  /**
-   * Prints the current settings descriptions of the chat identified in the msg object.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public settingshelp(msg: any, match: any): string {
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+  public settingshelp(chat: Chat, user: User, msg: any, match: any): string {
     return chat.getFormattedSettingsDescriptions();
   }
 
-  /**
-   * Sets a setting of the chat identified in the msg object.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public set(msg: any, match: any): string {
+  public set(chat: Chat, user: User, msg: any, match: any): string {
 
     // Split string and ensure it contains at least 2 items.
     const split = match.input.split(" ");
@@ -105,7 +62,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
     // Update the chat setting
     try {
-      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
       const settingname = split[1];
       const settingvalue = split[2];
       chat.setSetting(settingname, settingvalue);
@@ -127,15 +83,8 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     }
   }
 
-  /**
-   * Prints the NORMAL dank times of the chat identified in the msg object.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public dankTimes(msg: any, match: any): string {
+  public dankTimes(chat: Chat, user: User, msg: any, match: any): string {
     let dankTimes = "<b>⏰ DANK TIMES</b>\n";
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     for (const time of chat.dankTimes) {
       dankTimes +=
         `\ntime: ${this.util.padNumber(time.hour)}:`
@@ -148,35 +97,17 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return dankTimes;
   }
 
-  /**
-   * Prints the leaderboard of the chat identified in the msg object.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public leaderBoard(msg: any, match: any): string {
-    return this.chatRegistry.getOrCreateChat(msg.chat.id).generateLeaderboard();
+  public leaderBoard(chat: Chat, user: User, msg: any, match: any): string {
+    return chat.generateLeaderboard();
   }
 
-  /**
-   * Prints the available commands to the chat identified in the msg object.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public help(msg: any, match: any): string {
+  public help(chat: Chat, user: User, msg: any, match: any): string {
     let help = "<b>ℹ️ AVAILABLE COMMANDS</b>\n";
     this.tgClient.commands.forEach((command) => help += "\n/" + command.name + " - " + command.description);
     return help;
   }
 
-  /**
-   * Adds a new dank time to the chat.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public addTime(msg: any, match: any): string {
+  public addTime(chat: Chat, user: User, msg: any, match: any): string {
 
     const commaSplit: string[] = match.input.split(",").filter((part: string) => !!part);
     const spaceSplit: string[] = commaSplit[0].split(" ").filter((part: string) => !!part);
@@ -210,7 +141,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
       const dankTime = new DankTime(hour, minute, texts, points);
-      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
       chat.addDankTime(dankTime);
 
       // Reschedule notifications just to make sure, if applicable.
@@ -230,28 +160,15 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     }
   }
 
-  /**
-   * Lists the names of the currently active plugins.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public plugins(msg: any, match: any): string {
+  public plugins(chat: Chat, user: User, msg: any, match: any): string {
     let out = "<b>🔌 PLUGINS</b>\n";
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
       out += `\n- ${plugin.name}`;
     });
     return out;
   }
 
-  /**
-   * Removes a dank time from the chat.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public removeTime(msg: any, match: any): string {
+  public removeTime(chat: Chat, user: User, msg: any, match: any): string {
 
     // Split string and ensure it contains at least 2 items.
     const split = match.input.split(" ");
@@ -270,7 +187,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     }
 
     // Remove dank time if it exists, otherwise just send an info message.
-    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
     const dankTime = chat.getDankTime(hour, minute);
 
     if (dankTime !== null && chat.removeDankTime(hour, minute)) {
@@ -282,13 +198,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     }
   }
 
-  /**
-   * Gets the release notes of the current version.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
-   */
-  public whatsNewMessage(msg: any, match: any): string {
+  public whatsNewMessage(chat: Chat, user: User, msg: any, match: any): string {
     return this.util.releaseLogToWhatsNewMessage(this.releaseLog);
   }
 

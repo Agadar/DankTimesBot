@@ -1,5 +1,5 @@
+import { BotCommand } from "../../bot-commands/bot-command";
 import { Chat } from "../../chat/chat";
-import { ChatMessage } from "../../chat/chat-message/chat-message";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
 import {
   LeaderboardResetPluginEventArguments,
@@ -15,7 +15,6 @@ import {
 } from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
 import { PluginEvent } from "../plugin-events/plugin-event-types";
-import { PluginCommand } from "./plugin-command";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -42,12 +41,6 @@ export abstract class AbstractPlugin {
   private pluginEventTriggers: Map<PluginEvent, (data: any) => any>;
 
   /**
-   * Command triggers. Plugins can hook functions to certain commands.
-   * these commands can be set in the constructor of a plugin.
-   */
-  private pluginCommandTriggers: PluginCommand[];
-
-  /**
    * Create a new Plugin instance.
    * @param name Semantic name of this plugin.
    * @param version Version of this plugin.
@@ -59,22 +52,6 @@ export abstract class AbstractPlugin {
     this.version = version;
     this.data = data;
     this.pluginEventTriggers = new Map<PluginEvent, (data: any) => any>();
-    this.pluginCommandTriggers = [];
-  }
-
-  /**
-   * Trigger a plugin command if one is available.
-   * @param _command command to trigger.
-   */
-  public triggerCommand(command: string, chat: Chat, message: ChatMessage): string[] {
-    let output: string[] = [];
-
-    const trigger = this.pluginCommandTriggers.find((commands) => commands.commandString === command);
-    if (trigger) {
-      output = output.concat(trigger.invoke(chat, message));
-    }
-
-    return output;
   }
 
   /**
@@ -92,12 +69,21 @@ export abstract class AbstractPlugin {
   }
 
   /**
-   * Gets this plugin's chat setting templates. Override this to add the plugin's
-   * settings to the rest of danktimesbot's settings. These settings are then registered on
+   * Gets this plugin's chat setting templates. Override this to add the plugin's settings
+   * to the rest of danktimesbot's settings. These settings are then registered on
    * bot launch.
    * @returns This plugin's chat setting templates.
    */
   public getPluginSpecificChatSettings(): Array<ChatSettingTemplate<any>> {
+    return [];
+  }
+
+  /**
+   * Gets this plugin's commands. Override this to add the plugin's commands to the rest of
+   * danktimesbot's commands. These commands are then registered on bot launch.
+   * @returns This plugin's commands.
+   */
+  public getPluginSpecificCommands(): BotCommand[] {
     return [];
   }
 
@@ -118,16 +104,5 @@ export abstract class AbstractPlugin {
    */
   protected subscribeToPluginEvent(event: PluginEvent, eventFn: (data: any) => any): void {
     this.pluginEventTriggers.set(event, eventFn);
-  }
-
-  /**
-   * Register a new plugin commands.
-   * These are custom /commands that can be invoked
-   * by users in a chat.
-   * @param _command /{command} of the function. Without preceding '/'
-   * @param commandFn Function that returns an array of possible output strings.
-   */
-  protected registerCommand(command: string, commandFn: (chat: Chat, message: ChatMessage) => string[]) {
-    this.pluginCommandTriggers.push(new PluginCommand(command, commandFn));
   }
 }

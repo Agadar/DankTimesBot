@@ -3,23 +3,33 @@ const assert = chai.assert;
 import "mocha";
 
 import { BotCommand } from "../bot-commands/bot-command";
+import { ChatRegistryMock } from "../chat-registry/chat-registry-mock";
+import { IChatRegistry } from "../chat-registry/i-chat-registry";
+import { Chat } from "../chat/chat";
+import { User } from "../chat/user/user";
 import {
   DankTimesBotControllerMock,
 } from "../danktimesbot-controller/danktimesbot-controller-mock";
 import * as nodeTelegramBotApiMock from "../misc/node-telegram-bot-api-mock";
 import { TelegramClient } from "./telegram-client";
 
+const chatMock = {
+  getOrCreateUser: (userId: number, userName = "anonymous"): User => {
+    return new User(userId, userName);
+  },
+} as Chat;
+
 describe("TelegramClient #executeCommand", () => {
 
   const expectedCommandCalledText = "Called!";
   const nonAdmincommandObject = {
-    commandFunction: (msg0: any, match: string[]) => {
+    commandFunction: (chat: Chat, user: User, msg0: any, match: string[]) => {
       nonAdminCommandCalled = true;
       return expectedCommandCalledText;
     },
   };
   const admincommandObject = {
-    commandFunction: (msg0: any, match: string[]) => {
+    commandFunction: (chat: Chat, user: User, msg0: any, match: string[]) => {
       adminCommandCalled = true;
       return expectedCommandCalledText;
     },
@@ -31,6 +41,7 @@ describe("TelegramClient #executeCommand", () => {
   const expectedAdminOnlyWarning = "🚫 This option is only available to admins!";
 
   let telegramClient: TelegramClient;
+  let chatRegistry: IChatRegistry;
   let nonAdminCommandCalled: boolean;
   let adminCommandCalled: boolean;
   let msg = {
@@ -44,7 +55,9 @@ describe("TelegramClient #executeCommand", () => {
   };
 
   beforeEach("Set up test variables", () => {
-    telegramClient = new TelegramClient(nodeTelegramBotApiMock);
+    chatRegistry = new ChatRegistryMock();
+    chatRegistry.chats.set(0, chatMock);
+    telegramClient = new TelegramClient(nodeTelegramBotApiMock, chatRegistry);
     nonAdminCommandCalled = false;
     adminCommandCalled = false;
     msg = {
@@ -136,10 +149,13 @@ describe("TelegramClient #sendMessage", () => {
 
   let telegramClient: TelegramClient;
   let dankController: DankTimesBotControllerMock;
+  let chatRegistry: IChatRegistry;
 
   beforeEach("Set up test variables", () => {
     dankController = new DankTimesBotControllerMock();
-    telegramClient = new TelegramClient(nodeTelegramBotApiMock);
+    chatRegistry = new ChatRegistryMock();
+    chatRegistry.chats.set(0, chatMock);
+    telegramClient = new TelegramClient(nodeTelegramBotApiMock, chatRegistry);
     telegramClient.subscribe(dankController);
   });
 

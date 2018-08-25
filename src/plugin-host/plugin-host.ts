@@ -1,6 +1,6 @@
 import { Chat } from "../chat/chat";
-import { ChatMessage } from "../chat/chat-message/chat-message";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
+import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import {
   LeaderboardResetPluginEventArguments,
 } from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -49,22 +49,22 @@ export class PluginHost {
     return out;
   }
 
-  public triggerCommand(command: string, chat: Chat, chatmessage: ChatMessage): string[] {
-    let out: string[] = [];
-    this.plugins.forEach((plugin) => {
-      const output: string[] = plugin.triggerCommand(command, chat, chatmessage);
-      out = out.concat(output);
-    });
-    return out;
-  }
-
   /**
    * Registers all chat setting templates defined by this host's plugins to
    * a supplied chat setting registry.
-   * @param chatSettingsRegistry The chat setting registry to register this host's plugins to.
+   * @param chatSettingsRegistry The chat setting registry to register to.
    */
   public registerPluginSettings(chatSettingsRegistry: ChatSettingsRegistry) {
     this.plugins.forEach((plugin) => plugin.getPluginSpecificChatSettings()
       .forEach((setting) => chatSettingsRegistry.registerChatSetting(setting)));
+  }
+
+  /**
+   * Registers all bot commands defined by this host's plugins to a supplied telegram client.
+   * @param telegramClient The telegram client to register to.
+   */
+  public registerPluginCommands(telegramClient: ITelegramClient) {
+    this.plugins.forEach((plugin) => plugin.getPluginSpecificCommands()
+      .forEach((command) => telegramClient.registerCommand(command)));
   }
 }

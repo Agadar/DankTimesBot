@@ -1,3 +1,6 @@
+import { Chat } from "../chat/chat";
+import { User } from "../chat/user/user";
+
 export class BotCommand {
 
   /**
@@ -6,13 +9,12 @@ export class BotCommand {
    * @param description Brief description of the command.
    * @param object The object to call the function on.
    * @param action The function which this command calls.
-   * Expected to take parameters 'msg' and 'match' and return a string.
    * @param adminOnly Whether only admins can execute this command.
    * @param requiresConfirmation Whether this command requires explicit confirmation.
    */
   constructor(public readonly name: string,
               public readonly description: string,
-              public readonly action: ((msg: any, match: string[]) => string),
+              public readonly action: ((chat: Chat, user: User, msg: any, match: string[]) => string),
               public readonly adminOnly = false,
               public readonly requiresConfirmation = false) { }
 

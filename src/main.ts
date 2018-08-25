@@ -14,7 +14,6 @@ const server = new Server(
   contextRoot.config,
   contextRoot.nodeCleanup,
   contextRoot.cronJob,
-  contextRoot.dankTimesBotCommandsRegistrar,
   contextRoot.version,
   contextRoot.danktimesbotController,
   contextRoot.chatSettingsRegistry,

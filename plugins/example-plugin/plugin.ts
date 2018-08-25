@@ -1,6 +1,7 @@
+import { BotCommand } from "../../src/bot-commands/bot-command";
 import { Chat } from "../../src/chat/chat";
-import { ChatMessage } from "../../src/chat/chat-message/chat-message";
 import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
+import { User } from "../../src/chat/user/user";
 import {
   LeaderboardResetPluginEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -52,18 +53,6 @@ export class Plugin extends AbstractPlugin {
     this.subscribeToPluginEvent(PluginEvent.DankShutdown, (data: NoArgumentsPluginEventArguments) => {
       console.log("Shutting down plugin! " + this.name);
     });
-
-    this.registerCommand("test", (chat: Chat, msg: ChatMessage) => {
-      return [`success: ${msg.text}`];
-    });
-
-    this.registerCommand("testreply", (chat: Chat, msg: ChatMessage) => {
-      return [`Succes: ${msg.replyText}`];
-    });
-
-    this.registerCommand("testservices", (chat: Chat, params: ChatMessage) => {
-      return chat.sortedUsers().map((v, i) => `{${i}: ${v.name}}`);
-    });
   }
 
   /**
@@ -72,5 +61,17 @@ export class Plugin extends AbstractPlugin {
   public getPluginSpecificChatSettings(): Array<ChatSettingTemplate<any>> {
     return [new ChatSettingTemplate("example.pluginsetting", "example of a custom plugin setting", "some string value",
       (original) => original, (value) => null)];
+  }
+
+  /**
+   * @override
+   */
+  public getPluginSpecificCommands(): BotCommand[] {
+    const echoCommand = new BotCommand("echo", "echoes what a user sent", this.echo);
+    return [echoCommand];
+  }
+
+  private echo(chat: Chat, user: User, msg: any, match: string[]): string {
+    return `${user.name} said: '${match[0].split(" ")[1]}'`;
   }
 }

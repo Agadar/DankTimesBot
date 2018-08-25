@@ -54,9 +54,6 @@ export class DankTimesBotController implements IDankTimesBotController {
 
         // Your punishment must be more severe!
         chat.hardcoreModeCheck(now);
-
-        // Remove plebs whose score is 0.
-        chat.removeUsersWithZeroScore();
       }
     });
   }

@@ -265,8 +265,7 @@ describe("Chat.processMessage", () => {
     chat.running = true;
 
     for (let i = 0; i < 4; i++) {
-      const user = new User(i, `user#${i}`, i * 10);
-      chat.addUser(user);
+      chat.users.set(i, new User(i, `user#${i}`, i * 10));
     }
   });
 
@@ -368,34 +367,4 @@ describe("Chat.processMessage", () => {
     assert.equal(scorer.score, 10);
   });
 
-});
-
-describe("Chat.removeUsersWithZeroScore", () => {
-
-  const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
-  let chat: Chat;
-
-  beforeEach("Instantiate test variables", () => {
-    const settings = chatSettingRegistry.getChatSettings();
-    chat = new Chat(momentMock, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
-
-    for (let i = 0; i < 4; i++) {
-      const user = new User(i, `user#${i}`, i * 10);
-      chat.addUser(user);
-    }
-  });
-
-  it("should remove users with score of 0", () => {
-
-    // Act
-    chat.removeUsersWithZeroScore();
-
-    // Assert
-    const users = chat.sortedUsers();
-    assert.equal(users.length, 3);
-
-    for (const user of users) {
-      assert.notEqual(user.id, 0);
-    }
-  });
 });

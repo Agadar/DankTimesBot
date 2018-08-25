@@ -1,4 +1,3 @@
-import { IDankTimesBotCommandsRegistrar } from "./bot-commands/registrar/i-danktimesbot-commands-registrar";
 import { IChatRegistry } from "./chat-registry/i-chat-registry";
 import { Chat } from "./chat/chat";
 import { ChatSettingsRegistry } from "./chat/settings/chat-settings-registry";
@@ -29,7 +28,6 @@ export class Server {
     private readonly config: Config,
     private readonly nodeCleanup: any,
     private readonly cronJob: any,
-    private readonly dankTimesBotCommandsRegistrar: IDankTimesBotCommandsRegistrar,
     private readonly version: string,
     private readonly danktimesbotController: IDankTimesBotController,
     private readonly chatSettingsRegistry: ChatSettingsRegistry,
@@ -37,9 +35,6 @@ export class Server {
   ) { }
 
   public run(): void {
-
-    // Register available Telegram bot commands.
-    this.dankTimesBotCommandsRegistrar.registerDankTimesBotCommands();
 
     // Schedule to persist chats map to file every X minutes.
     this.scheduleChatsPersistence();

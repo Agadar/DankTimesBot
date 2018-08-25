@@ -1,4 +1,5 @@
 import { BotCommand } from "../bot-commands/bot-command";
+import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { ITelegramClient } from "./i-telegram-client";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
@@ -15,8 +16,7 @@ export class TelegramClient implements ITelegramClient {
   private readonly developerUserId = 100805902;
   private readonly listeners: ITelegramClientListener[] = [];
 
-  constructor(
-    private readonly bot: any) { }
+  constructor(private readonly bot: any, private readonly chatRegistry: IChatRegistry) { }
 
   /**
    * Sets the action to do on ANY incoming text.
@@ -68,7 +68,9 @@ export class TelegramClient implements ITelegramClient {
       return "🚫 This option is only available to admins!";
     }
 
-    return botCommand.action(msg, match);
+    const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+    const user = chat.getOrCreateUser(msg.from.id, msg.from.username);
+    return botCommand.action(chat, user, msg, match);
   }
 
   public subscribe(subscriber: ITelegramClientListener): void {

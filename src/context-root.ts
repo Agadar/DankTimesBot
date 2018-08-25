@@ -33,17 +33,18 @@ chatRegistry.loadFromJSON(initialChats);
 
 // Prepare Telegram client and scheduler for sending messages.
 const telegramBot = new TelegramBot(config.apiKey, { polling: true });
-export const telegramClient = new TelegramClient(telegramBot);
+export const telegramClient = new TelegramClient(telegramBot, chatRegistry);
 export const dankTimeScheduler = new DankTimeScheduler(telegramClient, CronJob);
 
 // Load and initialize commands.
 // tslint:disable-next-line:no-var-requires
 export const version = require("../package.json").version;
 export const releaseLog = fileIO.loadReleaseLogFromFile();
-const dankTimesBotCommands = new DankTimesBotCommands(
-  telegramClient, chatRegistry, dankTimeScheduler, util, releaseLog, version);
-export const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(
-  telegramClient, chatRegistry, dankTimesBotCommands);
+const dankTimesBotCommands = new DankTimesBotCommands(telegramClient, dankTimeScheduler, util, releaseLog, version);
+const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(telegramClient,
+  chatRegistry, dankTimesBotCommands);
+dankTimesBotCommandsRegistrar.registerDankTimesBotCommands();
+pluginHost.registerPluginCommands(telegramClient);
 
 // Miscellaneous initializations and exports.
 export const danktimesbotController = new DankTimesBotController(momentImport, chatRegistry,

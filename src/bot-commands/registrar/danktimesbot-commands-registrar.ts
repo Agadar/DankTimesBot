@@ -1,5 +1,4 @@
 import { IChatRegistry } from "../../chat-registry/i-chat-registry";
-import { ChatMessage } from "../../chat/chat-message/chat-message";
 import { ITelegramClient } from "../../telegram-client/i-telegram-client";
 import { BotCommand } from "../bot-command";
 import { IDankTimesBotCommands } from "../commands/i-danktimesbot-commands";
@@ -74,14 +73,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
 
     } else if (msg.text) { // Let the appropriate chat process the message.
       const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-      let output: string[] = [];
-      if (msg.text.length > 1 && msg.text[0] === "/") {
-        const dtMessage = new ChatMessage(msg.text.split(" ").slice(1).join(" "),
-          (msg.reply_to_message) ? msg.reply_to_message.text : "");
-        output = chat.pluginhost.triggerCommand(msg.text.slice(1).split(" ")[0], chat, dtMessage);
-      } else {
-        output = chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
-      }
+      let output = chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
       output = output.filter((filteredmsg) => filteredmsg.length > 0);
       return output;
     }

@@ -51,7 +51,7 @@ export class Chat {
     public running = false,
     lastHour = 0,
     lastMinute = 0,
-    private readonly users = new Map<number, User>(),
+    public readonly users = new Map<number, User>(),
     public readonly dankTimes = new Array<DankTime>(),
     public randomDankTimes = new Array<DankTime>()) {
 
@@ -160,10 +160,13 @@ export class Chat {
   }
 
   /**
-   * Adds a user to this chat.
+   * Gets the user with the supplied user id, otherwise creates and returns a new one.
    */
-  public addUser(user: User): void {
-    this.users.set(user.id, user);
+  public getOrCreateUser(userId: number, userName = "anonymous"): User {
+    if (!this.users.has(userId)) {
+      this.users.set(userId, new User(userId, userName));
+    }
+    return this.users.get(userId) as User;
   }
 
   public removeUser(userId: number): User | null {
@@ -337,14 +340,6 @@ export class Chat {
     }
   }
 
-  public removeUsersWithZeroScore(): void {
-    this.users.forEach((user, id) => {
-      if (user.score === 0) {
-        this.users.delete(id);
-      }
-    });
-  }
-
   /**
    * Returns a formatted string representation of this chat's settings values.
    */
@@ -468,10 +463,7 @@ export class Chat {
     }
 
     // Get the player, creating him if he doesn't exist yet.
-    if (!this.users.has(userId)) {
-      this.users.set(userId, new User(userId, userName));
-    }
-    const user = this.users.get(userId) as User;
+    const user = this.getOrCreateUser(userId, userName);
 
     // Update user name if needed.
     if (user.name !== userName) {

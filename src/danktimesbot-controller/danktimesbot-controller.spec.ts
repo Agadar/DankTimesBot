@@ -22,7 +22,6 @@ class ChatMock {
   public running = true;
   public generateRandomDankTimesCalled = false;
   public hardcoreModeCheckCalled = false;
-  public removeUsersWithZeroScoreCalled = false;
 
   public generateRandomDankTimes() {
     this.generateRandomDankTimesCalled = true;
@@ -30,10 +29,6 @@ class ChatMock {
 
   public hardcoreModeCheck(now: number) {
     this.hardcoreModeCheckCalled = true;
-  }
-
-  public removeUsersWithZeroScore() {
-    this.removeUsersWithZeroScoreCalled = true;
   }
 }
 
@@ -108,7 +103,6 @@ describe("DankTimesBotController.doNightlyUpdate", () => {
     assert.equal(chat.generateRandomDankTimesCalled, true);
     assert.equal(dankTimeScheduler.scheduleAllOfChatCalledWith, chatCast);
     assert.equal(chat.hardcoreModeCheckCalled, true);
-    assert.equal(chat.removeUsersWithZeroScoreCalled, true);
   });
 
 });
