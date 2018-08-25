@@ -31,9 +31,15 @@ export class TelegramClient implements ITelegramClient {
   }
 
   /**
-   * Registers a new command, overriding any with the same name.
+   * Registers a new command, throwing an error if a command with the same name already exists.
+   * @param command The command to register.
    */
   public async registerCommand(command: BotCommand): Promise<void> {
+
+    if (this.commands.has(command.name)) {
+      throw new Error(`A command with the name '${command.name}' already exists!`);
+    }
+
     this.commands.set(command.name, command);
     const botUsername = await this.getBotUsername();
     const commandRegex = command.getRegex(botUsername);
@@ -41,8 +47,8 @@ export class TelegramClient implements ITelegramClient {
     this.bot.onText(commandRegex, (msg: any, match: string[]) => {
       this.executeCommand(msg, match, command)
         .then(
-        (reply) => this.sendMessage(msg.chat.id, reply),
-        (reason) => console.error(reason),
+          (reply) => this.sendMessage(msg.chat.id, reply),
+          (reason) => console.error(reason),
       );
     });
   }
