@@ -12,7 +12,6 @@ export class BotCommand {
    */
   constructor(public readonly name: string,
               public readonly description: string,
-              public readonly object: object,
               public readonly action: ((msg: any, match: string[]) => string),
               public readonly adminOnly = false,
               public readonly requiresConfirmation = false) { }

@@ -68,7 +68,7 @@ export class TelegramClient implements ITelegramClient {
       return "🚫 This option is only available to admins!";
     }
 
-    return botCommand.action.call(botCommand.object, msg, match);
+    return botCommand.action(msg, match);
   }
 
   public subscribe(subscriber: ITelegramClientListener): void {

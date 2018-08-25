@@ -24,9 +24,9 @@ describe("TelegramClient #executeCommand", () => {
       return expectedCommandCalledText;
     },
   };
-  const nonAdminCommand = new BotCommand("testcommand", "description", nonAdmincommandObject,
+  const nonAdminCommand = new BotCommand("testcommand", "description",
     nonAdmincommandObject.commandFunction, false, false);
-  const adminCommand = new BotCommand("testcommand", "description", admincommandObject,
+  const adminCommand = new BotCommand("testcommand", "description",
     admincommandObject.commandFunction, true, false);
   const expectedAdminOnlyWarning = "🚫 This option is only available to admins!";
 
