@@ -17,7 +17,7 @@ const server = new Server(
   contextRoot.version,
   contextRoot.danktimesbotController,
   contextRoot.chatSettingsRegistry,
-  contextRoot.availablePlugins,
+  contextRoot.pluginHost,
 );
 
 server.run();

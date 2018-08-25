@@ -9,6 +9,7 @@ import {
   NoArgumentsPluginEventArguments,
 } from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 import { PluginEvent } from "./plugin-host/plugin-events/plugin-event-types";
+import { PluginHost } from "./plugin-host/plugin-host";
 import { AbstractPlugin } from "./plugin-host/plugin/plugin";
 import { ITelegramClient } from "./telegram-client/i-telegram-client";
 import { IFileIO } from "./util/file-io/i-file-io";
@@ -31,7 +32,7 @@ export class Server {
     private readonly version: string,
     private readonly danktimesbotController: IDankTimesBotController,
     private readonly chatSettingsRegistry: ChatSettingsRegistry,
-    private readonly plugins: AbstractPlugin[],
+    private readonly pluginHost: PluginHost,
   ) { }
 
   public run(): void {
@@ -48,6 +49,8 @@ export class Server {
     // Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00.
     // Also, punishes players that have not scored in the past 24 hours.
     this.scheduleNightlyUpdates();
+
+    this.pluginHost.triggerEvent(PluginEvent.BotStartup, new NoArgumentsPluginEventArguments());
 
     // Send a release log message to all chats, assuming there are release logs.
     this.sendWhatsNewMessageIfApplicable();
@@ -67,9 +70,7 @@ export class Server {
     this.nodeCleanup((exitCode: number | null, signal: string | null) => {
       console.info("Persisting data to file before exiting...");
       this.fileIO.saveChatsToFile(this.chatRegistry.chats);
-      this.chatRegistry.chats.forEach((chat: Chat) => {
-        chat.pluginhost.triggerEvent(PluginEvent.BotShutdown, new NoArgumentsPluginEventArguments());
-      });
+      this.pluginHost.triggerEvent(PluginEvent.BotShutdown, new NoArgumentsPluginEventArguments());
       return true;
     });
   }

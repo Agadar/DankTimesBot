@@ -36,6 +36,10 @@ export class Plugin extends AbstractPlugin {
     this.data = new ExamplePluginData();
     this.data.TestNumber = 1;
 
+    this.subscribeToPluginEvent(PluginEvent.BotStartup, (data: NoArgumentsPluginEventArguments) => {
+      console.log("Example of a bot startup event.");
+    });
+
     this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) => {
       return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`,
         `Example of current leaderboard:`,
@@ -43,7 +47,7 @@ export class Plugin extends AbstractPlugin {
     });
 
     this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessagePluginEventArguments) => {
-      return [`Example of a Chat Message Event`];
+      return [`Example of a chat message event`];
     });
 
     this.subscribeToPluginEvent(PluginEvent.LeaderboardReset, (data: LeaderboardResetPluginEventArguments) => {
@@ -51,7 +55,7 @@ export class Plugin extends AbstractPlugin {
     });
 
     this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: NoArgumentsPluginEventArguments) => {
-      console.log("Shutting down plugin! " + this.name);
+      console.log("Example of a bot shutdown event.");
     });
   }
 

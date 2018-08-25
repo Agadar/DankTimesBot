@@ -94,7 +94,7 @@ export abstract class AbstractPlugin {
                                    eventFn: (data: UserScoreChangedPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardReset,
                                    eventFn: (data: LeaderboardResetPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.BotShutdown,
+  protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
                                    eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
 
   /**

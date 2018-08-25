@@ -32,7 +32,8 @@ export class PluginHost {
   public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessagePluginEventArguments): string[];
   public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
   public triggerEvent(event: PluginEvent.LeaderboardReset, input: LeaderboardResetPluginEventArguments): string[];
-  public triggerEvent(event: PluginEvent.BotShutdown, input: NoArgumentsPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
+                      input: NoArgumentsPluginEventArguments): void;
 
   /**
    * Trigger a certain event on this Plugin Host's plugins.
