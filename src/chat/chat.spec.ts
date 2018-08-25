@@ -27,7 +27,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
-    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = false;
+    (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = false;
     const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
@@ -45,7 +45,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
-    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
     const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
@@ -62,7 +62,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
-    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
     const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
@@ -79,7 +79,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
-    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
     const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
@@ -96,7 +96,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
-    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
     const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
@@ -113,7 +113,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
-    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
     const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
@@ -130,7 +130,7 @@ describe("Chat.hardcoreModeCheck", () => {
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
-    (settings.get(CoreSettingsNames.hardcoreMode) as ChatSetting<boolean>).value = true;
+    (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
     const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
@@ -149,8 +149,8 @@ describe("Chat.generateRandomDankTimes", () => {
 
     // Arrange
     const settings = chatSettingRegistry.getChatSettings();
-    (settings.get(CoreSettingsNames.numberOfRandomTimes) as ChatSetting<number>).value = 10;
-    (settings.get(CoreSettingsNames.pointsPerRandomTime) as ChatSetting<number>).value = 10;
+    (settings.get(CoreSettingsNames.randomtimesFrequency) as ChatSetting<number>).value = 10;
+    (settings.get(CoreSettingsNames.randomtimesPoints) as ChatSetting<number>).value = 10;
     const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
 
     // Act, Assert
@@ -159,7 +159,7 @@ describe("Chat.generateRandomDankTimes", () => {
       assert.isAtMost(time.hour, 23);
       assert.isAtLeast(time.minute, 0);
       assert.isAtMost(time.minute, 59);
-      assert.equal(time.points, chat.pointsPerRandomTime);
+      assert.equal(time.points, chat.randomtimesPoints);
       assert.equal(time.texts[0], util.padNumber(time.hour) + util.padNumber(time.minute));
     });
   });
@@ -175,8 +175,8 @@ describe("Chat.generateRandomDankTimes", () => {
 
       const settings = chatSettingRegistry.getChatSettings();
       (settings.get(CoreSettingsNames.timezone) as ChatSetting<string>).value = "UTC";
-      (settings.get(CoreSettingsNames.numberOfRandomTimes) as ChatSetting<number>).value = 10;
-      (settings.get(CoreSettingsNames.pointsPerRandomTime) as ChatSetting<number>).value = 10;
+      (settings.get(CoreSettingsNames.randomtimesFrequency) as ChatSetting<number>).value = 10;
+      (settings.get(CoreSettingsNames.randomtimesPoints) as ChatSetting<number>).value = 10;
       const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
       const now = moment.tz("UTC");
       now.minutes(0);
@@ -335,7 +335,7 @@ describe("Chat.processMessage", () => {
   it("should NOT award handicap value if user that scores deserves it and was first but handicap is disabled", () => {
 
     // Arrange
-    chat.setSetting(CoreSettingsNames.handicaps, "false");
+    chat.setSetting(CoreSettingsNames.handicapsEnabled, "false");
 
     // Act
     const res = chat.processMessage(0, "user#0", "0113", now.unix());

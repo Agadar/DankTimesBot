@@ -113,11 +113,11 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       // Altering some settings has side-effects:
       if (settingname === CoreSettingsNames.timezone) {
         this.doTimezoneSettingSideEffects(chat);
-      } else if (settingname === CoreSettingsNames.numberOfRandomTimes) {
+      } else if (settingname === CoreSettingsNames.randomtimesFrequency) {
         this.doNumberOfRandomTimesSettingSideEffects(chat);
-      } else if (settingname === CoreSettingsNames.notifications) {
+      } else if (settingname === CoreSettingsNames.normaltimesNotifications) {
         this.doNotificationsSettingSideEffects(chat);
-      } else if (settingname === CoreSettingsNames.autoLeaderboards) {
+      } else if (settingname === CoreSettingsNames.autoleaderboards) {
         this.doAutoLeaderboardsSettingSideEffects(chat);
       }
 
@@ -215,11 +215,11 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
       // Reschedule notifications just to make sure, if applicable.
       if (chat.running) {
-        if (chat.notifications) {
+        if (chat.normaltimesNotifications) {
           this.scheduler.unscheduleDankTime(chat, dankTime);
           this.scheduler.scheduleDankTime(chat, dankTime);
         }
-        if (chat.autoLeaderboards) {
+        if (chat.autoleaderboards) {
           this.scheduler.unscheduleAutoLeaderboard(chat, dankTime);
           this.scheduler.scheduleAutoLeaderboard(chat, dankTime);
         }
@@ -302,7 +302,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       this.scheduler.unscheduleRandomDankTimesOfChat(chat);
       this.scheduler.scheduleRandomDankTimesOfChat(chat);
 
-      if (chat.autoLeaderboards) {
+      if (chat.autoleaderboards) {
         this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
         this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
       }
@@ -313,7 +313,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (chat.running) {
       this.scheduler.unscheduleDankTimesOfChat(chat);
 
-      if (chat.notifications) {
+      if (chat.normaltimesNotifications) {
         this.scheduler.scheduleDankTimesOfChat(chat);
       }
     }
@@ -323,7 +323,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (chat.running) {
       this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
 
-      if (chat.autoLeaderboards) {
+      if (chat.autoleaderboards) {
         this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
       }
     }

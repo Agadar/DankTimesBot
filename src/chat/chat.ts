@@ -98,16 +98,16 @@ export class Chat {
     return this.myLastMinute;
   }
 
-  public get numberOfRandomTimes(): number {
-    return this.getSetting<number>(CoreSettingsNames.numberOfRandomTimes);
+  public get randomtimesFrequency(): number {
+    return this.getSetting<number>(CoreSettingsNames.randomtimesFrequency);
   }
 
-  public get multiplier(): number {
-    return this.getSetting<number>(CoreSettingsNames.multiplier);
+  public get firstMultiplier(): number {
+    return this.getSetting<number>(CoreSettingsNames.firstMultiplier);
   }
 
-  public get pointsPerRandomTime(): number {
-    return this.getSetting<number>(CoreSettingsNames.pointsPerRandomTime);
+  public get randomtimesPoints(): number {
+    return this.getSetting<number>(CoreSettingsNames.randomtimesPoints);
   }
 
   public get pluginhost(): PluginHost {
@@ -128,8 +128,8 @@ export class Chat {
     setting.setValueFromString(value);
 
     // Altering some settings has side-effects:
-    if (name === CoreSettingsNames.numberOfRandomTimes) {
-      this.randomDankTimes.splice(this.numberOfRandomTimes);
+    if (name === CoreSettingsNames.randomtimesFrequency) {
+      this.randomDankTimes.splice(this.randomtimesFrequency);
     }
   }
 
@@ -188,7 +188,7 @@ export class Chat {
   public generateRandomDankTimes(): DankTime[] {
     this.randomDankTimes = new Array<DankTime>();
 
-    for (let i = 0; i < this.numberOfRandomTimes; i++) {
+    for (let i = 0; i < this.randomtimesFrequency; i++) {
       const now = this.moment().tz(this.timezone);
 
       now.add(Math.floor(Math.random() * 23), "hours");
@@ -196,7 +196,7 @@ export class Chat {
 
       if (!this.hourAndMinuteAlreadyRegistered(now.hours(), now.minutes())) {
         const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
-        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.pointsPerRandomTime));
+        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.randomtimesPoints));
       }
     }
     return this.randomDankTimes;
@@ -325,11 +325,11 @@ export class Chat {
   }
 
   public hardcoreModeCheck(timestamp: number) {
-    if (this.hardcoreMode) {
+    if (this.hardcoremodeEnabled) {
       const day = 24 * 60 * 60;
       this.users.forEach((user) => {
         if (timestamp - user.lastScoreTimestamp >= day) {
-          let punishBy = Math.round(user.score * this.hardcorePunishFraction);
+          let punishBy = Math.round(user.score * this.hardcoremodePunishFraction);
           punishBy = Math.max(punishBy, 10);
           user.addToScore(-punishBy, timestamp);
         }
@@ -367,28 +367,28 @@ export class Chat {
     return formatted;
   }
 
-  public get notifications(): boolean {
-    return this.getSetting<boolean>(CoreSettingsNames.notifications);
+  public get normaltimesNotifications(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.normaltimesNotifications);
   }
 
-  public get autoLeaderboards(): boolean {
-    return this.getSetting<boolean>(CoreSettingsNames.autoLeaderboards);
+  public get autoleaderboards(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.autoleaderboards);
   }
 
-  private get hardcoreMode(): boolean {
-    return this.getSetting<boolean>(CoreSettingsNames.hardcoreMode);
+  private get hardcoremodeEnabled(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.hardcoremodeEnabled);
   }
 
-  private get hardcorePunishFraction(): number {
-    return this.getSetting<number>(CoreSettingsNames.hardcorePunishFraction);
+  private get hardcoremodePunishFraction(): number {
+    return this.getSetting<number>(CoreSettingsNames.hardcoremodePunishFraction);
   }
 
   private get firstNotifications(): boolean {
     return this.getSetting<boolean>(CoreSettingsNames.firstNotifications);
   }
 
-  private get handicaps(): boolean {
-    return this.getSetting<boolean>(CoreSettingsNames.handicaps);
+  private get handicapsEnabled(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.handicapsEnabled);
   }
 
   private get handicapsMultiplier(): number {
@@ -427,7 +427,7 @@ export class Chat {
   }
 
   private userDeservesHandicapBonus(userId: number) {
-    if (!this.handicaps || this.users.size < 2) {
+    if (!this.handicapsEnabled || this.users.size < 2) {
       return false;
     }
     const sortedUsers = this.sortedUsers();
@@ -487,7 +487,7 @@ export class Chat {
           this.users.forEach((user0) => user0.called = false);
           this.lastHour = dankTime.hour;
           this.lastMinute = dankTime.minute;
-          let score = dankTime.points * this.multiplier;
+          let score = dankTime.points * this.firstMultiplier;
 
           if (this.userDeservesHandicapBonus(user.id)) {
             score *= this.handicapsMultiplier;

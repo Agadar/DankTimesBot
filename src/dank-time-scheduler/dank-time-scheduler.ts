@@ -37,12 +37,12 @@ export class DankTimeScheduler implements IDankTimeScheduler {
     this.scheduleRandomDankTimesOfChat(chat);
 
     // Schedule NORMAL dank time notifications, if desired.
-    if (chat.notifications) {
+    if (chat.normaltimesNotifications) {
       this.scheduleDankTimesOfChat(chat);
     }
 
     // Schedule auto-leaderboards, if desired.
-    if (chat.autoLeaderboards) {
+    if (chat.autoleaderboards) {
       this.scheduleAutoLeaderboardsOfChat(chat);
     }
   }
@@ -148,7 +148,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
     this.dankTimeNotifications.push({
       chatId: chat.id,
       cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
-        if (chat.running && chat.notifications) {
+        if (chat.running && chat.normaltimesNotifications) {
           thisRef.tgClient.sendMessage(chat.id, "⏰ It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!");
         }
       }, undefined, true, chat.timezone),
@@ -197,7 +197,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
     this.autoLeaderBoards.push({
       chatId: chat.id,
       cronJob: new this.cronJob("0 " + minute + " " + hour + " * * *", () => {
-        if (chat.running && chat.autoLeaderboards && chat.leaderboardChanged()) {
+        if (chat.running && chat.autoleaderboards && chat.leaderboardChanged()) {
           thisRef.tgClient.sendMessage(chat.id, chat.generateLeaderboard());
         }
       }, undefined, true, chat.timezone),

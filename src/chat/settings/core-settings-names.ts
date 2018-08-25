@@ -1,15 +1,15 @@
 /** An enumeration of all core chat settings names. */
 export class CoreSettingsNames {
     public static readonly timezone = "timezone";
-    public static readonly numberOfRandomTimes = "numberofrandomtimes";
-    public static readonly pointsPerRandomTime = "pointsperrandomtime";
-    public static readonly notifications = "notifications";
-    public static readonly multiplier = "multiplier";
-    public static readonly autoLeaderboards = "autoleaderboards";
-    public static readonly firstNotifications = "firstnotifications";
-    public static readonly hardcoreMode = "hardcoremode";
-    public static readonly hardcorePunishFraction = "hardcorepunishfraction";
-    public static readonly handicaps = "handicaps";
-    public static readonly handicapsMultiplier = "handicapsmultiplier";
-    public static readonly handicapsBottomFraction = "handicapsbottomfraction";
+    public static readonly randomtimesFrequency = "randomtimes.frequency";
+    public static readonly randomtimesPoints = "randomtimes.points";
+    public static readonly normaltimesNotifications = "normaltimes.notifications";
+    public static readonly firstMultiplier = "first.multiplier";
+    public static readonly firstNotifications = "first.notifications";
+    public static readonly autoleaderboards = "autoleaderboards";
+    public static readonly hardcoremodeEnabled = "hardcoremode.enabled";
+    public static readonly hardcoremodePunishFraction = "hardcoremode.punishfraction";
+    public static readonly handicapsEnabled = "handicaps.enabled";
+    public static readonly handicapsMultiplier = "handicaps.multiplier";
+    public static readonly handicapsBottomFraction = "handicaps.bottomfraction";
 }
