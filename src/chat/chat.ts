@@ -1,11 +1,11 @@
 import { Moment } from "moment";
 import { DankTime } from "../dank-time/dank-time";
 import {
+  ChatMessagePluginEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
+import {
   LeaderboardResetPluginEventArguments,
 } from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import {
-  PrePostMessagePluginEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import {
   UserScoreChangedPluginEventArguments,
 } from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
@@ -163,10 +163,16 @@ export class Chat {
    * Gets the user with the supplied user id, otherwise creates and returns a new one.
    */
   public getOrCreateUser(userId: number, userName = "anonymous"): User {
+
     if (!this.users.has(userId)) {
       this.users.set(userId, new User(userId, userName));
     }
-    return this.users.get(userId) as User;
+    const user = this.users.get(userId) as User;
+
+    if (user.name !== userName) {
+      user.name = userName;
+    }
+    return user;
   }
 
   public removeUser(userId: number): User | null {
@@ -232,31 +238,30 @@ export class Chat {
    * Processes a message, awarding or punishing points etc. where applicable.
    * @returns A reply, or nothing if no reply is suitable/needed.
    */
-  public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
+  public processMessage(msg: any): string[] {
+
     let output: string[] = [];
     const now: Moment = this.moment.tz(this.timezone);
-    const messageTimeout: boolean = now.unix() - msgUnixTime >= 60;
-    const awaitingReset: boolean = (this.awaitingResetConfirmation === userId);
+    const messageTimeout: boolean = now.unix() - msg.date >= 60;
+    const awaitingReset: boolean = (this.awaitingResetConfirmation === msg.from.id);
 
     // Ignore the message if it was sent more than 1 minute ago.
-    if (now.unix() - msgUnixTime >= 60) {
+    if (messageTimeout) {
       return output;
     }
-    // Pre-message event
-    output = output.concat(this.pluginHost.triggerEvent(PluginEvent.PreMesssage,
-      new PrePostMessagePluginEventArguments(this, msgText)));
+    const user = this.getOrCreateUser(msg.from.id, msg.from.username);
 
     // Check if leaderboard should be reset instead.
     if (awaitingReset) {
-      output = output.concat(this.handleAwaitingReset(userId, userName, msgText, msgUnixTime));
+      output = output.concat(this.handleAwaitingReset(msg.from.id, msg.text, msg.date));
     } else if (this.running) {
-      output = output.concat(this.handleDankTimeInputMessage(userId, userName, msgText, msgUnixTime, now));
+      output = output.concat(this.handleDankTimeInputMessage(user, msg.text, msg.date, now));
     }
-    msgText = this.util.cleanText(msgText);
+    msg.text = this.util.cleanText(msg.text);
 
-    // Post-message event
-    output = output.concat(this.pluginHost.triggerEvent(PluginEvent.PostMessage,
-      new PrePostMessagePluginEventArguments(this, msgText)));
+    // Chat message event
+    output = output.concat(this.pluginHost.triggerEvent(PluginEvent.ChatMessage,
+      new ChatMessagePluginEventArguments(this, user, msg, output)));
     return output;
   }
 
@@ -438,7 +443,7 @@ export class Chat {
     return false;
   }
 
-  private handleAwaitingReset(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
+  private handleAwaitingReset(userId: number, msgText: string, msgUnixTime: number): string[] {
     let output: string[] = [];
 
     if (this.awaitingResetConfirmation === userId) {
@@ -453,22 +458,15 @@ export class Chat {
     return output;
   }
 
-  private handleDankTimeInputMessage(userId: number, userName: string, msgText: string,
-                                     msgUnixTime: number, now: Moment): string[] {
+  private handleDankTimeInputMessage(user: User, msgText: string, msgUnixTime: number, now: Moment): string[] {
     let output: string[] = [];
+
     // Gather dank times from the sent text, returning if none was found.
     const dankTimesByText = this.getDankTimesByText(msgText);
     if (dankTimesByText.length < 1) {
       return output;
     }
 
-    // Get the player, creating him if he doesn't exist yet.
-    const user = this.getOrCreateUser(userId, userName);
-
-    // Update user name if needed.
-    if (user.name !== userName) {
-      user.name = userName;
-    }
     let subtractBy = 0;
 
     for (const dankTime of dankTimesByText) {

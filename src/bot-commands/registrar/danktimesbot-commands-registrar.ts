@@ -73,7 +73,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
 
     } else if (msg.text) { // Let the appropriate chat process the message.
       const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-      let output = chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
+      let output = chat.processMessage(msg);
       output = output.filter((filteredmsg) => filteredmsg.length > 0);
       return output;
     }

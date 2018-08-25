@@ -2,12 +2,12 @@ import { Chat } from "../chat/chat";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import {
+  ChatMessagePluginEventArguments,
+} from "./plugin-events/event-arguments/chat-message-plugin-event-arguments";
+import {
   LeaderboardResetPluginEventArguments,
 } from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import {
-  PrePostMessagePluginEventArguments,
-} from "./plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import {
   UserScoreChangedPluginEventArguments,
 } from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
@@ -29,11 +29,10 @@ export class PluginHost {
   constructor(public readonly plugins: AbstractPlugin[]) { }
 
   /* Overload List */
-  public triggerEvent(event: PluginEvent.PreMesssage | PluginEvent.PostMessage,
-                      input: PrePostMessagePluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessagePluginEventArguments): string[];
   public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
   public triggerEvent(event: PluginEvent.LeaderboardReset, input: LeaderboardResetPluginEventArguments): string[];
-  public triggerEvent(event: PluginEvent.DankShutdown, input: NoArgumentsPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.BotShutdown, input: NoArgumentsPluginEventArguments): string[];
 
   /**
    * Trigger a certain event on this Plugin Host's plugins.

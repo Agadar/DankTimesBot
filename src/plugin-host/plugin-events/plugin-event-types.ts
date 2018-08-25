@@ -1,7 +1,6 @@
 export enum PluginEvent {
-  PreMesssage,
-  PostMessage,
+  ChatMessage,
   UserScoreChange,
   LeaderboardReset,
-  DankShutdown,
+  BotShutdown,
 }

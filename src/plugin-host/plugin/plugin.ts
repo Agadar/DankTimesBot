@@ -2,14 +2,14 @@ import { BotCommand } from "../../bot-commands/bot-command";
 import { Chat } from "../../chat/chat";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
 import {
+  ChatMessagePluginEventArguments,
+} from "../plugin-events/event-arguments/chat-message-plugin-event-arguments";
+import {
   LeaderboardResetPluginEventArguments,
 } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import {
   NoArgumentsPluginEventArguments,
 } from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import {
-  PrePostMessagePluginEventArguments,
-} from "../plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import {
   UserScoreChangedPluginEventArguments,
 } from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
@@ -88,13 +88,13 @@ export abstract class AbstractPlugin {
   }
 
   /* Function overload list */
-  protected subscribeToPluginEvent(event: PluginEvent.PreMesssage | PluginEvent.PostMessage,
-                                   eventFn: (data: PrePostMessagePluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.ChatMessage,
+                                   eventFn: (data: ChatMessagePluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.UserScoreChange,
                                    eventFn: (data: UserScoreChangedPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardReset,
                                    eventFn: (data: LeaderboardResetPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.DankShutdown,
+  protected subscribeToPluginEvent(event: PluginEvent.BotShutdown,
                                    eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
 
   /**

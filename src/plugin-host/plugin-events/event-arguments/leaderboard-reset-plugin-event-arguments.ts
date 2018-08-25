@@ -6,7 +6,7 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  * Contains chat that has been reset.
  */
 export class LeaderboardResetPluginEventArguments extends PluginEventArguments {
-  
+
   /**
    * The chat that was reset.
    */

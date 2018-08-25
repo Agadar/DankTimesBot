@@ -3,14 +3,14 @@ import { Chat } from "../../src/chat/chat";
 import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
 import { User } from "../../src/chat/user/user";
 import {
+  ChatMessagePluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
+import {
   LeaderboardResetPluginEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
 import {
   NoArgumentsPluginEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import {
-  PrePostMessagePluginEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
 import {
   UserScoreChangedPluginEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
@@ -36,21 +36,21 @@ export class Plugin extends AbstractPlugin {
     this.data = new ExamplePluginData();
     this.data.TestNumber = 1;
 
-    this.subscribeToPluginEvent(PluginEvent.PreMesssage, (data: PrePostMessagePluginEventArguments) => {
-      return [`Example of a Pre Message Event`];
-    });
     this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) => {
       return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`,
         `Example of current leaderboard:`,
       data.chat.generateLeaderboard(false)];
     });
-    this.subscribeToPluginEvent(PluginEvent.PostMessage, (data: PrePostMessagePluginEventArguments) => {
-      return [`Example of a Post Message Event`];
+
+    this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessagePluginEventArguments) => {
+      return [`Example of a Chat Message Event`];
     });
+
     this.subscribeToPluginEvent(PluginEvent.LeaderboardReset, (data: LeaderboardResetPluginEventArguments) => {
       return [`The leaderboard was reset for chat: ${data.chat.id}`];
     });
-    this.subscribeToPluginEvent(PluginEvent.DankShutdown, (data: NoArgumentsPluginEventArguments) => {
+
+    this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: NoArgumentsPluginEventArguments) => {
       console.log("Shutting down plugin! " + this.name);
     });
   }

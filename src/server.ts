@@ -68,7 +68,7 @@ export class Server {
       console.info("Persisting data to file before exiting...");
       this.fileIO.saveChatsToFile(this.chatRegistry.chats);
       this.chatRegistry.chats.forEach((chat: Chat) => {
-        chat.pluginhost.triggerEvent(PluginEvent.DankShutdown, new NoArgumentsPluginEventArguments());
+        chat.pluginhost.triggerEvent(PluginEvent.BotShutdown, new NoArgumentsPluginEventArguments());
       });
       return true;
     });
