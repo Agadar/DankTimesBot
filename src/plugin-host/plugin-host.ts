@@ -1,5 +1,6 @@
 import { Chat } from "../chat/chat";
 import { ChatMessage } from "../chat/chat-message/chat-message";
+import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import {
   LeaderboardResetPluginEventArguments,
 } from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -14,10 +15,7 @@ import { PluginEvent } from "./plugin-events/plugin-event-types";
 import { AbstractPlugin } from "./plugin/plugin";
 
 /**
- * Class exposing the Plugin Host concept.
- * Plugins are managed by a Plugin Host, which controls
- * messaging to, from and between plugins. It also
- * keeps track of the general state of a plugin.
+ * Class exposing the Plugin Host concept. Plugins are managed by the Plugin Host.
  */
 export class PluginHost {
 
@@ -31,18 +29,18 @@ export class PluginHost {
   constructor(public readonly plugins: AbstractPlugin[]) { }
 
   /* Overload List */
-  public trigger(event: PluginEvent.PreMesssage | PluginEvent.PostMessage,
-                 input: PrePostMessagePluginEventArguments): string[];
-  public trigger(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
-  public trigger(event: PluginEvent.LeaderboardReset, input: LeaderboardResetPluginEventArguments): string[];
-  public trigger(event: PluginEvent.DankShutdown, input: NoArgumentsPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.PreMesssage | PluginEvent.PostMessage,
+                      input: PrePostMessagePluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.LeaderboardReset, input: LeaderboardResetPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.DankShutdown, input: NoArgumentsPluginEventArguments): string[];
 
   /**
    * Trigger a certain event on this Plugin Host's plugins.
    * @param event Event to trigger.
    * @param input Data input.
    */
-  public trigger(event: PluginEvent, input: any): string[] {
+  public triggerEvent(event: PluginEvent, input: any): string[] {
     let out: string[] = [];
     this.plugins.forEach((plugin) => {
       const output: string[] = plugin.triggerEvent(event, input);
@@ -58,5 +56,15 @@ export class PluginHost {
       out = out.concat(output);
     });
     return out;
+  }
+
+  /**
+   * Registers all chat setting templates defined by this host's plugins to
+   * a supplied chat setting registry.
+   * @param chatSettingsRegistry The chat setting registry to register this host's plugins to.
+   */
+  public registerPluginSettings(chatSettingsRegistry: ChatSettingsRegistry) {
+    this.plugins.forEach((plugin) => plugin.getPluginSpecificChatSettings()
+      .forEach((setting) => chatSettingsRegistry.registerChatSetting(setting)));
   }
 }

@@ -1,5 +1,6 @@
 import { Chat } from "../../src/chat/chat";
 import { ChatMessage } from "../../src/chat/chat-message/chat-message";
+import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
 import {
   LeaderboardResetPluginEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -63,5 +64,13 @@ export class Plugin extends AbstractPlugin {
     this.registerCommand("testservices", (chat: Chat, params: ChatMessage) => {
       return chat.sortedUsers().map((v, i) => `{${i}: ${v.name}}`);
     });
+  }
+
+  /**
+   * @override
+   */
+  public getPluginSpecificChatSettings(): Array<ChatSettingTemplate<any>> {
+    return [new ChatSettingTemplate("example.pluginsetting", "example of a custom plugin setting", "some string value",
+      (original) => original, (value) => null)];
   }
 }

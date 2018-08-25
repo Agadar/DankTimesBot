@@ -1,5 +1,6 @@
 import { Chat } from "../../chat/chat";
 import { ChatMessage } from "../../chat/chat-message/chat-message";
+import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
 import {
   LeaderboardResetPluginEventArguments,
 } from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
@@ -88,6 +89,16 @@ export abstract class AbstractPlugin {
     }
 
     return output;
+  }
+
+  /**
+   * Gets this plugin's chat setting templates. Override this to add the plugin's
+   * settings to the rest of danktimesbot's settings. These settings are then registered on
+   * bot launch.
+   * @returns This plugin's chat setting templates.
+   */
+  public getPluginSpecificChatSettings(): Array<ChatSettingTemplate<any>> {
+    return [];
   }
 
   /* Function overload list */

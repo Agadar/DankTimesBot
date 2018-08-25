@@ -15,14 +15,15 @@ import { TelegramClient } from "./telegram-client/telegram-client";
 import { FileIO } from "./util/file-io/file-io";
 import { Util } from "./util/util";
 
-// Prepare file IO and load configurations.
+// Prepare file IO, and load configurations.
 export const fileIO = new FileIO(fs);
 export const config = fileIO.loadConfigFromFile();
 
 // Load and initialize plugins.
-export const chatSettingsRegistry = new ChatSettingsRegistry(momentImport);
 export const availablePlugins = fileIO.GetAvailablePlugins(config.plugins);
+export const chatSettingsRegistry = new ChatSettingsRegistry(momentImport);
 export const pluginHost = new PluginHost(availablePlugins);
+pluginHost.registerPluginSettings(chatSettingsRegistry);
 
 // Load and initialize chats.
 export const util = new Util();
