@@ -1,39 +1,18 @@
-import { IChatRegistry } from "./chat-registry/i-chat-registry";
 import { Chat } from "./chat/chat";
-import { ChatSettingsRegistry } from "./chat/settings/chat-settings-registry";
-import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler";
-import { IDankTimesBotController } from "./danktimesbot-controller/i-danktimesbot-controller";
-import { Config } from "./misc/config";
-import { Release } from "./misc/release";
+import { ContextRoot } from "./context-root";
 import {
   NoArgumentsPluginEventArguments,
 } from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 import { PluginEvent } from "./plugin-host/plugin-events/plugin-event-types";
-import { PluginHost } from "./plugin-host/plugin-host";
-import { AbstractPlugin } from "./plugin-host/plugin/plugin";
-import { ITelegramClient } from "./telegram-client/i-telegram-client";
-import { IFileIO } from "./util/file-io/i-file-io";
-import { IUtil } from "./util/i-util";
 
+/**
+ * The over-arching component of DankTimesBot.
+ */
 export class Server {
 
   private dailyUpdate = null;
 
-  constructor(
-    private readonly util: IUtil,
-    private readonly fileIO: IFileIO,
-    private readonly chatRegistry: IChatRegistry,
-    private readonly releaseLog: Release[],
-    private readonly telegramClient: ITelegramClient,
-    private readonly scheduler: IDankTimeScheduler,
-    private readonly config: Config,
-    private readonly nodeCleanup: any,
-    private readonly cronJob: any,
-    private readonly version: string,
-    private readonly danktimesbotController: IDankTimesBotController,
-    private readonly chatSettingsRegistry: ChatSettingsRegistry,
-    private readonly pluginHost: PluginHost,
-  ) { }
+  constructor(private readonly contextRoot: ContextRoot) { }
 
   public run(): void {
 
@@ -50,59 +29,59 @@ export class Server {
     // Also, punishes players that have not scored in the past 24 hours.
     this.scheduleNightlyUpdates();
 
-    this.pluginHost.triggerEvent(PluginEvent.BotStartup, new NoArgumentsPluginEventArguments());
+    this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotStartup, new NoArgumentsPluginEventArguments());
 
     // Send a release log message to all chats, assuming there are release logs.
     this.sendWhatsNewMessageIfApplicable();
 
     // Inform server.
-    console.info(`Bot is now running! Version: ${this.version}.`);
+    console.info(`Bot is now running! Version: ${this.contextRoot.version}.`);
   }
 
   private scheduleChatsPersistence(): void {
     setInterval(() => {
-      this.fileIO.saveChatsToFile(this.chatRegistry.chats);
+      this.contextRoot.fileIO.saveChatsToFile(this.contextRoot.chatRegistry.chats);
       console.info("Persisted data to file.");
-    }, this.config.persistenceRate * 60 * 1000);
+    }, this.contextRoot.config.persistenceRate * 60 * 1000);
   }
 
   private ensureChatsPersistenceOnExit(): void {
-    this.nodeCleanup((exitCode: number | null, signal: string | null) => {
+    this.contextRoot.nodeCleanup((exitCode: number | null, signal: string | null) => {
       console.info("Persisting data to file before exiting...");
-      this.fileIO.saveChatsToFile(this.chatRegistry.chats);
-      this.pluginHost.triggerEvent(PluginEvent.BotShutdown, new NoArgumentsPluginEventArguments());
+      this.contextRoot.fileIO.saveChatsToFile(this.contextRoot.chatRegistry.chats);
+      this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotShutdown, new NoArgumentsPluginEventArguments());
       return true;
     });
   }
 
   private generateAndScheduleRandomDankTimes(): void {
-    this.chatRegistry.chats.forEach((chat: Chat) => {
+    this.contextRoot.chatRegistry.chats.forEach((chat: Chat) => {
       chat.generateRandomDankTimes();
-      this.scheduler.scheduleAllOfChat(chat);
+      this.contextRoot.dankTimeScheduler.scheduleAllOfChat(chat);
     });
   }
 
   private scheduleNightlyUpdates(): void {
-    this.dailyUpdate = new this.cronJob("0 0 0 * * *", () => {
+    this.dailyUpdate = new this.contextRoot.cronJob("0 0 0 * * *", () => {
       console.info("Doing the nightly update!");
-      this.danktimesbotController.doNightlyUpdate();
+      this.contextRoot.danktimesbotController.doNightlyUpdate();
     }, undefined, true);
   }
 
   private sendWhatsNewMessageIfApplicable(): void {
-    if (this.config.sendWhatsNewMsg) {
+    if (this.contextRoot.config.sendWhatsNewMsg) {
 
       // Prepare message.
-      const message = this.util.releaseLogToWhatsNewMessage(this.releaseLog);
+      const message = this.contextRoot.util.releaseLogToWhatsNewMessage(this.contextRoot.releaseLog);
 
       // Send it to all chats.
-      this.chatRegistry.chats.forEach((chat: Chat) => {
-        this.telegramClient.sendMessage(chat.id, message, -1, false);
+      this.contextRoot.chatRegistry.chats.forEach((chat: Chat) => {
+        this.contextRoot.telegramClient.sendMessage(chat.id, message, -1, false);
       });
 
       // Update config so the what's new message is not sent on subsequent bot startups.
-      this.config.sendWhatsNewMsg = false;
-      this.fileIO.saveConfigToFile(this.config);
+      this.contextRoot.config.sendWhatsNewMsg = false;
+      this.contextRoot.fileIO.saveConfigToFile(this.contextRoot.config);
     }
   }
 }

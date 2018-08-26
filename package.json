@@ -8,7 +8,7 @@
     "prestart": "npm run clean && tsc",
     "start": "node ./built/main.js",
     "pretest": "npm run clean && tsc",
-    "test": "mocha ./built --recursive --exit",
+    "test": "mocha ./built/**/*.spec.js",
     "lint": "tslint -p tsconfig.json --fix"
   },
   "author": "Agadar",
