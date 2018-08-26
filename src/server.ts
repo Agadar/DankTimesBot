@@ -97,7 +97,7 @@ export class Server {
 
       // Send it to all chats.
       this.chatRegistry.chats.forEach((chat: Chat) => {
-        this.telegramClient.sendMessage(chat.id, message);
+        this.telegramClient.sendMessage(chat.id, message, -1, false);
       });
 
       // Update config so the what's new message is not sent on subsequent bot startups.

@@ -71,11 +71,12 @@ export class Plugin extends AbstractPlugin {
    * @override
    */
   public getPluginSpecificCommands(): BotCommand[] {
-    const echoCommand = new BotCommand("echo", "echoes what a user sent", this.echo);
+    const echoCommand = new BotCommand("echo", "echoes what a user sent", this.echo.bind(this));
     return [echoCommand];
   }
 
   private echo(chat: Chat, user: User, msg: any, match: string[]): string {
+    setTimeout(() => this.sendMessage(chat.id, "Example of sendMessage", msg.id, true), 3000);
     return `${user.name} said: '${match[0].split(" ")[1]}'`;
   }
 }

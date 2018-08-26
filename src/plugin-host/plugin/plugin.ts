@@ -15,6 +15,7 @@ import {
 } from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
 import { PluginEvent } from "../plugin-events/plugin-event-types";
+import { IPluginListener } from "./plugin-listener";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -41,6 +42,12 @@ export abstract class AbstractPlugin {
   private pluginEventTriggers: Map<PluginEvent, (data: any) => any>;
 
   /**
+   * Listeners to events fired by this plugin. Not to be confused with the
+   * events this plugin listens to itself (i.e. the above pluginEventTriggers).
+   */
+  private readonly listeners: IPluginListener[] = [];
+
+  /**
    * Create a new Plugin instance.
    * @param name Semantic name of this plugin.
    * @param version Version of this plugin.
@@ -55,7 +62,16 @@ export abstract class AbstractPlugin {
   }
 
   /**
-   * Trigger a certain PLUGIN_EVENT on this plugin.
+   * Subscribes to this plugin to receive updates.
+   */
+  public subscribe(subscriber: IPluginListener): void {
+    if (this.listeners.indexOf(subscriber) === -1) {
+      this.listeners.push(subscriber);
+    }
+  }
+
+  /**
+   * Trigger a certain PLUGIN_EVENT on this plugin. Called by PluginHost.
    * @param event PLUGIN_EVENT to trigger.
    */
   public triggerEvent(event: PluginEvent, data: PluginEventArguments): string[] {
@@ -104,5 +120,17 @@ export abstract class AbstractPlugin {
    */
   protected subscribeToPluginEvent(event: PluginEvent, eventFn: (data: any) => any): void {
     this.pluginEventTriggers.set(event, eventFn);
+  }
+
+  /**
+   * Sends a message to the Telegram Bot API.
+   * @param chatId The id of the chat to send a message to.
+   * @param htmlMessage The HTML message to send.
+   * @param replyToMessageId The (optional) id of the message to reply to.
+   * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
+   */
+  protected sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false) {
+    this.listeners.forEach((listener) => listener
+      .onPluginWantsToSendChatMessage(chatId, htmlMessage, replyToMessageId, forceReply));
   }
 }

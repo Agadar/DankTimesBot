@@ -11,7 +11,7 @@ export interface ITelegramClient {
 
   registerCommand(command: BotCommand): Promise<void>;
 
-  sendMessage(chatId: number, htmlMessage: string): Promise<any>;
+  sendMessage(chatId: number, htmlMessage: string, replyToMessageId: number, forceReply: boolean): Promise<any>;
 
   /**
    * Subscribes to this telegram client to receive updates.

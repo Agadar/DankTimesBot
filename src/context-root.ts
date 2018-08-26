@@ -48,7 +48,7 @@ pluginHost.registerPluginCommands(telegramClient);
 
 // Miscellaneous initializations and exports.
 export const danktimesbotController = new DankTimesBotController(momentImport, chatRegistry,
-  dankTimeScheduler, telegramClient);
+  dankTimeScheduler, telegramClient, availablePlugins);
 export const cronJob = CronJob;
 export const moment = momentImport;
 export const nodeCleanup = nodeCleanupImport;

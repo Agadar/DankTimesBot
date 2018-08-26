@@ -53,8 +53,16 @@ export class TelegramClient implements ITelegramClient {
     });
   }
 
-  public sendMessage(chatId: number, htmlMessage: string): Promise<any> {
-    return this.bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" })
+  /**
+   * Sends a message to the Telegram Bot API.
+   * @param chatId The id of the chat to send a message to.
+   * @param htmlMessage The HTML message to send.
+   * @param replyToMessageId The (optional) id of the message to reply to.
+   * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
+   */
+  public sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false): Promise<any> {
+    const parameters = this.getSendMessageParameters(replyToMessageId, forceReply);
+    return this.bot.sendMessage(chatId, htmlMessage, parameters)
       .catch((reason: any) => {
         this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
       });
@@ -113,5 +121,23 @@ export class TelegramClient implements ITelegramClient {
         this.botUsernamePromise = null;
         return this.cachedBotUsername;
       });
+  }
+
+  private getSendMessageParameters(replyToUserId = -1, forceReply = false): any {
+    const options: any = {
+      parse_mode: "HTML",
+    };
+
+    if (replyToUserId !== -1) {
+      options.reply_to_message_id = replyToUserId;
+    }
+
+    if (forceReply) {
+      options.reply_markup = {
+        force_reply: true,
+        selective: true,
+      };
+    }
+    return options;
   }
 }

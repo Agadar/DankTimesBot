@@ -1,6 +1,7 @@
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
@@ -12,10 +13,12 @@ export class DankTimesBotController implements IDankTimesBotController {
     private readonly moment: any,
     private readonly chatRegistry: IChatRegistry,
     private readonly dankTimeScheduler: IDankTimeScheduler,
-    telegramClient: ITelegramClient,
+    private readonly telegramClient: ITelegramClient,
+    plugins: AbstractPlugin[],
   ) {
     this.chatRegistry.subscribe(this);
-    telegramClient.subscribe(this);
+    this.telegramClient.subscribe(this);
+    plugins.forEach((plugin) => plugin.subscribe(this));
   }
 
   /**
@@ -39,6 +42,14 @@ export class DankTimesBotController implements IDankTimesBotController {
    */
   public onChatCreated(chat: Chat): void {
     this.dankTimeScheduler.scheduleAllOfChat(chat);
+  }
+
+  /**
+   * From IPluginListener.
+   */
+  public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
+                                        replyToMessageId: number, forceReply: boolean): void {
+    this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply);
   }
 
   public doNightlyUpdate(): void {
