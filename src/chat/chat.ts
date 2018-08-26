@@ -349,9 +349,10 @@ export class Chat {
    * Returns a formatted string representation of this chat's settings values.
    */
   public getFormattedSettingsValues(): string {
+    const sortedSettings = [...this.settings.entries()].sort();
     let formatted = "<b>🛠️ SETTINGS VALUES</b>\n";
-    this.settings.forEach((setting) => {
-      formatted += `\n<b>${setting.name}</b> - ${setting.value}`;
+    sortedSettings.forEach((setting) => {
+      formatted += `\n<b>${setting[0]}</b> - ${setting[1].value}`;
     });
     return formatted;
   }
@@ -360,9 +361,10 @@ export class Chat {
    * Returns a formatted string representation of this chat's settings descriptions.
    */
   public getFormattedSettingsDescriptions(): string {
+    const sortedSettings = [...this.settings.entries()].sort();
     let formatted = "<b>🛠️ SETTINGS DESCRIPTIONS</b>\n";
-    this.settings.forEach((setting) => {
-      formatted += `\n<b>${setting.name}</b> - ${setting.description}`;
+    sortedSettings.forEach((setting) => {
+      formatted += `\n<b>${setting[0]}</b> - ${setting[1].description}`;
     });
     return formatted;
   }
