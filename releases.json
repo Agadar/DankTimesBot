@@ -1,9 +1,13 @@
 [
   {
-    "version": "1.7.0a1",
-    "date": "2018-03-01",
+    "version": "1.7.0",
+    "date": "2018-08-26",
     "changes": [
-      "Added support for Dank Plugins"
+      "Added support for DankTimeBot plugins!",
+      "Revamped the way settings are handled by the bot. Instead of an individual command for each setting, all settings are now set via the new /set command. This means all old setter commands have been removed",
+      "Added /settingshelp, which prints descriptions of all settings. /settings continues to print the values of all settings",
+      "Added new settings: handicaps.multiplier, handicaps.bottomfraction, and hardcoremode.punishfraction",
+      "If no one has called a dank time following a dank time announcement, said announcement is now removed one minute later"
     ]
   },
   {

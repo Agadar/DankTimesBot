@@ -43,7 +43,8 @@ You should now have opened a chat with the bot and the bot should have started. 
 ### Contributing to DankTimesBot
 You can contribute to DankTimesBot in two ways:
 1. Creating issues to suggest enhancements and bug fixes;
-2. Helping develop the codebase by __forking__ the repository and making a __pull request__.
+2. Helping develop the codebase by __forking__ the repository and making a __pull request__;
+3. Creating __plugins__ for the bot. See the example plugin in plugins/example-plugin.
 
 The workflow for helping develop the codebase is as follows:
 * Versioning of DankTimesBot is accomplished via tags on the master branch, e.g. '__v.1.1.0__';
