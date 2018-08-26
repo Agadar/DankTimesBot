@@ -47,7 +47,11 @@ export class TelegramClient implements ITelegramClient {
     this.bot.onText(commandRegex, (msg: any, match: string[]) => {
       this.executeCommand(msg, match, command)
         .then(
-          (reply) => this.sendMessage(msg.chat.id, reply),
+          (reply) => {
+            if (reply) {
+              this.sendMessage(msg.chat.id, reply);
+            }
+          },
           (reason) => console.error(reason),
       );
     });
