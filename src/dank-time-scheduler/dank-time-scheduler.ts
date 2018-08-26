@@ -210,7 +210,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
     const promise = this.tgClient.sendMessage(chat.id, messageText, -1, false);
     promise.then((res: any) => {
       setTimeout(() => {
-        if (!chat.leaderboardChanged()) {
+        if (res && !chat.leaderboardChanged()) {
           this.tgClient.deleteMessage(chat.id, res.message_id);
         }
       }, 60000);
