@@ -36,9 +36,7 @@ export class Plugin extends AbstractPlugin {
     });
 
     this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) => {
-      return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`,
-        `Example of current leaderboard:`,
-      data.chat.generateLeaderboard(false)];
+      return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`];
     });
 
     this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessagePluginEventArguments) => {

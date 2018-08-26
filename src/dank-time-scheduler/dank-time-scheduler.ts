@@ -144,15 +144,14 @@ export class DankTimeScheduler implements IDankTimeScheduler {
    * Schedules a notification for a NORMAL dank time. Does NOT verify chat settings.
    */
   public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
-    const thisRef = this;
     this.dankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
+      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
         if (chat.running && chat.normaltimesNotifications) {
-          thisRef.tgClient.sendMessage(chat.id,
-            "⏰ It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!", -1, false);
+          const messageText = `⏰ It's dank o'clock! Type '${dankTime.texts[0]}' for points!`;
+          this.sendMessageAndScheduleRemoval(chat, messageText);
         }
-      }, undefined, true, chat.timezone),
+      }).bind(this), undefined, true, chat.timezone),
       hour: dankTime.hour,
       minute: dankTime.minute,
     });
@@ -162,15 +161,14 @@ export class DankTimeScheduler implements IDankTimeScheduler {
    * Schedules a notification for a RANDOM dank time. Does NOT verify chat settings.
    */
   public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
-    const thisRef = this;
     this.randomDankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
+      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
         if (chat.running) {
-          thisRef.tgClient.sendMessage(chat.id,
-            "🙀 Surprise dank time! Type '" + dankTime.texts[0] + "' for points!", -1, false);
+          const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
+          this.sendMessageAndScheduleRemoval(chat, messageText);
         }
-      }, undefined, true, chat.timezone),
+      }).bind(this), undefined, true, chat.timezone),
       hour: dankTime.hour,
       minute: dankTime.minute,
     });
@@ -205,6 +203,17 @@ export class DankTimeScheduler implements IDankTimeScheduler {
       }, undefined, true, chat.timezone),
       hour: dankTime.hour,
       minute: dankTime.minute,
+    });
+  }
+
+  private sendMessageAndScheduleRemoval(chat: Chat, messageText: string): void {
+    const promise = this.tgClient.sendMessage(chat.id, messageText, -1, false);
+    promise.then((res: any) => {
+      setTimeout(() => {
+        if (!chat.leaderboardChanged()) {
+          this.tgClient.deleteMessage(chat.id, res.message_id);
+        }
+      }, 60000);
     });
   }
 
