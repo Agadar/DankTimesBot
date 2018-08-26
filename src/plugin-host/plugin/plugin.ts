@@ -31,56 +31,50 @@ export abstract class AbstractPlugin {
   public version: string;
 
   /**
-   * Internal plugin state.
-   */
-  protected data: any;
-
-  /**
    * Event triggers. Plugins can hook functions to certain Plugin Events.
    * These plugin events are defined in the PLUGIN_EVENT enumeration.
    */
-  private pluginEventTriggers: Map<PluginEvent, (data: any) => any>;
-
+  private pluginEventTriggers: Map<PluginEvent, (eventArgs: PluginEventArguments) => any>;
   /**
-   * Listeners to events fired by this plugin. Not to be confused with the
+   * Listener to events fired by this plugin. Not to be confused with the
    * events this plugin listens to itself (i.e. the above pluginEventTriggers).
    */
-  private readonly listeners: IPluginListener[] = [];
+  private listener: IPluginListener;
 
   /**
    * Create a new Plugin instance.
    * @param name Semantic name of this plugin.
    * @param version Version of this plugin.
-   * @param data Any optional data that might require to be stored
-   *              for this plugin.
    */
-  constructor(name: string, version: string, data: any) {
+  constructor(name: string, version: string) {
     this.name = name;
     this.version = version;
-    this.data = data;
-    this.pluginEventTriggers = new Map<PluginEvent, (data: any) => any>();
+    this.pluginEventTriggers = new Map<PluginEvent, (eventArgs: PluginEventArguments) => any>();
   }
 
   /**
-   * Subscribes to this plugin to receive updates.
+   * Subscribes to this plugin to receive updates. Only one subscriber can be active at a time.
    */
   public subscribe(subscriber: IPluginListener): void {
-    if (this.listeners.indexOf(subscriber) === -1) {
-      this.listeners.push(subscriber);
-    }
+    this.listener = subscriber;
   }
 
   /**
    * Trigger a certain PLUGIN_EVENT on this plugin. Called by PluginHost.
    * @param event PLUGIN_EVENT to trigger.
    */
-  public triggerEvent(event: PluginEvent, data: PluginEventArguments): string[] {
+  public triggerEvent(event: PluginEvent, eventArgs: PluginEventArguments): string[] {
     let output: string[] = [];
 
-    if (this.pluginEventTriggers.has(event)) {
-      output = output.concat((this.pluginEventTriggers.get(event) as (data: any) => any)(data));
+    const fn = this.pluginEventTriggers.get(event);
+    if (!fn) {
+      return output;
     }
 
+    const fnOutput = fn(eventArgs);
+    if (fnOutput) {
+      output = output.concat(fnOutput);
+    }
     return output;
   }
 
@@ -105,20 +99,20 @@ export abstract class AbstractPlugin {
 
   /* Function overload list */
   protected subscribeToPluginEvent(event: PluginEvent.ChatMessage,
-                                   eventFn: (data: ChatMessagePluginEventArguments) => any): void;
+                                   eventFn: (eventArgs: ChatMessagePluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.UserScoreChange,
-                                   eventFn: (data: UserScoreChangedPluginEventArguments) => any): void;
+                                   eventFn: (eventArgs: UserScoreChangedPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardReset,
-                                   eventFn: (data: LeaderboardResetPluginEventArguments) => any): void;
+                                   eventFn: (eventArgs: LeaderboardResetPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
-                                   eventFn: (data: NoArgumentsPluginEventArguments) => any): void;
+                                   eventFn: (eventArgs: NoArgumentsPluginEventArguments) => any): void;
 
   /**
    * Subscribe to a certain PLUGIN_EVENT.
    * @param _event Plugin event to describe to.
    * @param eventFn Function to execute when a certain event is triggered.
    */
-  protected subscribeToPluginEvent(event: PluginEvent, eventFn: (data: any) => any): void {
+  protected subscribeToPluginEvent(event: PluginEvent, eventFn: (eventArgs: any) => any): void {
     this.pluginEventTriggers.set(event, eventFn);
   }
 
@@ -129,8 +123,16 @@ export abstract class AbstractPlugin {
    * @param replyToMessageId The (optional) id of the message to reply to.
    * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
    */
-  protected sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false) {
-    this.listeners.forEach((listener) => listener
-      .onPluginWantsToSendChatMessage(chatId, htmlMessage, replyToMessageId, forceReply));
+  protected sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false): Promise<any> {
+    return this.listener.onPluginWantsToSendChatMessage(chatId, htmlMessage, replyToMessageId, forceReply);
+  }
+
+  /**
+   * Deletes a message via the Telegram Bot API.
+   * @param chatId The id of the chat to delete a message in.
+   * @param messageId The id of the message to delete.
+   */
+  protected deleteMessage(chatId: number, messageId: number): Promise<any> {
+    return this.listener.onPluginWantsToDeleteChatMessage(chatId, messageId);
   }
 }

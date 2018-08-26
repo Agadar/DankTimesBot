@@ -58,11 +58,23 @@ export class TelegramClient implements ITelegramClient {
    * @param chatId The id of the chat to send a message to.
    * @param htmlMessage The HTML message to send.
    * @param replyToMessageId The (optional) id of the message to reply to.
-   * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
+   * @param forceReply Whether to force the replied-to or tagged user to reply to this message. False by default.
    */
   public sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false): Promise<any> {
     const parameters = this.getSendMessageParameters(replyToMessageId, forceReply);
     return this.bot.sendMessage(chatId, htmlMessage, parameters)
+      .catch((reason: any) => {
+        this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
+      });
+  }
+
+  /**
+   * Deletes a message via the Telegram Bot API.
+   * @param chatId The id of the chat to delete a message in.
+   * @param messageId The id of the message to delete.
+   */
+  public deleteMessage(chatId: number, messageId: number): Promise<any> {
+    return this.bot.deleteMessage(chatId, messageId)
       .catch((reason: any) => {
         this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
       });

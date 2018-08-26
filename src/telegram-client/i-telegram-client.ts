@@ -13,6 +13,8 @@ export interface ITelegramClient {
 
   sendMessage(chatId: number, htmlMessage: string, replyToMessageId: number, forceReply: boolean): Promise<any>;
 
+  deleteMessage(chatId: number, messageId: number): Promise<any>;
+
   /**
    * Subscribes to this telegram client to receive updates.
    */

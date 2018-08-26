@@ -11,5 +11,12 @@ export interface IPluginListener {
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
      */
     onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-                                   replyToMessageId: number, forceReply: boolean): void;
+                                   replyToMessageId: number, forceReply: boolean): Promise<any>;
+
+    /**
+     * Fired when a plugin wants to delete a chat message.
+     * @param chatId The id of the chat to delete a message in.
+     * @param messageId The id of the message to delete.
+     */
+    onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<any>;
 }

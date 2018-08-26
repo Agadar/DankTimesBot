@@ -26,4 +26,8 @@ export class TelegramClientMock implements ITelegramClient {
   public subscribe(subscriber: ITelegramClientListener): void {
     // Don't do anything, this is a mock.
   }
+
+  public async deleteMessage(chatId: number, messageId: number): Promise<any> {
+    // Don't do anything, this is a mock.
+  }
 }

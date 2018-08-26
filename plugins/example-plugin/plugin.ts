@@ -16,7 +16,6 @@ import {
 } from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
-import { ExamplePluginData } from "./example-plugin-data";
 
 /**
  * Example of the simplest DankTimesBot
@@ -30,11 +29,7 @@ export class Plugin extends AbstractPlugin {
    * and some optional data.
    */
   constructor() {
-    super("Example Plugin", "1.0.0", {});
-
-    // Example of sample dat
-    this.data = new ExamplePluginData();
-    this.data.TestNumber = 1;
+    super("Example Plugin", "1.0.0");
 
     this.subscribeToPluginEvent(PluginEvent.BotStartup, (data: NoArgumentsPluginEventArguments) => {
       console.log("Example of a bot startup event.");
@@ -76,7 +71,13 @@ export class Plugin extends AbstractPlugin {
   }
 
   private echo(chat: Chat, user: User, msg: any, match: string[]): string {
-    setTimeout(() => this.sendMessage(chat.id, "Example of sendMessage", msg.id, true), 3000);
+    setTimeout(() => {
+      this.sendMessage(chat.id, "Example of sendMessage", msg.id, true).then((res) => {
+        setTimeout(() => {
+          this.deleteMessage(chat.id, res.message_id);
+        }, 3000);
+      });
+    }, 3000);
     return `${user.name} said: '${match[0].split(" ")[1]}'`;
   }
 }

@@ -23,7 +23,11 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
   }
 
   public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-                                        replyToMessageId: number, forceReply: boolean): void {
-    /** */
+                                        replyToMessageId: number, forceReply: boolean): Promise<any> {
+    return Promise.resolve({});
+  }
+
+  public onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<any> {
+    return Promise.resolve({});
   }
 }
