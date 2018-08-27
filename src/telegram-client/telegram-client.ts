@@ -1,3 +1,4 @@
+import { Moment } from "moment-timezone";
 import { BotCommand } from "../bot-commands/bot-command";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { ITelegramClient } from "./i-telegram-client";
@@ -16,7 +17,9 @@ export class TelegramClient implements ITelegramClient {
   private readonly developerUserId = 100805902;
   private readonly listeners: ITelegramClientListener[] = [];
 
-  constructor(private readonly bot: any, private readonly chatRegistry: IChatRegistry) { }
+  constructor(private readonly bot: any,
+              private readonly moment: any,
+              private readonly chatRegistry: IChatRegistry) { }
 
   /**
    * Sets the action to do on ANY incoming text.
@@ -45,15 +48,17 @@ export class TelegramClient implements ITelegramClient {
     const commandRegex = command.getRegex(botUsername);
 
     this.bot.onText(commandRegex, (msg: any, match: string[]) => {
-      this.executeCommand(msg, match, command)
-        .then(
-          (reply) => {
-            if (reply) {
-              this.sendMessage(msg.chat.id, reply);
-            }
-          },
-          (reason) => console.error(reason),
-      );
+      if (this.moment.tz("UTC").unix() - msg.date < 60) {
+        this.executeCommand(msg, match, command)
+          .then(
+            (reply) => {
+              if (reply) {
+                this.sendMessage(msg.chat.id, reply);
+              }
+            },
+            (reason) => console.error(reason),
+        );
+      }
     });
   }
 

@@ -1,4 +1,4 @@
-import { Moment } from "moment";
+import { Moment } from "moment-timezone";
 import { BasicDankTime } from "../dank-time/basic-dank-time";
 import { DankTime } from "../dank-time/dank-time";
 import {
@@ -257,8 +257,7 @@ export class Chat {
   public processMessage(msg: any): string[] {
 
     let output: string[] = [];
-    const now: Moment = this.moment.tz(this.timezone);
-    const messageTimeout: boolean = now.unix() - msg.date >= 60;
+    const messageTimeout: boolean = this.moment.tz("UTC").unix() - msg.date >= 60;
     const awaitingReset: boolean = (this.awaitingResetConfirmation === msg.from.id);
 
     // Ignore the message if it was sent more than 1 minute ago.
@@ -271,7 +270,7 @@ export class Chat {
     if (awaitingReset) {
       output = output.concat(this.handleAwaitingReset(msg.from.id, msg.text, msg.date));
     } else if (this.running) {
-      output = output.concat(this.handleDankTimeInputMessage(user, msg.text, msg.date, now));
+      output = output.concat(this.handleDankTimeInputMessage(user, msg.text, msg.date, this.moment.tz(this.timezone)));
     }
     msg.text = this.util.cleanText(msg.text);
 

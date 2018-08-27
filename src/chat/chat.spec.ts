@@ -252,9 +252,9 @@ describe("Chat.timezone", () => {
 
 describe("Chat.processMessage", () => {
 
-  const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
+  const chatSettingRegistry = new ChatSettingsRegistry(moment);
   let chat: Chat;
-  const now = momentMock.tz("Europe/Amsterdam");
+  const now = moment.tz("Europe/Amsterdam");
   const dankTimePoints = 5;
 
   beforeEach("Instantiate test variables", () => {
@@ -272,7 +272,7 @@ describe("Chat.processMessage", () => {
   it("should award handicap value if user that scores deserves it and was first", () => {
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix()));
+    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");
@@ -286,7 +286,7 @@ describe("Chat.processMessage", () => {
   it("should NOT award handicap value if user that scores does not deserve it and was first", () => {
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix()));
+    const res = chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix().toString()));
 
     // Assert
     assert.equal(res[0], "👏 user#3 was the first to score!");
@@ -300,10 +300,10 @@ describe("Chat.processMessage", () => {
   it("should award handicap value if user that scores deserves it and was NOT first", () => {
 
     // Arrange
-    chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix()));
+    chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix().toString()));
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix()));
+    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
 
     // Assert
     assert.isEmpty(res);
@@ -317,10 +317,10 @@ describe("Chat.processMessage", () => {
   it("should NOT award handicap value if user that scores does not deserve it and was NOT first", () => {
 
     // Arrange
-    chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix()));
+    chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix()));
+    const res = chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix().toString()));
 
     // Assert
     assert.isEmpty(res);
@@ -337,7 +337,7 @@ describe("Chat.processMessage", () => {
     chat.setSetting(CoreSettingsNames.handicapsEnabled, "false");
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix()));
+    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");
@@ -356,7 +356,7 @@ describe("Chat.processMessage", () => {
     chat.removeUser(3);
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix()));
+    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");

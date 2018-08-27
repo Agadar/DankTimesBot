@@ -63,7 +63,7 @@ export class ContextRoot {
 
     // Prepare Telegram client and scheduler for sending messages.
     const telegramBot = new TelegramBot(this.config.apiKey, { polling: true });
-    this.telegramClient = new TelegramClient(telegramBot, this.chatRegistry);
+    this.telegramClient = new TelegramClient(telegramBot, momentImport, this.chatRegistry);
     this.dankTimeScheduler = new DankTimeScheduler(this.telegramClient, CronJob);
 
     // Load and initialize commands.

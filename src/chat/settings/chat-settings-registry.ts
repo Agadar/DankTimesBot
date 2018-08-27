@@ -1,4 +1,4 @@
-import { Moment } from "moment";
+import { Moment } from "moment-timezone";
 import { ChatSetting } from "./chat-setting";
 import { ChatSettingTemplate } from "./chat-setting-template";
 import { CoreSettingsNames } from "./core-settings-names";

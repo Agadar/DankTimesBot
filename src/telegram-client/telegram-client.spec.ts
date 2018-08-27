@@ -57,7 +57,7 @@ describe("TelegramClient #executeCommand", () => {
   beforeEach("Set up test variables", () => {
     chatRegistry = new ChatRegistryMock();
     chatRegistry.chats.set(0, chatMock);
-    telegramClient = new TelegramClient(nodeTelegramBotApiMock, chatRegistry);
+    telegramClient = new TelegramClient(nodeTelegramBotApiMock, {}, chatRegistry);
     nonAdminCommandCalled = false;
     adminCommandCalled = false;
     msg = {
@@ -155,7 +155,7 @@ describe("TelegramClient #sendMessage", () => {
     dankController = new DankTimesBotControllerMock();
     chatRegistry = new ChatRegistryMock();
     chatRegistry.chats.set(0, chatMock);
-    telegramClient = new TelegramClient(nodeTelegramBotApiMock, chatRegistry);
+    telegramClient = new TelegramClient(nodeTelegramBotApiMock, {}, chatRegistry);
     telegramClient.subscribe(dankController);
   });
 
