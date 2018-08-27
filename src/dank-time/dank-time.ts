@@ -1,12 +1,12 @@
 import { BasicDankTime } from "./basic-dank-time";
 
-export class DankTime implements BasicDankTime {
+export class DankTime {
 
   /**
    * Returns a new DankTime parsed from a literal.
    */
   public static fromJSON(literal: BasicDankTime): DankTime {
-    return new DankTime(literal.hour, literal.minute, literal.texts, literal.points);
+    return new DankTime(literal.hour, literal.minute, literal.texts, () => literal.points);
   }
 
   /**
@@ -29,7 +29,7 @@ export class DankTime implements BasicDankTime {
   }
 
   public readonly texts = new Array<string>();
-  private myPoints: number;
+  private myPoints: () => number;
 
   /**
    * Creates a new dank time object.
@@ -38,7 +38,7 @@ export class DankTime implements BasicDankTime {
    * @param texts The texts to shout at the hour:minute to score points.
    * @param points The amount of points to reward or confiscate.
    */
-  constructor(public readonly hour: number, public readonly minute: number, texts: string[], points = 1) {
+  constructor(public readonly hour: number, public readonly minute: number, texts: string[], points: () => number) {
     if (this.hour % 1 !== 0 || this.hour < 0 || this.hour > 23) {
       throw new RangeError("The hour must be a whole number between 0 and 23!");
     }
@@ -53,14 +53,15 @@ export class DankTime implements BasicDankTime {
         this.texts.push(text);
       }
     });
-    this.points = points;
+    this.setPoints(points);
   }
 
   /**
    * Sets the points.
    */
-  public set points(points: number) {
-    if (points % 1 !== 0 || points < 1 || points > 100) {
+  public setPoints(points: () => number) {
+    const pointsValue = points();
+    if (pointsValue % 1 !== 0 || pointsValue < 1 || pointsValue > 100) {
       throw new RangeError("The points must be a whole number between 1 and 100!");
     }
     this.myPoints = points;
@@ -69,8 +70,8 @@ export class DankTime implements BasicDankTime {
   /**
    * Gets the points.
    */
-  public get points(): number {
-    return this.myPoints;
+  public getPoints(): number {
+    return this.myPoints();
   }
 
   /**
@@ -91,6 +92,6 @@ export class DankTime implements BasicDankTime {
    * Used by JSON.stringify. Returns a literal representation of this.
    */
   public toJSON(): BasicDankTime {
-    return { hour: this.hour, minute: this.minute, texts: this.texts, points: this.points };
+    return { hour: this.hour, minute: this.minute, texts: this.texts, points: this.myPoints() };
   }
 }

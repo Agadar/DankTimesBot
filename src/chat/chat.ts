@@ -1,4 +1,5 @@
 import { Moment } from "moment";
+import { BasicDankTime } from "../dank-time/basic-dank-time";
 import { DankTime } from "../dank-time/dank-time";
 import {
   ChatMessagePluginEventArguments,
@@ -106,7 +107,12 @@ export class Chat {
     return this.getSetting<number>(CoreSettingsNames.firstMultiplier);
   }
 
-  public get randomtimesPoints(): number {
+  /**
+   * Gets the current random dank time points. This is a method instead of a getter, so that
+   * random danktimes are automatically referring to the correct number of points when
+   * this setting is changed.
+   */
+  public getRandomtimesPoints(): number {
     return this.getSetting<number>(CoreSettingsNames.randomtimesPoints);
   }
 
@@ -205,7 +211,8 @@ export class Chat {
 
       if (!this.hourAndMinuteAlreadyRegistered(now.hours(), now.minutes())) {
         const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
-        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.randomtimesPoints));
+        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text],
+          this.getRandomtimesPoints.bind(this)));
       }
     }
     return this.randomDankTimes;
@@ -223,8 +230,17 @@ export class Chat {
       };
     });
 
+    const basicDankTimes = this.dankTimes.map((dankTime) => {
+      return {
+        hour: dankTime.hour,
+        minute: dankTime.minute,
+        points: dankTime.getPoints(),
+        texts: dankTime.texts,
+      } as BasicDankTime;
+    });
+
     return {
-      dankTimes: this.dankTimes,
+      dankTimes: basicDankTimes,
       id: this.myId,
       lastHour: this.myLastHour,
       lastMinute: this.myLastMinute,
@@ -479,7 +495,7 @@ export class Chat {
           this.users.forEach((user0) => user0.called = false);
           this.lastHour = dankTime.hour;
           this.lastMinute = dankTime.minute;
-          let score = dankTime.points * this.firstMultiplier;
+          let score = dankTime.getPoints() * this.firstMultiplier;
 
           if (this.userDeservesHandicapBonus(user.id)) {
             score *= this.handicapsMultiplier;
@@ -493,20 +509,20 @@ export class Chat {
             output.push("👏 " + user.name + " was the first to score!");
           }
         } else if (user.called) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.points, now.unix());
+          user.addToScore(-dankTime.getPoints(), now.unix());
           output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
-            new UserScoreChangedPluginEventArguments(this, user, -dankTime.points)));
+            new UserScoreChangedPluginEventArguments(this, user, -dankTime.getPoints())));
         } else {  // Else, award point.
           const score = Math.round(this.userDeservesHandicapBonus(user.id)
-            ? dankTime.points * this.handicapsMultiplier : dankTime.points);
+            ? dankTime.getPoints() * this.handicapsMultiplier : dankTime.getPoints());
           user.addToScore(score, now.unix());
           output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
             new UserScoreChangedPluginEventArguments(this, user, score)));
           user.called = true;
         }
         return output;
-      } else if (dankTime.points > subtractBy) {
-        subtractBy = dankTime.points;
+      } else if (dankTime.getPoints() > subtractBy) {
+        subtractBy = dankTime.getPoints();
       }
     }
     // If no match was found, punish the user.

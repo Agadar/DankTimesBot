@@ -25,7 +25,7 @@ export class DankTimesBotController implements IDankTimesBotController {
    * From ITelegramClientListener.
    */
   public onErrorFromApi(chatId: number, error: any): void {
-    if (error.response.statusCode === this.forbiddenStatusCode) {
+    if (error && error.response && error.response.statusCode === this.forbiddenStatusCode) {
       const chat = this.chatRegistry.removeChat(chatId);
 
       if (chat) {
@@ -33,7 +33,7 @@ export class DankTimesBotController implements IDankTimesBotController {
       }
       console.info(`Bot was blocked by chat with id ${chatId}, removed corresponding chat data from bot!`);
     } else {
-      console.error(error);  // Unknown error, print everything.
+      console.info(`We received an unknown error. JSON-fied error object: ${JSON.stringify(error)}`);
     }
   }
 
@@ -48,7 +48,7 @@ export class DankTimesBotController implements IDankTimesBotController {
    * From IPluginListener.
    */
   public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-                                        replyToMessageId: number, forceReply: boolean): Promise<any> {
+    replyToMessageId: number, forceReply: boolean): Promise<any> {
     return this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply);
   }
 

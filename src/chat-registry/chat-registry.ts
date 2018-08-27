@@ -48,13 +48,13 @@ export class ChatRegistry implements IChatRegistry {
     const chat = new Chat(this.moment, this.util, id, this.pluginHost, settings);
 
     // These default dank times should be moved to a configurable .json file at some point.
-    chat.addDankTime(new DankTime(0, 0, ["0000"], 5));
-    chat.addDankTime(new DankTime(4, 20, ["420"], 15));
-    chat.addDankTime(new DankTime(11, 11, ["1111"], 5));
-    chat.addDankTime(new DankTime(12, 34, ["1234"], 5));
-    chat.addDankTime(new DankTime(13, 37, ["1337"], 10));
-    chat.addDankTime(new DankTime(16, 20, ["420"], 10));
-    chat.addDankTime(new DankTime(22, 22, ["2222"], 5));
+    chat.addDankTime(new DankTime(0, 0, ["0000"], () => 5));
+    chat.addDankTime(new DankTime(4, 20, ["420"], () => 15));
+    chat.addDankTime(new DankTime(11, 11, ["1111"], () => 5));
+    chat.addDankTime(new DankTime(12, 34, ["1234"], () => 5));
+    chat.addDankTime(new DankTime(13, 37, ["1337"], () => 10));
+    chat.addDankTime(new DankTime(16, 20, ["420"], () => 10));
+    chat.addDankTime(new DankTime(22, 22, ["2222"], () => 5));
 
     chat.generateRandomDankTimes();
     this.chats.set(id, chat);

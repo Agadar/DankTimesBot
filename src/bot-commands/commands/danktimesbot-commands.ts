@@ -88,7 +88,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     for (const time of chat.dankTimes) {
       dankTimes +=
         `\ntime: ${this.util.padNumber(time.hour)}:`
-        + `${this.util.padNumber(time.minute)}:00    points: ${time.points}    texts: `;
+        + `${this.util.padNumber(time.minute)}:00    points: ${time.getPoints()}    texts: `;
       for (const text of time.texts) {
         dankTimes += `${text}, `;
       }
@@ -141,7 +141,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
-      const dankTime = new DankTime(hour, minute, texts, points);
+      const dankTime = new DankTime(hour, minute, texts, () => points);
       chat.addDankTime(dankTime);
 
       // Reschedule notifications just to make sure, if applicable.

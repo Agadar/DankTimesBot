@@ -159,7 +159,7 @@ describe("Chat.generateRandomDankTimes", () => {
       assert.isAtMost(time.hour, 23);
       assert.isAtLeast(time.minute, 0);
       assert.isAtMost(time.minute, 59);
-      assert.equal(time.points, chat.randomtimesPoints);
+      assert.equal(time.getPoints(), chat.getRandomtimesPoints());
       assert.equal(time.texts[0], util.padNumber(time.hour) + util.padNumber(time.minute));
     });
   });
@@ -180,7 +180,7 @@ describe("Chat.generateRandomDankTimes", () => {
       const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
       const now = moment.tz("UTC");
       now.minutes(0);
-      chat.addDankTime(new DankTime(now.hours(), now.minutes(), ["irrelevant"], 10));
+      chat.addDankTime(new DankTime(now.hours(), now.minutes(), ["irrelevant"], () => 10));
 
       // Act
       const randomDankTimes = chat.generateRandomDankTimes();
@@ -261,7 +261,7 @@ describe("Chat.processMessage", () => {
     const settings = chatSettingRegistry.getChatSettings();
     chat = new Chat(momentMock, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
     chat.dankTimes.splice(0);
-    chat.addDankTime(new DankTime(1, 13, ["0113"], dankTimePoints));
+    chat.addDankTime(new DankTime(1, 13, ["0113"], () => dankTimePoints));
     chat.running = true;
 
     for (let i = 0; i < 4; i++) {
