@@ -22,11 +22,6 @@ export interface IDankTimeScheduler {
   scheduleRandomDankTimesOfChat(chat: Chat): void;
 
   /**
-   * Schedules all auto-leaderboard posts of a chat. Does NOT verify chat settings.
-   */
-  scheduleAutoLeaderboardsOfChat(chat: Chat): void;
-
-  /**
    * Unschedules all normal and random dank time notifications and auto-leaderboards of a chat.
    */
   unscheduleAllOfChat(chat: Chat): void;
@@ -40,11 +35,6 @@ export interface IDankTimeScheduler {
    * Unschedules all RANDOM dank time notifications of a chat.
    */
   unscheduleRandomDankTimesOfChat(chat: Chat): void;
-
-  /**
-   * Unschedules all auto-leaderboard posts of a chat.
-   */
-  unscheduleAutoLeaderboardsOfChat(chat: Chat): void;
 
   /**
    * Resets this scheduler completely, unscheduling all jobs and emptying the job lists.
@@ -62,11 +52,6 @@ export interface IDankTimeScheduler {
   unscheduleRandomDankTime(chat: Chat, dankTime: DankTime): void;
 
   /**
-   * Unschedules a the auto-posting of a leaderboard 1 minute after a dank time.
-   */
-  unscheduleAutoLeaderboard(chat: Chat, dankTime: DankTime): void;
-
-  /**
    * Schedules a notification for a NORMAL dank time. Does NOT verify chat settings.
    */
   scheduleDankTime(chat: Chat, dankTime: DankTime): void;
@@ -75,9 +60,4 @@ export interface IDankTimeScheduler {
    * Schedules a notification for a RANDOM dank time. Does NOT verify chat settings.
    */
   scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void;
-
-  /**
-   * Schedules the auto-posting of a leaderboard 1 minute after a dank time. Does NOT verify chat settings.
-   */
-  scheduleAutoLeaderboard(chat: Chat, dankTime: DankTime): void;
 }

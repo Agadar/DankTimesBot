@@ -73,8 +73,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         this.doNumberOfRandomTimesSettingSideEffects(chat);
       } else if (settingname === CoreSettingsNames.normaltimesNotifications) {
         this.doNotificationsSettingSideEffects(chat);
-      } else if (settingname === CoreSettingsNames.autoleaderboards) {
-        this.doAutoLeaderboardsSettingSideEffects(chat);
       }
 
       return "🎉 Updated the setting!";
@@ -150,10 +148,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
           this.scheduler.unscheduleDankTime(chat, dankTime);
           this.scheduler.scheduleDankTime(chat, dankTime);
         }
-        if (chat.autoleaderboards) {
-          this.scheduler.unscheduleAutoLeaderboard(chat, dankTime);
-          this.scheduler.scheduleAutoLeaderboard(chat, dankTime);
-        }
       }
       return "⏰ Added the new time!";
     } catch (err) {
@@ -192,7 +186,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
     if (dankTime !== null && chat.removeDankTime(hour, minute)) {
       this.scheduler.unscheduleDankTime(chat, dankTime);
-      this.scheduler.unscheduleAutoLeaderboard(chat, dankTime);
       return "🚮 Removed the time!";
     } else {
       return "⚠️ No dank time known with that hour and minute!";
@@ -212,11 +205,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (chat.running) {
       this.scheduler.unscheduleRandomDankTimesOfChat(chat);
       this.scheduler.scheduleRandomDankTimesOfChat(chat);
-
-      if (chat.autoleaderboards) {
-        this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
-        this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
-      }
     }
   }
 
@@ -226,16 +214,6 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
       if (chat.normaltimesNotifications) {
         this.scheduler.scheduleDankTimesOfChat(chat);
-      }
-    }
-  }
-
-  private doAutoLeaderboardsSettingSideEffects(chat: Chat): void {
-    if (chat.running) {
-      this.scheduler.unscheduleAutoLeaderboardsOfChat(chat);
-
-      if (chat.autoleaderboards) {
-        this.scheduler.scheduleAutoLeaderboardsOfChat(chat);
       }
     }
   }

@@ -17,9 +17,6 @@ export class DankTimeSchedulerMock implements IDankTimeScheduler {
   public scheduleRandomDankTimesOfChat(chat: Chat): void {
     /**/
   }
-  public scheduleAutoLeaderboardsOfChat(chat: Chat): void {
-    /**/
-  }
   public unscheduleAllOfChat(chat: Chat): void {
     this.unscheduleAllOfChatCalledWith = chat;
   }
@@ -27,9 +24,6 @@ export class DankTimeSchedulerMock implements IDankTimeScheduler {
     /**/
   }
   public unscheduleRandomDankTimesOfChat(chat: Chat): void {
-    /**/
-  }
-  public unscheduleAutoLeaderboardsOfChat(chat: Chat): void {
     /**/
   }
   public reset(): void {
@@ -41,16 +35,10 @@ export class DankTimeSchedulerMock implements IDankTimeScheduler {
   public unscheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
     /**/
   }
-  public unscheduleAutoLeaderboard(chat: Chat, dankTime: DankTime): void {
-    /**/
-  }
   public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
     /**/
   }
   public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
-    /**/
-  }
-  public scheduleAutoLeaderboard(chat: Chat, dankTime: DankTime): void {
     /**/
   }
 }
