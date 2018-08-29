@@ -17,7 +17,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
 
       this.telegramClient.registerCommand(new BotCommand("addtime",
         "adds a dank time. format: [hour] [minute] [points] [text1] [text2] etc.",
-        this.dankTimesBotCommands.addTime.bind(this.dankTimesBotCommands), true)),
+        this.dankTimesBotCommands.addTime.bind(this.dankTimesBotCommands), true, true)),
 
       this.telegramClient.registerCommand(new BotCommand("danktimes", "shows the user-specified dank times",
         this.dankTimesBotCommands.dankTimes.bind(this.dankTimesBotCommands))),
@@ -32,10 +32,10 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
         this.dankTimesBotCommands.plugins.bind(this.dankTimesBotCommands))),
 
       this.telegramClient.registerCommand(new BotCommand("removetime", "removes a dank time. format: [hour] [minute]",
-        this.dankTimesBotCommands.removeTime.bind(this.dankTimesBotCommands), true)),
+        this.dankTimesBotCommands.removeTime.bind(this.dankTimesBotCommands), true, true)),
 
       this.telegramClient.registerCommand(new BotCommand("reset", "resets the leaderboard",
-        this.dankTimesBotCommands.resetChat.bind(this.dankTimesBotCommands), true, true)),
+        this.dankTimesBotCommands.resetChat.bind(this.dankTimesBotCommands), true, true, true)),
 
       this.telegramClient.registerCommand(new BotCommand("settings", "shows the current settings values",
         this.dankTimesBotCommands.settings.bind(this.dankTimesBotCommands))),
@@ -44,13 +44,13 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
         this.dankTimesBotCommands.settingshelp.bind(this.dankTimesBotCommands))),
 
       this.telegramClient.registerCommand(new BotCommand("set", "sets a setting. format: [name] [value]",
-        this.dankTimesBotCommands.set.bind(this.dankTimesBotCommands), true)),
+        this.dankTimesBotCommands.set.bind(this.dankTimesBotCommands), true, true)),
 
       this.telegramClient.registerCommand(new BotCommand("start", "starts keeping track of scores and sending messages",
-        this.dankTimesBotCommands.startChat.bind(this.dankTimesBotCommands), true)),
+        this.dankTimesBotCommands.startChat.bind(this.dankTimesBotCommands), true, true)),
 
       this.telegramClient.registerCommand(new BotCommand("stop", "stops keeping track of scores and sending messages",
-        this.dankTimesBotCommands.stopChat.bind(this.dankTimesBotCommands), true)),
+        this.dankTimesBotCommands.stopChat.bind(this.dankTimesBotCommands), true, true)),
 
       this.telegramClient.registerCommand(new BotCommand("whatsnew", "shows the release notes of the current version",
         this.dankTimesBotCommands.whatsNewMessage.bind(this.dankTimesBotCommands))),

@@ -100,7 +100,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   public help(chat: Chat, user: User, msg: any, match: any): string {
-    const sortedCommands = [...this.tgClient.commands].sort();
+    const sortedCommands = [...this.tgClient.commands].filter((command) => command[1].showInHelp).sort();
     let help = "<b>ℹ️ AVAILABLE COMMANDS</b>\n";
     sortedCommands.forEach((entry) => help += "\n/" + entry[0] + " - " + entry[1].description);
     return help;

@@ -7,14 +7,15 @@ export class BotCommand {
    * Defines a new command for the Telegram bot.
    * @param name The name of the command, e.g. 'start'.
    * @param description Brief description of the command.
-   * @param object The object to call the function on.
    * @param action The function which this command calls.
+   * @param showInHelp Whether to list this command in the help output.
    * @param adminOnly Whether only admins can execute this command.
    * @param requiresConfirmation Whether this command requires explicit confirmation.
    */
   constructor(public readonly name: string,
               public readonly description: string,
               public readonly action: ((chat: Chat, user: User, msg: any, match: string[]) => string),
+              public readonly showInHelp = true,
               public readonly adminOnly = false,
               public readonly requiresConfirmation = false) { }
 
