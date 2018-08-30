@@ -1,5 +1,7 @@
 # built folder
 built/
+plugins/
+!plugins/example-plugin
 
 # Old files
 data/settings.json
