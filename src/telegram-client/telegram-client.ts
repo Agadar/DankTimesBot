@@ -1,4 +1,3 @@
-import { Moment } from "moment-timezone";
 import { BotCommand } from "../bot-commands/bot-command";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { ITelegramClient } from "./i-telegram-client";

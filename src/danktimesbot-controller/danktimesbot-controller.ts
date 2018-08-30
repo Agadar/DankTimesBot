@@ -8,6 +8,8 @@ import { IDankTimesBotController } from "./i-danktimesbot-controller";
 export class DankTimesBotController implements IDankTimesBotController {
 
   private readonly forbiddenStatusCode = 403;
+  private readonly requestNotFoundDescription = "Bad Request: chat not found";
+  private readonly groupChatUpgradedDescription = "Bad Request: group chat was upgraded to a supergroup chat";
 
   public constructor(
     private readonly moment: any,
@@ -25,7 +27,7 @@ export class DankTimesBotController implements IDankTimesBotController {
    * From ITelegramClientListener.
    */
   public onErrorFromApi(chatId: number, error: any): void {
-    if (error && error.response && error.response.statusCode === this.forbiddenStatusCode) {
+    if (this.errorResponseWarrantsChatRemoval(error)) {
       const chat = this.chatRegistry.removeChat(chatId);
 
       if (chat) {
@@ -74,5 +76,11 @@ export class DankTimesBotController implements IDankTimesBotController {
         chat.hardcoreModeCheck(now);
       }
     });
+  }
+
+  private errorResponseWarrantsChatRemoval(error: any): boolean {
+    return error && error.response && (error.response.statusCode === this.forbiddenStatusCode
+      || (error.response.body && (error.response.body.description === this.requestNotFoundDescription ||
+        error.response.body.description === this.groupChatUpgradedDescription)));
   }
 }
