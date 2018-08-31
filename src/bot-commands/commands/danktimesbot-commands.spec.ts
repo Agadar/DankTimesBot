@@ -7,9 +7,8 @@ import { ChatSetting } from "../../chat/settings/chat-setting";
 import { User } from "../../chat/user/user";
 import { DankTimeSchedulerMock } from "../../dank-time-scheduler/dank-time-scheduler-mock";
 import { PluginHost } from "../../plugin-host/plugin-host";
-import { TelegramClientMock } from "../../telegram-client/telegram-client-mock";
 import { Util } from "../../util/util";
-import { BotCommand } from "../bot-command";
+import { BotCommandRegistry } from "../bot-command-registry";
 import { DankTimesBotCommands } from "./danktimesbot-commands";
 
 describe("DankTimesBotCommands.addTime", () => {
@@ -17,7 +16,7 @@ describe("DankTimesBotCommands.addTime", () => {
   let dankTimesBotCommands: DankTimesBotCommands;
   const scheduler = new DankTimeSchedulerMock();
   const util = new Util();
-  const clientMock = new TelegramClientMock();
+  const commandRegistryMock = {} as BotCommandRegistry;
   let chat: Chat;
   const msg = {
     chat: {
@@ -29,7 +28,7 @@ describe("DankTimesBotCommands.addTime", () => {
   };
 
   beforeEach("Instantiate test variables", () => {
-    dankTimesBotCommands = new DankTimesBotCommands(clientMock, scheduler, util, [], "x.y.z");
+    dankTimesBotCommands = new DankTimesBotCommands(commandRegistryMock, scheduler, util, []);
     chat = new Chat(moment, util, 0, new PluginHost([]), new Map<string, ChatSetting<any>>());
     match.input = "/addtime 22 33 5";
     chat.dankTimes.splice(0);

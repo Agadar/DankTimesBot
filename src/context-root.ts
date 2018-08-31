@@ -4,6 +4,7 @@ import * as momentImport from "moment-timezone";
 import nodeCleanupImport = require("node-cleanup");
 import TelegramBot = require("node-telegram-bot-api");
 
+import { BotCommandRegistry } from "./bot-commands/bot-command-registry";
 import { DankTimesBotCommands } from "./bot-commands/commands/danktimesbot-commands";
 import { DankTimesBotCommandsRegistrar } from "./bot-commands/registrar/danktimesbot-commands-registrar";
 import { ChatRegistry } from "./chat-registry/chat-registry";
@@ -16,7 +17,6 @@ import { IDankTimesBotController } from "./danktimesbot-controller/i-danktimesbo
 import { Config } from "./misc/config";
 import { Release } from "./misc/release";
 import { PluginHost } from "./plugin-host/plugin-host";
-import { AbstractPlugin } from "./plugin-host/plugin/plugin";
 import { ITelegramClient } from "./telegram-client/i-telegram-client";
 import { TelegramClient } from "./telegram-client/telegram-client";
 import { FileIO } from "./util/file-io/file-io";
@@ -63,19 +63,20 @@ export class ContextRoot {
 
     // Prepare Telegram client and scheduler for sending messages.
     const telegramBot = new TelegramBot(this.config.apiKey, { polling: true });
-    this.telegramClient = new TelegramClient(telegramBot, momentImport, this.chatRegistry);
+    this.telegramClient = new TelegramClient(telegramBot);
     this.dankTimeScheduler = new DankTimeScheduler(this.telegramClient, CronJob);
 
     // Load and initialize commands.
     // tslint:disable-next-line:no-var-requires
     this.version = require("../package.json").version;
     this.releaseLog = this.fileIO.loadReleaseLogFromFile();
+    const botCommandsRegistry = new BotCommandRegistry(this.telegramClient, momentImport, this.chatRegistry);
     const dankTimesBotCommands = new DankTimesBotCommands(
-      this.telegramClient, this.dankTimeScheduler, this.util, this.releaseLog, this.version);
-    const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(this.telegramClient,
+      botCommandsRegistry, this.dankTimeScheduler, this.util, this.releaseLog);
+    const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(botCommandsRegistry, this.telegramClient,
       this.chatRegistry, dankTimesBotCommands);
     dankTimesBotCommandsRegistrar.registerDankTimesBotCommands();
-    this.pluginHost.registerPluginCommands(this.telegramClient);
+    this.pluginHost.registerPluginCommands(botCommandsRegistry);
 
     // Miscellaneous initializations and exports.
     this.danktimesbotController = new DankTimesBotController(momentImport, this.chatRegistry,

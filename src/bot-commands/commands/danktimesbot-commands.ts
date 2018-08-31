@@ -4,21 +4,19 @@ import { User } from "../../chat/user/user";
 import { IDankTimeScheduler } from "../../dank-time-scheduler/i-dank-time-scheduler";
 import { DankTime } from "../../dank-time/dank-time";
 import { Release } from "../../misc/release";
-import { PluginHost } from "../../plugin-host/plugin-host";
 import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
-import { ITelegramClient } from "../../telegram-client/i-telegram-client";
 import { IUtil } from "../../util/i-util";
+import { BotCommandRegistry } from "../bot-command-registry";
 import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export class DankTimesBotCommands implements IDankTimesBotCommands {
 
   constructor(
-    private readonly tgClient: ITelegramClient,
+    private readonly commandsRegistry: BotCommandRegistry,
     private readonly scheduler: IDankTimeScheduler,
     private readonly util: IUtil,
-    private readonly releaseLog: Release[],
-    private readonly version: string,
+    private readonly releaseLog: Release[]
   ) { }
 
   public startChat(chat: Chat, user: User, msg: any, match: any): string {
@@ -100,9 +98,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   public help(chat: Chat, user: User, msg: any, match: any): string {
-    const sortedCommands = [...this.tgClient.commands].filter((command) => command[1].showInHelp).sort();
+    const sortedCommands = this.commandsRegistry.botCommands.filter((command) => command.showInHelp).sort();
     let help = "<b>ℹ️ AVAILABLE COMMANDS</b>\n";
-    sortedCommands.forEach((entry) => help += "\n/" + entry[0] + " - " + entry[1].description);
+    sortedCommands.forEach((command) => help += "\n/" + command.name + " - " + command.description);
     return help;
   }
 

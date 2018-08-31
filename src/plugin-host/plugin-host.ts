@@ -1,3 +1,4 @@
+import { BotCommandRegistry } from "../bot-commands/bot-command-registry";
 import { Chat } from "../chat/chat";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
@@ -60,11 +61,11 @@ export class PluginHost {
   }
 
   /**
-   * Registers all bot commands defined by this host's plugins to a supplied telegram client.
-   * @param telegramClient The telegram client to register to.
+   * Registers all bot commands defined by this host's plugins to a supplied registry.
+   * @param botCommandsRegistry The registry to register to.
    */
-  public registerPluginCommands(telegramClient: ITelegramClient) {
+  public registerPluginCommands(botCommandsRegistry: BotCommandRegistry) {
     this.plugins.forEach((plugin) => plugin.getPluginSpecificCommands()
-      .forEach((command) => telegramClient.registerCommand(command)));
+      .forEach((command) => botCommandsRegistry.registerCommand(command)));
   }
 }
