@@ -6,8 +6,8 @@ import {
   ChatMessagePluginEventArguments,
 } from "./plugin-events/event-arguments/chat-message-plugin-event-arguments";
 import {
-  LeaderboardResetPluginEventArguments,
-} from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+  LeaderboardPostPluginEventArguments,
+} from "./plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
 import {
   UserScoreChangedPluginEventArguments,
@@ -32,7 +32,7 @@ export class PluginHost {
   /* Overload List */
   public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessagePluginEventArguments): string[];
   public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
-  public triggerEvent(event: PluginEvent.LeaderboardReset, input: LeaderboardResetPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostPluginEventArguments): void;
   public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
                       input: NoArgumentsPluginEventArguments): void;
 

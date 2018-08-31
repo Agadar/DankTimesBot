@@ -6,8 +6,8 @@ import {
   ChatMessagePluginEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
 import {
-  LeaderboardResetPluginEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+  LeaderboardPostPluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
 import {
   NoArgumentsPluginEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
@@ -43,8 +43,8 @@ export class Plugin extends AbstractPlugin {
       return [`Example of a chat message event`];
     });
 
-    this.subscribeToPluginEvent(PluginEvent.LeaderboardReset, (data: LeaderboardResetPluginEventArguments) => {
-      return [`The leaderboard was reset for chat: ${data.chat.id}`];
+    this.subscribeToPluginEvent(PluginEvent.LeaderboardPost, (data: LeaderboardPostPluginEventArguments) => {
+      data.leaderboardText[0] = data.leaderboardText[0] + "\n\n Example of a leaderboard post event.";
     });
 
     this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: NoArgumentsPluginEventArguments) => {

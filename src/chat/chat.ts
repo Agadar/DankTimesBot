@@ -5,6 +5,9 @@ import {
   ChatMessagePluginEventArguments,
 } from "../plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
 import {
+  LeaderboardPostPluginEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
+import {
   UserScoreChangedPluginEventArguments,
 } from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
@@ -322,7 +325,12 @@ export class Chat {
       user.value.resetLastScoreChange();
       user = userIterator.next();
     }
-    return leaderboard;
+
+    // Allow plugins to change the leaderboard text.
+    const leaderboardRef = [leaderboard];
+    this.pluginHost.triggerEvent(PluginEvent.LeaderboardPost,
+      new LeaderboardPostPluginEventArguments(this, leaderboardRef));
+    return leaderboardRef[0];
   }
 
   /**

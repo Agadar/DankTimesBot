@@ -4,12 +4,12 @@ import * as moment from "moment-timezone";
 import { Chat } from "../chat/chat";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { CoreSettingsNames } from "../chat/settings/core-settings-names";
-import { DankTimeScheduler } from "../dank-time-scheduler/dank-time-scheduler";
 import { DankTime } from "../dank-time/dank-time";
 import { CronJobMock } from "../misc/cronjob-mock";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { TelegramClientMock } from "../telegram-client/telegram-client-mock";
 import { Util } from "../util/util";
+import { DankTimeScheduler } from "./dank-time-scheduler";
 
 const util = new Util();
 const chatSettingsRegistry = new ChatSettingsRegistry(moment);

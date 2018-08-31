@@ -5,8 +5,8 @@ import {
   ChatMessagePluginEventArguments,
 } from "../plugin-events/event-arguments/chat-message-plugin-event-arguments";
 import {
-  LeaderboardResetPluginEventArguments,
-} from "../plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+  LeaderboardPostPluginEventArguments,
+} from "../plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
 import {
   NoArgumentsPluginEventArguments,
 } from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
@@ -102,8 +102,8 @@ export abstract class AbstractPlugin {
                                    eventFn: (eventArgs: ChatMessagePluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.UserScoreChange,
                                    eventFn: (eventArgs: UserScoreChangedPluginEventArguments) => any): void;
-  protected subscribeToPluginEvent(event: PluginEvent.LeaderboardReset,
-                                   eventFn: (eventArgs: LeaderboardResetPluginEventArguments) => any): void;
+  protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
+                                   eventFn: (eventArgs: LeaderboardPostPluginEventArguments) => any): void;
   protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
                                    eventFn: (eventArgs: NoArgumentsPluginEventArguments) => any): void;
 

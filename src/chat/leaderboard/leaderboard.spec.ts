@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import "mocha";
-import { Leaderboard } from "../leaderboard/leaderboard";
 import { User } from "../user/user";
+import { Leaderboard } from "./leaderboard";
 
 describe("Leaderboard.constructor", () => {
 
