@@ -1,5 +1,6 @@
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
+import { AwaitingConfirmationData } from "./awaiting-confirmation-data";
 import { BotCommand } from "./bot-command";
 
 /**
@@ -8,12 +9,31 @@ import { BotCommand } from "./bot-command";
 export class BotCommandRegistry {
 
     private readonly commands = new Map<string, BotCommand>();
+    private readonly awaitingConfirmationList = new Array<AwaitingConfirmationData>();
     private readonly developerUserId = 100805902;
 
     constructor(
         private readonly telegramClient: ITelegramClient,
         private readonly moment: any,
-        private readonly chatRegistry: IChatRegistry) { }
+        private readonly chatRegistry: IChatRegistry) {
+
+        telegramClient.setOnAnyText((msg) => {
+
+            if (!msg.text) { return []; }
+            const split = (msg.text as string).split(" ");
+            if (split.length < 1) { return []; }
+
+            const dataIndex = this.awaitingConfirmationList.findIndex(
+                (entry) => entry.chat.id === msg.chat.id && entry.user.id === msg.from.id);
+            if (dataIndex === -1) { return []; }
+            const data = this.awaitingConfirmationList.splice(dataIndex, 1)[0];
+
+            if (split[0].toUpperCase() === "YES") {
+                return [data.botCommand.action(data.chat, data.user, data.msg, data.match)];
+            }
+            return [];
+        });
+    }
 
     /**
      * Registers a new command, throwing an error if a command with the same name already exists.
@@ -66,6 +86,12 @@ export class BotCommandRegistry {
 
         const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
         const user = chat.getOrCreateUser(msg.from.id, msg.from.username);
+
+        if (botCommand.requiresConfirmation) {
+            const data = new AwaitingConfirmationData(chat, user, msg, match, botCommand);
+            this.awaitingConfirmationList.push(data);
+            return "🤔 Are you sure? Type 'yes' to confirm.";
+        }
         return botCommand.action(chat, user, msg, match);
     }
 

@@ -17,7 +17,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     private readonly commandsRegistry: BotCommandRegistry,
     private readonly scheduler: IDankTimeScheduler,
     private readonly util: IUtil,
-    private readonly releaseLog: Release[]
+    private readonly releaseLog: Release[],
   ) { }
 
   public startChat(chat: Chat, user: User, msg: any, match: any): string {
@@ -39,8 +39,10 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   public resetChat(chat: Chat, user: User, msg: any, match: any): string {
-    chat.awaitingResetConfirmation = msg.from.id;
-    return "🤔 Are you sure? Type 'yes' to confirm.";
+    const finalLeaderboard = chat.generateLeaderboard(true);
+    const outputText = "Leaderboard has been reset!\n\n" + finalLeaderboard;
+    chat.resetScores();
+    return outputText;
   }
 
   public settings(chat: Chat, user: User, msg: any, match: any): string {

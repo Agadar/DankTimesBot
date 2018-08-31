@@ -5,9 +5,6 @@ import {
   ChatMessagePluginEventArguments,
 } from "../plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
 import {
-  LeaderboardResetPluginEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import {
   UserScoreChangedPluginEventArguments,
 } from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
@@ -20,8 +17,6 @@ import { CoreSettingsNames } from "./settings/core-settings-names";
 import { User } from "./user/user";
 
 export class Chat {
-
-  public awaitingResetConfirmation = -1;
 
   private myId: number;
   private myLastHour: number;
@@ -258,19 +253,15 @@ export class Chat {
 
     let output: string[] = [];
     const messageTimeout: boolean = this.moment.tz("UTC").unix() - msg.date >= 60;
-    const awaitingReset: boolean = (this.awaitingResetConfirmation === msg.from.id);
 
     // Ignore the message if it was sent more than 1 minute ago.
     if (messageTimeout) {
       return output;
     }
-    const user = this.getOrCreateUser(msg.from.id, msg.from.username);
 
-    // Check if leaderboard should be reset instead.
-    if (awaitingReset) {
-      output = output.concat(this.handleAwaitingReset(msg.from.id, msg.text, msg.date));
-    } else if (this.running) {
-      output = output.concat(this.handleDankTimeInputMessage(user, msg.text, msg.date, this.moment.tz(this.timezone)));
+    const user = this.getOrCreateUser(msg.from.id, msg.from.username);
+    if (this.running) {
+      output = this.handleDankTimeInputMessage(user, msg.text, msg.date, this.moment.tz(this.timezone));
     }
     msg.text = this.util.cleanText(msg.text);
 
@@ -458,21 +449,6 @@ export class Chat {
       }
     }
     return false;
-  }
-
-  private handleAwaitingReset(userId: number, msgText: string, msgUnixTime: number): string[] {
-    let output: string[] = [];
-
-    if (this.awaitingResetConfirmation === userId) {
-      this.awaitingResetConfirmation = -1;
-      if (msgText.toUpperCase() === "YES") {
-        output.push("Leaderboard has been reset!\n\n" + this.generateLeaderboard(true));
-        this.users.forEach((user) => user.resetScore());
-        output = output.concat(this.pluginHost.triggerEvent(PluginEvent.LeaderboardReset,
-          new LeaderboardResetPluginEventArguments(this)));
-      }
-    }
-    return output;
   }
 
   private handleDankTimeInputMessage(user: User, msgText: string, msgUnixTime: number, now: Moment): string[] {
