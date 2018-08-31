@@ -4,6 +4,19 @@ import { User } from "../chat/user/user";
 export class BotCommand {
 
   /**
+   * Compares two bot commands using their names. Used for sorting collections.
+   */
+  public static compare(a: BotCommand, b: BotCommand) {
+    if (a.name < b.name) {
+      return -1;
+    }
+    if (a.name > b.name) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
    * Defines a new command for the Telegram bot.
    * @param name The name of the command, e.g. 'start'.
    * @param description Brief description of the command.
@@ -12,12 +25,13 @@ export class BotCommand {
    * @param adminOnly Whether only admins can execute this command.
    * @param requiresConfirmation Whether this command requires explicit confirmation.
    */
-  constructor(public readonly name: string,
-              public readonly description: string,
-              public readonly action: ((chat: Chat, user: User, msg: any, match: string[]) => string),
-              public readonly showInHelp = true,
-              public readonly adminOnly = false,
-              public readonly requiresConfirmation = false) { }
+  constructor(
+    public readonly name: string,
+    public readonly description: string,
+    public readonly action: ((chat: Chat, user: User, msg: any, match: string[]) => string),
+    public readonly showInHelp = true,
+    public readonly adminOnly = false,
+    public readonly requiresConfirmation = false) { }
 
   /**
    * Gets this command's regex, which is based on its name and the supplied bot name.
