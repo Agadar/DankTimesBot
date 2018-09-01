@@ -1,87 +1,63 @@
-import { Moment } from "moment";
+import { Moment } from "moment-timezone";
+import { BasicDankTime } from "../dank-time/basic-dank-time";
 import { DankTime } from "../dank-time/dank-time";
-import { ChatServices } from "../plugin-host/plugin-chat-services/chat-services";
-import { LeaderboardResetPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import { PrePostMessagePluginEventArguments } from "../plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { UserScoreChangedPluginEventArguments } from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import {
+  ChatMessagePluginEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
+import {
+  LeaderboardPostPluginEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
+import {
+  UserScoreChangedPluginEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { IUtil } from "../util/i-util";
 import { BasicChat } from "./basic-chat";
 import { Leaderboard } from "./leaderboard/leaderboard";
+import { ChatSetting } from "./settings/chat-setting";
+import { CoreSettingsNames } from "./settings/core-settings-names";
 import { User } from "./user/user";
-
-const handicapMultiplier = 1.5;
-const bottomPartThatHasHandicap = 0.25;
-
-const punishByFraction = 0.1;
-const punishByPoints = 10;
 
 export class Chat {
 
-  public awaitingResetConfirmation = -1;
-  // public pluginhost: () => PluginHost;
-
   private myId: number;
-  private myTimezone: string;
   private myLastHour: number;
   private myLastMinute: number;
-  private myNumberOfRandomTimes: number;
-  private myPointsPerRandomTime: number;
-  private myMultiplier: number;
   private myLastLeaderboard?: Leaderboard = undefined;
   private pluginHost: PluginHost;
 
   /**
    * Creates a new Chat object.
    * @param moment Reference to timezone import.
+   * @param util Utility functions.
    * @param id The chat's unique Telegram id.
-   * @param timezone The timezone the users are in.
+   * @param pluginhost This chat's plugin host.
+   * @param settings This chat's settings.
    * @param running Whether this bot is running for this chat.
-   * @param numberOfRandomTimes The number of randomly generated dank times to generate each day.
-   * @param pointsPerRandomTime The number of points each randomly generated dank time is worth.
    * @param lastHour The hour of the last valid dank time being proclaimed.
    * @param lastMinute The minute of the last valid dank time being proclaimed.
    * @param users A map with the users, indexed by user id's.
    * @param dankTimes The dank times known in this chat.
    * @param randomDankTimes The daily randomly generated dank times in this chat.
-   * @param notifications Whether this chat automatically sends notifications for dank times.
-   * @param multiplier The multiplier applied to the score of the first user to score.
-   * @param autoLeaderboards Whether this chat automatically posts leaderboards after dank times occured.
-   * @param firstNotifications Whether this chat announces the first user to score.
-   * @param hardcoreMode Whether this chat punishes users that haven't scored in the last 24 hours.
    */
   constructor(
     private readonly moment: any,
     private readonly util: IUtil,
     id: number,
     pluginhost: PluginHost,
-    timezone = "Europe/Amsterdam",
+    private readonly settings: Map<string, ChatSetting<any>>,
     public running = false,
-    numberOfRandomTimes = 1,
-    pointsPerRandomTime = 10,
     lastHour = 0,
     lastMinute = 0,
-    private readonly users = new Map<number, User>(),
+    public readonly users = new Map<number, User>(),
     public readonly dankTimes = new Array<DankTime>(),
-    public randomDankTimes = new Array<DankTime>(),
-    public notifications = true,
-    multiplier = 2,
-    public autoLeaderboards = true,
-    public firstNotifications = true,
-    public hardcoreMode = false,
-    public handicaps = true) {
+    public randomDankTimes = new Array<DankTime>()) {
 
     this.id = id;
-    this.timezone = timezone;
     this.lastHour = lastHour;
     this.lastMinute = lastMinute;
-    this.numberOfRandomTimes = numberOfRandomTimes;
-    this.pointsPerRandomTime = pointsPerRandomTime;
-    this.multiplier = multiplier;
     this.pluginHost = pluginhost;
-    this.pluginHost.services = new ChatServices(this);
-    this.pluginHost.trigger(PluginEvent.PostInit, "");
   }
 
   public set id(id: number) {
@@ -95,17 +71,8 @@ export class Chat {
     return this.myId;
   }
 
-  public set timezone(timezone: string) {
-    const momentTimezone = this.moment.tz.zone(timezone);
-
-    if (momentTimezone === null) {
-      throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
-    }
-    this.myTimezone = momentTimezone.name;
-  }
-
   public get timezone(): string {
-    return this.myTimezone;
+    return this.getSetting<string>(CoreSettingsNames.timezone);
   }
 
   public set lastHour(lastHour: number) {
@@ -130,42 +97,57 @@ export class Chat {
     return this.myLastMinute;
   }
 
-  public set numberOfRandomTimes(numberOfRandomTimes: number) {
-    if (numberOfRandomTimes < 0 || numberOfRandomTimes > 24 || numberOfRandomTimes % 1 !== 0) {
-      throw new RangeError("The number of times must be a whole number between 0 and 24!");
-    }
-    this.myNumberOfRandomTimes = numberOfRandomTimes;
-    this.randomDankTimes.splice(numberOfRandomTimes);
+  public get randomtimesFrequency(): number {
+    return this.getSetting<number>(CoreSettingsNames.randomtimesFrequency);
   }
 
-  public get numberOfRandomTimes(): number {
-    return this.myNumberOfRandomTimes;
+  public get firstMultiplier(): number {
+    return this.getSetting<number>(CoreSettingsNames.firstMultiplier);
   }
 
-  public set multiplier(multiplier: number) {
-    if (multiplier < 1 || multiplier > 10) {
-      throw new RangeError("The multiplier must be a number between 1 and 10!");
-    }
-    this.myMultiplier = multiplier;
-  }
-
-  public get multiplier(): number {
-    return this.myMultiplier;
-  }
-
-  public set pointsPerRandomTime(pointsPerRandomTime: number) {
-    if (pointsPerRandomTime < 1 || pointsPerRandomTime > 100 || pointsPerRandomTime % 1 !== 0) {
-      throw new RangeError("The points must be a whole number between 1 and 100!");
-    }
-    this.myPointsPerRandomTime = pointsPerRandomTime;
-  }
-
-  public get pointsPerRandomTime(): number {
-    return this.myPointsPerRandomTime;
+  /**
+   * Gets the current random dank time points. This is a method instead of a getter, so that
+   * random danktimes are automatically referring to the correct number of points when
+   * this setting is changed.
+   */
+  public getRandomtimesPoints(): number {
+    return this.getSetting<number>(CoreSettingsNames.randomtimesPoints);
   }
 
   public get pluginhost(): PluginHost {
     return this.pluginHost;
+  }
+
+  /**
+   * Sets the setting with the supplied name. Throws an exception if the
+   * setting does not exist or the supplied value is incorrect.
+   * @param name The name of the setting to set.
+   * @param value The value of the setting to set.
+   */
+  public setSetting(name: string, value: string) {
+    if (!this.settings.has(name)) {
+      throw new RangeError(`Setting '${name}' does not exist!`);
+    }
+    const setting = this.settings.get(name) as ChatSetting<any>;
+    setting.setValueFromString(value);
+
+    // Altering some settings has side-effects:
+    if (name === CoreSettingsNames.randomtimesFrequency) {
+      this.randomDankTimes.splice(this.randomtimesFrequency);
+    }
+  }
+
+  /**
+   * Gets the value of the setting with the supplied name. Throws an exception if the
+   * setting does not exist.
+   * @param name The name of the setting to get.
+   */
+  public getSetting<T>(name: string): T {
+    if (!this.settings.has(name)) {
+      throw new RangeError(`Setting '${name}' does not exist!`);
+    }
+    const setting = this.settings.get(name) as ChatSetting<any>;
+    return setting.value;
   }
 
   /**
@@ -182,10 +164,19 @@ export class Chat {
   }
 
   /**
-   * Adds a user to this chat.
+   * Gets the user with the supplied user id, otherwise creates and returns a new one.
    */
-  public addUser(user: User): void {
-    this.users.set(user.id, user);
+  public getOrCreateUser(userId: number, userName = "anonymous"): User {
+
+    if (!this.users.has(userId)) {
+      this.users.set(userId, new User(userId, userName));
+    }
+    const user = this.users.get(userId) as User;
+
+    if (user.name !== userName) {
+      user.name = userName;
+    }
+    return user;
   }
 
   public removeUser(userId: number): User | null {
@@ -210,7 +201,7 @@ export class Chat {
   public generateRandomDankTimes(): DankTime[] {
     this.randomDankTimes = new Array<DankTime>();
 
-    for (let i = 0; i < this.myNumberOfRandomTimes; i++) {
+    for (let i = 0; i < this.randomtimesFrequency; i++) {
       const now = this.moment().tz(this.timezone);
 
       now.add(Math.floor(Math.random() * 23), "hours");
@@ -218,7 +209,8 @@ export class Chat {
 
       if (!this.hourAndMinuteAlreadyRegistered(now.hours(), now.minutes())) {
         const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
-        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text], this.myPointsPerRandomTime));
+        this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text],
+          this.getRandomtimesPoints.bind(this)));
       }
     }
     return this.randomDankTimes;
@@ -228,21 +220,30 @@ export class Chat {
    * Used by JSON.stringify. Returns a literal representation of this.
    */
   public toJSON(): BasicChat {
+
+    const basicSettings = Array.from(this.settings.values()).map((setting) => {
+      return {
+        name: setting.name,
+        value: setting.value,
+      };
+    });
+
+    const basicDankTimes = this.dankTimes.map((dankTime) => {
+      return {
+        hour: dankTime.hour,
+        minute: dankTime.minute,
+        points: dankTime.getPoints(),
+        texts: dankTime.texts,
+      } as BasicDankTime;
+    });
+
     return {
-      autoLeaderboards: this.autoLeaderboards,
-      dankTimes: this.dankTimes,
-      firstNotifications: this.firstNotifications,
-      handicaps: this.handicaps,
-      hardcoreMode: this.hardcoreMode,
+      dankTimes: basicDankTimes,
       id: this.myId,
       lastHour: this.myLastHour,
       lastMinute: this.myLastMinute,
-      multiplier: this.myMultiplier,
-      notifications: this.notifications,
-      numberOfRandomTimes: this.myNumberOfRandomTimes,
-      pointsPerRandomTime: this.myPointsPerRandomTime,
       running: this.running,
-      timezone: this.myTimezone,
+      settings: basicSettings,
       users: this.sortedUsers(),
     };
   }
@@ -251,104 +252,25 @@ export class Chat {
    * Processes a message, awarding or punishing points etc. where applicable.
    * @returns A reply, or nothing if no reply is suitable/needed.
    */
-  public processMessage(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
+  public processMessage(msg: any): string[] {
+
     let output: string[] = [];
-    const now: Moment = this.moment.tz(this.timezone);
-    const messageTimeout: boolean = now.unix() - msgUnixTime >= 60;
-    const awaitingReset: boolean = (this.awaitingResetConfirmation === userId);
+    const messageTimeout: boolean = this.moment.tz("UTC").unix() - msg.date >= 60;
 
     // Ignore the message if it was sent more than 1 minute ago.
-    if (now.unix() - msgUnixTime >= 60) {
-      return output;
-    }
-    // Pre-message event
-    output = output.concat(this.pluginHost.trigger(PluginEvent.PreMesssage, new PrePostMessagePluginEventArguments(msgText)));
-
-    // Check if leaderboard should be instead.
-    if (awaitingReset) {
-      output = output.concat(this.handleAwaitingReset(userId, userName, msgText, msgUnixTime));
-    } else if (this.running) {
-      output = output.concat(this.handleDankTimeInputMessage(userId, userName, msgText, msgUnixTime, now));
-    }
-    msgText = this.util.cleanText(msgText);
-
-    // Post-message event
-    output = output.concat(this.pluginHost.trigger(PluginEvent.PostMessage, new PrePostMessagePluginEventArguments(msgText)));
-    return output;
-  }
-
-  private handleAwaitingReset(userId: number, userName: string, msgText: string, msgUnixTime: number): string[] {
-    let output: string[] = [];
-
-    if (this.awaitingResetConfirmation === userId) {
-      this.awaitingResetConfirmation = -1;
-      if (msgText.toUpperCase() === "YES") {
-        output.push("Leaderboard has been reset!\n\n" + this.generateLeaderboard(true));
-        this.users.forEach((user) => user.resetScore());
-        output = output.concat(this.pluginHost.trigger(PluginEvent.LeaderboardReset, new LeaderboardResetPluginEventArguments(this)));
-      }
-    }
-    return output;
-  }
-
-  private handleDankTimeInputMessage(userId: number, userName: string, msgText: string, msgUnixTime: number, now: Moment): string[] {
-    let output: string[] = [];
-    // Gather dank times from the sent text, returning if none was found.
-    const dankTimesByText = this.getDankTimesByText(msgText);
-    if (dankTimesByText.length < 1) {
+    if (messageTimeout) {
       return output;
     }
 
-    // Get the player, creating him if he doesn't exist yet.
-    if (!this.users.has(userId)) {
-      this.users.set(userId, new User(userId, userName));
+    const user = this.getOrCreateUser(msg.from.id, msg.from.username);
+    if (this.running) {
+      output = this.handleDankTimeInputMessage(user, msg.text, msg.date, this.moment.tz(this.timezone));
     }
-    const user = this.users.get(userId) as User;
+    msg.text = this.util.cleanText(msg.text);
 
-    // Update user name if needed.
-    if (user.name !== userName) {
-      user.name = userName;
-    }
-    let subtractBy = 0;
-
-    for (const dankTime of dankTimesByText) {
-      if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
-
-        // If cache needs resetting, do so and award DOUBLE points to the calling user.
-        if (this.lastHour !== dankTime.hour || this.myLastMinute !== dankTime.minute) {
-          this.users.forEach((user0) => user0.called = false);
-          this.lastHour = dankTime.hour;
-          this.lastMinute = dankTime.minute;
-          let score = dankTime.points * this.myMultiplier;
-
-          if (this.userDeservesHandicapBonus(user.id)) {
-            score *= handicapMultiplier;
-          }
-          user.addToScore(Math.round(score), now.unix());
-          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, Math.round(score))));
-          user.called = true;
-
-          if (this.firstNotifications) {
-            output.push("👏 " + user.name + " was the first to score!");
-          }
-        } else if (user.called) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.points, now.unix());
-          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, -dankTime.points)));
-        } else {  // Else, award point.
-          const score = Math.round(this.userDeservesHandicapBonus(user.id)
-            ? dankTime.points * handicapMultiplier : dankTime.points);
-          user.addToScore(score, now.unix());
-          output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, score)));
-          user.called = true;
-        }
-        return output;
-      } else if (dankTime.points > subtractBy) {
-        subtractBy = dankTime.points;
-      }
-    }
-    // If no match was found, punish the user.
-    user.addToScore(-subtractBy, now.unix());
-    output = output.concat(this.pluginHost.trigger(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(user, -subtractBy)));
+    // Chat message event
+    output = output.concat(this.pluginHost.triggerEvent(PluginEvent.ChatMessage,
+      new ChatMessagePluginEventArguments(this, user, msg, output)));
     return output;
   }
 
@@ -403,7 +325,12 @@ export class Chat {
       user.value.resetLastScoreChange();
       user = userIterator.next();
     }
-    return leaderboard;
+
+    // Allow plugins to change the leaderboard text.
+    const leaderboardRef = [leaderboard];
+    this.pluginHost.triggerEvent(PluginEvent.LeaderboardPost,
+      new LeaderboardPostPluginEventArguments(this, leaderboardRef));
+    return leaderboardRef[0];
   }
 
   /**
@@ -420,24 +347,72 @@ export class Chat {
   }
 
   public hardcoreModeCheck(timestamp: number) {
-    if (this.hardcoreMode) {
+    if (this.hardcoremodeEnabled) {
       const day = 24 * 60 * 60;
       this.users.forEach((user) => {
         if (timestamp - user.lastScoreTimestamp >= day) {
-          let punishBy = Math.round(user.score * punishByFraction);
-          punishBy = Math.max(punishBy, punishByPoints);
+          let punishBy = Math.round(user.score * this.hardcoremodePunishFraction);
+          punishBy = Math.max(punishBy, 10);
           user.addToScore(-punishBy, timestamp);
         }
       });
     }
   }
 
-  public removeUsersWithZeroScore(): void {
-    this.users.forEach((user, id) => {
-      if (user.score === 0) {
-        this.users.delete(id);
-      }
+  /**
+   * Returns a formatted string representation of this chat's settings values.
+   */
+  public getFormattedSettingsValues(): string {
+    const sortedSettings = [...this.settings.entries()].sort();
+    let formatted = "<b>🛠️ SETTINGS VALUES</b>\n";
+    sortedSettings.forEach((setting) => {
+      formatted += `\n<b>${setting[0]}</b> - ${setting[1].value}`;
     });
+    return formatted;
+  }
+
+  /**
+   * Returns a formatted string representation of this chat's settings descriptions.
+   */
+  public getFormattedSettingsDescriptions(): string {
+    const sortedSettings = [...this.settings.entries()].sort();
+    let formatted = "<b>🛠️ SETTINGS DESCRIPTIONS</b>\n";
+    sortedSettings.forEach((setting) => {
+      formatted += `\n<b>${setting[0]}</b> - ${setting[1].description}`;
+    });
+    return formatted;
+  }
+
+  public get normaltimesNotifications(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.normaltimesNotifications);
+  }
+
+  public get autoleaderboards(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.autoleaderboards);
+  }
+
+  private get hardcoremodeEnabled(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.hardcoremodeEnabled);
+  }
+
+  private get hardcoremodePunishFraction(): number {
+    return this.getSetting<number>(CoreSettingsNames.hardcoremodePunishFraction);
+  }
+
+  private get firstNotifications(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.firstNotifications);
+  }
+
+  private get handicapsEnabled(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.handicapsEnabled);
+  }
+
+  private get handicapsMultiplier(): number {
+    return this.getSetting<number>(CoreSettingsNames.handicapsMultiplier);
+  }
+
+  private get handicapsBottomFraction(): number {
+    return this.getSetting<number>(CoreSettingsNames.handicapsBottomFraction);
   }
 
   /**
@@ -468,11 +443,11 @@ export class Chat {
   }
 
   private userDeservesHandicapBonus(userId: number) {
-    if (!this.handicaps || this.users.size < 2) {
+    if (!this.handicapsEnabled || this.users.size < 2) {
       return false;
     }
     const sortedUsers = this.sortedUsers();
-    let noOfHandicapped = sortedUsers.length * bottomPartThatHasHandicap;
+    let noOfHandicapped = sortedUsers.length * this.handicapsBottomFraction;
     noOfHandicapped = Math.round(noOfHandicapped);
     const handicapped = sortedUsers.slice(-noOfHandicapped);
 
@@ -482,5 +457,61 @@ export class Chat {
       }
     }
     return false;
+  }
+
+  private handleDankTimeInputMessage(user: User, msgText: string, msgUnixTime: number, now: Moment): string[] {
+    let output: string[] = [];
+
+    // Gather dank times from the sent text, returning if none was found.
+    const dankTimesByText = this.getDankTimesByText(msgText);
+    if (dankTimesByText.length < 1) {
+      return output;
+    }
+
+    let subtractBy = 0;
+
+    for (const dankTime of dankTimesByText) {
+      if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
+
+        // If cache needs resetting, do so and award DOUBLE points to the calling user.
+        if (this.lastHour !== dankTime.hour || this.myLastMinute !== dankTime.minute) {
+          this.users.forEach((user0) => user0.called = false);
+          this.lastHour = dankTime.hour;
+          this.lastMinute = dankTime.minute;
+          let score = dankTime.getPoints() * this.firstMultiplier;
+
+          if (this.userDeservesHandicapBonus(user.id)) {
+            score *= this.handicapsMultiplier;
+          }
+          user.addToScore(Math.round(score), now.unix());
+          output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
+            new UserScoreChangedPluginEventArguments(this, user, Math.round(score))));
+          user.called = true;
+
+          if (this.firstNotifications) {
+            output.push("👏 " + user.name + " was the first to score!");
+          }
+        } else if (user.called) { // Else if user already called this time, remove points.
+          user.addToScore(-dankTime.getPoints(), now.unix());
+          output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
+            new UserScoreChangedPluginEventArguments(this, user, -dankTime.getPoints())));
+        } else {  // Else, award point.
+          const score = Math.round(this.userDeservesHandicapBonus(user.id)
+            ? dankTime.getPoints() * this.handicapsMultiplier : dankTime.getPoints());
+          user.addToScore(score, now.unix());
+          output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
+            new UserScoreChangedPluginEventArguments(this, user, score)));
+          user.called = true;
+        }
+        return output;
+      } else if (dankTime.getPoints() > subtractBy) {
+        subtractBy = dankTime.getPoints();
+      }
+    }
+    // If no match was found, punish the user.
+    user.addToScore(-subtractBy, now.unix());
+    output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
+      new UserScoreChangedPluginEventArguments(this, user, -subtractBy)));
+    return output;
   }
 }

@@ -2,22 +2,21 @@ import { assert } from "chai";
 import "mocha";
 import * as moment from "moment-timezone";
 
-import { ChatRegistryMock } from "../../chat-registry/chat-registry-mock";
 import { Chat } from "../../chat/chat";
+import { ChatSetting } from "../../chat/settings/chat-setting";
+import { User } from "../../chat/user/user";
 import { DankTimeSchedulerMock } from "../../dank-time-scheduler/dank-time-scheduler-mock";
 import { PluginHost } from "../../plugin-host/plugin-host";
-import { TelegramClientMock } from "../../telegram-client/telegram-client-mock";
 import { Util } from "../../util/util";
-import { BotCommand } from "../bot-command";
+import { BotCommandRegistry } from "../bot-command-registry";
 import { DankTimesBotCommands } from "./danktimesbot-commands";
 
 describe("DankTimesBotCommands.addTime", () => {
 
   let dankTimesBotCommands: DankTimesBotCommands;
-  let chatRegistry: ChatRegistryMock;
   const scheduler = new DankTimeSchedulerMock();
   const util = new Util();
-  const clientMock = new TelegramClientMock();
+  const commandRegistryMock = {} as BotCommandRegistry;
   let chat: Chat;
   const msg = {
     chat: {
@@ -29,13 +28,10 @@ describe("DankTimesBotCommands.addTime", () => {
   };
 
   beforeEach("Instantiate test variables", () => {
-    chatRegistry = new ChatRegistryMock();
-    dankTimesBotCommands = new DankTimesBotCommands(clientMock, chatRegistry, scheduler, util, [], "x.y.z");
-    chat = new Chat(moment, util, 0, new PluginHost([]));
+    dankTimesBotCommands = new DankTimesBotCommands(commandRegistryMock, scheduler, util, []);
+    chat = new Chat(moment, util, 0, new PluginHost([]), new Map<string, ChatSetting<any>>());
     match.input = "/addtime 22 33 5";
-
     chat.dankTimes.splice(0);
-    chatRegistry.chats.set(chat.id, chat);
   });
 
   it("Should create a dank time with as text a single word", () => {
@@ -44,7 +40,7 @@ describe("DankTimesBotCommands.addTime", () => {
     match.input += " one";
 
     // Act
-    const res = dankTimesBotCommands.addTime(msg, match);
+    const res = dankTimesBotCommands.addTime(chat, {} as User, msg, match);
 
     // Assert
     assert.equal(chat.dankTimes.length, 1);
@@ -61,7 +57,7 @@ describe("DankTimesBotCommands.addTime", () => {
     match.input += " abc def ghi";
 
     // Act
-    const res = dankTimesBotCommands.addTime(msg, match);
+    const res = dankTimesBotCommands.addTime(chat, {} as User, msg, match);
 
     // Assert
     assert.equal(chat.dankTimes.length, 1);
@@ -78,7 +74,7 @@ describe("DankTimesBotCommands.addTime", () => {
     match.input += " one, two , three";
 
     // Act
-    const res = dankTimesBotCommands.addTime(msg, match);
+    const res = dankTimesBotCommands.addTime(chat, {} as User, msg, match);
 
     // Assert
     assert.equal(chat.dankTimes.length, 1);
@@ -95,7 +91,7 @@ describe("DankTimesBotCommands.addTime", () => {
     match.input += " abc def, ghi jkl , mno pqr";
 
     // Act
-    const res = dankTimesBotCommands.addTime(msg, match);
+    const res = dankTimesBotCommands.addTime(chat, {} as User, msg, match);
 
     // Assert
     assert.equal(chat.dankTimes.length, 1);
@@ -112,7 +108,7 @@ describe("DankTimesBotCommands.addTime", () => {
     match.input += " abc def, one , two";
 
     // Act
-    const res = dankTimesBotCommands.addTime(msg, match);
+    const res = dankTimesBotCommands.addTime(chat, {} as User, msg, match);
 
     // Assert
     assert.equal(chat.dankTimes.length, 1);
@@ -129,7 +125,7 @@ describe("DankTimesBotCommands.addTime", () => {
     match.input += "   ";
 
     // Act
-    const res = dankTimesBotCommands.addTime(msg, match);
+    const res = dankTimesBotCommands.addTime(chat, {} as User, msg, match);
 
     // Assert
     assert.equal(chat.dankTimes.length, 0);

@@ -1,17 +1,21 @@
+import { BotCommand } from "../../src/bot-commands/bot-command";
+import { Chat } from "../../src/chat/chat";
+import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
+import { User } from "../../src/chat/user/user";
+import {
+  ChatMessagePluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
+import {
+  LeaderboardPostPluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
+import {
+  NoArgumentsPluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+import {
+  UserScoreChangedPluginEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
-import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types"
-import { UserScoreChangedPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
-import { PrePostMessagePluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { LeaderboardResetPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
-import { NoArgumentsPluginEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import { ChatMessage } from "../../src/chat/chat-message/chat-message";
-
-/**
- * Example of auxiliary data classes.
- */
-class ExamplePluginData {
-  public TestNumber: number = 0;
-}
 
 /**
  * Example of the simplest DankTimesBot
@@ -25,40 +29,53 @@ export class Plugin extends AbstractPlugin {
    * and some optional data.
    */
   constructor() {
-    super("Example Plugin", "1.0.0", {});
+    super("Example Plugin", "1.0.0");
 
-    // Example of sample dat
-    this.data = new ExamplePluginData();
-    this.data.TestNumber = 1;
-
-    this.subscribeToPluginEvent(PluginEvent.PreMesssage, (data: PrePostMessagePluginEventArguments) => {
-      return [`Example of a Pre Message Event`];
+    this.subscribeToPluginEvent(PluginEvent.BotStartup, (data: NoArgumentsPluginEventArguments) => {
+      console.log("Example of a bot startup event.");
     });
+
     this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) => {
-      return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`,
-        `Example of current leaderboard:`,
-      `${JSON.stringify(this.services.Leaderboard().entries)} Okay.`];
-    });
-    this.subscribeToPluginEvent(PluginEvent.PostMessage, (data: PrePostMessagePluginEventArguments) => {
-      return [`Example of a Post Message Event`];
-    });
-    this.subscribeToPluginEvent(PluginEvent.LeaderboardReset, (data: LeaderboardResetPluginEventArguments) => {
-      return [`The leaderboard was reset for chat: ${data.chat.id}`];
-    });
-    this.subscribeToPluginEvent(PluginEvent.DankShutdown, (data: NoArgumentsPluginEventArguments) => {
-      console.log("Shutting down plugin! " + this.name);
+      return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`];
     });
 
-    this.registerCommand("test", (msg: ChatMessage) => {
-      return [`success: ${msg.text}`];
+    this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessagePluginEventArguments) => {
+      return [`Example of a chat message event`];
     });
 
-    this.registerCommand("test-reply", (msg: ChatMessage) => {
-      return [`Succes: ${msg.reply_text}`];
+    this.subscribeToPluginEvent(PluginEvent.LeaderboardPost, (data: LeaderboardPostPluginEventArguments) => {
+      data.leaderboardText[0] = data.leaderboardText[0] + "\n\n Example of a leaderboard post event.";
     });
 
-    this.registerCommand("test-services", (params: ChatMessage) => {
-      return this.services.users().map((v, i) => `{${i}: ${v}`);
+    this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: NoArgumentsPluginEventArguments) => {
+      console.log("Example of a bot shutdown event.");
     });
   }
-} 
+
+  /**
+   * @override
+   */
+  public getPluginSpecificChatSettings(): Array<ChatSettingTemplate<any>> {
+    return [new ChatSettingTemplate("example.pluginsetting", "example of a custom plugin setting", "some string value",
+      (original) => original, (value) => null)];
+  }
+
+  /**
+   * @override
+   */
+  public getPluginSpecificCommands(): BotCommand[] {
+    const echoCommand = new BotCommand("echo", "echoes what a user sent", this.echo.bind(this));
+    return [echoCommand];
+  }
+
+  private echo(chat: Chat, user: User, msg: any, match: string[]): string {
+    setTimeout(() => {
+      this.sendMessage(chat.id, "Example of sendMessage", msg.id, true).then((res) => {
+        setTimeout(() => {
+          this.deleteMessage(chat.id, res.message_id);
+        }, 3000);
+      });
+    }, 3000);
+    return `${user.name} said: '${match[0].split(" ")[1]}'`;
+  }
+}

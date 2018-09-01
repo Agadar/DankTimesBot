@@ -11,8 +11,6 @@ export class FileIO implements IFileIO {
   private readonly dataFolder = "./data";
   private readonly backupFile = this.dataFolder + "/backup.json";
   private readonly configFile = this.dataFolder + "/config.json";
-  // settings.json is deprecated, using config.json instead. Here for backwards compatibility.
-  private readonly settingsFile = this.dataFolder + "/settings.json";
   private readonly releasesFile = "./releases.json";
   private readonly apiKeyEnvKey = "DANK_TIMES_BOT_API_KEY";
   private readonly jsonIndentation = 2;
@@ -40,19 +38,13 @@ export class FileIO implements IFileIO {
     const config: Config = {
       apiKey: "",
       persistenceRate: 60,
-      sendWhatsNewMsg: true,
       plugins: [],
+      sendWhatsNewMsg: true,
     };
 
     // If there is a config file, load its valid values into config obj.
-    let configOrSettingsFile = this.configFile;
-    let exists = this.fs.existsSync(configOrSettingsFile);
-    if (!exists) {
-      configOrSettingsFile = this.settingsFile;
-      exists = this.fs.existsSync(configOrSettingsFile);
-    }
-    if (exists) {
-      const configFromFile: Config = JSON.parse(this.fs.readFileSync(configOrSettingsFile, "utf8"));
+    if (this.fs.existsSync(this.configFile)) {
+      const configFromFile: Config = JSON.parse(this.fs.readFileSync(this.configFile, "utf8"));
       if (configFromFile.apiKey !== undefined) {
         config.apiKey = configFromFile.apiKey;
       }
@@ -131,36 +123,44 @@ export class FileIO implements IFileIO {
     return releases;
   }
 
-/**
- * Discover, Compile and load external plugins
- * from the plugins/ directory.
- *
- * Returns 0..n plugins.
- */
-   public GetAvailablePlugins(_pluginsToActivate: string[]): AbstractPlugin[] {
-  // Directory in which to find plugins.
-  const DIRECTORY: string = "plugins/";
+  /**
+   * Discover, Compile and load external plugins
+   * from the plugins/ directory.
+   *
+   * Returns 0..n plugins.
+   */
+  public GetAvailablePlugins(pluginsToActivate: string[]): AbstractPlugin[] {
+    // Directory in which to find plugins.
+    const DIRECTORY: string = "plugins/";
 
-  // Plugin directories
-  const directories: string[] = (this.fs.readdirSync(DIRECTORY).filter((f: any) => this.fs.statSync(DIRECTORY + "/" + f).isDirectory()));
+    // Plugin directories
+    const directories: string[] = (this.fs.readdirSync(DIRECTORY)
+      .filter((f: any) => this.fs.statSync(DIRECTORY + "/" + f).isDirectory()));
 
-  // Get active plugins
-  const activePlugins: string[] = directories.filter((pluginDir) => this.fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`) && _pluginsToActivate.indexOf(pluginDir) > -1);
-  // Compile
-  // Get all directories with plugin.ts
-  // Rewrite Directory -> Directory/plugin.ts & Compile
-  (ts.createProgram(activePlugins
-    .map((pluginDir) => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
+    // Get active plugins
+    const activePlugins: string[] = directories
+      .filter((pluginDir) => this.fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`)
+        && pluginsToActivate.indexOf(pluginDir) > -1);
 
-  // Load & Return plugins.
-  return activePlugins
-  .map((plugin) => ([plugin, ((() => {try {return new(require(`../../../plugins/${plugin}/plugin.js`)).Plugin(); } catch {return null; }}))()]))
-  .filter((unfiltered) => unfiltered[1])
-  .map((pluginMap) =>  {
-    pluginMap[1].pID = () => pluginMap[0];
-    return pluginMap[1];
-  }); /* So Sorry */
-}
+    // Compile
+    // Get all directories with plugin.ts
+    // Rewrite Directory -> Directory/plugin.ts & Compile
+    (ts.createProgram(activePlugins
+      .map((pluginDir) => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
+
+    // Load & Return plugins.
+    return activePlugins
+      .map((plugin) => ([plugin, ((() => {
+        try {
+          return new (require(`../../../plugins/${plugin}/plugin.js`)).Plugin();
+        } catch { return null; }
+      }))()]))
+      .filter((unfiltered) => unfiltered[1])
+      .map((pluginMap) => {
+        pluginMap[1].pID = () => pluginMap[0];
+        return pluginMap[1];
+      }); /* So Sorry */
+  }
 
   /**
    * Used by JSON.stringify(...) for parsing maps to arrays, because

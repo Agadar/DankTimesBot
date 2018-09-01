@@ -1,26 +1,15 @@
-import { BotCommand } from "../bot-commands/bot-command";
 import { ITelegramClient } from "./i-telegram-client";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
-/**
- * The Telegram Client that communicates with the API via the 'node-telegram-bot-api' library.
- */
 export class TelegramClient implements ITelegramClient {
-
-  public readonly commands = new Map<string, BotCommand>();
 
   private cachedBotUsername = "";
   private botUsernamePromise: Promise<string> | null = null;
 
-  private readonly developerUserId = 100805902;
   private readonly listeners: ITelegramClientListener[] = [];
 
-  constructor(
-    private readonly bot: any) { }
+  constructor(private readonly bot: any) { }
 
-  /**
-   * Sets the action to do on ANY incoming text.
-   */
   public setOnAnyText(action: ((msg: any, match: string[]) => string[])): void {
     this.bot.on("message", (msg: any, match: string[]) => {
       const output = action(msg, match);
@@ -30,45 +19,27 @@ export class TelegramClient implements ITelegramClient {
     });
   }
 
-  /**
-   * Registers a new command, overriding any with the same name.
-   */
-  public async registerCommand(command: BotCommand): Promise<void> {
-    this.commands.set(command.name, command);
-    const botUsername = await this.getBotUsername();
-    const commandRegex = command.getRegex(botUsername);
-
-    this.bot.onText(commandRegex, (msg: any, match: string[]) => {
-      this.executeCommand(msg, match, command)
-        .then(
-        (reply) => this.sendMessage(msg.chat.id, reply),
-        (reason) => console.error(reason),
-      );
-    });
+  public setOnRegex(regExp: RegExp, action: (msg: any, match: string[]) => void): void {
+    this.bot.onText(regExp, (msg: any, match: string[]) => { action(msg, match); });
   }
 
-  public sendMessage(chatId: number, htmlMessage: string): Promise<any> {
-    return this.bot.sendMessage(chatId, htmlMessage, { parse_mode: "HTML" })
+  public getChatAdministrators(chatId: number): Promise<any[]> {
+    return this.bot.getChatAdministrators(chatId);
+  }
+
+  public sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply = false): Promise<any> {
+    const parameters = this.getSendMessageParameters(replyToMessageId, forceReply);
+    return this.bot.sendMessage(chatId, htmlMessage, parameters)
       .catch((reason: any) => {
         this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
       });
   }
 
-  public async executeCommand(msg: any, match: string[], botCommand: BotCommand): Promise<string> {
-    let userIsAllowedToExecuteCommand = false;
-
-    try {
-      userIsAllowedToExecuteCommand = await this.userIsAllowedToExecuteCommand(msg, botCommand);
-    } catch (err) {
-      console.error("Failed to retrieve admin list!\n" + err);
-      return "⚠️ Failed to retrieve admin list! See server console.";
-    }
-
-    if (!userIsAllowedToExecuteCommand) {
-      return "🚫 This option is only available to admins!";
-    }
-
-    return botCommand.action.call(botCommand.object, msg, match);
+  public deleteMessage(chatId: number, messageId: number): Promise<any> {
+    return this.bot.deleteMessage(chatId, messageId)
+      .catch((reason: any) => {
+        this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
+      });
   }
 
   public subscribe(subscriber: ITelegramClientListener): void {
@@ -77,24 +48,9 @@ export class TelegramClient implements ITelegramClient {
     }
   }
 
-  private async userIsAllowedToExecuteCommand(msg: any, botCommand: BotCommand): Promise<boolean> {
-    if (!botCommand.adminOnly || msg.chat.type === "private" || msg.from.id === this.developerUserId) {
-      return true;
-    }
-
-    const admins = await this.bot.getChatAdministrators(msg.chat.id);
-
-    for (const admin of admins) {
-      if (admin.user.id === msg.from.id) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private async getBotUsername(): Promise<string> {
+  public getBotUsername(): Promise<string> {
     if (this.cachedBotUsername !== "") {
-      return this.cachedBotUsername;
+      return Promise.resolve(this.cachedBotUsername);
     }
     if (this.botUsernamePromise !== null) {
       return this.botUsernamePromise;
@@ -105,5 +61,23 @@ export class TelegramClient implements ITelegramClient {
         this.botUsernamePromise = null;
         return this.cachedBotUsername;
       });
+  }
+
+  private getSendMessageParameters(replyToUserId?: number, forceReply = false): any {
+    const options: any = {
+      parse_mode: "HTML",
+    };
+
+    if (replyToUserId) {
+      options.reply_to_message_id = replyToUserId;
+    }
+
+    if (forceReply) {
+      options.reply_markup = {
+        force_reply: true,
+        selective: true,
+      };
+    }
+    return options;
   }
 }

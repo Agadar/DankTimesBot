@@ -1,26 +1,24 @@
+import { BotCommandRegistry } from "../bot-commands/bot-command-registry";
 import { Chat } from "../chat/chat";
-import { ChatMessage } from "../chat/chat-message/chat-message";
-import { plugins } from "../context-root";
-import { ChatServices } from "./plugin-chat-services/chat-services";
-import { LeaderboardResetPluginEventArguments } from "./plugin-events/event-arguments/leaderboard-reset-plugin-event-arguments";
+import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
+import { ITelegramClient } from "../telegram-client/i-telegram-client";
+import {
+  ChatMessagePluginEventArguments,
+} from "./plugin-events/event-arguments/chat-message-plugin-event-arguments";
+import {
+  LeaderboardPostPluginEventArguments,
+} from "./plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
 import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
-import { PrePostMessagePluginEventArguments } from "./plugin-events/event-arguments/pre-post-message-plugin-event-arguments";
-import { UserScoreChangedPluginEventArguments } from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import {
+  UserScoreChangedPluginEventArguments,
+} from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
 import { PluginEvent } from "./plugin-events/plugin-event-types";
 import { AbstractPlugin } from "./plugin/plugin";
 
 /**
- * Class exposing the Plugin Host concept.
- * Plugins are managed by a Plugin Host, which controls
- * messaging to, from and between plugins. It also
- * keeps track of the general state of a plugin.
+ * Class exposing the Plugin Host concept. Plugins are managed by the Plugin Host.
  */
 export class PluginHost {
-  /**
-   * Collection of plugins currently running.
-   */
-  public readonly plugins: AbstractPlugin[];
-  private chatservices: ChatServices;
 
   /**
    * Create a new Plugin Host.
@@ -29,28 +27,21 @@ export class PluginHost {
    * a list of plugins to be provided.
    * @param plugins List of plugins this PluginHost should manage.
    */
-  constructor(plugins: AbstractPlugin[]) {
-    this.plugins = plugins;
-  }
-
-  public set services(cServices: ChatServices) {
-    this.chatservices = cServices;
-    plugins.forEach((plugin) => plugin.services = this.chatservices);
-  }
+  constructor(public readonly plugins: AbstractPlugin[]) { }
 
   /* Overload List */
-  public trigger(event: PluginEvent.PreMesssage, input: PrePostMessagePluginEventArguments): string[];
-  public trigger(event: PluginEvent.PostMessage, input: PrePostMessagePluginEventArguments): string[];
-  public trigger(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
-  public trigger(event: PluginEvent.LeaderboardReset, input: LeaderboardResetPluginEventArguments): string[];
-  public trigger(event: PluginEvent.DankShutdown, input: NoArgumentsPluginEventArguments): string[];
-  public trigger(event: PluginEvent.PostInit, input: NoArgumentsPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessagePluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostPluginEventArguments): void;
+  public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
+                      input: NoArgumentsPluginEventArguments): void;
+
   /**
    * Trigger a certain event on this Plugin Host's plugins.
    * @param event Event to trigger.
    * @param input Data input.
    */
-  public trigger(event: PluginEvent, input: any): string[] {
+  public triggerEvent(event: PluginEvent, input: any): string[] {
     let out: string[] = [];
     this.plugins.forEach((plugin) => {
       const output: string[] = plugin.triggerEvent(event, input);
@@ -59,21 +50,22 @@ export class PluginHost {
     return out;
   }
 
-  // public triggerCommand(command: string, params: string[]): string[] {
-  //   let out: string[] = [];
-  //   this.plugins.forEach(plugin => {
-  //     let output: string[] = plugin.triggerCommand(command, params);
-  //     out = out.concat(output);
-  //   });
-  //   return out;
-  // }
+  /**
+   * Registers all chat setting templates defined by this host's plugins to
+   * a supplied chat setting registry.
+   * @param chatSettingsRegistry The chat setting registry to register to.
+   */
+  public registerPluginSettings(chatSettingsRegistry: ChatSettingsRegistry) {
+    this.plugins.forEach((plugin) => plugin.getPluginSpecificChatSettings()
+      .forEach((setting) => chatSettingsRegistry.registerChatSetting(setting)));
+  }
 
-  public triggerCommand(command: string, chatmessage: ChatMessage): string[] {
-    let out: string[] = [];
-    this.plugins.forEach((plugin) => {
-      const output: string[] = plugin.triggerCommand(command, chatmessage);
-      out = out.concat(output);
-    });
-    return out;
+  /**
+   * Registers all bot commands defined by this host's plugins to a supplied registry.
+   * @param botCommandsRegistry The registry to register to.
+   */
+  public registerPluginCommands(botCommandsRegistry: BotCommandRegistry) {
+    this.plugins.forEach((plugin) => plugin.getPluginSpecificCommands()
+      .forEach((command) => botCommandsRegistry.registerCommand(command)));
   }
 }

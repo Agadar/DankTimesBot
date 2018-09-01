@@ -1,28 +1,33 @@
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
 export class DankTimesBotController implements IDankTimesBotController {
 
   private readonly forbiddenStatusCode = 403;
+  private readonly requestNotFoundDescription = "Bad Request: chat not found";
+  private readonly groupChatUpgradedDescription = "Bad Request: group chat was upgraded to a supergroup chat";
 
   public constructor(
     private readonly moment: any,
     private readonly chatRegistry: IChatRegistry,
     private readonly dankTimeScheduler: IDankTimeScheduler,
-    telegramClient: ITelegramClient,
+    private readonly telegramClient: ITelegramClient,
+    plugins: AbstractPlugin[],
   ) {
     this.chatRegistry.subscribe(this);
-    telegramClient.subscribe(this);
+    this.telegramClient.subscribe(this);
+    plugins.forEach((plugin) => plugin.subscribe(this));
   }
 
   /**
    * From ITelegramClientListener.
    */
   public onErrorFromApi(chatId: number, error: any): void {
-    if (error.response.statusCode === this.forbiddenStatusCode) {
+    if (this.errorResponseWarrantsChatRemoval(error)) {
       const chat = this.chatRegistry.removeChat(chatId);
 
       if (chat) {
@@ -30,7 +35,7 @@ export class DankTimesBotController implements IDankTimesBotController {
       }
       console.info(`Bot was blocked by chat with id ${chatId}, removed corresponding chat data from bot!`);
     } else {
-      console.error(error);  // Unknown error, print everything.
+      console.info(`We received an unknown error. JSON-fied error object: ${JSON.stringify(error)}`);
     }
   }
 
@@ -39,6 +44,21 @@ export class DankTimesBotController implements IDankTimesBotController {
    */
   public onChatCreated(chat: Chat): void {
     this.dankTimeScheduler.scheduleAllOfChat(chat);
+  }
+
+  /**
+   * From IPluginListener.
+   */
+  public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
+                                        replyToMessageId: number, forceReply: boolean): Promise<any> {
+    return this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply);
+  }
+
+  /**
+   * From IPluginListener.
+   */
+  public onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<any> {
+    return this.telegramClient.deleteMessage(chatId, messageId);
   }
 
   public doNightlyUpdate(): void {
@@ -54,10 +74,13 @@ export class DankTimesBotController implements IDankTimesBotController {
 
         // Your punishment must be more severe!
         chat.hardcoreModeCheck(now);
-
-        // Remove plebs whose score is 0.
-        chat.removeUsersWithZeroScore();
       }
     });
+  }
+
+  private errorResponseWarrantsChatRemoval(error: any): boolean {
+    return error && error.response && (error.response.statusCode === this.forbiddenStatusCode
+      || (error.response.body && (error.response.body.description === this.requestNotFoundDescription ||
+        error.response.body.description === this.groupChatUpgradedDescription)));
   }
 }

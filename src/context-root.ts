@@ -4,47 +4,84 @@ import * as momentImport from "moment-timezone";
 import nodeCleanupImport = require("node-cleanup");
 import TelegramBot = require("node-telegram-bot-api");
 
+import { BotCommandRegistry } from "./bot-commands/bot-command-registry";
 import { DankTimesBotCommands } from "./bot-commands/commands/danktimesbot-commands";
 import { DankTimesBotCommandsRegistrar } from "./bot-commands/registrar/danktimesbot-commands-registrar";
 import { ChatRegistry } from "./chat-registry/chat-registry";
+import { IChatRegistry } from "./chat-registry/i-chat-registry";
+import { ChatSettingsRegistry } from "./chat/settings/chat-settings-registry";
 import { DankTimeScheduler } from "./dank-time-scheduler/dank-time-scheduler";
+import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler";
 import { DankTimesBotController } from "./danktimesbot-controller/danktimesbot-controller";
+import { IDankTimesBotController } from "./danktimesbot-controller/i-danktimesbot-controller";
+import { Config } from "./misc/config";
+import { Release } from "./misc/release";
+import { PluginHost } from "./plugin-host/plugin-host";
+import { ITelegramClient } from "./telegram-client/i-telegram-client";
 import { TelegramClient } from "./telegram-client/telegram-client";
 import { FileIO } from "./util/file-io/file-io";
+import { IUtil } from "./util/i-util";
 import { Util } from "./util/util";
 
-// tslint:disable-next-line:no-var-requires
-export const version = require("../package.json").version;
+/**
+ * The context root for the entire application. Initializes all components
+ * used within this application, and exposes them.
+ */
+export class ContextRoot {
 
-export const fileIO = new FileIO(fs);
+  public readonly fileIO: FileIO;
+  public readonly config: Config;
+  public readonly chatSettingsRegistry: ChatSettingsRegistry;
+  public readonly pluginHost: PluginHost;
+  public readonly util: IUtil;
+  public readonly chatRegistry: IChatRegistry;
+  public readonly telegramClient: ITelegramClient;
+  public readonly dankTimeScheduler: IDankTimeScheduler;
+  public readonly version: string;
+  public readonly releaseLog: Release[];
+  public readonly danktimesbotController: IDankTimesBotController;
+  public readonly cronJob: any;
+  public readonly nodeCleanup: any;
 
-export const util = new Util();
+  public constructor() {
 
-export const config = fileIO.loadConfigFromFile();
+    // Prepare file IO, and load configurations.
+    this.fileIO = new FileIO(fs);
+    this.config = this.fileIO.loadConfigFromFile();
 
-export const plugins = fileIO.GetAvailablePlugins(config.plugins);
-const initialChats = fileIO.loadChatsFromFile();
+    // Load and initialize plugins.
+    const availablePlugins = this.fileIO.GetAvailablePlugins(this.config.plugins);
+    this.chatSettingsRegistry = new ChatSettingsRegistry(momentImport);
+    this.pluginHost = new PluginHost(availablePlugins);
+    this.pluginHost.registerPluginSettings(this.chatSettingsRegistry);
 
-export const chatRegistry = new ChatRegistry(momentImport, util, plugins);
-chatRegistry.loadFromJSON(initialChats);
+    // Load and initialize chats.
+    this.util = new Util();
+    this.chatRegistry = new ChatRegistry(momentImport, this.util, this.chatSettingsRegistry, this.pluginHost);
+    const initialChats = this.fileIO.loadChatsFromFile();
+    this.chatRegistry.loadFromJSON(initialChats);
 
-export const releaseLog = fileIO.loadReleaseLogFromFile();
+    // Prepare Telegram client and scheduler for sending messages.
+    const telegramBot = new TelegramBot(this.config.apiKey, { polling: true });
+    this.telegramClient = new TelegramClient(telegramBot);
+    this.dankTimeScheduler = new DankTimeScheduler(this.telegramClient, CronJob);
 
-const telegramBot = new TelegramBot(config.apiKey, { polling: true });
+    // Load and initialize commands.
+    // tslint:disable-next-line:no-var-requires
+    this.version = require("../package.json").version;
+    this.releaseLog = this.fileIO.loadReleaseLogFromFile();
+    const botCommandsRegistry = new BotCommandRegistry(this.telegramClient, momentImport, this.chatRegistry);
+    const dankTimesBotCommands = new DankTimesBotCommands(
+      botCommandsRegistry, this.dankTimeScheduler, this.util, this.releaseLog);
+    const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(botCommandsRegistry, this.telegramClient,
+      this.chatRegistry, dankTimesBotCommands);
+    dankTimesBotCommandsRegistrar.registerDankTimesBotCommands();
+    this.pluginHost.registerPluginCommands(botCommandsRegistry);
 
-export const telegramClient = new TelegramClient(telegramBot);
-
-export const dankTimeScheduler = new DankTimeScheduler(telegramClient, CronJob);
-
-export const danktimesbotController = new DankTimesBotController(momentImport, chatRegistry,
-  dankTimeScheduler, telegramClient);
-
-const dankTimesBotCommands = new DankTimesBotCommands(
-  telegramClient, chatRegistry, dankTimeScheduler, util, releaseLog, version);
-
-export const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(
-  telegramClient, chatRegistry, dankTimesBotCommands);
-
-export const cronJob = CronJob;
-export const moment = momentImport;
-export const nodeCleanup = nodeCleanupImport;
+    // Miscellaneous initializations and exports.
+    this.danktimesbotController = new DankTimesBotController(momentImport, this.chatRegistry,
+      this.dankTimeScheduler, this.telegramClient, availablePlugins);
+    this.cronJob = CronJob;
+    this.nodeCleanup = nodeCleanupImport;
+  }
+}

@@ -3,6 +3,7 @@ import * as moment from "moment-timezone";
 import { ChatRegistryMock } from "../chat-registry/chat-registry-mock";
 import { Chat } from "../chat/chat";
 import { DankTimeSchedulerMock } from "../dank-time-scheduler/dank-time-scheduler-mock";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { TelegramClientMock } from "../telegram-client/telegram-client-mock";
 import { DankTimesBotController } from "./danktimesbot-controller";
 
@@ -10,19 +11,19 @@ let dankController: DankTimesBotController;
 let chatRegistry: ChatRegistryMock;
 let dankTimeScheduler: DankTimeSchedulerMock;
 let telegramClient: TelegramClientMock;
+const plugins = new Array<AbstractPlugin>();
 
 function initTestVariables() {
   chatRegistry = new ChatRegistryMock();
   dankTimeScheduler = new DankTimeSchedulerMock();
   telegramClient = new TelegramClientMock();
-  dankController = new DankTimesBotController(moment, chatRegistry, dankTimeScheduler, telegramClient);
+  dankController = new DankTimesBotController(moment, chatRegistry, dankTimeScheduler, telegramClient, plugins);
 }
 
 class ChatMock {
   public running = true;
   public generateRandomDankTimesCalled = false;
   public hardcoreModeCheckCalled = false;
-  public removeUsersWithZeroScoreCalled = false;
 
   public generateRandomDankTimes() {
     this.generateRandomDankTimesCalled = true;
@@ -30,10 +31,6 @@ class ChatMock {
 
   public hardcoreModeCheck(now: number) {
     this.hardcoreModeCheckCalled = true;
-  }
-
-  public removeUsersWithZeroScore() {
-    this.removeUsersWithZeroScoreCalled = true;
   }
 }
 
@@ -108,7 +105,6 @@ describe("DankTimesBotController.doNightlyUpdate", () => {
     assert.equal(chat.generateRandomDankTimesCalled, true);
     assert.equal(dankTimeScheduler.scheduleAllOfChatCalledWith, chatCast);
     assert.equal(chat.hardcoreModeCheckCalled, true);
-    assert.equal(chat.removeUsersWithZeroScoreCalled, true);
   });
 
 });

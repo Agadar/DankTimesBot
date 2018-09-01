@@ -76,7 +76,7 @@ export class User implements BasicUser {
   /**
    * Adds an amount to the user's DankTimes score.
    */
-  public addToScore(amount: number, timestamp: number): void {
+  public addToScore(amount: number, timestamp?: number): void {
     if (amount % 1 !== 0) {
       throw new RangeError("The amount should be a whole number!");
     }
@@ -84,7 +84,7 @@ export class User implements BasicUser {
     this.myScore += amount;
     this.myLastScoreChange += amount;
 
-    if (amount > 0) {
+    if (amount > 0 && timestamp) {
       this.myLastScoreTimestamp = timestamp;
     }
   }

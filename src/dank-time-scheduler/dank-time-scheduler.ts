@@ -17,38 +17,22 @@ export class DankTimeScheduler implements IDankTimeScheduler {
 
   public randomDankTimeNotifications = new Array<ScheduledItem>();
   public dankTimeNotifications = new Array<ScheduledItem>();
-  public autoLeaderBoards = new Array<ScheduledItem>();
 
   constructor(
     private readonly tgClient: ITelegramClient,
     private readonly cronJob: any) { }
 
   /**
-   * Schedules all normal and random dank times notifications and auto-leaderboards of a chat.
+   * Schedules all normal and random dank times notifications of a chat.
    */
   public scheduleAllOfChat(chat: Chat): void {
-
-    // If the chat ain't running, schedule nothing.
-    if (!chat.running) {
-      return;
-    }
-
-    // Schedule RANDOM dank time notifications.
+    if (!chat.running) { return; }
     this.scheduleRandomDankTimesOfChat(chat);
-
-    // Schedule NORMAL dank time notifications, if desired.
-    if (chat.notifications) {
-      this.scheduleDankTimesOfChat(chat);
-    }
-
-    // Schedule auto-leaderboards, if desired.
-    if (chat.autoLeaderboards) {
-      this.scheduleAutoLeaderboardsOfChat(chat);
-    }
+    this.scheduleDankTimesOfChat(chat);
   }
 
   /**
-   * Schedules all NORMAL dank time notifications of a chat. Does NOT verify chat settings.
+   * Schedules all NORMAL dank time notifications of a chat.
    */
   public scheduleDankTimesOfChat(chat: Chat): void {
     chat.dankTimes.forEach((dankTime) => {
@@ -57,23 +41,11 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Schedules all RANDOM dank time notifications of a chat. Does NOT verify chat settings.
+   * Schedules all RANDOM dank time notifications of a chat.
    */
   public scheduleRandomDankTimesOfChat(chat: Chat): void {
     chat.randomDankTimes.forEach((dankTime) => {
       this.scheduleRandomDankTime(chat, dankTime);
-    });
-  }
-
-  /**
-   * Schedules all auto-leaderboard posts of a chat. Does NOT verify chat settings.
-   */
-  public scheduleAutoLeaderboardsOfChat(chat: Chat): void {
-    chat.randomDankTimes.forEach((dankTime) => {
-      this.scheduleAutoLeaderboard(chat, dankTime);
-    });
-    chat.dankTimes.forEach((dankTime) => {
-      this.scheduleAutoLeaderboard(chat, dankTime);
     });
   }
 
@@ -83,7 +55,6 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   public unscheduleAllOfChat(chat: Chat): void {
     this.unscheduleDankTimesOfChat(chat);
     this.unscheduleRandomDankTimesOfChat(chat);
-    this.unscheduleAutoLeaderboardsOfChat(chat);
   }
 
   /**
@@ -101,20 +72,11 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Unschedules all auto-leaderboard posts of a chat.
-   */
-  public unscheduleAutoLeaderboardsOfChat(chat: Chat): void {
-    this.unscheduleCronJobsOfChat(chat, this.autoLeaderBoards);
-  }
-
-  /**
    * Resets this scheduler completely, unscheduling all jobs and emptying the job lists.
    */
   public reset(): void {
     this.dankTimeNotifications.forEach((job) => job.cronJob.stop());
     this.dankTimeNotifications = [];
-    this.autoLeaderBoards.forEach((job) => job.cronJob.stop());
-    this.autoLeaderBoards = [];
     this.randomDankTimeNotifications.forEach((job) => job.cronJob.stop());
     this.randomDankTimeNotifications = [];
   }
@@ -134,76 +96,71 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Unschedules a the auto-posting of a leaderboard 1 minute after a dank time.
-   */
-  public unscheduleAutoLeaderboard(chat: Chat, dankTime: DankTime): void {
-    this.unscheduleCronJob(chat, dankTime, this.autoLeaderBoards);
-  }
-
-  /**
-   * Schedules a notification for a NORMAL dank time. Does NOT verify chat settings.
+   * Schedules a notification for a NORMAL dank time.
    */
   public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
-    const thisRef = this;
     this.dankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
-        if (chat.running && chat.notifications) {
-          thisRef.tgClient.sendMessage(chat.id, "⏰ It's dank o'clock! Type '" + dankTime.texts[0] + "' for points!");
+      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
+        if (!chat || !chat.running) { return; }
+        let promise;
+        if (chat.normaltimesNotifications) {
+          const messageText = `⏰ It's dank o'clock! Type '${dankTime.texts[0]}' for points!`;
+          promise = this.sendAnnouncement(chat.id, messageText);
         }
-      }, undefined, true, chat.timezone),
+        this.scheduleLeaderboardAndAnnouncementRemoval(chat, promise);
+      }).bind(this), undefined, true, chat.timezone),
       hour: dankTime.hour,
       minute: dankTime.minute,
     });
   }
 
   /**
-   * Schedules a notification for a RANDOM dank time. Does NOT verify chat settings.
+   * Schedules a notification for a RANDOM dank time.
    */
   public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
-    const thisRef = this;
     this.randomDankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", () => {
-        if (chat.running) {
-          thisRef.tgClient.sendMessage(chat.id, "🙀 Surprise dank time! Type '" + dankTime.texts[0] + "' for points!");
+      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
+        if (chat && chat.running) {
+          const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
+          const promise = this.sendAnnouncement(chat.id, messageText);
+          this.scheduleLeaderboardAndAnnouncementRemoval(chat, promise);
         }
-      }, undefined, true, chat.timezone),
+      }).bind(this), undefined, true, chat.timezone),
       hour: dankTime.hour,
       minute: dankTime.minute,
     });
   }
 
-  /**
-   * Schedules the auto-posting of a leaderboard 1 minute after a dank time. Does NOT verify chat settings.
-   */
-  public scheduleAutoLeaderboard(chat: Chat, dankTime: DankTime): void {
-    let minute = dankTime.minute + 1;
-    let hour = dankTime.hour;
+  private sendAnnouncement(chatId: number, messageText: string): Promise<any> {
+    return this.tgClient.sendMessage(chatId, messageText, -1, false);
+  }
 
-    // Correct if minute + 1 is 60.
-    if (minute >= 60) {
-      minute = 0;
-      hour++;
-
-      // Correct if hour is 24.
-      if (hour >= 24) {
-        hour = 0;
-      }
-    }
-
-    // Schedule the cron job.
-    const thisRef = this;
-    this.autoLeaderBoards.push({
-      chatId: chat.id,
-      cronJob: new this.cronJob("0 " + minute + " " + hour + " * * *", () => {
-        if (chat.running && chat.autoLeaderboards && chat.leaderboardChanged()) {
-          thisRef.tgClient.sendMessage(chat.id, chat.generateLeaderboard());
+  private scheduleLeaderboardAndAnnouncementRemoval(chat: Chat, sendAnnouncementPromise?: Promise<any>) {
+    setTimeout((() => {
+      if (!chat) { return; }
+      if (chat.leaderboardChanged()) {
+        if (chat.running && chat.autoleaderboards) {
+          this.sendLeaderboard(chat);
         }
-      }, undefined, true, chat.timezone),
-      hour: dankTime.hour,
-      minute: dankTime.minute,
-    });
+      } else if (sendAnnouncementPromise) {
+        sendAnnouncementPromise.then((res: any) => {
+          if (chat && res && res.message_id) {
+            this.removeAnnouncement(chat.id, res.message_id);
+          }
+        });
+      }
+    }).bind(this), 60000);
+  }
+
+  private sendLeaderboard(chat: Chat) {
+    const leaderboard = chat.generateLeaderboard();
+    this.tgClient.sendMessage(chat.id, leaderboard, -1, false);
+  }
+
+  private removeAnnouncement(chatId: number, messageId: number) {
+    this.tgClient.deleteMessage(chatId, messageId);
   }
 
   /**

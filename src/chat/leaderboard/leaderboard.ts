@@ -30,7 +30,9 @@ export class Leaderboard {
    */
   constructor(users: User[] = []) {
     users.forEach((user) => {
-      this.entries.push(new LeaderboardEntry(user));
+      if (user.score > 0 || user.lastScoreChange !== 0) {
+        this.entries.push(new LeaderboardEntry(user));
+      }
     });
     this.entries.sort(LeaderboardEntry.compare);
   }

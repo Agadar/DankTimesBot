@@ -1,13 +1,14 @@
 import { IChatRegistry } from "../../chat-registry/i-chat-registry";
-import { ChatMessage } from "../../chat/chat-message/chat-message";
 import { ITelegramClient } from "../../telegram-client/i-telegram-client";
 import { BotCommand } from "../bot-command";
+import { BotCommandRegistry } from "../bot-command-registry";
 import { IDankTimesBotCommands } from "../commands/i-danktimesbot-commands";
 import { IDankTimesBotCommandsRegistrar } from "./i-danktimesbot-commands-registrar";
 
 export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegistrar {
 
   constructor(
+    private readonly botCommandRegistry: BotCommandRegistry,
     private readonly telegramClient: ITelegramClient,
     private readonly chatRegistry: IChatRegistry,
     private readonly dankTimesBotCommands: IDankTimesBotCommands,
@@ -16,74 +17,49 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
   public async registerDankTimesBotCommands(): Promise<void> {
     await Promise.all([
 
-      this.telegramClient.registerCommand(new BotCommand("addtime",
+      this.botCommandRegistry.registerCommand(new BotCommand("addtime",
         "adds a dank time. format: [hour] [minute] [points] [text1] [text2] etc.",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.addTime, true)),
+        this.dankTimesBotCommands.addTime.bind(this.dankTimesBotCommands), true, true)),
 
-      this.telegramClient.registerCommand(new BotCommand("danktimes", "shows the user-specified dank times",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.dankTimes)),
+      this.botCommandRegistry.registerCommand(new BotCommand("danktimes", "shows the user-specified dank times",
+        this.dankTimesBotCommands.dankTimes.bind(this.dankTimesBotCommands))),
 
-      this.telegramClient.registerCommand(new BotCommand("help", "shows the available this.commands",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.help)),
+      this.botCommandRegistry.registerCommand(new BotCommand("help", "shows the available commands",
+        this.dankTimesBotCommands.help.bind(this.dankTimesBotCommands))),
 
-      this.telegramClient.registerCommand(new BotCommand("leaderboard", "shows the leaderboard",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.leaderBoard)),
+      this.botCommandRegistry.registerCommand(new BotCommand("leaderboard", "shows the leaderboard",
+        this.dankTimesBotCommands.leaderBoard.bind(this.dankTimesBotCommands))),
 
-        this.telegramClient.registerCommand(new BotCommand("plugins", "interacts with the plugins subsystem. usage: [command] [parameter]. Try /plugins help",
-      this.dankTimesBotCommands, this.dankTimesBotCommands.plugins, true)),
+      this.botCommandRegistry.registerCommand(new BotCommand("plugins", "shows the currently active plugins",
+        this.dankTimesBotCommands.plugins.bind(this.dankTimesBotCommands))),
 
-      this.telegramClient.registerCommand(new BotCommand("removetime", "removes a dank time. format: [hour] [minute]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.removeTime, true)),
+      this.botCommandRegistry.registerCommand(new BotCommand("removetime",
+        "removes a dank time. format: [hour] [minute]",
+        this.dankTimesBotCommands.removeTime.bind(this.dankTimesBotCommands), true, true)),
 
-      this.telegramClient.registerCommand(new BotCommand("reset", "resets the scores",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.resetChat, true, true)),
+      this.botCommandRegistry.registerCommand(new BotCommand("reset", "resets the leaderboard",
+        this.dankTimesBotCommands.resetChat.bind(this.dankTimesBotCommands), true, true, true)),
 
-      this.telegramClient.registerCommand(new BotCommand("setdailyrandomfrequency",
-        "sets the number of random dank times per day. format: [number]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.setDailyRandomTimes, true)),
+      this.botCommandRegistry.registerCommand(new BotCommand("settings", "shows the current settings values",
+        this.dankTimesBotCommands.settings.bind(this.dankTimesBotCommands))),
 
-      this.telegramClient.registerCommand(new BotCommand("setdailyrandompoints",
-        "sets the points for random daily dank times. format: [number]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.setDailyRandomTimesPoints, true)),
+      this.botCommandRegistry.registerCommand(new BotCommand("settingshelp", "shows the settings descriptions",
+        this.dankTimesBotCommands.settingshelp.bind(this.dankTimesBotCommands))),
 
-      this.telegramClient.registerCommand(new BotCommand("setmultiplier",
-        "sets the multiplier for the score of the first user to score. format: [number]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.setMultiplier, true)),
+      this.botCommandRegistry.registerCommand(new BotCommand("set", "sets a setting. format: [name] [value]",
+        this.dankTimesBotCommands.set.bind(this.dankTimesBotCommands), true, true)),
 
-      this.telegramClient.registerCommand(new BotCommand("settimezone", "sets the time zone. format: [timezone]",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.setTimezone, true)),
+      this.botCommandRegistry.registerCommand(new BotCommand("start",
+        "starts keeping track of scores and sending messages",
+        this.dankTimesBotCommands.startChat.bind(this.dankTimesBotCommands), true, true)),
 
-      this.telegramClient.registerCommand(new BotCommand("settings", "shows the current settings",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.chatSettings)),
+      this.botCommandRegistry.registerCommand(new BotCommand("stop",
+        "stops keeping track of scores and sending messages",
+        this.dankTimesBotCommands.stopChat.bind(this.dankTimesBotCommands), true, true)),
 
-      this.telegramClient.registerCommand(new BotCommand("start", "starts keeping track of scores and sending messages",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.startChat, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("stop", "stops keeping track of scores and sending messages",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.stopChat, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("toggleautoleaderboards",
-        "toggles whether a leaderboard is auto-posted 1 minute after every dank time",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleAutoLeaderboards, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("toggledanktimenotifications",
-        "toggles whether notifications of normal dank times are sent",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleNotifications, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("togglefirstnotifications",
-        "toggles whether this chat announces the first user to score",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleFirstNotifications, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("togglehandicaps",
-        "toggles whether the users with the lowest scores earn more points",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleHandicaps, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("togglehardcoremode",
-        "toggles whether every day, users are punished if they haven't scored the previous day",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.toggleHardcoreMode, true)),
-
-      this.telegramClient.registerCommand(new BotCommand("whatsnew", "shows the release notes of the current version",
-        this.dankTimesBotCommands, this.dankTimesBotCommands.whatsNewMessage)),
+      this.botCommandRegistry.registerCommand(new BotCommand("whatsnew",
+        "shows the release notes of the current version",
+        this.dankTimesBotCommands.whatsNewMessage.bind(this.dankTimesBotCommands))),
     ]);
 
     this.telegramClient.setOnAnyText((msg) => this.onAnyText(msg));
@@ -102,17 +78,10 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       }
 
     } else if (msg.text) { // Let the appropriate chat process the message.
-
-        const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
-        let output: string[] = [];
-        if (msg.text.length > 1 && msg.text[0] === "/") {
-          const dtMessage = new ChatMessage(msg.text.split(" ").slice(1).join(" "), (msg.reply_to_message) ? msg.reply_to_message.text : "");
-          output = chat.pluginhost.triggerCommand(msg.text.slice(1).split(" ")[0], dtMessage);
-        } else {
-          output = chat.processMessage(msg.from.id, msg.from.username || "anonymous", msg.text, msg.date);
-        }
-        output = output.filter((msg) => msg.length > 0);
-        return output;
+      const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
+      let output = chat.processMessage(msg);
+      output = output.filter((filteredmsg) => filteredmsg.length > 0);
+      return output;
     }
     return [];
   }
