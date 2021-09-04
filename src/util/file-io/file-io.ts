@@ -163,11 +163,11 @@ export class FileIO implements IFileIO {
       }); /* So Sorry */
 
     // Print plugins to console
-    if (plugins.length == 0) {
+    if (plugins.length === 0) {
       console.info("No plugins loaded!");
     } else {
       console.info("Loaded the following plugins:");
-      plugins.forEach(plugin => console.info(`- ${plugin.name} ${plugin.version}`));
+      plugins.forEach((plugin) => console.info(`- ${plugin.name} ${plugin.version}`));
     }
 
     return plugins;

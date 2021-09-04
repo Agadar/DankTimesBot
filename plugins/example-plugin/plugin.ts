@@ -29,22 +29,22 @@ export class Plugin extends AbstractPlugin {
    * and some optional data.
    */
   constructor() {
-    super("Example Plugin", "1.0.0");
+    super("Example Plugin", "1.1.0");
 
     this.subscribeToPluginEvent(PluginEvent.BotStartup, (data: NoArgumentsPluginEventArguments) => {
       console.log("Example of a bot startup event.");
     });
 
     this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) => {
-      return [`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`];
+      data.messages = data.messages.concat(`A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`);
     });
 
     this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessagePluginEventArguments) => {
-      return [`Example of a chat message event`];
+      data.botReplies = data.botReplies.concat(`Example of a chat message event`);
     });
 
     this.subscribeToPluginEvent(PluginEvent.LeaderboardPost, (data: LeaderboardPostPluginEventArguments) => {
-      data.leaderboardText[0] = data.leaderboardText[0] + "\n\n Example of a leaderboard post event.";
+      data.leaderboardText = data.leaderboardText + "\n\n Example of a leaderboard post event.";
     });
 
     this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: NoArgumentsPluginEventArguments) => {

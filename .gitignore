@@ -71,3 +71,4 @@ typings/
 
 *.js
 .idea/
+.vscode/settings.json

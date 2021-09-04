@@ -1,5 +1,4 @@
 import { BotCommand } from "../../bot-commands/bot-command";
-import { Chat } from "../../chat/chat";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
 import {
   ChatMessagePluginEventArguments,
@@ -34,7 +33,7 @@ export abstract class AbstractPlugin {
    * Event triggers. Plugins can hook functions to certain Plugin Events.
    * These plugin events are defined in the PLUGIN_EVENT enumeration.
    */
-  private pluginEventTriggers: Map<PluginEvent, (eventArgs: PluginEventArguments) => any>;
+  private pluginEventTriggers: Map<PluginEvent, (eventArgs: PluginEventArguments) => void>;
   /**
    * Listener to events fired by this plugin. Not to be confused with the
    * events this plugin listens to itself (i.e. the above pluginEventTriggers).
@@ -49,7 +48,7 @@ export abstract class AbstractPlugin {
   constructor(name: string, version: string) {
     this.name = name;
     this.version = version;
-    this.pluginEventTriggers = new Map<PluginEvent, (eventArgs: PluginEventArguments) => any>();
+    this.pluginEventTriggers = new Map<PluginEvent, (eventArgs: PluginEventArguments) => void>();
   }
 
   /**
@@ -63,19 +62,11 @@ export abstract class AbstractPlugin {
    * Trigger a certain PLUGIN_EVENT on this plugin. Called by PluginHost.
    * @param event PLUGIN_EVENT to trigger.
    */
-  public triggerEvent(event: PluginEvent, eventArgs: PluginEventArguments): string[] {
-    let output: string[] = [];
-
+  public triggerEvent(event: PluginEvent, eventArgs: PluginEventArguments): void {
     const fn = this.pluginEventTriggers.get(event);
-    if (!fn) {
-      return output;
+    if (fn) {
+      fn(eventArgs);
     }
-
-    const fnOutput = fn(eventArgs);
-    if (fnOutput) {
-      output = output.concat(fnOutput);
-    }
-    return output;
   }
 
   /**
@@ -99,20 +90,21 @@ export abstract class AbstractPlugin {
 
   /* Function overload list */
   protected subscribeToPluginEvent(event: PluginEvent.ChatMessage,
-                                   eventFn: (eventArgs: ChatMessagePluginEventArguments) => any): void;
+                                   eventFn: (eventArgs: ChatMessagePluginEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.UserScoreChange,
-                                   eventFn: (eventArgs: UserScoreChangedPluginEventArguments) => any): void;
+                                   eventFn: (eventArgs: UserScoreChangedPluginEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
-                                   eventFn: (eventArgs: LeaderboardPostPluginEventArguments) => any): void;
+                                   eventFn: (eventArgs: LeaderboardPostPluginEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
-                                   eventFn: (eventArgs: NoArgumentsPluginEventArguments) => any): void;
+                                   eventFn: (eventArgs: NoArgumentsPluginEventArguments) => void): void;
 
   /**
    * Subscribe to a certain PLUGIN_EVENT.
    * @param _event Plugin event to describe to.
    * @param eventFn Function to execute when a certain event is triggered.
    */
-  protected subscribeToPluginEvent(event: PluginEvent, eventFn: (eventArgs: any) => any): void {
+  protected subscribeToPluginEvent<ArgumentsType extends PluginEventArguments>(
+      event: PluginEvent, eventFn: (eventArgs: ArgumentsType) => void): void {
     this.pluginEventTriggers.set(event, eventFn);
   }
 

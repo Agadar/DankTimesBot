@@ -19,10 +19,11 @@ export class ChatMessagePluginEventArguments extends PluginEventArguments {
    * Raw message object going into / coming out of the Dank Times Bot process.
    */
   public readonly msg: any;
+
   /**
-   * The replies being prepared by the bot to send back.
+   * The replies being prepared by the bot to send back. May be altered/added to by plugins.
    */
-  public readonly botReplies: string[];
+  public botReplies: string[];
 
   /**
    * Constructor.

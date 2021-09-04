@@ -1,7 +1,5 @@
 import { BotCommandRegistry } from "../bot-commands/bot-command-registry";
-import { Chat } from "../chat/chat";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
-import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import {
   ChatMessagePluginEventArguments,
 } from "./plugin-events/event-arguments/chat-message-plugin-event-arguments";
@@ -12,6 +10,7 @@ import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments
 import {
   UserScoreChangedPluginEventArguments,
 } from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PluginEventArguments } from "./plugin-events/plugin-event-arguments";
 import { PluginEvent } from "./plugin-events/plugin-event-types";
 import { AbstractPlugin } from "./plugin/plugin";
 
@@ -30,8 +29,8 @@ export class PluginHost {
   constructor(public readonly plugins: AbstractPlugin[]) { }
 
   /* Overload List */
-  public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessagePluginEventArguments): string[];
-  public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
+  public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessagePluginEventArguments): void;
+  public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): void;
   public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostPluginEventArguments): void;
   public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
                       input: NoArgumentsPluginEventArguments): void;
@@ -41,13 +40,10 @@ export class PluginHost {
    * @param event Event to trigger.
    * @param input Data input.
    */
-  public triggerEvent(event: PluginEvent, input: any): string[] {
-    let out: string[] = [];
+  public triggerEvent(event: PluginEvent, input: PluginEventArguments): void {
     this.plugins.forEach((plugin) => {
-      const output: string[] = plugin.triggerEvent(event, input);
-      out = out.concat(output);
+      plugin.triggerEvent(event, input);
     });
-    return out;
   }
 
   /**

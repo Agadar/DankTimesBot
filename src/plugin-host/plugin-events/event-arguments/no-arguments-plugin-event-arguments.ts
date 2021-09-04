@@ -1,4 +1,3 @@
-import { Chat } from "../../../chat/chat";
 import { PluginEventArguments } from "../plugin-event-arguments";
 
 /**

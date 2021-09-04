@@ -1,10 +1,11 @@
 [
   {
-    "version": "1.8.0",
+    "version": "2.0.0",
     "date": "tbd",
     "changes": [
       "Added punishuntimelydanktime setting",
       "Increased maximum points for a dank time to 10000",
+      "Improved the plugin framework",
       "Performed a tech refresh"
     ]
   },
