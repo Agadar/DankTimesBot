@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.8.0",
+    "date": "tbd",
+    "changes": [
+      "Performed a tech refresh"
+    ]
+  },
+  {
     "version": "1.7.0",
     "date": "2018-08-26",
     "changes": [
