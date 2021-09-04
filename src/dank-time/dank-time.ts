@@ -61,8 +61,8 @@ export class DankTime {
    */
   public setPoints(points: () => number) {
     const pointsValue = points();
-    if (pointsValue % 1 !== 0 || pointsValue < 1 || pointsValue > 100) {
-      throw new RangeError("The points must be a whole number between 1 and 100!");
+    if (pointsValue % 1 !== 0 || pointsValue < 1 || pointsValue > 10000) {
+      throw new RangeError("The points must be a whole number between 1 and 10000!");
     }
     this.myPoints = points;
   }

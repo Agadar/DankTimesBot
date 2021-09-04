@@ -128,8 +128,8 @@ export class ChatSettingsRegistry {
     }
 
     private pointsPerRandomTimeValidation(value: number) {
-        if (value < 1 || value > 100 || value % 1 !== 0) {
-            throw new RangeError("The value must be a whole number between 1 and 100!");
+        if (value < 1 || value > 10000 || value % 1 !== 0) {
+            throw new RangeError("The value must be a whole number between 1 and 10000!");
         }
     }
 
