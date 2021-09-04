@@ -3,28 +3,28 @@ import { User } from "../../../chat/user/user";
 import { PluginEventArguments } from "../plugin-event-arguments";
 
 /**
- * Event Arguments for the User Score Changed event.
- * Contains chat, user, and delta score.
+ * Event arguments for the event fired BEFORE a user's score is changed.
+ * Allows altering the amount with which a user's score is about to be changed.
  */
-export class UserScoreChangedEventArguments extends PluginEventArguments {
+export class PreUserScoreChangedEventArguments extends PluginEventArguments {
 
   /**
-   * Chat in which the score change took place.
+   * Chat in which the score change will take place.
    */
   public readonly chat: Chat;
   /**
-   * User that changed score.
+   * User that will change score.
    */
   public readonly user: User;
   /**
    * Change in score.
    */
-  public readonly changeInScore: number;
+  public changeInScore: number;
 
   /**
    * Constructor.
-   * @param chat Chat in which the score change took place.
-   * @param user User that changed score.
+   * @param chat Chat in which the score change will take place.
+   * @param user User that will change score.
    * @param changeInScore Delta score.
    */
   constructor(chat: Chat, user: User, changeInScore: number) {

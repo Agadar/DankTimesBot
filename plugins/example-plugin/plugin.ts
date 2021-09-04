@@ -11,11 +11,10 @@ import {
 import {
   EmptyEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/empty-event-arguments";
-import {
-  UserScoreChangedEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-event-arguments";
 import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
+import { PreUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
+import { PostUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
 
 /**
  * Example of the simplest DankTimesBot
@@ -35,8 +34,15 @@ export class Plugin extends AbstractPlugin {
       console.log("Example of a bot startup event.");
     });
 
-    this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedEventArguments) => {
-      this.sendMessage(data.chat.id, `A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`);
+    this.subscribeToPluginEvent(PluginEvent.PreUserScoreChange, (data: PreUserScoreChangedEventArguments) => {
+      const oldChange = data.changeInScore;
+      data.changeInScore += 5;
+      this.sendMessage(data.chat.id, `Example of a pre user score change event. Player: ${data.user.name},` +
+        `old score change: ${oldChange}, new score change: ${data.changeInScore}`);
+    });
+
+    this.subscribeToPluginEvent(PluginEvent.PostUserScoreChange, (data: PostUserScoreChangedEventArguments) => {
+      this.sendMessage(data.chat.id, `Example of a post user score change event. Player: ${data.user.name}, change: ${data.changeInScore}`);
     });
 
     this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessageEventArguments) => {

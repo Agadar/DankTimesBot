@@ -5,7 +5,6 @@ import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { User } from "../chat/user/user";
 import { DankTime } from "../dank-time/dank-time";
 import { PluginHost } from "../plugin-host/plugin-host";
-import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { IUtil } from "../util/i-util";
 import { IChatRegistry } from "./i-chat-registry";
 import { IChatRegistryListener } from "./i-chat-registry-listener";

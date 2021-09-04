@@ -8,11 +8,12 @@ import {
 } from "./plugin-events/event-arguments/leaderboard-post-event-arguments";
 import { EmptyEventArguments } from "./plugin-events/event-arguments/empty-event-arguments";
 import {
-  UserScoreChangedEventArguments,
-} from "./plugin-events/event-arguments/user-score-changed-event-arguments";
+  PreUserScoreChangedEventArguments,
+} from "./plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEventArguments } from "./plugin-events/plugin-event-arguments";
 import { PluginEvent } from "./plugin-events/plugin-event-types";
 import { AbstractPlugin } from "./plugin/plugin";
+import { PostUserScoreChangedEventArguments } from "./plugin-events/event-arguments/post-user-score-changed-event-arguments";
 
 /**
  * Class exposing the Plugin Host concept. Plugins are managed by the Plugin Host.
@@ -30,7 +31,8 @@ export class PluginHost {
 
   /* Overload List */
   public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessageEventArguments): void;
-  public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedEventArguments): void;
+  public triggerEvent(event: PluginEvent.PreUserScoreChange, input: PreUserScoreChangedEventArguments): void;
+  public triggerEvent(event: PluginEvent.PostUserScoreChange, input: PostUserScoreChangedEventArguments): void;
   public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostEventArguments): void;
   public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
                       input: EmptyEventArguments): void;

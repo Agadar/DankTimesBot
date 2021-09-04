@@ -7,9 +7,6 @@ import {
 import {
   LeaderboardPostEventArguments,
 } from "../plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
-import {
-  UserScoreChangedEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/user-score-changed-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { IUtil } from "../util/i-util";

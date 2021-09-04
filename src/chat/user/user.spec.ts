@@ -44,15 +44,11 @@ describe("User.addToScore", () => {
     user = new User(0, "user0", 5, 0, false, 0);
   });
 
-  it("supplying a non-whole score throws an error", () => {
-    try {
+  it("supplying a non-whole score rounds it and adds it to the user's score", () => {
       user.addToScore(chat, pluginHost, 5.5, 100);
-      assert.fail(0, 1, "Expected RangeError!");
-    } catch (err) {
-      if (!(err instanceof RangeError)) {
-        throw err;
-      }
-    }
+      assert.equal(user.score, 11);
+      assert.equal(user.lastScoreChange, 6);
+      assert.equal(user.lastScoreTimestamp, 100);
   });
 
   it("supplying a positive score adds it to user's score", () => {

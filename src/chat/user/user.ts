@@ -1,4 +1,5 @@
-import { UserScoreChangedEventArguments } from "../../plugin-host/plugin-events/event-arguments/user-score-changed-event-arguments";
+import { PostUserScoreChangedEventArguments } from "../../plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
+import { PreUserScoreChangedEventArguments } from "../../plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEvent } from "../../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../../plugin-host/plugin-host";
 import { Chat } from "../chat";
@@ -85,17 +86,17 @@ export class User implements BasicUser {
  * @param timestamp Timestamp of the score change.
  */
   public addToScore(chat: Chat, pluginHost: PluginHost, amount: number, timestamp: number): void {
-    if (amount % 1 !== 0) {
-      throw new RangeError("The amount should be a whole number!");
-    }
-    amount = Math.max(amount, -this.myScore);
+    const preEvent = new PreUserScoreChangedEventArguments(chat, this, amount);
+    pluginHost.triggerEvent(PluginEvent.PreUserScoreChange, preEvent);
+
+    amount = Math.max(Math.round(preEvent.changeInScore), -this.myScore);
     this.myScore += amount;
     this.myLastScoreChange += amount;
 
-    if (amount > 0 && timestamp) {
+    if (amount > 0) {
       this.myLastScoreTimestamp = timestamp;
     }
-    pluginHost.triggerEvent(PluginEvent.UserScoreChange, new UserScoreChangedEventArguments(chat, this, amount));
+    pluginHost.triggerEvent(PluginEvent.PostUserScoreChange, new PostUserScoreChangedEventArguments(chat, this, amount));
   }
 
   /**
