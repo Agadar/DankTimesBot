@@ -5,7 +5,7 @@ import { PluginEventArguments } from "../plugin-event-arguments";
 /**
  * Event Arguments for the ChatMessage event.
  */
-export class ChatMessagePluginEventArguments extends PluginEventArguments {
+export class ChatMessageEventArguments extends PluginEventArguments {
 
   /**
    * The chat in which the message is being posted.

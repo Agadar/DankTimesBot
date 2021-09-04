@@ -1,4 +1,4 @@
-import { UserScoreChangedPluginEventArguments } from "../../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { UserScoreChangedEventArguments } from "../../plugin-host/plugin-events/event-arguments/user-score-changed-event-arguments";
 import { PluginEvent } from "../../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../../plugin-host/plugin-host";
 import { Chat } from "../chat";
@@ -95,7 +95,7 @@ export class User implements BasicUser {
     if (amount > 0 && timestamp) {
       this.myLastScoreTimestamp = timestamp;
     }
-    pluginHost.triggerEvent(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(chat, this, amount));
+    pluginHost.triggerEvent(PluginEvent.UserScoreChange, new UserScoreChangedEventArguments(chat, this, amount));
   }
 
   /**

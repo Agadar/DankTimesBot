@@ -1,8 +1,8 @@
 import { Chat } from "./chat/chat";
 import { ContextRoot } from "./context-root";
 import {
-  NoArgumentsPluginEventArguments,
-} from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+  EmptyEventArguments,
+} from "./plugin-host/plugin-events/event-arguments/empty-event-arguments";
 import { PluginEvent } from "./plugin-host/plugin-events/plugin-event-types";
 
 /**
@@ -29,7 +29,7 @@ export class Server {
     // Also, punishes players that have not scored in the past 24 hours.
     this.scheduleNightlyUpdates();
 
-    this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotStartup, new NoArgumentsPluginEventArguments());
+    this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotStartup, new EmptyEventArguments());
 
     // Send a release log message to all chats, assuming there are release logs.
     this.sendWhatsNewMessageIfApplicable();
@@ -49,7 +49,7 @@ export class Server {
     this.contextRoot.nodeCleanup((exitCode: number | null, signal: string | null) => {
       console.info("Persisting data to file before exiting...");
       this.contextRoot.fileIO.saveChatsToFile(this.contextRoot.chatRegistry.chats);
-      this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotShutdown, new NoArgumentsPluginEventArguments());
+      this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotShutdown, new EmptyEventArguments());
       return true;
     });
   }

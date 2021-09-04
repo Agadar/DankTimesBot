@@ -2,14 +2,14 @@ import { Moment } from "moment-timezone";
 import { BasicDankTime } from "../dank-time/basic-dank-time";
 import { DankTime } from "../dank-time/dank-time";
 import {
-  ChatMessagePluginEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
+  ChatMessageEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
 import {
-  LeaderboardPostPluginEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
+  LeaderboardPostEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
 import {
-  UserScoreChangedPluginEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+  UserScoreChangedEventArguments,
+} from "../plugin-host/plugin-events/event-arguments/user-score-changed-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { IUtil } from "../util/i-util";
@@ -269,7 +269,7 @@ export class Chat {
     msg.text = this.util.cleanText(msg.text);
 
     // Chat message event
-    const eventArgs = new ChatMessagePluginEventArguments(this, user, msg, output);
+    const eventArgs = new ChatMessageEventArguments(this, user, msg, output);
     this.pluginHost.triggerEvent(PluginEvent.ChatMessage, eventArgs);
     return eventArgs.botReplies;
   }
@@ -327,7 +327,7 @@ export class Chat {
     }
 
     // Allow plugins to change the leaderboard text.
-    const eventArgs = new LeaderboardPostPluginEventArguments(this, leaderboard);
+    const eventArgs = new LeaderboardPostEventArguments(this, leaderboard);
     this.pluginHost.triggerEvent(PluginEvent.LeaderboardPost, eventArgs);
     return eventArgs.leaderboardText;
   }

@@ -1,15 +1,15 @@
 import { BotCommandRegistry } from "../bot-commands/bot-command-registry";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import {
-  ChatMessagePluginEventArguments,
-} from "./plugin-events/event-arguments/chat-message-plugin-event-arguments";
+  ChatMessageEventArguments,
+} from "./plugin-events/event-arguments/chat-message-event-arguments";
 import {
-  LeaderboardPostPluginEventArguments,
-} from "./plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
-import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+  LeaderboardPostEventArguments,
+} from "./plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { EmptyEventArguments } from "./plugin-events/event-arguments/empty-event-arguments";
 import {
-  UserScoreChangedPluginEventArguments,
-} from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+  UserScoreChangedEventArguments,
+} from "./plugin-events/event-arguments/user-score-changed-event-arguments";
 import { PluginEventArguments } from "./plugin-events/plugin-event-arguments";
 import { PluginEvent } from "./plugin-events/plugin-event-types";
 import { AbstractPlugin } from "./plugin/plugin";
@@ -29,11 +29,11 @@ export class PluginHost {
   constructor(public readonly plugins: AbstractPlugin[]) { }
 
   /* Overload List */
-  public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessagePluginEventArguments): void;
-  public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): void;
-  public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostPluginEventArguments): void;
+  public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessageEventArguments): void;
+  public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedEventArguments): void;
+  public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostEventArguments): void;
   public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
-                      input: NoArgumentsPluginEventArguments): void;
+                      input: EmptyEventArguments): void;
 
   /**
    * Trigger a certain event on this Plugin Host's plugins.

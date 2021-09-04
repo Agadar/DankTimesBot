@@ -3,17 +3,17 @@ import { Chat } from "../../src/chat/chat";
 import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
 import { User } from "../../src/chat/user/user";
 import {
-  ChatMessagePluginEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
+  ChatMessageEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
 import {
-  LeaderboardPostPluginEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
+  LeaderboardPostEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
 import {
-  NoArgumentsPluginEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+  EmptyEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/empty-event-arguments";
 import {
-  UserScoreChangedPluginEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+  UserScoreChangedEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/user-score-changed-event-arguments";
 import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
 
@@ -31,23 +31,23 @@ export class Plugin extends AbstractPlugin {
   constructor() {
     super("Example Plugin", "1.1.0");
 
-    this.subscribeToPluginEvent(PluginEvent.BotStartup, (data: NoArgumentsPluginEventArguments) => {
+    this.subscribeToPluginEvent(PluginEvent.BotStartup, (data: EmptyEventArguments) => {
       console.log("Example of a bot startup event.");
     });
 
-    this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedPluginEventArguments) => {
+    this.subscribeToPluginEvent(PluginEvent.UserScoreChange, (data: UserScoreChangedEventArguments) => {
       this.sendMessage(data.chat.id, `A player changed score! Player: ${data.user.name}, change: ${data.changeInScore}`);
     });
 
-    this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessagePluginEventArguments) => {
+    this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessageEventArguments) => {
       data.botReplies = data.botReplies.concat(`Example of a chat message event`);
     });
 
-    this.subscribeToPluginEvent(PluginEvent.LeaderboardPost, (data: LeaderboardPostPluginEventArguments) => {
+    this.subscribeToPluginEvent(PluginEvent.LeaderboardPost, (data: LeaderboardPostEventArguments) => {
       data.leaderboardText = data.leaderboardText + "\n\n Example of a leaderboard post event.";
     });
 
-    this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: NoArgumentsPluginEventArguments) => {
+    this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: EmptyEventArguments) => {
       console.log("Example of a bot shutdown event.");
     });
   }

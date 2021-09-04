@@ -1,17 +1,17 @@
 import { BotCommand } from "../../bot-commands/bot-command";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
 import {
-  ChatMessagePluginEventArguments,
-} from "../plugin-events/event-arguments/chat-message-plugin-event-arguments";
+  ChatMessageEventArguments,
+} from "../plugin-events/event-arguments/chat-message-event-arguments";
 import {
-  LeaderboardPostPluginEventArguments,
-} from "../plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
+  LeaderboardPostEventArguments,
+} from "../plugin-events/event-arguments/leaderboard-post-event-arguments";
 import {
-  NoArgumentsPluginEventArguments,
-} from "../plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+  EmptyEventArguments,
+} from "../plugin-events/event-arguments/empty-event-arguments";
 import {
-  UserScoreChangedPluginEventArguments,
-} from "../plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+  UserScoreChangedEventArguments,
+} from "../plugin-events/event-arguments/user-score-changed-event-arguments";
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
 import { PluginEvent } from "../plugin-events/plugin-event-types";
 import { IPluginListener } from "./plugin-listener";
@@ -90,13 +90,13 @@ export abstract class AbstractPlugin {
 
   /* Function overload list */
   protected subscribeToPluginEvent(event: PluginEvent.ChatMessage,
-                                   eventFn: (eventArgs: ChatMessagePluginEventArguments) => void): void;
+                                   eventFn: (eventArgs: ChatMessageEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.UserScoreChange,
-                                   eventFn: (eventArgs: UserScoreChangedPluginEventArguments) => void): void;
+                                   eventFn: (eventArgs: UserScoreChangedEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
-                                   eventFn: (eventArgs: LeaderboardPostPluginEventArguments) => void): void;
+                                   eventFn: (eventArgs: LeaderboardPostEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
-                                   eventFn: (eventArgs: NoArgumentsPluginEventArguments) => void): void;
+                                   eventFn: (eventArgs: EmptyEventArguments) => void): void;
 
   /**
    * Subscribe to a certain PLUGIN_EVENT.

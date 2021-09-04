@@ -4,7 +4,7 @@ import { PluginEventArguments } from "../plugin-event-arguments";
 /**
  * Leaderboard Post Plugin Event Arguments.
  */
-export class LeaderboardPostPluginEventArguments extends PluginEventArguments {
+export class LeaderboardPostEventArguments extends PluginEventArguments {
 
   /**
    * The chat in which the leaderboard is about to be posted.

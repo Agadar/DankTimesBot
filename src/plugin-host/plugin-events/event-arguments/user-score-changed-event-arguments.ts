@@ -6,7 +6,7 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  * Event Arguments for the User Score Changed event.
  * Contains chat, user, and delta score.
  */
-export class UserScoreChangedPluginEventArguments extends PluginEventArguments {
+export class UserScoreChangedEventArguments extends PluginEventArguments {
 
   /**
    * Chat in which the score change took place.
