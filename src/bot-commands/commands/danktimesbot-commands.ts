@@ -160,7 +160,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   public plugins(chat: Chat, user: User, msg: any, match: any): string {
     let out = "<b>🔌 PLUGINS</b>\n";
     chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
-      out += `\n- ${plugin.name}`;
+      out += `\n- ${plugin.name} ${plugin.version}`;
     });
     return out;
   }

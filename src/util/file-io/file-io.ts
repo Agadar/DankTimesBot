@@ -1,3 +1,4 @@
+import { Console } from "console";
 import * as ts from "typescript";
 import { BasicChat } from "../../chat/basic-chat";
 import { Chat } from "../../chat/chat";
@@ -149,7 +150,7 @@ export class FileIO implements IFileIO {
       .map((pluginDir) => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
 
     // Load & Return plugins.
-    return activePlugins
+    const plugins = activePlugins
       .map((plugin) => ([plugin, ((() => {
         try {
           return new (require(`../../../plugins/${plugin}/plugin.js`)).Plugin();
@@ -160,6 +161,16 @@ export class FileIO implements IFileIO {
         pluginMap[1].pID = () => pluginMap[0];
         return pluginMap[1];
       }); /* So Sorry */
+
+    // Print plugins to console
+    if (plugins.length == 0) {
+      console.info("No plugins loaded!");
+    } else {
+      console.info("Loaded the following plugins:");
+      plugins.forEach(plugin => console.info(`- ${plugin.name} ${plugin.version}`));
+    }
+
+    return plugins;
   }
 
   /**
