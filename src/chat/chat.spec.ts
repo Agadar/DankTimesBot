@@ -367,6 +367,34 @@ describe("Chat.processMessage", () => {
     assert.equal(scorer.score, 10);
   });
 
+  it("should punish a player for calling out a dank time at the wrong time", () => {
+
+    // Arrange
+    chat.setSetting(CoreSettingsNames.punishUntimelyDankTime, "true");
+    chat.addDankTime(new DankTime(1, 14, ["0114"], () => dankTimePoints));
+
+    // Act
+    const res = chat.processMessage(getTelegramMsgObject(1, "user#1", "0114", now.unix().toString()));
+
+    // Assert
+    const user = chat.getOrCreateUser(1);
+    assert.equal(user.score, 5);
+  });
+
+  it("should NOT punish a player for calling out a dank time at the wrong time if configured not to", () => {
+
+    // Arrange
+    chat.setSetting(CoreSettingsNames.punishUntimelyDankTime, "false");
+    chat.addDankTime(new DankTime(1, 14, ["0114"], () => dankTimePoints));
+
+    // Act
+    const res = chat.processMessage(getTelegramMsgObject(1, "user#1", "0114", now.unix().toString()));
+
+    // Assert
+    const user = chat.getOrCreateUser(1);
+    assert.equal(user.score, 10);
+  });
+
 });
 
 function getTelegramMsgObject(fromId: number, fromName: string, usertext: string, timestamp: string) {

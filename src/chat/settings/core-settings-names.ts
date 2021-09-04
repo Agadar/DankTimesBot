@@ -12,4 +12,5 @@ export class CoreSettingsNames {
     public static readonly handicapsEnabled = "handicaps.enabled";
     public static readonly handicapsMultiplier = "handicaps.multiplier";
     public static readonly handicapsBottomFraction = "handicaps.bottomfraction";
+    public static readonly punishUntimelyDankTime = "punishuntimelydanktime";
 }

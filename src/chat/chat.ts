@@ -415,6 +415,10 @@ export class Chat {
     return this.getSetting<number>(CoreSettingsNames.handicapsBottomFraction);
   }
 
+  private get punishUntimelyDankTime() : boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.punishUntimelyDankTime);
+  }
+
   /**
    * Gets both normal and random dank times that have the specified text.
    */
@@ -509,9 +513,11 @@ export class Chat {
       }
     }
     // If no match was found, punish the user.
-    user.addToScore(-subtractBy, now.unix());
-    output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
-      new UserScoreChangedPluginEventArguments(this, user, -subtractBy)));
+    if (this.punishUntimelyDankTime) {
+      user.addToScore(-subtractBy, now.unix());
+      output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
+        new UserScoreChangedPluginEventArguments(this, user, -subtractBy)));
+    }
     return output;
   }
 }

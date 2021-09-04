@@ -3,6 +3,7 @@
     "version": "1.8.0",
     "date": "tbd",
     "changes": [
+      "Added punishuntimelydanktime setting",
       "Performed a tech refresh"
     ]
   },

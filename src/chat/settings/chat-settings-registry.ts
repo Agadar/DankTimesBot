@@ -12,39 +12,43 @@ export class ChatSettingsRegistry {
     constructor(private readonly moment: any) {
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.autoleaderboards,
-            "whether a leaderboard is auto-posted 1 minute after every dank time",
+            "if a leaderboard is auto-posted 1 minute after every dank time",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.firstNotifications,
-            "whether this chat announces the first user to score",
+            "if this chat announces the first user to score",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicapsEnabled,
-            "whether the users with the lowest scores earn more points",
+            "if the players with the lowest scores earn more points",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicapsBottomFraction,
-            "the bottom fraction of users considered handicapped",
+            "the bottom fraction of players considered handicapped",
             0.25, this.toNumber.bind(this), this.handicapsBottomFractionValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicapsMultiplier,
-            "the multiplier bonus given to handicapped users",
+            "the multiplier bonus given to handicapped players",
             1.5, this.toNumber.bind(this), this.multiplierValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.hardcoremodeEnabled,
-            "whether every day, users are punished if they haven't scored the previous day",
+            "if every day, players are punished if they haven't scored the previous day",
             false, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.hardcoremodePunishFraction,
-            "the fraction of a user's score subtracted when punished by hardcode mode",
+            "the fraction of a players's score subtracted when punished by hardcode mode",
             0.1, this.toNumber.bind(this), this.hardcorePunishFractionValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.firstMultiplier,
-            "the multiplier for the score of the first user to score",
+            "the multiplier for the score of the first players to score",
             2, this.toNumber.bind(this), this.multiplierValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.normaltimesNotifications,
-            "whether notifications of normal dank times are sent",
+            "if notifications of normal dank times are sent",
+            true, this.toBoolean.bind(this), this.noValidation.bind(this)));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.punishUntimelyDankTime,
+            "if players are punished for typing a dank time when it's not the right time",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.randomtimesFrequency,
