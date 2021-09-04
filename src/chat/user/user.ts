@@ -1,3 +1,7 @@
+import { UserScoreChangedPluginEventArguments } from "../../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { PluginEvent } from "../../plugin-host/plugin-events/plugin-event-types";
+import { PluginHost } from "../../plugin-host/plugin-host";
+import { Chat } from "../chat";
 import { BasicUser } from "./basic-user";
 
 export class User implements BasicUser {
@@ -73,10 +77,14 @@ export class User implements BasicUser {
     return this.myLastScoreChange;
   }
 
-  /**
-   * Adds an amount to the user's DankTimes score.
-   */
-  public addToScore(amount: number, timestamp?: number): void {
+/**
+ * Adds an amount to the user's DankTimes score.
+ * @param chat The chat to which the user belongs.
+ * @param pluginHost Plugin host used for firing score change event.
+ * @param amount The amount to change the score with.
+ * @param timestamp Timestamp of the score change.
+ */
+  public addToScore(chat: Chat, pluginHost: PluginHost, amount: number, timestamp: number): void {
     if (amount % 1 !== 0) {
       throw new RangeError("The amount should be a whole number!");
     }
@@ -87,6 +95,7 @@ export class User implements BasicUser {
     if (amount > 0 && timestamp) {
       this.myLastScoreTimestamp = timestamp;
     }
+    pluginHost.triggerEvent(PluginEvent.UserScoreChange, new UserScoreChangedPluginEventArguments(chat, this, amount));
   }
 
   /**

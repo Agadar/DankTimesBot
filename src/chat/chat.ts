@@ -352,7 +352,7 @@ export class Chat {
         if (timestamp - user.lastScoreTimestamp >= day) {
           let punishBy = Math.round(user.score * this.hardcoremodePunishFraction);
           punishBy = Math.max(punishBy, 10);
-          user.addToScore(-punishBy, timestamp);
+          user.addToScore(this, this.pluginHost, -punishBy, timestamp);
         }
       });
     }
@@ -486,27 +486,19 @@ export class Chat {
           if (this.userDeservesHandicapBonus(user.id)) {
             score *= this.handicapsMultiplier;
           }
-          user.addToScore(Math.round(score), now.unix());
-          const eventArgs = new UserScoreChangedPluginEventArguments(this, user, Math.round(score), output);
-          this.pluginHost.triggerEvent(PluginEvent.UserScoreChange, eventArgs);
-          output = eventArgs.messages;
+          user.addToScore(this, this.pluginHost, Math.round(score), now.unix());
           user.called = true;
 
           if (this.firstNotifications) {
             output.push("👏 " + user.name + " was the first to score!");
           }
         } else if (user.called) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.getPoints(), now.unix());
-          const eventArgs = new UserScoreChangedPluginEventArguments(this, user, -dankTime.getPoints(), output);
-          this.pluginHost.triggerEvent(PluginEvent.UserScoreChange, eventArgs);
-          output = eventArgs.messages;
+          user.addToScore(this, this.pluginHost, -dankTime.getPoints(), now.unix());
+
         } else {  // Else, award point.
           const score = Math.round(this.userDeservesHandicapBonus(user.id)
             ? dankTime.getPoints() * this.handicapsMultiplier : dankTime.getPoints());
-          user.addToScore(score, now.unix());
-          const eventArgs = new UserScoreChangedPluginEventArguments(this, user, score, output);
-          this.pluginHost.triggerEvent(PluginEvent.UserScoreChange, eventArgs);
-          output = eventArgs.messages;
+          user.addToScore(this, this.pluginHost, score, now.unix());
           user.called = true;
         }
         return output;
@@ -516,10 +508,7 @@ export class Chat {
     }
     // If no match was found, punish the user.
     if (this.punishUntimelyDankTime) {
-      user.addToScore(-subtractBy, now.unix());
-      const eventArgs = new UserScoreChangedPluginEventArguments(this, user, -subtractBy, output);
-      this.pluginHost.triggerEvent(PluginEvent.UserScoreChange, eventArgs);
-      output = eventArgs.messages;
+      user.addToScore(this, this.pluginHost, -subtractBy, now.unix());
     }
     return output;
   }

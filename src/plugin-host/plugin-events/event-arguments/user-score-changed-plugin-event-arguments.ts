@@ -22,22 +22,15 @@ export class UserScoreChangedPluginEventArguments extends PluginEventArguments {
   public readonly changeInScore: number;
 
   /**
-   * Optional messages to be sent to the chat. May be altered/added to by plugins.
-   */
-  public messages: string[];
-
-  /**
    * Constructor.
    * @param chat Chat in which the score change took place.
    * @param user User that changed score.
    * @param changeInScore Delta score.
-   * @param messages Optional messages to be sent to the chat. May be altered/added to by plugins.
    */
-  constructor(chat: Chat, user: User, changeInScore: number, messages: string[]) {
+  constructor(chat: Chat, user: User, changeInScore: number) {
     super();
     this.chat = chat;
     this.user = user;
     this.changeInScore = changeInScore;
-    this.messages = messages;
   }
 }
