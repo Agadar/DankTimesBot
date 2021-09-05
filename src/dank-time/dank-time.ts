@@ -37,8 +37,10 @@ export class DankTime {
    * @param minute The minute at which points can be scored.
    * @param texts The texts to shout at the hour:minute to score points.
    * @param points The amount of points to reward or confiscate.
+   * @param isRandom If this is a random dank time (otherwise it's a normal one).
    */
-  constructor(public readonly hour: number, public readonly minute: number, texts: string[], points: () => number) {
+  constructor(public readonly hour: number, public readonly minute: number, texts: string[], points: () => number,
+              public readonly isRandom = false) {
     if (this.hour % 1 !== 0 || this.hour < 0 || this.hour > 23) {
       throw new RangeError("The hour must be a whole number between 0 and 23!");
     }

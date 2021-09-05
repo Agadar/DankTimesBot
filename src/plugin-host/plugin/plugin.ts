@@ -4,18 +4,18 @@ import {
   ChatMessageEventArguments,
 } from "../plugin-events/event-arguments/chat-message-event-arguments";
 import {
-  LeaderboardPostEventArguments,
-} from "../plugin-events/event-arguments/leaderboard-post-event-arguments";
-import {
   EmptyEventArguments,
 } from "../plugin-events/event-arguments/empty-event-arguments";
+import {
+  LeaderboardPostEventArguments,
+} from "../plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { PostUserScoreChangedEventArguments } from "../plugin-events/event-arguments/post-user-score-changed-event-arguments";
 import {
   PreUserScoreChangedEventArguments,
 } from "../plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
 import { PluginEvent } from "../plugin-events/plugin-event-types";
 import { IPluginListener } from "./plugin-listener";
-import { PostUserScoreChangedEventArguments } from "../plugin-events/event-arguments/post-user-score-changed-event-arguments";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -95,7 +95,7 @@ export abstract class AbstractPlugin {
   protected subscribeToPluginEvent(event: PluginEvent.PreUserScoreChange,
                                    eventFn: (eventArgs: PreUserScoreChangedEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.PostUserScoreChange,
-                                  eventFn: (eventArgs: PostUserScoreChangedEventArguments) => void): void;
+                                   eventFn: (eventArgs: PostUserScoreChangedEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
                                    eventFn: (eventArgs: LeaderboardPostEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,

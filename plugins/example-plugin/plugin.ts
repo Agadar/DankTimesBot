@@ -15,6 +15,7 @@ import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-ty
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
 import { PreUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PostUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
+import { AlterUserScoreArgs } from "../../src/chat/alter-user-score-args";
 
 /**
  * Example of the simplest DankTimesBot
@@ -37,12 +38,13 @@ export class Plugin extends AbstractPlugin {
     this.subscribeToPluginEvent(PluginEvent.PreUserScoreChange, (data: PreUserScoreChangedEventArguments) => {
       const oldChange = data.changeInScore;
       data.changeInScore += 5;
-      this.sendMessage(data.chat.id, `Example of a pre user score change event. Player: ${data.user.name},` +
-        `old score change: ${oldChange}, new score change: ${data.changeInScore}`);
+      this.sendMessage(data.chat.id, `Example of a pre user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
+      `, Reason: ${data.reason}, Player: ${data.user.name}, old score change: ${oldChange}, new score change: ${data.changeInScore}`);
     });
 
     this.subscribeToPluginEvent(PluginEvent.PostUserScoreChange, (data: PostUserScoreChangedEventArguments) => {
-      this.sendMessage(data.chat.id, `Example of a post user score change event. Player: ${data.user.name}, change: ${data.changeInScore}`);
+      this.sendMessage(data.chat.id, `Example of a post user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
+      `, Reason: ${data.reason}, Player: ${data.user.name}, score change: ${data.changeInScore}`);
     });
 
     this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessageEventArguments) => {
@@ -71,7 +73,8 @@ export class Plugin extends AbstractPlugin {
    */
   public getPluginSpecificCommands(): BotCommand[] {
     const echoCommand = new BotCommand("echo", "echoes what a user sent", this.echo.bind(this));
-    return [echoCommand];
+    const printMoneyCommand = new BotCommand("printmoney", "gives a user 10 free points", this.printMoney.bind(this));
+    return [echoCommand, printMoneyCommand];
   }
 
   private echo(chat: Chat, user: User, msg: any, match: string[]): string {
@@ -83,5 +86,11 @@ export class Plugin extends AbstractPlugin {
       });
     }, 3000);
     return `${user.name} said: '${match[0].split(" ")[1]}'`;
+  }
+
+  private printMoney(chat: Chat, user: User, msg: any, match: string[]): string {
+    const alterUserScoreArgs = new AlterUserScoreArgs(user, 10, this.name, "printmoney");
+    const correctedAmount = chat.alterUserScore(alterUserScoreArgs);
+    return `Gave ${user.name} ${correctedAmount} free points!`;
   }
 }

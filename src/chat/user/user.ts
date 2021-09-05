@@ -1,8 +1,3 @@
-import { PostUserScoreChangedEventArguments } from "../../plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
-import { PreUserScoreChangedEventArguments } from "../../plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
-import { PluginEvent } from "../../plugin-host/plugin-events/plugin-event-types";
-import { PluginHost } from "../../plugin-host/plugin-host";
-import { Chat } from "../chat";
 import { BasicUser } from "./basic-user";
 
 export class User implements BasicUser {
@@ -79,24 +74,25 @@ export class User implements BasicUser {
   }
 
 /**
+ * NOTE: Plugins should not use this directly, as using this directly means no
+ * user score events are fired for other plugins to listen to! Use the available
+ * methods in Chat instead.
+ *
  * Adds an amount to the user's DankTimes score.
- * @param chat The chat to which the user belongs.
- * @param pluginHost Plugin host used for firing score change event.
+ *
  * @param amount The amount to change the score with.
- * @param timestamp Timestamp of the score change.
+ * @param timestamp Optional timestamp of the score change. Used for hardmode punishment.
+ * @returns The actual number with which the user's score was altered after corrections.
  */
-  public addToScore(chat: Chat, pluginHost: PluginHost, amount: number, timestamp: number): void {
-    const preEvent = new PreUserScoreChangedEventArguments(chat, this, amount);
-    pluginHost.triggerEvent(PluginEvent.PreUserScoreChange, preEvent);
-
-    amount = Math.max(Math.round(preEvent.changeInScore), -this.myScore);
+  public alterScore(amount: number, timestamp?: number): number {
+    amount = Math.max(Math.round(amount), -this.myScore);
     this.myScore += amount;
     this.myLastScoreChange += amount;
 
-    if (amount > 0) {
+    if (amount > 0 && timestamp && timestamp > this.myLastScoreTimestamp) {
       this.myLastScoreTimestamp = timestamp;
     }
-    pluginHost.triggerEvent(PluginEvent.PostUserScoreChange, new PostUserScoreChangedEventArguments(chat, this, amount));
+    return amount;
   }
 
   /**

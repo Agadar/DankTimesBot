@@ -3,17 +3,17 @@ import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import {
   ChatMessageEventArguments,
 } from "./plugin-events/event-arguments/chat-message-event-arguments";
+import { EmptyEventArguments } from "./plugin-events/event-arguments/empty-event-arguments";
 import {
   LeaderboardPostEventArguments,
 } from "./plugin-events/event-arguments/leaderboard-post-event-arguments";
-import { EmptyEventArguments } from "./plugin-events/event-arguments/empty-event-arguments";
+import { PostUserScoreChangedEventArguments } from "./plugin-events/event-arguments/post-user-score-changed-event-arguments";
 import {
   PreUserScoreChangedEventArguments,
 } from "./plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEventArguments } from "./plugin-events/plugin-event-arguments";
 import { PluginEvent } from "./plugin-events/plugin-event-types";
 import { AbstractPlugin } from "./plugin/plugin";
-import { PostUserScoreChangedEventArguments } from "./plugin-events/event-arguments/post-user-score-changed-event-arguments";
 
 /**
  * Class exposing the Plugin Host concept. Plugins are managed by the Plugin Host.
