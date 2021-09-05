@@ -1,6 +1,9 @@
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
+import { EmptyEventArguments } from "../plugin-host/plugin-events/event-arguments/empty-event-arguments";
+import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
+import { PluginHost } from "../plugin-host/plugin-host";
 import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
@@ -16,11 +19,11 @@ export class DankTimesBotController implements IDankTimesBotController {
     private readonly chatRegistry: IChatRegistry,
     private readonly dankTimeScheduler: IDankTimeScheduler,
     private readonly telegramClient: ITelegramClient,
-    plugins: AbstractPlugin[],
+    private readonly pluginHost: PluginHost,
   ) {
     this.chatRegistry.subscribe(this);
     this.telegramClient.subscribe(this);
-    plugins.forEach((plugin) => plugin.subscribe(this));
+    pluginHost.plugins.forEach((plugin) => plugin.subscribe(this));
   }
 
   /**
@@ -76,6 +79,7 @@ export class DankTimesBotController implements IDankTimesBotController {
         chat.hardcoreModeCheck(now);
       }
     });
+    this.pluginHost.triggerEvent(PluginEvent.NightlyUpdate, new EmptyEventArguments());
   }
 
   private errorResponseWarrantsChatRemoval(error: any): boolean {

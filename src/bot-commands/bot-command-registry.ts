@@ -10,7 +10,7 @@ export class BotCommandRegistry {
 
     private readonly commands = new Map<string, BotCommand>();
     private readonly awaitingConfirmationList = new Array<AwaitingConfirmationData>();
-    private readonly developerUserId = 100805902;
+    private readonly developerUserIds = [100805902];
 
     constructor(
         private readonly telegramClient: ITelegramClient,
@@ -103,7 +103,7 @@ export class BotCommandRegistry {
     }
 
     private async userIsAllowedToExecuteCommand(msg: any, botCommand: BotCommand): Promise<boolean> {
-        if (!botCommand.adminOnly || msg.chat.type === "private" || msg.from.id === this.developerUserId) {
+        if (!botCommand.adminOnly || msg.chat.type === "private" || this.developerUserIds.includes(msg.from.id)) {
             return true;
         }
 

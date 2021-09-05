@@ -80,7 +80,7 @@ export class ContextRoot {
 
     // Miscellaneous initializations and exports.
     this.danktimesbotController = new DankTimesBotController(momentImport, this.chatRegistry,
-      this.dankTimeScheduler, this.telegramClient, availablePlugins);
+      this.dankTimeScheduler, this.telegramClient, this.pluginHost);
     this.cronJob = CronJob;
     this.nodeCleanup = nodeCleanupImport;
   }

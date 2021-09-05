@@ -34,7 +34,7 @@ export class PluginHost {
   public triggerEvent(event: PluginEvent.PreUserScoreChange, input: PreUserScoreChangedEventArguments): void;
   public triggerEvent(event: PluginEvent.PostUserScoreChange, input: PostUserScoreChangedEventArguments): void;
   public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostEventArguments): void;
-  public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
+  public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate,
                       input: EmptyEventArguments): void;
 
   /**

@@ -98,7 +98,7 @@ export abstract class AbstractPlugin {
                                    eventFn: (eventArgs: PostUserScoreChangedEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
                                    eventFn: (eventArgs: LeaderboardPostEventArguments) => void): void;
-  protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
+  protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate,
                                    eventFn: (eventArgs: EmptyEventArguments) => void): void;
 
   /**

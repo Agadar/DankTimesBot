@@ -58,6 +58,10 @@ export class Plugin extends AbstractPlugin {
     this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: EmptyEventArguments) => {
       console.log("Example of a bot shutdown event.");
     });
+
+    this.subscribeToPluginEvent(PluginEvent.NightlyUpdate, (data: EmptyEventArguments) => {
+      console.log("Example of a nightly update event.");
+    });
   }
 
   /**
@@ -73,7 +77,7 @@ export class Plugin extends AbstractPlugin {
    */
   public getPluginSpecificCommands(): BotCommand[] {
     const echoCommand = new BotCommand("echo", "echoes what a user sent", this.echo.bind(this));
-    const printMoneyCommand = new BotCommand("printmoney", "gives a user 10 free points", this.printMoney.bind(this));
+    const printMoneyCommand = new BotCommand("printmoney", "gives the user 10 free points", this.printMoney.bind(this));
     return [echoCommand, printMoneyCommand];
   }
 
