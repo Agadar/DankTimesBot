@@ -27,8 +27,9 @@ export class BotCommandRegistry {
                 (entry) => entry.chat.id === msg.chat.id && entry.user.id === msg.from.id);
             if (dataIndex === -1) { return []; }
             const data = this.awaitingConfirmationList.splice(dataIndex, 1)[0];
+            const upperCased = split[0].toUpperCase();
 
-            if (split[0].toUpperCase() === "YES") {
+            if (upperCased === "Y" || upperCased === "YES") {
                 return [data.botCommand.action(data.chat, data.user, data.msg, data.match)];
             }
             return [];
@@ -90,7 +91,7 @@ export class BotCommandRegistry {
         if (botCommand.requiresConfirmation) {
             const data = new AwaitingConfirmationData(chat, user, msg, match, botCommand);
             this.awaitingConfirmationList.push(data);
-            return "🤔 Are you sure? Type 'yes' to confirm.";
+            return botCommand.confirmationText;
         }
         return botCommand.action(chat, user, msg, match);
     }

@@ -24,6 +24,7 @@ export class BotCommand {
    * @param showInHelp Whether to list this command in the help output.
    * @param adminOnly Whether only admins can execute this command.
    * @param requiresConfirmation Whether this command requires explicit confirmation.
+   * @param confirmationText The text for the confirmation.
    */
   constructor(
     public readonly name: string,
@@ -31,12 +32,13 @@ export class BotCommand {
     public readonly action: ((chat: Chat, user: User, msg: any, match: string[]) => string),
     public readonly showInHelp = true,
     public readonly adminOnly = false,
-    public readonly requiresConfirmation = false) { }
+    public readonly requiresConfirmation = false,
+    public readonly confirmationText = "🤔 Are you sure? Type 'yes' to confirm.") { }
 
   /**
    * Gets this command's regex, which is based on its name and the supplied bot name.
    */
   public getRegex(botname: string): RegExp {
-    return RegExp("^\\/" + this.name + "(@" + botname + ")?(\\s{1}\\S+)*$");
+    return RegExp(`^\/${this.name}(?:@${botname})?(?: )?(?:(?<= )(.*))?$`);
   }
 }

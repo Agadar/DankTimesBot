@@ -35,7 +35,7 @@ export class Server {
     this.sendWhatsNewMessageIfApplicable();
 
     // Inform server.
-    console.info(`Bot is now running! Version: ${this.contextRoot.version}.`);
+    console.info(`Bot is now running! Version: ${this.contextRoot.version}`);
   }
 
   private scheduleChatsPersistence(): void {
