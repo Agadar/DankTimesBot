@@ -18,6 +18,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./plugins/**/*"
   ]
 }

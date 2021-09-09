@@ -1,4 +1,5 @@
 import { BotCommand } from "../../src/bot-commands/bot-command";
+import { AlterUserScoreArgs } from "../../src/chat/alter-user-score-args";
 import { Chat } from "../../src/chat/chat";
 import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
 import { User } from "../../src/chat/user/user";
@@ -6,16 +7,15 @@ import {
   ChatMessageEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
 import {
-  LeaderboardPostEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
-import {
   EmptyEventArguments,
 } from "../../src/plugin-host/plugin-events/event-arguments/empty-event-arguments";
+import {
+  LeaderboardPostEventArguments,
+} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { PostUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
+import { PreUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
-import { PreUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
-import { PostUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
-import { AlterUserScoreArgs } from "../../src/chat/alter-user-score-args";
 
 /**
  * Example of the simplest DankTimesBot
