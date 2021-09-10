@@ -1,4 +1,5 @@
 import { BotCommand } from "../../bot-commands/bot-command";
+import { Chat } from "../../chat/chat";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
 import {
   ChatMessageEventArguments,
@@ -129,5 +130,13 @@ export abstract class AbstractPlugin {
    */
   protected deleteMessage(chatId: number, messageId: number): Promise<any> {
     return this.listener.onPluginWantsToDeleteChatMessage(chatId, messageId);
+  }
+
+  /**
+   * Gets the chat with the specified Id.
+   * @param chatId The id of the chat to get.
+   */
+  protected getChat(chatId: number): Chat | null {
+    return this.listener.onPluginWantsToGetChat(chatId);
   }
 }

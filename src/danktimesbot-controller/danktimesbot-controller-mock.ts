@@ -30,4 +30,8 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
   public onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<any> {
     return Promise.resolve({});
   }
+
+  public onPluginWantsToGetChat(chatId: number): Chat | null {
+    throw new Error("Method not implemented.");
+  }
 }

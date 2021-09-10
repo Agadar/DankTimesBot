@@ -82,6 +82,13 @@ export class DankTimesBotController implements IDankTimesBotController {
     this.pluginHost.triggerEvent(PluginEvent.NightlyUpdate, new EmptyEventArguments());
   }
 
+  /**
+   * From IPluginListener.
+   */
+  public onPluginWantsToGetChat(chatId: number): Chat | null {
+    return this.chatRegistry.chats.get(chatId) ?? null;
+  }
+
   private errorResponseWarrantsChatRemoval(error: any): boolean {
     return error && error.response && (error.response.statusCode === this.forbiddenStatusCode
       || (error.response.body && (error.response.body.description === this.requestNotFoundDescription ||
