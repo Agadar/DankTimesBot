@@ -1,4 +1,4 @@
-import { Moment } from "moment-timezone";
+import moment from "moment";
 import { ChatSetting } from "./chat-setting";
 import { ChatSettingTemplate } from "./chat-setting-template";
 import { CoreSettingsNames } from "./core-settings-names";
@@ -9,7 +9,7 @@ export class ChatSettingsRegistry {
     private readonly templates = new Array<ChatSettingTemplate<any>>();
 
     /** Constructor. Initializes all core settings templates. */
-    constructor(private readonly moment: any) {
+    constructor() {
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.autoleaderboards,
             "if a leaderboard is auto-posted 1 minute after every dank time",
@@ -106,7 +106,7 @@ export class ChatSettingsRegistry {
     }
 
     private toTimezoneString(original: string): string {
-        const momentTimezone = this.moment.tz.zone(original);
+        const momentTimezone = moment.tz.zone(original);
         if (momentTimezone === null) {
             throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
         }

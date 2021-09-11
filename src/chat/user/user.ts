@@ -44,14 +44,12 @@ export class User implements BasicUser {
     public called = false,
     private myLastScoreChange = 0,
   ) {
-    if (this.myScore % 1 !== 0 || this.myScore < 0) {
-      throw new RangeError("The score should be a whole, positive number!");
-    }
-    if (this.myLastScoreTimestamp % 1 !== 0) {
-      throw new RangeError("The last score timestamp should be a whole number!");
-    }
-    if (this.myLastScoreChange % 1 !== 0) {
-      throw new RangeError("The last score change should be a whole number!");
+    this.myScore = Math.floor(this.myScore);
+    this.myLastScoreTimestamp = Math.floor(this.myLastScoreTimestamp);
+    this.myLastScoreChange = Math.floor(this.myLastScoreChange);
+
+    if (this.myScore < 0) {
+      throw new RangeError("The score should be a positive number!");
     }
   }
 

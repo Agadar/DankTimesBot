@@ -4,7 +4,7 @@ import { BotCommand } from "./bot-command";
 
 describe("BotCommand.getRegex()", () => {
 
-  const regex = new BotCommand("command", "command description",
+  const regex = new BotCommand(["command"], "command description",
     (msg, match) => "", false, false).getRegex("DankTimesBot");
 
   const tests = [

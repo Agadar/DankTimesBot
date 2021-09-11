@@ -21,7 +21,7 @@ function initTestVariables() {
   telegramClient = new TelegramClientMock();
   pluginHost = mock(PluginHost);
   when(pluginHost.plugins).thenReturn(new Array<AbstractPlugin>());
-  dankController = new DankTimesBotController(moment, chatRegistry, dankTimeScheduler, telegramClient, instance(pluginHost));
+  dankController = new DankTimesBotController(chatRegistry, dankTimeScheduler, telegramClient, instance(pluginHost));
 }
 
 class ChatMock {

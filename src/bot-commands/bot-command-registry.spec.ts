@@ -29,9 +29,9 @@ describe("BotCommandRegistry #executeCommand", () => {
         },
     };
 
-    const nonAdminCommand = new BotCommand("testcommand", "description",
+    const nonAdminCommand = new BotCommand(["testcommand"], "description",
         nonAdmincommandObject.commandFunction, true, false);
-    const adminCommand = new BotCommand("testcommand", "description",
+    const adminCommand = new BotCommand(["testcommand"], "description",
         admincommandObject.commandFunction, true, true);
     const expectedAdminOnlyWarning = "🚫 This option is only available to admins!";
 
@@ -71,7 +71,7 @@ describe("BotCommandRegistry #executeCommand", () => {
                 id: 0,
             },
         };
-        botCommandRegistry = new BotCommandRegistry(telegramClientMock, moment, chatRegistry);
+        botCommandRegistry = new BotCommandRegistry(telegramClientMock, chatRegistry);
     });
 
     it("should execute a non-admin-only command as a non-admin", async () => {

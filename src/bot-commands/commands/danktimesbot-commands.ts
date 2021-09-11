@@ -6,7 +6,6 @@ import { DankTime } from "../../dank-time/dank-time";
 import { Release } from "../../misc/release";
 import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
 import { IUtil } from "../../util/i-util";
-import { BotCommand } from "../bot-command";
 import { BotCommandRegistry } from "../bot-command-registry";
 import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
 
@@ -101,10 +100,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   public help(chat: Chat, user: User, msg: any, match: any): string {
-    const sortedCommands = this.commandsRegistry.botCommands
-      .filter((command) => command.showInHelp).sort(BotCommand.compare);
+    const sortedCommands = this.commandsRegistry.getCommandsForHelpOutput();
     let help = "<b>ℹ️ AVAILABLE COMMANDS</b>\n";
-    sortedCommands.forEach((command) => help += "\n/" + command.name + " - " + command.description);
+    sortedCommands.forEach((command) => help += "\n/" + command.names[0] + " - " + command.description);
     return help;
   }
 

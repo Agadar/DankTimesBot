@@ -1,6 +1,5 @@
 import { assert } from "chai";
 import "mocha";
-import * as moment from "moment-timezone";
 import { Chat } from "../chat/chat";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { CoreSettingsNames } from "../chat/settings/core-settings-names";
@@ -12,7 +11,7 @@ import { Util } from "../util/util";
 import { DankTimeScheduler } from "./dank-time-scheduler";
 
 const util = new Util();
-const chatSettingsRegistry = new ChatSettingsRegistry(moment);
+const chatSettingsRegistry = new ChatSettingsRegistry();
 
 describe("DankTimeScheduler.scheduleRandomDankTime(chat, dankTime)", () => {
   it("should schedule a random dank time", () => {
@@ -20,7 +19,7 @@ describe("DankTimeScheduler.scheduleRandomDankTime(chat, dankTime)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
     chat.addDankTime(dankTime);
 
@@ -40,7 +39,7 @@ describe("DankTimeScheduler.scheduleDankTime(chat, dankTime)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
     chat.addDankTime(dankTime);
 
@@ -60,7 +59,7 @@ describe("DankTimeScheduler.unscheduleRandomDankTime(chat, dankTime)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
     chat.addDankTime(dankTime);
 
@@ -77,7 +76,7 @@ describe("DankTimeScheduler.unscheduleDankTime(chat, dankTime)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
     chat.addDankTime(dankTime);
 
@@ -94,7 +93,7 @@ describe("DankTimeScheduler.reset()", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
     chat.addDankTime(dankTime);
 
@@ -113,7 +112,7 @@ describe("DankTimeScheduler.unscheduleRandomDankTimesOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.generateRandomDankTimes();
 
     // Act and assert.
@@ -129,7 +128,7 @@ describe("DankTimeScheduler.unscheduleDankTimesOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.addDankTime(new DankTime(12, 12, ["1212"], () => 5));
     chat.addDankTime(new DankTime(21, 21, ["2121"], () => 5));
 
@@ -146,7 +145,7 @@ describe("DankTimeScheduler.unscheduleAllOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.addDankTime(new DankTime(12, 12, ["1212"], () => 5));
     chat.addDankTime(new DankTime(21, 21, ["2121"], () => 5));
     chat.generateRandomDankTimes();
@@ -166,7 +165,7 @@ describe("DankTimeScheduler.scheduleRandomDankTimesOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.setSetting(CoreSettingsNames.randomtimesFrequency, "5");
     chat.generateRandomDankTimes();
 
@@ -182,7 +181,7 @@ describe("DankTimeScheduler.scheduleDankTimesOfChat(chat)", () => {
     // Prepare.
     const scheduler = new DankTimeScheduler(new TelegramClientMock(), CronJobMock);
     const settings = chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+    const chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.addDankTime(new DankTime(12, 12, ["1212"], () => 5));
     chat.addDankTime(new DankTime(21, 21, ["2121"], () => 5));
 
@@ -195,7 +194,7 @@ describe("DankTimeScheduler.scheduleDankTimesOfChat(chat)", () => {
 describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
 
   const settings = chatSettingsRegistry.getChatSettings();
-  const chat = new Chat(moment, util, 1234, new PluginHost([]), settings);
+  const chat = new Chat(util, 1234, new PluginHost([]), settings);
   chat.addDankTime(new DankTime(12, 12, ["1212"], () => 5));
   chat.addDankTime(new DankTime(21, 21, ["2121"], () => 5));
   chat.setSetting(CoreSettingsNames.randomtimesFrequency, "5");

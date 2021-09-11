@@ -15,17 +15,6 @@ describe("User.constructor", () => {
     }
   });
 
-  it("supplying a non-whole score throws an error", () => {
-    try {
-      const user = new User(0, "user0", 5.5, 0, false, 0);
-      assert.fail(0, 1, "Expected RangeError!");
-    } catch (err) {
-      if (!(err instanceof RangeError)) {
-        throw err;
-      }
-    }
-  });
-
   it("supplying correct values gives us a valid User object", () => {
     const user = new User(0, "user0", 5, 0, false, 0);
   });

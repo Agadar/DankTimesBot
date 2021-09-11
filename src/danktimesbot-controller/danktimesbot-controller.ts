@@ -1,10 +1,10 @@
+import moment from "moment";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
 import { EmptyEventArguments } from "../plugin-host/plugin-events/event-arguments/empty-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
-import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
@@ -15,7 +15,6 @@ export class DankTimesBotController implements IDankTimesBotController {
   private readonly groupChatUpgradedDescription = "Bad Request: group chat was upgraded to a supergroup chat";
 
   public constructor(
-    private readonly moment: any,
     private readonly chatRegistry: IChatRegistry,
     private readonly dankTimeScheduler: IDankTimeScheduler,
     private readonly telegramClient: ITelegramClient,
@@ -65,7 +64,7 @@ export class DankTimesBotController implements IDankTimesBotController {
   }
 
   public doNightlyUpdate(): void {
-    const now = this.moment().unix();
+    const now = moment.now() / 1000;
     this.dankTimeScheduler.reset();
 
     this.chatRegistry.chats.forEach((chat: Chat) => {

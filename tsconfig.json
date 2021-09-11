@@ -2,7 +2,8 @@
   "compilerOptions": {
     "outDir": "./built",
     "allowJs": false,
-    "target": "es2017",
+    "target": "es2020",
+    "lib": ["es2020"],
     "noImplicitAny": true,
     "noEmitOnError": true,
     "strictNullChecks": true,
@@ -15,7 +16,9 @@
     "experimentalDecorators": true,
     "module": "commonjs",
     "baseUrl": "types",
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
   },
   "include": [
     "./src/**/*"

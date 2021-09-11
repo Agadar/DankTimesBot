@@ -17,47 +17,47 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
   public async registerDankTimesBotCommands(): Promise<void> {
     await Promise.all([
 
-      this.botCommandRegistry.registerCommand(new BotCommand("addtime",
+      this.botCommandRegistry.registerCommand(new BotCommand(["addtime"],
         "adds a dank time. format: [hour] [minute] [points] [text1] [text2] etc.",
         this.dankTimesBotCommands.addTime.bind(this.dankTimesBotCommands), true, true)),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("danktimes", "shows the user-specified dank times",
+      this.botCommandRegistry.registerCommand(new BotCommand(["danktimes"], "shows the user-specified dank times",
         this.dankTimesBotCommands.dankTimes.bind(this.dankTimesBotCommands))),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("help", "shows the available commands",
+      this.botCommandRegistry.registerCommand(new BotCommand(["help"], "shows the available commands",
         this.dankTimesBotCommands.help.bind(this.dankTimesBotCommands))),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("leaderboard", "shows the leaderboard",
+      this.botCommandRegistry.registerCommand(new BotCommand(["leaderboard"], "shows the leaderboard",
         this.dankTimesBotCommands.leaderBoard.bind(this.dankTimesBotCommands))),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("plugins", "shows the currently active plugins",
+      this.botCommandRegistry.registerCommand(new BotCommand(["plugins"], "shows the currently active plugins",
         this.dankTimesBotCommands.plugins.bind(this.dankTimesBotCommands))),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("removetime",
+      this.botCommandRegistry.registerCommand(new BotCommand(["removetime"],
         "removes a dank time. format: [hour] [minute]",
         this.dankTimesBotCommands.removeTime.bind(this.dankTimesBotCommands), true, true)),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("reset", "resets the leaderboard",
+      this.botCommandRegistry.registerCommand(new BotCommand(["reset"], "resets the leaderboard",
         this.dankTimesBotCommands.resetChat.bind(this.dankTimesBotCommands), true, true, true)),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("settings", "shows the current settings values",
+      this.botCommandRegistry.registerCommand(new BotCommand(["settings"], "shows the current settings values",
         this.dankTimesBotCommands.settings.bind(this.dankTimesBotCommands))),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("settingshelp", "shows the settings descriptions",
+      this.botCommandRegistry.registerCommand(new BotCommand(["settingshelp"], "shows the settings descriptions",
         this.dankTimesBotCommands.settingshelp.bind(this.dankTimesBotCommands))),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("set", "sets a setting. format: [name] [value]",
+      this.botCommandRegistry.registerCommand(new BotCommand(["set"], "sets a setting. format: [name] [value]",
         this.dankTimesBotCommands.set.bind(this.dankTimesBotCommands), true, true)),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("start",
+      this.botCommandRegistry.registerCommand(new BotCommand(["start"],
         "starts keeping track of scores and sending messages",
         this.dankTimesBotCommands.startChat.bind(this.dankTimesBotCommands), true, true)),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("stop",
+      this.botCommandRegistry.registerCommand(new BotCommand(["stop"],
         "stops keeping track of scores and sending messages",
         this.dankTimesBotCommands.stopChat.bind(this.dankTimesBotCommands), true, true)),
 
-      this.botCommandRegistry.registerCommand(new BotCommand("whatsnew",
+      this.botCommandRegistry.registerCommand(new BotCommand(["whatsnew"],
         "shows the release notes of the current version",
         this.dankTimesBotCommands.whatsNewMessage.bind(this.dankTimesBotCommands))),
     ]);

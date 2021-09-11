@@ -1,12 +1,8 @@
-import { Moment } from "moment-timezone";
+import moment, { Moment } from "moment-timezone";
 import { BasicDankTime } from "../dank-time/basic-dank-time";
 import { DankTime } from "../dank-time/dank-time";
-import {
-  ChatMessageEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
-import {
-  LeaderboardPostEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { ChatMessageEventArguments } from "../plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
+import { LeaderboardPostEventArguments } from "../plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
 import { PostUserScoreChangedEventArguments } from "../plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
 import { PreUserScoreChangedEventArguments } from "../plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
@@ -29,7 +25,6 @@ export class Chat {
 
   /**
    * Creates a new Chat object.
-   * @param moment Reference to timezone import.
    * @param util Utility functions.
    * @param id The chat's unique Telegram id.
    * @param pluginhost This chat's plugin host.
@@ -42,7 +37,6 @@ export class Chat {
    * @param randomDankTimes The daily randomly generated dank times in this chat.
    */
   constructor(
-    private readonly moment: any,
     private readonly util: IUtil,
     id: number,
     pluginhost: PluginHost,
@@ -202,7 +196,7 @@ export class Chat {
     this.randomDankTimes = new Array<DankTime>();
 
     for (let i = 0; i < this.randomtimesFrequency; i++) {
-      const now = this.moment().tz(this.timezone);
+      const now = moment.tz(this.timezone);
 
       now.add(Math.floor(Math.random() * 23), "hours");
       now.minutes(Math.floor(Math.random() * 59));
@@ -255,7 +249,7 @@ export class Chat {
   public processMessage(msg: any): string[] {
 
     let output: string[] = [];
-    const messageTimeout: boolean = this.moment.tz("UTC").unix() - msg.date >= 60;
+    const messageTimeout: boolean = moment.now() / 1000 - msg.date >= 60;
 
     // Ignore the message if it was sent more than 1 minute ago.
     if (messageTimeout) {
@@ -264,7 +258,7 @@ export class Chat {
 
     const user = this.getOrCreateUser(msg.from.id, msg.from.username);
     if (this.running) {
-      output = this.handleDankTimeInputMessage(user, msg.text, msg.date, this.moment.tz(this.timezone));
+      output = this.handleDankTimeInputMessage(user, msg.text, moment.tz(this.timezone));
     }
     msg.text = this.util.cleanText(msg.text);
 
@@ -484,7 +478,7 @@ export class Chat {
     return false;
   }
 
-  private handleDankTimeInputMessage(user: User, msgText: string, msgUnixTime: number, now: Moment): string[] {
+  private handleDankTimeInputMessage(user: User, msgText: string, now: Moment): string[] {
     const output: string[] = [];
 
     // Gather dank times from the sent text, returning if none was found.

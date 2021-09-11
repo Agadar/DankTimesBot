@@ -1,7 +1,5 @@
 import { assert } from "chai";
 import "mocha";
-import * as moment from "moment-timezone";
-import { ChatSetting } from "../chat/settings/chat-setting";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import {
   DankTimesBotControllerMock,
@@ -11,10 +9,10 @@ import { Util } from "../util/util";
 import { ChatRegistry } from "./chat-registry";
 
 const util = new Util();
-const chatSettingsRegistry = new ChatSettingsRegistry(moment);
+const chatSettingsRegistry = new ChatSettingsRegistry();
 
 describe("ChatRegistry.constructor", () => {
-  const instance = new ChatRegistry(moment, util, chatSettingsRegistry, {} as PluginHost);
+  const instance = new ChatRegistry(util, chatSettingsRegistry, {} as PluginHost);
 
   it("should have created a new instance...", () => {
     assert.deepEqual(instance.chats.size, 0);
@@ -26,7 +24,7 @@ describe("ChatRegistry.getOrCreateChat", () => {
   it("Should create a new chat if the supplied id is unknown", () => {
 
     // Arrange
-    const instance = new ChatRegistry(moment, util, chatSettingsRegistry, {} as PluginHost);
+    const instance = new ChatRegistry(util, chatSettingsRegistry, {} as PluginHost);
     const dankController = new DankTimesBotControllerMock();
     instance.subscribe(dankController);
     assert.equal(instance.chats.size, 0);

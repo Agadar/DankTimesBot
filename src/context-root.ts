@@ -1,7 +1,6 @@
 import { CronJob } from "cron";
 import * as fs from "fs";
-import * as momentImport from "moment-timezone";
-import nodeCleanupImport = require("node-cleanup");
+import nodeCleanupImport from "node-cleanup";
 import TelegramBot = require("node-telegram-bot-api");
 
 import { BotCommandRegistry } from "./bot-commands/bot-command-registry";
@@ -51,13 +50,13 @@ export class ContextRoot {
 
     // Load and initialize plugins.
     const availablePlugins = this.fileIO.GetAvailablePlugins(this.config.plugins);
-    this.chatSettingsRegistry = new ChatSettingsRegistry(momentImport);
+    this.chatSettingsRegistry = new ChatSettingsRegistry();
     this.pluginHost = new PluginHost(availablePlugins);
     this.pluginHost.registerPluginSettings(this.chatSettingsRegistry);
 
     // Load and initialize chats.
     this.util = new Util();
-    this.chatRegistry = new ChatRegistry(momentImport, this.util, this.chatSettingsRegistry, this.pluginHost);
+    this.chatRegistry = new ChatRegistry(this.util, this.chatSettingsRegistry, this.pluginHost);
     const initialChats = this.fileIO.loadChatsFromFile();
     this.chatRegistry.loadFromJSON(initialChats);
 
@@ -70,7 +69,7 @@ export class ContextRoot {
     // tslint:disable-next-line:no-var-requires
     this.version = require("../package.json").version;
     this.releaseLog = this.fileIO.loadReleaseLogFromFile();
-    const botCommandsRegistry = new BotCommandRegistry(this.telegramClient, momentImport, this.chatRegistry);
+    const botCommandsRegistry = new BotCommandRegistry(this.telegramClient, this.chatRegistry);
     const dankTimesBotCommands = new DankTimesBotCommands(
       botCommandsRegistry, this.dankTimeScheduler, this.util, this.releaseLog);
     const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(botCommandsRegistry, this.telegramClient,
@@ -79,7 +78,7 @@ export class ContextRoot {
     this.pluginHost.registerPluginCommands(botCommandsRegistry);
 
     // Miscellaneous initializations and exports.
-    this.danktimesbotController = new DankTimesBotController(momentImport, this.chatRegistry,
+    this.danktimesbotController = new DankTimesBotController(this.chatRegistry,
       this.dankTimeScheduler, this.telegramClient, this.pluginHost);
     this.cronJob = CronJob;
     this.nodeCleanup = nodeCleanupImport;

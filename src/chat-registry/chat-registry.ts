@@ -17,7 +17,6 @@ export class ChatRegistry implements IChatRegistry {
   private readonly listeners: IChatRegistryListener[] = [];
 
   constructor(
-    private readonly moment: any,
     private readonly util: IUtil,
     private readonly chatSettingsRegistry: ChatSettingsRegistry,
     private readonly pluginHost: PluginHost,
@@ -44,7 +43,7 @@ export class ChatRegistry implements IChatRegistry {
     }
 
     const settings = this.chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(this.moment, this.util, id, this.pluginHost, settings);
+    const chat = new Chat(this.util, id, this.pluginHost, settings);
 
     // These default dank times should be moved to a configurable .json file at some point.
     chat.addDankTime(new DankTime(0, 0, ["0000"], () => 5));
@@ -103,7 +102,7 @@ export class ChatRegistry implements IChatRegistry {
       }
     }
 
-    return new Chat(this.moment, this.util, literal.id,
+    return new Chat(this.util, literal.id,
       this.pluginHost, settings, literal.running,
       literal.lastHour, literal.lastMinute, users, dankTimes, [],
     );

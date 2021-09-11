@@ -3,15 +3,9 @@ import { AlterUserScoreArgs } from "../../src/chat/alter-user-score-args";
 import { Chat } from "../../src/chat/chat";
 import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
 import { User } from "../../src/chat/user/user";
-import {
-  ChatMessageEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
-import {
-  EmptyEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/empty-event-arguments";
-import {
-  LeaderboardPostEventArguments,
-} from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { ChatMessageEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
+import { EmptyEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/empty-event-arguments";
+import { LeaderboardPostEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
 import { PostUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
 import { PreUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
@@ -76,8 +70,8 @@ export class Plugin extends AbstractPlugin {
    * @override
    */
   public getPluginSpecificCommands(): BotCommand[] {
-    const echoCommand = new BotCommand("echo", "echoes what a user sent", this.echo.bind(this));
-    const printMoneyCommand = new BotCommand("printmoney", "gives the user 10 free points", this.printMoney.bind(this));
+    const echoCommand = new BotCommand(["echo"], "echoes what a user sent", this.echo.bind(this));
+    const printMoneyCommand = new BotCommand(["printmoney", "freemoney"], "gives the user 10 free points", this.printMoney.bind(this));
     return [echoCommand, printMoneyCommand];
   }
 

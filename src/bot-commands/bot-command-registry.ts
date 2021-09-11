@@ -1,3 +1,4 @@
+import moment from "moment";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { AwaitingConfirmationData } from "./awaiting-confirmation-data";
@@ -8,13 +9,12 @@ import { BotCommand } from "./bot-command";
  */
 export class BotCommandRegistry {
 
-    private readonly commands = new Map<string, BotCommand>();
+    private readonly commands = new Array<BotCommand>();
     private readonly awaitingConfirmationList = new Array<AwaitingConfirmationData>();
     private readonly developerUserIds = [100805902];
 
     constructor(
         private readonly telegramClient: ITelegramClient,
-        private readonly moment: any,
         private readonly chatRegistry: IChatRegistry) {
 
         telegramClient.setOnAnyText((msg) => {
@@ -41,17 +41,17 @@ export class BotCommandRegistry {
      * @param command The command to register.
      */
     public async registerCommand(command: BotCommand): Promise<void> {
+        const existingCommandName = this.commands.flatMap(existingCommand => existingCommand.names).find(existingCommName => command.names.includes(existingCommName));
 
-        if (this.commands.has(command.name)) {
-            throw new Error(`A command with the name '${command.name}' already exists!`);
+        if (existingCommandName) {
+            throw new Error(`A command with the name '${existingCommandName}' already exists!`);
         }
-
-        this.commands.set(command.name, command);
+        this.commands.push(command);
         const botUsername = await this.telegramClient.getBotUsername();
         const commandRegex = command.getRegex(botUsername);
 
         this.telegramClient.setOnRegex(commandRegex, (msg: any, match: string[]) => {
-            if (this.moment.tz("UTC").unix() - msg.date < 60) {
+            if (moment.now() / 1000 - msg.date < 60) {
                 this.executeCommand(msg, match, command)
                     .then(
                         (reply) => {
@@ -97,10 +97,10 @@ export class BotCommandRegistry {
     }
 
     /**
-     * The currently registered bot commands.
+     * Gets a list of commands that should be shown in the help output, sorted by primary name.
      */
-    public get botCommands(): BotCommand[] {
-        return [...this.commands].map(((value) => value[1]));
+    public getCommandsForHelpOutput(): BotCommand[] {
+        return this.commands.filter((command) => command.showInHelp).sort(BotCommand.compare);
     }
 
     private async userIsAllowedToExecuteCommand(msg: any, botCommand: BotCommand): Promise<boolean> {

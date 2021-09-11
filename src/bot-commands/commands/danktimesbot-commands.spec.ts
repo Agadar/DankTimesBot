@@ -29,7 +29,7 @@ describe("DankTimesBotCommands.addTime", () => {
 
   beforeEach("Instantiate test variables", () => {
     dankTimesBotCommands = new DankTimesBotCommands(commandRegistryMock, scheduler, util, []);
-    chat = new Chat(moment, util, 0, new PluginHost([]), new Map<string, ChatSetting<any>>());
+    chat = new Chat(util, 0, new PluginHost([]), new Map<string, ChatSetting<any>>());
     match.input = "/addtime 22 33 5";
     chat.dankTimes.splice(0);
   });
