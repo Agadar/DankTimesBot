@@ -92,12 +92,12 @@ export abstract class AbstractPlugin {
                                    eventFn: (eventArgs: PostUserScoreChangedEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
                                    eventFn: (eventArgs: LeaderboardPostEventArguments) => void): void;
-  protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate,
-                                   eventFn: (eventArgs: EmptyEventArguments) => void): void;
+  protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate
+                                   | PluginEvent.HourlyTick, eventFn: (eventArgs: EmptyEventArguments) => void): void;
 
   /**
    * Subscribe to a certain PLUGIN_EVENT.
-   * @param _event Plugin event to describe to.
+   * @param event Plugin event to subscribe to.
    * @param eventFn Function to execute when a certain event is triggered.
    */
   protected subscribeToPluginEvent<ArgumentsType extends PluginEventArguments>(

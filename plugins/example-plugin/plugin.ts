@@ -1,3 +1,4 @@
+import TelegramBot from "node-telegram-bot-api";
 import { BotCommand } from "../../src/bot-commands/bot-command";
 import { AlterUserScoreArgs } from "../../src/chat/alter-user-score-args";
 import { Chat } from "../../src/chat/chat";
@@ -33,12 +34,12 @@ export class Plugin extends AbstractPlugin {
       const oldChange = data.changeInScore;
       data.changeInScore += 5;
       this.sendMessage(data.chat.id, `Example of a pre user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
-      `, Reason: ${data.reason}, Player: ${data.user.name}, old score change: ${oldChange}, new score change: ${data.changeInScore}`);
+        `, Reason: ${data.reason}, Player: ${data.user.name}, old score change: ${oldChange}, new score change: ${data.changeInScore}`);
     });
 
     this.subscribeToPluginEvent(PluginEvent.PostUserScoreChange, (data: PostUserScoreChangedEventArguments) => {
       this.sendMessage(data.chat.id, `Example of a post user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
-      `, Reason: ${data.reason}, Player: ${data.user.name}, score change: ${data.changeInScore}`);
+        `, Reason: ${data.reason}, Player: ${data.user.name}, score change: ${data.changeInScore}`);
     });
 
     this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessageEventArguments) => {
@@ -51,6 +52,10 @@ export class Plugin extends AbstractPlugin {
 
     this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: EmptyEventArguments) => {
       console.log("Example of a bot shutdown event.");
+    });
+
+    this.subscribeToPluginEvent(PluginEvent.HourlyTick, (data: EmptyEventArguments) => {
+      console.log("Example of an hourly tick event.");
     });
 
     this.subscribeToPluginEvent(PluginEvent.NightlyUpdate, (data: EmptyEventArguments) => {
@@ -75,18 +80,18 @@ export class Plugin extends AbstractPlugin {
     return [echoCommand, printMoneyCommand];
   }
 
-  private echo(chat: Chat, user: User, msg: any, match: string[]): string {
+  private echo(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     setTimeout(() => {
-      this.sendMessage(chat.id, "Example of sendMessage", msg.id, true).then((res) => {
-        setTimeout(() => {
-          this.deleteMessage(chat.id, res.message_id);
-        }, 3000);
+      this.sendMessage(chat.id, "Example of sendMessage", msg?.message_id, true).then((res) => {
+        if (res) {
+          setTimeout(() => this.deleteMessage(chat.id, res.message_id), 3000);
+        }
       });
     }, 3000);
-    return `${user.name} said: '${match[0].split(" ")[1]}'`;
+    return `${user.name} said: '${match}'`;
   }
 
-  private printMoney(chat: Chat, user: User, msg: any, match: string[]): string {
+  private printMoney(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     const alterUserScoreArgs = new AlterUserScoreArgs(user, 10, this.name, "printmoney");
     const correctedAmount = chat.alterUserScore(alterUserScoreArgs);
     return `Gave ${user.name} ${correctedAmount} free points!`;

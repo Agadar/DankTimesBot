@@ -40,8 +40,9 @@ export class Server {
 
   private scheduleChatsPersistence(): void {
     setInterval(() => {
+      console.info("Doing hourly tick activities!");
       this.contextRoot.fileIO.saveChatsToFile(this.contextRoot.chatRegistry.chats);
-      console.info("Persisted data to file.");
+      this.contextRoot.pluginHost.triggerEvent(PluginEvent.HourlyTick, new EmptyEventArguments());
     }, this.contextRoot.config.persistenceRate * 60 * 1000);
   }
 
