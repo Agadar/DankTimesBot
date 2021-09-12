@@ -9,6 +9,8 @@ export class AlterUserScoreArgs {
     public static readonly NORMAL_DANKTIME_REASON: string = "normal.danktime";
     public static readonly UNTIMELY_DANKTIME_REASON: string = "untimely.danktime";
     public static readonly HARDCOREMODE_PUNISHMENT_REASON: string = "hardcoremode.punishment";
+    public static readonly DONATION_GIVEN_REASON: string = "donation.given";
+    public static readonly DONATION_RECEIVED_REASON: string = "donation.received";
 
     public static readonly DANKTIMESBOT_ORIGIN_NAME: string = "";
 

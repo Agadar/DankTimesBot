@@ -1,4 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
+import { AlterUserScoreArgs } from "../../chat/alter-user-score-args";
 import { Chat } from "../../chat/chat";
 import { CoreSettingsNames } from "../../chat/settings/core-settings-names";
 import { User } from "../../chat/user/user";
@@ -195,6 +196,38 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
   public whatsNewMessage(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     return this.util.releaseLogToWhatsNewMessage(this.releaseLog);
+  }
+
+  public donate(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+    if (!msg.reply_to_message) {
+      return "✋  I only work when you reply to a message by the user you are trying to donate to";
+    }
+    if (msg.reply_to_message?.from?.id === user.id) {
+      return "✋  Donating to yourself? Weirdo";
+    }
+    if (!match) {
+      return "✋  Not enough arguments! Format: /donate [amount]";
+    }
+    let amount = Number(match);
+
+    if (isNaN(amount) || (amount % 1 !== 0) || amount < 1 ) {
+      return "✋  The amount has to be a whole numeric value";
+    }
+    if (amount > user.score) {
+      return "✋  You can't give away more than you own";
+    }
+    const recipientId = msg.reply_to_message?.from?.id;
+
+    if (!recipientId) {
+      return "⚠️  Failed to identify to whomst you're donating";
+    }
+    const recipient: User = chat.getOrCreateUser(recipientId, msg.reply_to_message?.from?.username);
+    chat.alterUserScore(new AlterUserScoreArgs(user, -amount, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
+      AlterUserScoreArgs.DONATION_GIVEN_REASON));
+    amount = chat.alterUserScore(new AlterUserScoreArgs(recipient, amount,
+      AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME, AlterUserScoreArgs.DONATION_RECEIVED_REASON));
+
+    return `🎉 ${user.name} donated ${amount} internet points to ${recipient.name} 🎉`;
   }
 
   private doTimezoneSettingSideEffects(chat: Chat): void {

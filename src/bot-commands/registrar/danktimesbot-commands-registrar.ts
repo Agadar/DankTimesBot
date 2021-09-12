@@ -25,6 +25,9 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
       this.botCommandRegistry.registerCommand(new BotCommand(["danktimes"], "shows the user-specified dank times",
         this.dankTimesBotCommands.dankTimes.bind(this.dankTimesBotCommands))),
 
+      this.botCommandRegistry.registerCommand(new BotCommand(["donate"], "donates points to another user",
+        this.dankTimesBotCommands.donate.bind(this.dankTimesBotCommands))),
+
       this.botCommandRegistry.registerCommand(new BotCommand(["help"], "shows the available commands",
         this.dankTimesBotCommands.help.bind(this.dankTimesBotCommands))),
 
