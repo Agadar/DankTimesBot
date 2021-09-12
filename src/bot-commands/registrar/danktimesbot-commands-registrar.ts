@@ -1,3 +1,4 @@
+import TelegramBot from "node-telegram-bot-api";
 import { IChatRegistry } from "../../chat-registry/i-chat-registry";
 import { ITelegramClient } from "../../telegram-client/i-telegram-client";
 import { BotCommand } from "../bot-command";
@@ -65,7 +66,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
     this.telegramClient.setOnAnyText((msg) => this.onAnyText(msg));
   }
 
-  private onAnyText(msg: any): string[] {
+  private onAnyText(msg: TelegramBot.Message): string[] {
     if (msg.migrate_to_chat_id) { // If the chat was migrated, then update the registry.
       this.chatRegistry.setChatId(msg.chat.id, msg.migrate_to_chat_id);
 

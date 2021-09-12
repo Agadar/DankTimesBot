@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import "mocha";
 import moment from "moment-timezone";
+import TelegramBot from "node-telegram-bot-api";
 import { DankTime } from "../dank-time/dank-time";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { Util } from "../util/util";
@@ -254,7 +255,7 @@ describe("Chat.processMessage", () => {
   const chatSettingRegistry = new ChatSettingsRegistry();
   let chat: Chat;
   const now = moment.tz("Europe/Amsterdam");
-  const nowTimeStamp = now.unix().toString();
+  const nowTimeStamp = now.unix();
   const dankTimePoints = 5;
 
   beforeEach("Instantiate test variables", () => {
@@ -397,13 +398,20 @@ describe("Chat.processMessage", () => {
 
 });
 
-function getTelegramMsgObject(fromId: number, fromName: string, usertext: string, timestamp: string) {
+function getTelegramMsgObject(fromId: number, fromName: string, usertext: string, timestamp: number): TelegramBot.Message {
   return {
+    chat: {
+      id: 0,
+      type: "private",
+    },
     date: timestamp,
     from: {
+      first_name: fromName,
       id: fromId,
+      is_bot: false,
       username: fromName,
     },
+    message_id: 0,
     text: usertext,
   };
 }

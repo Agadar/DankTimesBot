@@ -1,3 +1,4 @@
+import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
 import { DankTime } from "../dank-time/dank-time";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
@@ -133,11 +134,11 @@ export class DankTimeScheduler implements IDankTimeScheduler {
     });
   }
 
-  private sendAnnouncement(chatId: number, messageText: string): Promise<any> {
+  private sendAnnouncement(chatId: number, messageText: string): Promise<void | TelegramBot.Message> {
     return this.tgClient.sendMessage(chatId, messageText, -1, false);
   }
 
-  private scheduleLeaderboardAndAnnouncementRemoval(chat: Chat, sendAnnouncementPromise?: Promise<any>) {
+  private scheduleLeaderboardAndAnnouncementRemoval(chat: Chat, sendAnnouncementPromise?: Promise<void | TelegramBot.Message>) {
     setTimeout((() => {
       if (!chat) { return; }
       if (chat.leaderboardChanged()) {
@@ -145,8 +146,8 @@ export class DankTimeScheduler implements IDankTimeScheduler {
           this.sendLeaderboard(chat);
         }
       } else if (sendAnnouncementPromise) {
-        sendAnnouncementPromise.then((res: any) => {
-          if (chat && res && res.message_id) {
+        sendAnnouncementPromise.then((res) => {
+          if (chat && res?.message_id) {
             this.removeAnnouncement(chat.id, res.message_id);
           }
         });

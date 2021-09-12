@@ -1,3 +1,4 @@
+import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
 import { User } from "../chat/user/user";
 
@@ -29,7 +30,7 @@ export class BotCommand {
   constructor(
     public readonly names: string[],
     public readonly description: string,
-    public readonly action: ((chat: Chat, user: User, msg: any, match: string[]) => string),
+    public readonly action: ((chat: Chat, user: User, msg: TelegramBot.Message, params: string) => string),
     public readonly showInHelp = true,
     public readonly adminOnly = false,
     public readonly requiresConfirmation = false,
@@ -40,7 +41,7 @@ export class BotCommand {
    */
   public getRegex(botname: string): RegExp {
     let regex = `^\/(?:${this.names[0]}`;
-    
+
     for (let i = 1; i < this.names.length; i++) {
       regex += `|${this.names[i]}`;
     }

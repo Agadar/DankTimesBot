@@ -3,6 +3,7 @@ const assert = chai.assert;
 import "mocha";
 
 import * as moment from "moment-timezone";
+import TelegramBot from "node-telegram-bot-api";
 import { ChatRegistryMock } from "../chat-registry/chat-registry-mock";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
@@ -17,13 +18,13 @@ describe("BotCommandRegistry #executeCommand", () => {
     const expectedCommandCalledText = "Called!";
 
     const nonAdmincommandObject = {
-        commandFunction: (chat: Chat, user: User, msg0: any, match: string[]) => {
+        commandFunction: (chat: Chat, user: User, msg0: TelegramBot.Message, match: string) => {
             nonAdminCommandCalled = true;
             return expectedCommandCalledText;
         },
     };
     const admincommandObject = {
-        commandFunction: (chat: Chat, user: User, msg0: any, match: string[]) => {
+        commandFunction: (chat: Chat, user: User, msg0: TelegramBot.Message, match: string) => {
             adminCommandCalled = true;
             return expectedCommandCalledText;
         },
@@ -44,14 +45,18 @@ describe("BotCommandRegistry #executeCommand", () => {
     let chatRegistry: IChatRegistry;
     let nonAdminCommandCalled: boolean;
     let adminCommandCalled: boolean;
-    let msg = {
+    let msg: TelegramBot.Message = {
         chat: {
             id: 0,
             type: "private",
         },
+        date: moment.now() / 1000,
         from: {
+            first_name: "Agadar",
             id: 0,
+            is_bot: false,
         },
+        message_id: 0,
     };
 
     let botCommandRegistry: BotCommandRegistry;
@@ -65,21 +70,25 @@ describe("BotCommandRegistry #executeCommand", () => {
         msg = {
             chat: {
                 id: 0,
-                type: "public",
+                type: "group",
             },
+            date: moment.now() / 1000,
             from: {
+                first_name: "Agadar",
                 id: 0,
+                is_bot: false,
             },
+            message_id: 0,
         };
         botCommandRegistry = new BotCommandRegistry(telegramClientMock, chatRegistry);
     });
 
     it("should execute a non-admin-only command as a non-admin", async () => {
         // Arrange
-        msg.from.id = 1;
+        (msg.from as TelegramBot.User).id = 1;
 
         // Act
-        const reply = await botCommandRegistry.executeCommand(msg, [], nonAdminCommand);
+        const reply = await botCommandRegistry.executeCommand(msg, null, nonAdminCommand);
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
@@ -88,10 +97,10 @@ describe("BotCommandRegistry #executeCommand", () => {
 
     it("should execute a non-admin-only command as an admin", async () => {
         // Arrange
-        msg.from.id = 0;
+        (msg.from as TelegramBot.User).id = 0;
 
         // Act
-        const reply = await botCommandRegistry.executeCommand(msg, [], nonAdminCommand);
+        const reply = await botCommandRegistry.executeCommand(msg, null, nonAdminCommand);
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
@@ -100,10 +109,10 @@ describe("BotCommandRegistry #executeCommand", () => {
 
     it("should NOT execute an admin-only command as a non-admin", async () => {
         // Arrange
-        msg.from.id = 1;
+        (msg.from as TelegramBot.User).id = 1;
 
         // Act
-        const reply = await botCommandRegistry.executeCommand(msg, [], adminCommand);
+        const reply = await botCommandRegistry.executeCommand(msg, null, adminCommand);
 
         // Assert
         assert.equal(reply, expectedAdminOnlyWarning);
@@ -112,10 +121,10 @@ describe("BotCommandRegistry #executeCommand", () => {
 
     it("should execute an admin-only command as an admin", async () => {
         // Arrange
-        msg.from.id = 0;
+        (msg.from as TelegramBot.User).id = 0;
 
         // Act
-        const reply = await botCommandRegistry.executeCommand(msg, [], adminCommand);
+        const reply = await botCommandRegistry.executeCommand(msg, null, adminCommand);
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
@@ -124,11 +133,11 @@ describe("BotCommandRegistry #executeCommand", () => {
 
     it("should execute an admin-only command as a non-admin in a private chat", async () => {
         // Arrange
-        msg.from.id = 1;
+        (msg.from as TelegramBot.User).id = 1;
         msg.chat.type = "private";
 
         // Act
-        const reply = await botCommandRegistry.executeCommand(msg, [], adminCommand);
+        const reply = await botCommandRegistry.executeCommand(msg, null, adminCommand);
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
@@ -137,10 +146,10 @@ describe("BotCommandRegistry #executeCommand", () => {
 
     it("should execute an admin-only command as a non-admin that is the developer", async () => {
         // Arrange
-        msg.from.id = 100805902;
+        (msg.from as TelegramBot.User).id = 100805902;
 
         // Act
-        const reply = await botCommandRegistry.executeCommand(msg, [], adminCommand);
+        const reply = await botCommandRegistry.executeCommand(msg, null, adminCommand);
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);

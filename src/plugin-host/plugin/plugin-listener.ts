@@ -1,3 +1,4 @@
+import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../../chat/chat";
 
 /**
@@ -13,14 +14,14 @@ export interface IPluginListener {
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
      */
     onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-                                   replyToMessageId: number, forceReply: boolean): Promise<any>;
+                                   replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message>;
 
     /**
      * Fired when a plugin wants to delete a chat message.
      * @param chatId The id of the chat to delete a message in.
      * @param messageId The id of the message to delete.
      */
-    onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<any>;
+    onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<void | boolean>;
 
     /**
      * Fired when a plugin wants to get a chat.

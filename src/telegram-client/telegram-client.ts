@@ -1,3 +1,4 @@
+import TelegramBot from "node-telegram-bot-api";
 import { ITelegramClient } from "./i-telegram-client";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
@@ -8,26 +9,26 @@ export class TelegramClient implements ITelegramClient {
 
   private readonly listeners: ITelegramClientListener[] = [];
 
-  constructor(private readonly bot: any) { }
+  constructor(private readonly bot: TelegramBot) { }
 
-  public setOnAnyText(action: ((msg: any, match: string[]) => string[])): void {
-    this.bot.on("message", (msg: any, match: string[]) => {
-      const output = action(msg, match);
+  public setOnAnyText(action: ((msg: TelegramBot.Message) => string[])): void {
+    this.bot.on("message", (msg: TelegramBot.Message, metadata: TelegramBot.Metadata) => {
+      const output = action(msg);
       if (output) {
         output.forEach((out) => this.sendMessage(msg.chat.id, out));
       }
     });
   }
 
-  public setOnRegex(regExp: RegExp, action: (msg: any, match: string[]) => void): void {
-    this.bot.onText(regExp, (msg: any, match: string[]) => { action(msg, match); });
+  public setOnRegex(regExp: RegExp, action: (msg: TelegramBot.Message, match: RegExpExecArray | null) => void): void {
+    this.bot.onText(regExp, action);
   }
 
-  public getChatAdministrators(chatId: number): Promise<any[]> {
+  public getChatAdministrators(chatId: number): Promise<TelegramBot.ChatMember[]> {
     return this.bot.getChatAdministrators(chatId);
   }
 
-  public sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply = false): Promise<any> {
+  public sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply = false): Promise<void | TelegramBot.Message> {
     const parameters = this.getSendMessageParameters(replyToMessageId, forceReply);
     return this.bot.sendMessage(chatId, htmlMessage, parameters)
       .catch((reason: any) => {
@@ -35,9 +36,9 @@ export class TelegramClient implements ITelegramClient {
       });
   }
 
-  public deleteMessage(chatId: number, messageId: number): Promise<any> {
-    return this.bot.deleteMessage(chatId, messageId)
-      .catch((reason: any) => {
+  public deleteMessage(chatId: number, messageId: number): Promise<boolean | void> {
+    return this.bot.deleteMessage(chatId, messageId.toString())
+      .catch((reason: void | TelegramBot.Message) => {
         this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
       });
   }
@@ -56,15 +57,15 @@ export class TelegramClient implements ITelegramClient {
       return this.botUsernamePromise;
     }
     return this.botUsernamePromise = this.bot.getMe()
-      .then((me: any) => {
-        this.cachedBotUsername = me.username;
+      .then((me: TelegramBot.User) => {
+        this.cachedBotUsername = me.username ?? "";
         this.botUsernamePromise = null;
         return this.cachedBotUsername;
       });
   }
 
-  private getSendMessageParameters(replyToUserId?: number, forceReply = false): any {
-    const options: any = {
+  private getSendMessageParameters(replyToUserId?: number, forceReply = false): TelegramBot.SendMessageOptions {
+    const options: TelegramBot.SendMessageOptions = {
       parse_mode: "HTML",
     };
 

@@ -1,19 +1,12 @@
+import TelegramBot from "node-telegram-bot-api";
 import { BotCommand } from "../../bot-commands/bot-command";
 import { Chat } from "../../chat/chat";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
-import {
-  ChatMessageEventArguments,
-} from "../plugin-events/event-arguments/chat-message-event-arguments";
-import {
-  EmptyEventArguments,
-} from "../plugin-events/event-arguments/empty-event-arguments";
-import {
-  LeaderboardPostEventArguments,
-} from "../plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { ChatMessageEventArguments } from "../plugin-events/event-arguments/chat-message-event-arguments";
+import { EmptyEventArguments } from "../plugin-events/event-arguments/empty-event-arguments";
+import { LeaderboardPostEventArguments } from "../plugin-events/event-arguments/leaderboard-post-event-arguments";
 import { PostUserScoreChangedEventArguments } from "../plugin-events/event-arguments/post-user-score-changed-event-arguments";
-import {
-  PreUserScoreChangedEventArguments,
-} from "../plugin-events/event-arguments/pre-user-score-changed-event-arguments";
+import { PreUserScoreChangedEventArguments } from "../plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
 import { PluginEvent } from "../plugin-events/plugin-event-types";
 import { IPluginListener } from "./plugin-listener";
@@ -119,7 +112,7 @@ export abstract class AbstractPlugin {
    * @param replyToMessageId The (optional) id of the message to reply to.
    * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
    */
-  protected sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false): Promise<any> {
+  protected sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false): Promise<void | TelegramBot.Message> {
     return this.listener.onPluginWantsToSendChatMessage(chatId, htmlMessage, replyToMessageId, forceReply);
   }
 
@@ -128,7 +121,7 @@ export abstract class AbstractPlugin {
    * @param chatId The id of the chat to delete a message in.
    * @param messageId The id of the message to delete.
    */
-  protected deleteMessage(chatId: number, messageId: number): Promise<any> {
+  protected deleteMessage(chatId: number, messageId: number): Promise<boolean | void> {
     return this.listener.onPluginWantsToDeleteChatMessage(chatId, messageId);
   }
 

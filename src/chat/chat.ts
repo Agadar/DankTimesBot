@@ -1,4 +1,5 @@
 import moment, { Moment } from "moment-timezone";
+import TelegramBot from "node-telegram-bot-api";
 import { BasicDankTime } from "../dank-time/basic-dank-time";
 import { DankTime } from "../dank-time/dank-time";
 import { ChatMessageEventArguments } from "../plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
@@ -246,7 +247,7 @@ export class Chat {
    * Processes a message, awarding or punishing points etc. where applicable.
    * @returns A reply, or nothing if no reply is suitable/needed.
    */
-  public processMessage(msg: any): string[] {
+  public processMessage(msg: TelegramBot.Message): string[] {
 
     let output: string[] = [];
     const messageTimeout: boolean = moment.now() / 1000 - msg.date >= 60;
@@ -256,11 +257,11 @@ export class Chat {
       return output;
     }
 
-    const user = this.getOrCreateUser(msg.from.id, msg.from.username);
+    const user = this.getOrCreateUser(msg.from?.id ?? -1, msg.from?.username ?? "");
     if (this.running) {
-      output = this.handleDankTimeInputMessage(user, msg.text, moment.tz(this.timezone));
+      output = this.handleDankTimeInputMessage(user, msg.text ?? "", moment.tz(this.timezone));
     }
-    msg.text = this.util.cleanText(msg.text);
+    msg.text = this.util.cleanText(msg.text ?? "");
 
     // Chat message event
     const eventArgs = new ChatMessageEventArguments(this, user, msg, output);

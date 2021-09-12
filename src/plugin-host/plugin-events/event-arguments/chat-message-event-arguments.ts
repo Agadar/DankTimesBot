@@ -1,3 +1,4 @@
+import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../../../chat/chat";
 import { User } from "../../../chat/user/user";
 import { PluginEventArguments } from "../plugin-event-arguments";
@@ -18,7 +19,7 @@ export class ChatMessageEventArguments extends PluginEventArguments {
   /**
    * Raw message object going into / coming out of the Dank Times Bot process.
    */
-  public readonly msg: any;
+  public readonly msg: TelegramBot.Message;
 
   /**
    * The replies being prepared by the bot to send back. May be altered/added to by plugins.
@@ -32,7 +33,7 @@ export class ChatMessageEventArguments extends PluginEventArguments {
    * @param msg Raw Telegram message object.
    * @param botReplies The replies being prepared by the bot to send back.
    */
-  constructor(chat: Chat, user: User, msg: any, botReplies: string[]) {
+  constructor(chat: Chat, user: User, msg: TelegramBot.Message, botReplies: string[]) {
     super();
     this.chat = chat;
     this.user = user;

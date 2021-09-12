@@ -1,4 +1,5 @@
 import moment from "moment";
+import TelegramBot from "node-telegram-bot-api";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
@@ -52,14 +53,14 @@ export class DankTimesBotController implements IDankTimesBotController {
    * From IPluginListener.
    */
   public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-                                        replyToMessageId: number, forceReply: boolean): Promise<any> {
+                                        replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message> {
     return this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply);
   }
 
   /**
    * From IPluginListener.
    */
-  public onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<any> {
+  public onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<void | boolean> {
     return this.telegramClient.deleteMessage(chatId, messageId);
   }
 

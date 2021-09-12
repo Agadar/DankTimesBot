@@ -1,5 +1,4 @@
-import { Console } from "console";
-import * as ts from "typescript";
+import ts from "typescript";
 import { BasicChat } from "../../chat/basic-chat";
 import { Chat } from "../../chat/chat";
 import { Config } from "../../misc/config";
