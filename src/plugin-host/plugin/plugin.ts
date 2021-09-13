@@ -48,6 +48,7 @@ export abstract class AbstractPlugin {
 
   /**
    * Subscribes to this plugin to receive updates. Only one subscriber can be active at a time.
+   * Used internally for wiring this plugin to the required functionalities.
    */
   public subscribe(subscriber: IPluginListener): void {
     this.listener = subscriber;
@@ -83,6 +84,38 @@ export abstract class AbstractPlugin {
     return [];
   }
 
+  /**
+   * Loads data from a file in the data folder. Data is expected
+   * to be a simple struct or array/map thereof, as a simple JSON parse is used.
+   * @param fileName Name of the file in the data folder.
+   * @returns The loaded data, or null if no data found.
+   */
+  public loadDataFromFile<T>(fileName: string): T | null {
+    return this.listener.onPluginWantsToLoadData(fileName);
+  }
+
+  /**
+   * Loads data from a file in the data folder. Same functionality as
+   * loadDataFromFile but allows supplying a converter to convert the
+   * parsed data to a more complex type.
+   * @param fileName Name of the file in the data folder.
+   * @param converter Converter for raw structs to complex types.
+   * @returns The loaded data, or null if no data found.
+   */
+  public loadDataFromFileWithConverter<O, T>(fileName: string, converter: (parsed: O) => T): T | null {
+    return this.listener.onPluginWantsToLoadDataFromFileWithConverter(fileName, converter);
+  }
+
+  /**
+   * Saves data to a file in the data folder. Data is expected to be a simple
+   * struct (or array/map thereof) or have a public toJSON() function which will be used for stringifying.
+   * @param fileName Name of the file in the data folder.
+   * @param data The data to save to file.
+   */
+  public saveDataToFile<T>(fileName: string, data: T): void {
+    return this.listener.onPluginWantsToSaveDataToFile(fileName, data);
+  }
+
   /* Function overload list */
   protected subscribeToPluginEvent(event: PluginEvent.ChatMessage,
                                    eventFn: (eventArgs: ChatMessageEventArguments) => void): void;
@@ -93,7 +126,7 @@ export abstract class AbstractPlugin {
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
                                    eventFn: (eventArgs: LeaderboardPostEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate
-                                   | PluginEvent.HourlyTick, eventFn: (eventArgs: EmptyEventArguments) => void): void;
+    | PluginEvent.HourlyTick,      eventFn: (eventArgs: EmptyEventArguments) => void): void;
 
   /**
    * Subscribe to a certain PLUGIN_EVENT.
@@ -101,7 +134,7 @@ export abstract class AbstractPlugin {
    * @param eventFn Function to execute when a certain event is triggered.
    */
   protected subscribeToPluginEvent<ArgumentsType extends PluginEventArguments>(
-      event: PluginEvent, eventFn: (eventArgs: ArgumentsType) => void): void {
+    event: PluginEvent, eventFn: (eventArgs: ArgumentsType) => void): void {
     this.pluginEventTriggers.set(event, eventFn);
   }
 

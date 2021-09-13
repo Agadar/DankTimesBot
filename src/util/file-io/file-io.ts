@@ -13,8 +13,6 @@ export class FileIO {
   private readonly apiKeyEnvKey = "DANK_TIMES_BOT_API_KEY";
   private readonly jsonIndentation = 2;
 
-  constructor() { }
-
   public saveConfigToFile(config: Config): void {
     if (!fs.existsSync(this.dataFolder)) {
       fs.mkdirSync(this.dataFolder);

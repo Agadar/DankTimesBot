@@ -34,8 +34,8 @@ export class PluginHost {
   public triggerEvent(event: PluginEvent.PreUserScoreChange, input: PreUserScoreChangedEventArguments): void;
   public triggerEvent(event: PluginEvent.PostUserScoreChange, input: PostUserScoreChangedEventArguments): void;
   public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostEventArguments): void;
-  public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate |
-    PluginEvent.HourlyTick, input: EmptyEventArguments): void;
+  public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate | PluginEvent.HourlyTick,
+                      input: EmptyEventArguments): void;
 
   /**
    * Trigger a certain event on this Plugin Host's plugins.

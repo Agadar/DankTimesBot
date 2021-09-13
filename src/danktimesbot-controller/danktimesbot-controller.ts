@@ -7,6 +7,7 @@ import { EmptyEventArguments } from "../plugin-host/plugin-events/event-argument
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
+import { FileIO } from "../util/file-io/file-io";
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
 export class DankTimesBotController implements IDankTimesBotController {
@@ -20,6 +21,7 @@ export class DankTimesBotController implements IDankTimesBotController {
     private readonly dankTimeScheduler: IDankTimeScheduler,
     private readonly telegramClient: ITelegramClient,
     private readonly pluginHost: PluginHost,
+    private readonly fileIO: FileIO,
   ) {
     this.chatRegistry.subscribe(this);
     this.telegramClient.subscribe(this);
@@ -64,6 +66,34 @@ export class DankTimesBotController implements IDankTimesBotController {
     return this.telegramClient.deleteMessage(chatId, messageId);
   }
 
+  /**
+   * From IPluginListener.
+   */
+    public onPluginWantsToGetChat(chatId: number): Chat | null {
+    return this.chatRegistry.chats.get(chatId) ?? null;
+  }
+
+  /**
+   * From IPluginListener.
+   */
+  public onPluginWantsToLoadData<T>(fileName: string): T | null {
+    return this.fileIO.loadDataFromFile(fileName);
+  }
+
+  /**
+   * From IPluginListener.
+   */
+  public onPluginWantsToLoadDataFromFileWithConverter<O, T>(fileName: string, converter: (parsed: O) => T): T | null {
+    return this.fileIO.loadDataFromFileWithConverter(fileName, converter);
+  }
+
+  /**
+   * From IPluginListener.
+   */
+  public onPluginWantsToSaveDataToFile<T>(fileName: string, data: T): void {
+    this.fileIO.saveDataToFile(fileName, data);
+  }
+
   public doNightlyUpdate(): void {
     const now = moment.now() / 1000;
     this.dankTimeScheduler.reset();
@@ -80,13 +110,6 @@ export class DankTimesBotController implements IDankTimesBotController {
       }
     });
     this.pluginHost.triggerEvent(PluginEvent.NightlyUpdate, new EmptyEventArguments());
-  }
-
-  /**
-   * From IPluginListener.
-   */
-  public onPluginWantsToGetChat(chatId: number): Chat | null {
-    return this.chatRegistry.chats.get(chatId) ?? null;
   }
 
   private errorResponseWarrantsChatRemoval(error: any): boolean {

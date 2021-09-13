@@ -28,4 +28,19 @@ export interface IPluginListener {
      * @param chatId The id of the chat to get.
      */
     onPluginWantsToGetChat(chatId: number): Chat | null;
+
+    /**
+     * See FileIO.loadDataFromFile
+     */
+    onPluginWantsToLoadData<T>(fileName: string): T | null;
+
+    /**
+     * See FileIO.loadDataFromFileWithConverter
+     */
+    onPluginWantsToLoadDataFromFileWithConverter<O, T>(fileName: string, converter: (parsed: O) => T): T | null;
+
+    /**
+     * See FileIO.saveDataToFile
+     */
+    onPluginWantsToSaveDataToFile<T>(fileName: string, data: T): void;
 }

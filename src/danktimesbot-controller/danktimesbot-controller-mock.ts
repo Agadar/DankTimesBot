@@ -35,4 +35,16 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
   public onPluginWantsToGetChat(chatId: number): Chat | null {
     throw new Error("Method not implemented.");
   }
+
+  public onPluginWantsToLoadData<T>(fileName: string): T | null {
+    return null;
+  }
+
+  public onPluginWantsToLoadDataFromFileWithConverter<O, T>(fileName: string, converter: (parsed: O) => T): T | null {
+    return null;
+  }
+
+  public onPluginWantsToSaveDataToFile<T>(fileName: string, data: T): void {
+    // Do nothing.
+  }
 }
