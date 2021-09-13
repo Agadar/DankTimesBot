@@ -205,6 +205,14 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (msg.reply_to_message?.from?.id === user.id) {
       return "✋  Donating to yourself? Weirdo";
     }
+    if (msg.reply_to_message?.from?.is_bot) {
+      return "✋  Bots have no use for points, silly";
+    }
+    const recipientId = msg.reply_to_message?.from?.id;
+
+    if (!recipientId) {
+      return "⚠️  Failed to identify to whomst you're donating";
+    }
     if (!match) {
       return "✋  Not enough arguments! Format: /donate [amount]";
     }
@@ -216,11 +224,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (amount > user.score) {
       return "✋  You can't give away more than you own";
     }
-    const recipientId = msg.reply_to_message?.from?.id;
 
-    if (!recipientId) {
-      return "⚠️  Failed to identify to whomst you're donating";
-    }
     const recipient: User = chat.getOrCreateUser(recipientId, msg.reply_to_message?.from?.username);
     chat.alterUserScore(new AlterUserScoreArgs(user, -amount, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
       AlterUserScoreArgs.DONATION_GIVEN_REASON));

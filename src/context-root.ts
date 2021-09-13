@@ -1,5 +1,4 @@
 import { CronJob } from "cron";
-import * as fs from "fs";
 import nodeCleanupImport from "node-cleanup";
 import TelegramBot = require("node-telegram-bot-api");
 
@@ -8,6 +7,7 @@ import { DankTimesBotCommands } from "./bot-commands/commands/danktimesbot-comma
 import { DankTimesBotCommandsRegistrar } from "./bot-commands/registrar/danktimesbot-commands-registrar";
 import { ChatRegistry } from "./chat-registry/chat-registry";
 import { IChatRegistry } from "./chat-registry/i-chat-registry";
+import { BasicChat } from "./chat/basic-chat";
 import { ChatSettingsRegistry } from "./chat/settings/chat-settings-registry";
 import { DankTimeScheduler } from "./dank-time-scheduler/dank-time-scheduler";
 import { IDankTimeScheduler } from "./dank-time-scheduler/i-dank-time-scheduler";
@@ -42,10 +42,12 @@ export class ContextRoot {
   public readonly cronJob: any;
   public readonly nodeCleanup: any;
 
+  public readonly backupFile = "backup.json";
+
   public constructor() {
 
     // Prepare file IO, and load configurations.
-    this.fileIO = new FileIO(fs);
+    this.fileIO = new FileIO();
     this.config = this.fileIO.loadConfigFromFile();
 
     // Load and initialize plugins.
@@ -57,7 +59,7 @@ export class ContextRoot {
     // Load and initialize chats.
     this.util = new Util();
     this.chatRegistry = new ChatRegistry(this.util, this.chatSettingsRegistry, this.pluginHost);
-    const initialChats = this.fileIO.loadChatsFromFile();
+    const initialChats = this.fileIO.loadDataFromFile<BasicChat[]>(this.backupFile) ?? [];
     this.chatRegistry.loadFromJSON(initialChats);
 
     // Prepare Telegram client and scheduler for sending messages.

@@ -41,7 +41,7 @@ export class Server {
   private scheduleChatsPersistence(): void {
     setInterval(() => {
       console.info("Doing hourly tick activities!");
-      this.contextRoot.fileIO.saveChatsToFile(this.contextRoot.chatRegistry.chats);
+      this.contextRoot.fileIO.saveDataToFile(this.contextRoot.backupFile, this.contextRoot.chatRegistry.chats);
       this.contextRoot.pluginHost.triggerEvent(PluginEvent.HourlyTick, new EmptyEventArguments());
     }, this.contextRoot.config.persistenceRate * 60 * 1000);
   }
@@ -49,7 +49,7 @@ export class Server {
   private ensureChatsPersistenceOnExit(): void {
     this.contextRoot.nodeCleanup((exitCode: number | null, signal: string | null) => {
       console.info("Persisting data to file before exiting...");
-      this.contextRoot.fileIO.saveChatsToFile(this.contextRoot.chatRegistry.chats);
+      this.contextRoot.fileIO.saveDataToFile(this.contextRoot.backupFile, this.contextRoot.chatRegistry.chats);
       this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotShutdown, new EmptyEventArguments());
       return true;
     });

@@ -91,7 +91,7 @@ export class BotCommandRegistry {
 
         const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
         const user = chat.getOrCreateUser(msg.from.id, msg.from.username);
-        const params = match !== null && match.length > 1 ? match[1] : "";
+        const params = match && match.length > 1 && match[1] ? match[1] : "";
 
         if (botCommand.requiresConfirmation) {
             const data = new AwaitingConfirmationData(chat, user, msg, params, botCommand);
