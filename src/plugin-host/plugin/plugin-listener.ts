@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../../chat/chat";
+import { CustomEventArguments } from "../plugin-events/event-arguments/custom-event-arguments";
 
 /**
  * Listens to events fired by plugins.
@@ -28,6 +29,12 @@ export interface IPluginListener {
      * @param chatId The id of the chat to get.
      */
     onPluginWantsToGetChat(chatId: number): Chat | null;
+
+    /**
+     * Fired when a plugin wants to fire a custom event.
+     * @param event The custom event the plugin wants to fire.
+     */
+    onPluginWantsToFireCustomEvent(event: CustomEventArguments): void;
 
     /**
      * See FileIO.loadDataFromFile

@@ -56,7 +56,7 @@ export class BotCommandRegistry {
             if (moment.now() / 1000 - msg.date < 60) {
                 this.executeCommand(msg, match, command).then(
                     (reply) => {
-                        if (reply.length > 0) {
+                        if (reply && reply.length > 0) {
                             this.telegramClient.sendMessage(msg.chat.id, reply);
                         }
                     },

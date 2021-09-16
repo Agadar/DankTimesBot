@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
+import { CustomEventArguments } from "../plugin-host/plugin-events/event-arguments/custom-event-arguments";
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
 export class DankTimesBotControllerMock implements IDankTimesBotController {
@@ -33,7 +34,11 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
   }
 
   public onPluginWantsToGetChat(chatId: number): Chat | null {
-    throw new Error("Method not implemented.");
+    return null;
+  }
+
+  public onPluginWantsToFireCustomEvent(event: CustomEventArguments): void {
+    // Do nothing.
   }
 
   public onPluginWantsToLoadData<T>(fileName: string): T | null {

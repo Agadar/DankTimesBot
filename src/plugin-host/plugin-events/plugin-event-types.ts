@@ -7,4 +7,5 @@ export enum PluginEvent {
   HourlyTick,
   NightlyUpdate,
   BotShutdown,
+  Custom,
 }

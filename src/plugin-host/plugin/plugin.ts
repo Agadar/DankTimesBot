@@ -3,6 +3,7 @@ import { BotCommand } from "../../bot-commands/bot-command";
 import { Chat } from "../../chat/chat";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
 import { ChatMessageEventArguments } from "../plugin-events/event-arguments/chat-message-event-arguments";
+import { CustomEventArguments } from "../plugin-events/event-arguments/custom-event-arguments";
 import { EmptyEventArguments } from "../plugin-events/event-arguments/empty-event-arguments";
 import { LeaderboardPostEventArguments } from "../plugin-events/event-arguments/leaderboard-post-event-arguments";
 import { PostUserScoreChangedEventArguments } from "../plugin-events/event-arguments/post-user-score-changed-event-arguments";
@@ -127,6 +128,8 @@ export abstract class AbstractPlugin {
                                    eventFn: (eventArgs: LeaderboardPostEventArguments) => void): void;
   protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate
     | PluginEvent.HourlyTick,      eventFn: (eventArgs: EmptyEventArguments) => void): void;
+  protected subscribeToPluginEvent(event: PluginEvent.Custom,
+                                   eventFn: (eventArgs: CustomEventArguments) => void): void;
 
   /**
    * Subscribe to a certain PLUGIN_EVENT.
@@ -164,5 +167,16 @@ export abstract class AbstractPlugin {
    */
   protected getChat(chatId: number): Chat | null {
     return this.listener.onPluginWantsToGetChat(chatId);
+  }
+
+  /**
+   * Fires a custom plugin event to which other plugins can listen to.
+   * @param reason The reason for the event.
+   * @param eventData Any relevant event data. Consumers of these arguments will have
+   * to cast/parse this and trust it is of the type they expect.
+   */
+  protected fireCustomEvent(reason: string, eventData?: any): void {
+    const event = new CustomEventArguments(this.name, reason, eventData);
+    this.listener.onPluginWantsToFireCustomEvent(event);
   }
 }

@@ -3,6 +3,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
+import { CustomEventArguments } from "../plugin-host/plugin-events/event-arguments/custom-event-arguments";
 import { EmptyEventArguments } from "../plugin-host/plugin-events/event-arguments/empty-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
@@ -55,7 +56,7 @@ export class DankTimesBotController implements IDankTimesBotController {
    * From IPluginListener.
    */
   public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-                                        replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message> {
+    replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message> {
     return this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply);
   }
 
@@ -69,8 +70,15 @@ export class DankTimesBotController implements IDankTimesBotController {
   /**
    * From IPluginListener.
    */
-    public onPluginWantsToGetChat(chatId: number): Chat | null {
+  public onPluginWantsToGetChat(chatId: number): Chat | null {
     return this.chatRegistry.chats.get(chatId) ?? null;
+  }
+
+  /**
+   * From IPluginListener.
+   */
+  public onPluginWantsToFireCustomEvent(event: CustomEventArguments): void {
+    this.pluginHost.triggerEvent(PluginEvent.Custom, event);
   }
 
   /**

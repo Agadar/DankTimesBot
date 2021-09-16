@@ -5,6 +5,7 @@ import { Chat } from "../../src/chat/chat";
 import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
 import { User } from "../../src/chat/user/user";
 import { ChatMessageEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
+import { CustomEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/custom-event-arguments";
 import { EmptyEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/empty-event-arguments";
 import { LeaderboardPostEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
 import { PostUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
@@ -61,6 +62,11 @@ export class Plugin extends AbstractPlugin {
     this.subscribeToPluginEvent(PluginEvent.NightlyUpdate, (data: EmptyEventArguments) => {
       console.log("Example of a nightly update event.");
     });
+
+    this.subscribeToPluginEvent(PluginEvent.Custom, (data: CustomEventArguments) => {
+      console.log(`Example of a custom plugin event. Origin plugin: ${data.nameOfOriginPlugin}, ` +
+        `reason: ${data.reason}, event data: ${data.eventData}`);
+    });
   }
 
   /**
@@ -77,7 +83,8 @@ export class Plugin extends AbstractPlugin {
   public getPluginSpecificCommands(): BotCommand[] {
     const echoCommand = new BotCommand(["echo"], "echoes what a user sent", this.echo.bind(this));
     const printMoneyCommand = new BotCommand(["printmoney", "freemoney"], "gives the user 10 free points", this.printMoney.bind(this));
-    return [echoCommand, printMoneyCommand];
+    const firePluginEvent = new BotCommand(["fire_event"], "fires a custom plugin event", this.firePluginEvent.bind(this));
+    return [echoCommand, printMoneyCommand, firePluginEvent];
   }
 
   private echo(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
@@ -95,5 +102,10 @@ export class Plugin extends AbstractPlugin {
     const alterUserScoreArgs = new AlterUserScoreArgs(user, 10, this.name, "printmoney");
     const correctedAmount = chat.alterUserScore(alterUserScoreArgs);
     return `Gave ${user.name} ${correctedAmount} free points!`;
+  }
+
+  private firePluginEvent(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+    this.fireCustomEvent("testing", ["One", "Two", "Three"]);
+    return null;
   }
 }
