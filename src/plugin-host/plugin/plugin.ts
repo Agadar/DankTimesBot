@@ -9,6 +9,7 @@ import { LeaderboardPostEventArguments } from "../plugin-events/event-arguments/
 import { PostUserScoreChangedEventArguments } from "../plugin-events/event-arguments/post-user-score-changed-event-arguments";
 import { PreUserScoreChangedEventArguments } from "../plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
+import { PluginEventSubscription } from "../plugin-events/plugin-event-subscription";
 import { PluginEvent } from "../plugin-events/plugin-event-types";
 import { IPluginListener } from "./plugin-listener";
 
@@ -26,13 +27,13 @@ export abstract class AbstractPlugin {
   public version: string;
 
   /**
-   * Event triggers. Plugins can hook functions to certain Plugin Events.
+   * Event subcriptions. Plugins can hook functions to certain Plugin Events.
    * These plugin events are defined in the PLUGIN_EVENT enumeration.
    */
-  private pluginEventTriggers: Map<PluginEvent, (eventArgs: PluginEventArguments) => void>;
+  private pluginEventSubscriptions: PluginEventSubscription[] = [];
   /**
    * Listener to events fired by this plugin. Not to be confused with the
-   * events this plugin listens to itself (i.e. the above pluginEventTriggers).
+   * events this plugin listens to itself (i.e. the above pluginEventSubscriptions).
    */
   private listener: IPluginListener;
 
@@ -44,7 +45,6 @@ export abstract class AbstractPlugin {
   constructor(name: string, version: string) {
     this.name = name;
     this.version = version;
-    this.pluginEventTriggers = new Map<PluginEvent, (eventArgs: PluginEventArguments) => void>();
   }
 
   /**
@@ -60,10 +60,12 @@ export abstract class AbstractPlugin {
    * @param event PLUGIN_EVENT to trigger.
    */
   public triggerEvent(event: PluginEvent, eventArgs: PluginEventArguments): void {
-    const fn = this.pluginEventTriggers.get(event);
-    if (fn) {
-      fn(eventArgs);
-    }
+
+    const triggers = this.pluginEventSubscriptions.filter((trigger) => trigger.event === event &&
+      (trigger.nameOfOriginPlugin === PluginEventSubscription.ANY_SOURCE_OR_REASON || trigger.nameOfOriginPlugin === eventArgs.nameOfOriginPlugin) &&
+      (trigger.reason === PluginEventSubscription.ANY_SOURCE_OR_REASON || trigger.reason === eventArgs.reason));
+
+    triggers.forEach((trigger) => trigger.handler(eventArgs));
   }
 
   /**
@@ -119,26 +121,30 @@ export abstract class AbstractPlugin {
 
   /* Function overload list */
   protected subscribeToPluginEvent(event: PluginEvent.ChatMessage,
-                                   eventFn: (eventArgs: ChatMessageEventArguments) => void): void;
+                                   eventFn: (eventArgs: ChatMessageEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.PreUserScoreChange,
-                                   eventFn: (eventArgs: PreUserScoreChangedEventArguments) => void): void;
+                                   eventFn: (eventArgs: PreUserScoreChangedEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.PostUserScoreChange,
-                                   eventFn: (eventArgs: PostUserScoreChangedEventArguments) => void): void;
+                                   eventFn: (eventArgs: PostUserScoreChangedEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
-                                   eventFn: (eventArgs: LeaderboardPostEventArguments) => void): void;
+                                   eventFn: (eventArgs: LeaderboardPostEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate
-    | PluginEvent.HourlyTick,      eventFn: (eventArgs: EmptyEventArguments) => void): void;
+    | PluginEvent.HourlyTick,      eventFn: (eventArgs: EmptyEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.Custom,
-                                   eventFn: (eventArgs: CustomEventArguments) => void): void;
+                                   eventFn: (eventArgs: CustomEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
 
   /**
    * Subscribe to a certain PLUGIN_EVENT.
    * @param event Plugin event to subscribe to.
    * @param eventFn Function to execute when a certain event is triggered.
+   * @param nameOfOriginPlugin The name of the plugin to accept these events from, or empty if wanting to accept events from DankTimesBot,
+   * or star (*) to accept these events from any source. Star by default.
+   * @param reason The reason to accept these events for, or star (*) to accept these events for any reason. Star by default.
    */
-  protected subscribeToPluginEvent<ArgumentsType extends PluginEventArguments>(
-    event: PluginEvent, eventFn: (eventArgs: ArgumentsType) => void): void {
-    this.pluginEventTriggers.set(event, eventFn);
+  protected subscribeToPluginEvent<ArgumentsType extends PluginEventArguments>(event: PluginEvent, eventFn: (eventArgs: ArgumentsType) => void,
+                                                                               nameOfOriginPlugin?: string, reason?: string): void {
+    const subscription = new PluginEventSubscription(eventFn, event, nameOfOriginPlugin, reason);
+    this.pluginEventSubscriptions.push(subscription);
   }
 
   /**
@@ -175,7 +181,7 @@ export abstract class AbstractPlugin {
    * @param eventData Any relevant event data. Consumers of these arguments will have
    * to cast/parse this and trust it is of the type they expect.
    */
-  protected fireCustomEvent(reason: string, eventData?: any): void {
+  protected fireCustomEvent(reason?: string, eventData?: any): void {
     const event = new CustomEventArguments(this.name, reason, eventData);
     this.listener.onPluginWantsToFireCustomEvent(event);
   }

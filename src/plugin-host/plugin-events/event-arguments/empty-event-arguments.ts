@@ -5,6 +5,7 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  * there are no arguments. Sort of a null-object for eventargs.
  */
 export class EmptyEventArguments extends PluginEventArguments {
+
   /**
    * Constructor.
    */

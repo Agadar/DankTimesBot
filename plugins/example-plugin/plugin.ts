@@ -19,6 +19,9 @@ import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
  * build new plugins.
  */
 export class Plugin extends AbstractPlugin {
+
+  private static readonly PRINT_MONEY_REASON = "printmoney";
+
   /**
    * A plugin should call its base constructor to
    * provide it with an identifier, a version
@@ -36,12 +39,12 @@ export class Plugin extends AbstractPlugin {
       data.changeInScore += 5;
       this.sendMessage(data.chat.id, `Example of a pre user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
         `, Reason: ${data.reason}, Player: ${data.user.name}, old score change: ${oldChange}, new score change: ${data.changeInScore}`);
-    });
+    }, this.name, Plugin.PRINT_MONEY_REASON);
 
     this.subscribeToPluginEvent(PluginEvent.PostUserScoreChange, (data: PostUserScoreChangedEventArguments) => {
       this.sendMessage(data.chat.id, `Example of a post user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
         `, Reason: ${data.reason}, Player: ${data.user.name}, score change: ${data.changeInScore}`);
-    });
+    }, this.name, Plugin.PRINT_MONEY_REASON);
 
     this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessageEventArguments) => {
       data.botReplies = data.botReplies.concat(`Example of a chat message event`);
@@ -99,7 +102,7 @@ export class Plugin extends AbstractPlugin {
   }
 
   private printMoney(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
-    const alterUserScoreArgs = new AlterUserScoreArgs(user, 10, this.name, "printmoney");
+    const alterUserScoreArgs = new AlterUserScoreArgs(user, 10, this.name, Plugin.PRINT_MONEY_REASON);
     const correctedAmount = chat.alterUserScore(alterUserScoreArgs);
     return `Gave ${user.name} ${correctedAmount} free points!`;
   }
