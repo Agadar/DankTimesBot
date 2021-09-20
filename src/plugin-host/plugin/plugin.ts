@@ -65,7 +65,13 @@ export abstract class AbstractPlugin {
       (trigger.nameOfOriginPlugin === PluginEventSubscription.ANY_SOURCE_OR_REASON || trigger.nameOfOriginPlugin === eventArgs.nameOfOriginPlugin) &&
       (trigger.reason === PluginEventSubscription.ANY_SOURCE_OR_REASON || trigger.reason === eventArgs.reason));
 
-    triggers.forEach((trigger) => trigger.handler(eventArgs));
+    triggers.forEach((trigger) => {
+      try {
+        trigger.handler(eventArgs);
+      } catch (error) {
+        console.error(`Error while handling event ${event} for plugin ${this.name}: ${error}`);
+      }
+    });
   }
 
   /**
