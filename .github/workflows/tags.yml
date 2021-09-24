@@ -3,7 +3,7 @@ name: CI Tagged Versions
 on:
   create:
     tag:
-      - *
+      - '*'
 
 jobs:
   build:
