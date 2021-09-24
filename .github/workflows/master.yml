@@ -13,6 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Get branch name
+        run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
       - name: Node 16
         uses: actions/setup-node@v1
         with:
@@ -40,5 +43,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/danktimesbot:${GITHUB_REF##*/}
+          tags: ${{ secrets.DOCKER_USERNAME }}/danktimesbot:${{ env.BRANCH }}
 
