@@ -38,5 +38,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: lerkel/danktimesbot:ci
+          tags: ${{ secrets.DOCKER_USERNAME }}/danktimesbot:ci
 
