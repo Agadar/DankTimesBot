@@ -40,5 +40,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/danktimesbot:ci
+          tags: ${{ secrets.DOCKER_USERNAME }}/danktimesbot:${GITHUB_REF##*/}
 
