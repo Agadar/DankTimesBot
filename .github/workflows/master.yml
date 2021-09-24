@@ -11,14 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Node 14
+      - name: Node 16
         uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 16.x
 
       - name: Build
         run: |
-          npm i
+          npm ci
           tsc
 
       - name: Login to dockerhub
