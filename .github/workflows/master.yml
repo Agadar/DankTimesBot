@@ -1,6 +1,9 @@
 name: CI Master
 
 on:
+  create:
+    tag:
+      - '*'
   push:
     branches:
       - master
