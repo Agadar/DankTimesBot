@@ -137,7 +137,7 @@ export class FileIO {
    * @returns {Release[]}
    */
   public loadReleaseLogFromFile(): Release[] {
-    const releasePath = path.resolve(`${this.dataFolder}/${this.releasesFile}`);
+    const releasePath = path.resolve(`./${this.releasesFile}`);
     console.log(`Attempting to load release log file from ${releasePath} ...`);
 
     if (!fs.existsSync(releasePath)) {
@@ -167,11 +167,13 @@ export class FileIO {
     // Plugin directories
     const directories: string[] = (fs.readdirSync(DIRECTORY)
       .filter((f: any) => fs.statSync(DIRECTORY + "/" + f).isDirectory()));
+    console.log(`Found the following plugin directories: ${directories.join(", ")}`);
 
     // Get active plugins
     const activePlugins: string[] = directories
       .filter((pluginDir) => fs.existsSync(`${DIRECTORY}/${pluginDir}/plugin.ts`)
         && pluginsToActivate.indexOf(pluginDir) > -1);
+    console.log(`The following plugin directories contain a valid plugin.ts and are enabled via the config file: ${activePlugins.join(", ")}`);
 
     // Compile
     // Get all directories with plugin.ts
@@ -184,7 +186,10 @@ export class FileIO {
       .map((plugin) => ([plugin, ((() => {
         try {
           return new (require(`${DIRECTORY}/${plugin}/plugin.js`)).Plugin();
-        } catch { return null; }
+        } catch (ex) {
+          console.error(`Failed to compile plugin ${plugin}: ${ex}`);
+          return null;
+        }
       }))()]))
       .filter((unfiltered) => unfiltered[1])
       .map((pluginMap) => {
@@ -199,7 +204,6 @@ export class FileIO {
       console.info("Found and loaded the following plugins:");
       plugins.forEach((plugin) => console.info(`- ${plugin.name} ${plugin.version}`));
     }
-
     return plugins;
   }
 
