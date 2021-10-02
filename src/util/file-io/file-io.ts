@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as path from "path";
 import ts from "typescript";
 import { Config } from "../../misc/config";
 import { Release } from "../../misc/release";
@@ -40,8 +41,11 @@ export class FileIO {
     };
 
     // If there is a config file, load its valid values into config obj.
-    const configFilePath = `${this.dataFolder}/${this.configFile}`;
+    const configFilePath = path.resolve(`${this.dataFolder}/${this.configFile}`);
+    console.log(`Attempting to load config file from ${configFilePath} ...`);
+
     if (fs.existsSync(configFilePath)) {
+      console.log("Config file found!");
       const configFromFile: Config = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
       if (configFromFile.apiKey !== undefined) {
         config.apiKey = configFromFile.apiKey;
@@ -55,6 +59,8 @@ export class FileIO {
       if (configFromFile.plugins !== undefined) {
         config.plugins = configFromFile.plugins;
       }
+    } else {
+      console.log("Config file not found!");
     }
 
     // If there was an undefined/empty API key in the config file, try retrieve it from env.
@@ -62,13 +68,16 @@ export class FileIO {
       const apiKeyFromEnv = process.env[this.apiKeyEnvKey];
       if (apiKeyFromEnv) {
         config.apiKey = apiKeyFromEnv;
+        console.log("Using API key found in env");
       }
       if (!config.apiKey) {
-        console.error(`No Telegram API key was found, not in the config file nor in the` +
+        console.error(`No API key was found, not in the config file nor in the` +
           ` environment variable '${this.apiKeyEnvKey}'! Exiting...`);
         fs.writeFileSync(configFilePath, JSON.stringify(config, undefined, this.jsonIndentation));
         process.exit(-1);
       }
+    } else {
+      console.log("Using API key found in config file");
     }
 
     // Always write the file back to correct any mistakes in it.
@@ -128,9 +137,11 @@ export class FileIO {
    * @returns {Release[]}
    */
   public loadReleaseLogFromFile(): Release[] {
-    const releasePath = `${this.dataFolder}/${this.releasesFile}`;
+    const releasePath = path.resolve(`${this.dataFolder}/${this.releasesFile}`);
+    console.log(`Attempting to load release log file from ${releasePath} ...`);
 
     if (!fs.existsSync(releasePath)) {
+      console.log("Release log file not found!");
       return [];
     }
     const releases = JSON.parse(fs.readFileSync(releasePath, "utf8"));
@@ -138,6 +149,7 @@ export class FileIO {
     for (let i = 0; i < releases.length; i++) {
       releases[i] = new Release(releases[i].version, releases[i].date, releases[i].changes);
     }
+    console.log("Release log file found!");
     return releases;
   }
 
@@ -149,7 +161,8 @@ export class FileIO {
    */
   public GetAvailablePlugins(pluginsToActivate: string[]): AbstractPlugin[] {
     // Directory in which to find plugins.
-    const DIRECTORY: string = "plugins/";
+    const DIRECTORY: string = path.resolve("./plugins/");
+    console.log(`Attempting to load plugins from ${DIRECTORY} ...`);
 
     // Plugin directories
     const directories: string[] = (fs.readdirSync(DIRECTORY)
@@ -164,13 +177,13 @@ export class FileIO {
     // Get all directories with plugin.ts
     // Rewrite Directory -> Directory/plugin.ts & Compile
     (ts.createProgram(activePlugins
-      .map((pluginDir) => `${DIRECTORY}${pluginDir}/plugin.ts`), {})).emit();
+      .map((pluginDir) => `${DIRECTORY}/${pluginDir}/plugin.ts`), {})).emit();
 
     // Load & Return plugins.
     const plugins = activePlugins
       .map((plugin) => ([plugin, ((() => {
         try {
-          return new (require(`../../../plugins/${plugin}/plugin.js`)).Plugin();
+          return new (require(`${DIRECTORY}/${plugin}/plugin.js`)).Plugin();
         } catch { return null; }
       }))()]))
       .filter((unfiltered) => unfiltered[1])
@@ -181,9 +194,9 @@ export class FileIO {
 
     // Print plugins to console
     if (plugins.length === 0) {
-      console.info("No plugins loaded!");
+      console.info("No plugins found!");
     } else {
-      console.info("Loaded the following plugins:");
+      console.info("Found and loaded the following plugins:");
       plugins.forEach((plugin) => console.info(`- ${plugin.name} ${plugin.version}`));
     }
 
