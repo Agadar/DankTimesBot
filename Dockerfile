@@ -5,6 +5,6 @@ RUN cd /src \
     && npm install \
     && npm install -g typescript \
     && npm run prestart \
-    && rm -rf ./src ./data/* ./plugins/*
+    && rm -rf ./data/* ./plugins/*
 
 ENTRYPOINT ["node", "/src/built/main.js"]
