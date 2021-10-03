@@ -10,7 +10,7 @@ export class ChatInitialisationEventArguments extends PluginEventArguments {
    * The freshly initialised chat.
    */
    public readonly chat: Chat;
- 
+
    /**
     * Constructor.
     * @param chat The freshly initialised chat.
