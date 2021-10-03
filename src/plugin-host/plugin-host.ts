@@ -1,5 +1,6 @@
 import { BotCommandRegistry } from "../bot-commands/bot-command-registry";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
+import { ChatInitialisationEventArguments } from "./plugin-events/event-arguments/chat-initialisation-event-arguments";
 import {
   ChatMessageEventArguments,
 } from "./plugin-events/event-arguments/chat-message-event-arguments";
@@ -31,6 +32,7 @@ export class PluginHost {
   constructor(public readonly plugins: AbstractPlugin[]) { }
 
   /* Overload List */
+  public triggerEvent(event: PluginEvent.ChatInitialisation, input: ChatInitialisationEventArguments): void;
   public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessageEventArguments): void;
   public triggerEvent(event: PluginEvent.PreUserScoreChange, input: PreUserScoreChangedEventArguments): void;
   public triggerEvent(event: PluginEvent.PostUserScoreChange, input: PostUserScoreChangedEventArguments): void;

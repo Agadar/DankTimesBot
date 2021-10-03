@@ -1,5 +1,6 @@
 export enum PluginEvent {
   BotStartup,
+  ChatInitialisation,
   ChatMessage,
   PreUserScoreChange,
   PostUserScoreChange,

@@ -4,6 +4,8 @@ import { ChatSetting } from "../chat/settings/chat-setting";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { User } from "../chat/user/user";
 import { DankTime } from "../dank-time/dank-time";
+import { ChatInitialisationEventArguments } from "../plugin-host/plugin-events/event-arguments/chat-initialisation-event-arguments";
+import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { IUtil } from "../util/i-util";
 import { IChatRegistry } from "./i-chat-registry";
@@ -56,7 +58,12 @@ export class ChatRegistry implements IChatRegistry {
 
     chat.generateRandomDankTimes();
     this.chats.set(id, chat);
+
+    // Inform both internal listeners and plugins of chat initialisation.
     this.listeners.forEach((listener) => listener.onChatCreated(chat));
+    const chatEventArgs = new ChatInitialisationEventArguments(chat);
+    this.pluginHost.triggerEvent(PluginEvent.ChatInitialisation, chatEventArgs);
+
     return chat;
   }
 

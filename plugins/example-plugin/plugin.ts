@@ -4,6 +4,7 @@ import { AlterUserScoreArgs } from "../../src/chat/alter-user-score-args";
 import { Chat } from "../../src/chat/chat";
 import { ChatSettingTemplate } from "../../src/chat/settings/chat-setting-template";
 import { User } from "../../src/chat/user/user";
+import { ChatInitialisationEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/chat-initialisation-event-arguments";
 import { ChatMessageEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
 import { CustomEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/custom-event-arguments";
 import { EmptyEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/empty-event-arguments";
@@ -32,6 +33,10 @@ export class Plugin extends AbstractPlugin {
 
     this.subscribeToPluginEvent(PluginEvent.BotStartup, (data: EmptyEventArguments) => {
       console.log("Example of a bot startup event.");
+    });
+
+    this.subscribeToPluginEvent(PluginEvent.ChatInitialisation, (data: ChatInitialisationEventArguments) => {
+      console.log("Example of chat initialisation event.");
     });
 
     this.subscribeToPluginEvent(PluginEvent.PreUserScoreChange, (data: PreUserScoreChangedEventArguments) => {

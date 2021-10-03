@@ -2,6 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { BotCommand } from "../../bot-commands/bot-command";
 import { Chat } from "../../chat/chat";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
+import { ChatInitialisationEventArguments } from "../plugin-events/event-arguments/chat-initialisation-event-arguments";
 import { ChatMessageEventArguments } from "../plugin-events/event-arguments/chat-message-event-arguments";
 import { CustomEventArguments } from "../plugin-events/event-arguments/custom-event-arguments";
 import { EmptyEventArguments } from "../plugin-events/event-arguments/empty-event-arguments";
@@ -69,7 +70,7 @@ export abstract class AbstractPlugin {
       try {
         trigger.handler(eventArgs);
       } catch (error) {
-        console.error(`Error while handling event ${event} for plugin ${this.name}: ${error}`);
+        console.error(`Error while handling event ${PluginEvent[event]} for plugin ${this.name}: ${error}`);
       }
     });
   }
@@ -126,6 +127,8 @@ export abstract class AbstractPlugin {
   }
 
   /* Function overload list */
+  protected subscribeToPluginEvent(event: PluginEvent.ChatInitialisation,
+                                   eventFn: (eventArgs: ChatInitialisationEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.ChatMessage,
                                    eventFn: (eventArgs: ChatMessageEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.PreUserScoreChange,
