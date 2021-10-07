@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../../chat/chat";
 import { User } from "../../chat/user/user";
+import { BotCommandConfirmationQuestion } from "../bot-command-confirmation-question";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export interface IDankTimesBotCommands {
@@ -35,7 +36,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  resetChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
+  resetChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): BotCommandConfirmationQuestion;
 
   /**
    * Prints the current settings values of the chat identified in the msg object.

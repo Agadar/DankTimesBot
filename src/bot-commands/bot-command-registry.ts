@@ -4,6 +4,7 @@ import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { AwaitingConfirmationData } from "./awaiting-confirmation-data";
 import { BotCommand } from "./bot-command";
+import { BotCommandConfirmationQuestion } from "./bot-command-confirmation-question";
 
 /**
  * Responsible for registering and executing bot commands.
@@ -31,7 +32,12 @@ export class BotCommandRegistry {
             const upperCased = split[0].toUpperCase();
 
             if (upperCased === "Y" || upperCased === "YES") {
-                return [data.botCommand.action(data.chat, data.user, data.msg, data.params)];
+                try {
+                    return [data.question.actionOnConfirm()];
+                } catch (ex) {
+                    console.error(ex);
+                    return [`⚠️ ${ex.message}`];
+                }
             }
             return [];
         });
@@ -92,13 +98,21 @@ export class BotCommandRegistry {
         const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
         const user = chat.getOrCreateUser(msg.from.id, msg.from.username);
         const params = match && match.length > 1 && match[1] ? match[1] : "";
+        let commandResult: string | BotCommandConfirmationQuestion;
 
-        if (botCommand.requiresConfirmation) {
-            const data = new AwaitingConfirmationData(chat, user, msg, params, botCommand);
-            this.awaitingConfirmationList.push(data);
-            return botCommand.confirmationText;
+        try {
+            commandResult = botCommand.action(chat, user, msg, params);
+        } catch (ex) {
+            console.error(ex);
+            return `⚠️ ${ex.message}`;
         }
-        return botCommand.action(chat, user, msg, params);
+
+        if (typeof(commandResult) === "string") {
+            return commandResult;
+        }
+        const awaitingConfirm = new AwaitingConfirmationData(chat, user, commandResult);
+        this.awaitingConfirmationList.push(awaitingConfirm);
+        return commandResult.confirmationQuestionText;
     }
 
     /**

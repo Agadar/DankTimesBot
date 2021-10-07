@@ -8,6 +8,7 @@ import { DankTime } from "../../dank-time/dank-time";
 import { Release } from "../../misc/release";
 import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
 import { IUtil } from "../../util/i-util";
+import { BotCommandConfirmationQuestion } from "../bot-command-confirmation-question";
 import { BotCommandRegistry } from "../bot-command-registry";
 import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
 
@@ -39,11 +40,15 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return "⚠️ The bot is already stopped!";
   }
 
-  public resetChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
-    const finalLeaderboard = chat.generateLeaderboard(true);
-    const outputText = "Leaderboard has been reset!\n\n" + finalLeaderboard;
-    chat.resetScores();
-    return outputText;
+  public resetChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): BotCommandConfirmationQuestion {
+    const confirmationQuestion = new BotCommandConfirmationQuestion();
+    confirmationQuestion.actionOnConfirm = () => {
+      const finalLeaderboard = chat.generateLeaderboard(true);
+      const outputText = "Leaderboard has been reset!\n\n" + finalLeaderboard;
+      chat.resetScores();
+      return outputText;
+    };
+    return confirmationQuestion;
   }
 
   public settings(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {

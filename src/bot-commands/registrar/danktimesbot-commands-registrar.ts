@@ -42,7 +42,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
         this.dankTimesBotCommands.removeTime.bind(this.dankTimesBotCommands), true, true)),
 
       this.botCommandRegistry.registerCommand(new BotCommand(["reset"], "resets the leaderboard",
-        this.dankTimesBotCommands.resetChat.bind(this.dankTimesBotCommands), true, true, true)),
+        this.dankTimesBotCommands.resetChat.bind(this.dankTimesBotCommands), true, true)),
 
       this.botCommandRegistry.registerCommand(new BotCommand(["settings"], "shows the current settings values",
         this.dankTimesBotCommands.settings.bind(this.dankTimesBotCommands))),

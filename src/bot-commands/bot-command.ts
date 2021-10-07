@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
 import { User } from "../chat/user/user";
+import { BotCommandConfirmationQuestion } from "./bot-command-confirmation-question";
 
 export class BotCommand {
 
@@ -24,17 +25,13 @@ export class BotCommand {
    * @param action The function which this command calls.
    * @param showInHelp Whether to list this command in the help output.
    * @param adminOnly Whether only admins can execute this command.
-   * @param requiresConfirmation Whether this command requires explicit confirmation.
-   * @param confirmationText The text for the confirmation.
    */
   constructor(
     public readonly names: string[],
     public readonly description: string,
-    public readonly action: ((chat: Chat, user: User, msg: TelegramBot.Message, params: string) => string),
+    public readonly action: ((chat: Chat, user: User, msg: TelegramBot.Message, params: string) => string | BotCommandConfirmationQuestion),
     public readonly showInHelp = true,
-    public readonly adminOnly = false,
-    public readonly requiresConfirmation = false,
-    public readonly confirmationText = "🤔 Are you sure? Type 'yes' to confirm.") { }
+    public readonly adminOnly = false) { }
 
   /**
    * Gets this command's regex, which is based on its names and the supplied bot name.
