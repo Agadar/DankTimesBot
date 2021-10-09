@@ -35,7 +35,6 @@ export class FileIO {
 
     const config: Config = {
       apiKey: "",
-      persistenceRate: 60,
       plugins: [],
       sendWhatsNewMsg: true,
     };
@@ -49,9 +48,6 @@ export class FileIO {
       const configFromFile: Config = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
       if (configFromFile.apiKey !== undefined) {
         config.apiKey = configFromFile.apiKey;
-      }
-      if (configFromFile.persistenceRate !== undefined) {
-        config.persistenceRate = configFromFile.persistenceRate;
       }
       if (configFromFile.sendWhatsNewMsg !== undefined) {
         config.sendWhatsNewMsg = configFromFile.sendWhatsNewMsg;

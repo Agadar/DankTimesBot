@@ -5,6 +5,7 @@
     "changes": [
       "Added punishuntimelydanktime setting",
       "Increased maximum points for a dank time to 10000",
+      "Removed persistanceRate setting as persistance is done on new hourly tick",
       "Improved the plugin framework",
       "Performed a tech refresh"
     ]

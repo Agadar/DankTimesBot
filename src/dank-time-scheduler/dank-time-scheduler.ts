@@ -1,3 +1,4 @@
+import { CronJob } from "cron";
 import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
 import { DankTime } from "../dank-time/dank-time";
@@ -19,9 +20,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   public randomDankTimeNotifications = new Array<ScheduledItem>();
   public dankTimeNotifications = new Array<ScheduledItem>();
 
-  constructor(
-    private readonly tgClient: ITelegramClient,
-    private readonly cronJob: any) { }
+  constructor(private readonly tgClient: ITelegramClient) { }
 
   /**
    * Schedules all normal and random dank times notifications of a chat.
@@ -102,7 +101,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
     this.dankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
+      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
         if (!chat || !chat.running) { return; }
         let promise;
         if (chat.normaltimesNotifications) {
@@ -122,7 +121,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
     this.randomDankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
+      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
         if (chat && chat.running) {
           const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
           const promise = this.sendAnnouncement(chat.id, messageText);

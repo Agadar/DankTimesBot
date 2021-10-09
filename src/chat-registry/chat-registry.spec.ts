@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import "mocha";
-import { mock, instance } from "ts-mockito";
+import { instance, mock } from "ts-mockito";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import {
   DankTimesBotControllerMock,

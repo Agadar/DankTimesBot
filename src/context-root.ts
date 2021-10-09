@@ -1,4 +1,3 @@
-import { CronJob } from "cron";
 import nodeCleanupImport from "node-cleanup";
 import TelegramBot = require("node-telegram-bot-api");
 
@@ -39,7 +38,6 @@ export class ContextRoot {
   public readonly version: string;
   public readonly releaseLog: Release[];
   public readonly danktimesbotController: IDankTimesBotController;
-  public readonly cronJob: any;
   public readonly nodeCleanup: any;
 
   public readonly backupFile = "backup.json";
@@ -65,7 +63,7 @@ export class ContextRoot {
     // Prepare Telegram client and scheduler for sending messages.
     const telegramBot = new TelegramBot(this.config.apiKey, { polling: true });
     this.telegramClient = new TelegramClient(telegramBot);
-    this.dankTimeScheduler = new DankTimeScheduler(this.telegramClient, CronJob);
+    this.dankTimeScheduler = new DankTimeScheduler(this.telegramClient);
 
     // Load and initialize commands.
     // tslint:disable-next-line:no-var-requires
@@ -82,7 +80,6 @@ export class ContextRoot {
     // Miscellaneous initializations and exports.
     this.danktimesbotController = new DankTimesBotController(this.chatRegistry,
       this.dankTimeScheduler, this.telegramClient, this.pluginHost, this.fileIO);
-    this.cronJob = CronJob;
     this.nodeCleanup = nodeCleanupImport;
   }
 }
