@@ -1,6 +1,7 @@
+import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../../chat/chat";
 import { User } from "../../chat/user/user";
-import { Release } from "../../misc/release";
+import { BotCommandConfirmationQuestion } from "../bot-command-confirmation-question";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export interface IDankTimesBotCommands {
@@ -14,7 +15,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  startChat(chat: Chat, user: User, msg: any, match: any): string;
+  startChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Stops the specified chat so that it stops recording dank time texts.
@@ -25,7 +26,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  stopChat(chat: Chat, user: User, msg: any, match: any): string;
+  stopChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Resets the scores of the specified chat.
@@ -35,7 +36,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  resetChat(chat: Chat, user: User, msg: any, match: any): string;
+  resetChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): BotCommandConfirmationQuestion;
 
   /**
    * Prints the current settings values of the chat identified in the msg object.
@@ -45,7 +46,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  settings(chat: Chat, user: User, msg: any, match: any): string;
+  settings(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Prints the current settings descriptions of the chat identified in the msg object.
@@ -55,7 +56,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  settingshelp(chat: Chat, user: User, msg: any, match: any): string;
+  settingshelp(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Sets a setting of the chat identified in the msg object.
@@ -65,7 +66,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  set(chat: Chat, user: User, msg: any, match: any): string;
+  set(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Prints the NORMAL dank times of the chat identified in the msg object.
@@ -75,7 +76,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  dankTimes(chat: Chat, user: User, msg: any, match: any): string;
+  dankTimes(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Prints the leaderboard of the chat identified in the msg object.
@@ -85,7 +86,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  leaderBoard(chat: Chat, user: User, msg: any, match: any): string;
+  leaderBoard(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Prints the available commands to the chat identified in the msg object.
@@ -95,7 +96,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  help(chat: Chat, user: User, msg: any, match: any): string;
+  help(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Adds a new dank time to the chat.
@@ -105,7 +106,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  addTime(chat: Chat, user: User, msg: any, match: any): string;
+  addTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Interacts with the plugin subsystem.
@@ -115,7 +116,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  plugins(chat: Chat, user: User, msg: any, match: any): string;
+  plugins(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Removes a dank time from the chat.
@@ -125,7 +126,7 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  removeTime(chat: Chat, user: User, msg: any, match: any): string;
+  removeTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Gets the release notes of the current version.
@@ -135,5 +136,15 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-  whatsNewMessage(chat: Chat, user: User, msg: any, match: any): string;
+  whatsNewMessage(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
+
+  /**
+   * Donates points to another user.
+   * @param chat The chat from which the command was called.
+   * @param user The user that called the command.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  donate(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 }

@@ -1,3 +1,5 @@
+import TelegramBot from "node-telegram-bot-api";
+import { AlterUserScoreArgs } from "../../chat/alter-user-score-args";
 import { Chat } from "../../chat/chat";
 import { CoreSettingsNames } from "../../chat/settings/core-settings-names";
 import { User } from "../../chat/user/user";
@@ -6,7 +8,7 @@ import { DankTime } from "../../dank-time/dank-time";
 import { Release } from "../../misc/release";
 import { AbstractPlugin } from "../../plugin-host/plugin/plugin";
 import { IUtil } from "../../util/i-util";
-import { BotCommand } from "../bot-command";
+import { BotCommandConfirmationQuestion } from "../bot-command-confirmation-question";
 import { BotCommandRegistry } from "../bot-command-registry";
 import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
 
@@ -20,7 +22,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     private readonly releaseLog: Release[],
   ) { }
 
-  public startChat(chat: Chat, user: User, msg: any, match: any): string {
+  public startChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     if (chat.running) {
       return "⚠️ The bot is already running!";
     }
@@ -29,7 +31,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return "🏃 The bot is now running! Hit '/help' for available commands.";
   }
 
-  public stopChat(chat: Chat, user: User, msg: any, match: any): string {
+  public stopChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     if (chat.running) {
       chat.running = false;
       this.scheduler.unscheduleAllOfChat(chat);
@@ -38,33 +40,37 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return "⚠️ The bot is already stopped!";
   }
 
-  public resetChat(chat: Chat, user: User, msg: any, match: any): string {
-    const finalLeaderboard = chat.generateLeaderboard(true);
-    const outputText = "Leaderboard has been reset!\n\n" + finalLeaderboard;
-    chat.resetScores();
-    return outputText;
+  public resetChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): BotCommandConfirmationQuestion {
+    const confirmationQuestion = new BotCommandConfirmationQuestion();
+    confirmationQuestion.actionOnConfirm = () => {
+      const finalLeaderboard = chat.generateLeaderboard(true);
+      const outputText = "Leaderboard has been reset!\n\n" + finalLeaderboard;
+      chat.resetScores();
+      return outputText;
+    };
+    return confirmationQuestion;
   }
 
-  public settings(chat: Chat, user: User, msg: any, match: any): string {
+  public settings(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     return chat.getFormattedSettingsValues();
   }
 
-  public settingshelp(chat: Chat, user: User, msg: any, match: any): string {
+  public settingshelp(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     return chat.getFormattedSettingsDescriptions();
   }
 
-  public set(chat: Chat, user: User, msg: any, match: any): string {
+  public set(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
 
     // Split string and ensure it contains at least 2 items.
-    const split = match.input.split(" ");
-    if (split.length < 3) {
+    const split = match.split(" ");
+    if (split.length < 2) {
       return "⚠️ Not enough arguments! Format: /set [name] [value]";
     }
 
     // Update the chat setting
     try {
-      const settingname = split[1];
-      const settingvalue = split[2];
+      const settingname = split[0];
+      const settingvalue = split[1];
       chat.setSetting(settingname, settingvalue);
 
       // Altering some settings has side-effects:
@@ -82,7 +88,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     }
   }
 
-  public dankTimes(chat: Chat, user: User, msg: any, match: any): string {
+  public dankTimes(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     let dankTimes = "<b>⏰ DANK TIMES</b>\n";
     for (const time of chat.dankTimes) {
       dankTimes +=
@@ -96,32 +102,31 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return dankTimes;
   }
 
-  public leaderBoard(chat: Chat, user: User, msg: any, match: any): string {
+  public leaderBoard(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     return chat.generateLeaderboard();
   }
 
-  public help(chat: Chat, user: User, msg: any, match: any): string {
-    const sortedCommands = this.commandsRegistry.botCommands
-      .filter((command) => command.showInHelp).sort(BotCommand.compare);
+  public help(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+    const sortedCommands = this.commandsRegistry.getCommandsForHelpOutput();
     let help = "<b>ℹ️ AVAILABLE COMMANDS</b>\n";
-    sortedCommands.forEach((command) => help += "\n/" + command.name + " - " + command.description);
+    sortedCommands.forEach((command) => help += "\n/" + command.names[0] + " - " + command.description);
     return help;
   }
 
-  public addTime(chat: Chat, user: User, msg: any, match: any): string {
+  public addTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
 
-    const commaSplit: string[] = match.input.split(",").filter((part: string) => !!part);
+    const commaSplit: string[] = match.split(",").filter((part: string) => !!part);
     const spaceSplit: string[] = commaSplit[0].split(" ").filter((part: string) => !!part);
 
     // Ensure it contains at least 4 items.
-    if (spaceSplit.length < 5) {
+    if (spaceSplit.length < 4) {
       return "⚠️ Not enough arguments! Format: /addtime [hour] [minute] [points] [text1],[text2], etc.";
     }
 
     // Identify and verify arguments.
-    const hour = Number(spaceSplit[1]);
-    const minute = Number(spaceSplit[2]);
-    const points = Number(spaceSplit[3]);
+    const hour = Number(spaceSplit[0]);
+    const minute = Number(spaceSplit[1]);
+    const points = Number(spaceSplit[2]);
 
     if (isNaN(hour)) {
       return "⚠️ The hour must be a number!";
@@ -137,7 +142,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     for (let i = 0; i < commaSplit.length; i++) {
       commaSplit[i] = commaSplit[i].trim();
     }
-    const texts = [spaceSplit.slice(4).join(" ")].concat(commaSplit.slice(1));
+    const texts = [spaceSplit.slice(3).join(" ")].concat(commaSplit.slice(1));
 
     // Subscribe new dank time for the chat, replacing any with the same hour and minute.
     try {
@@ -157,25 +162,25 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     }
   }
 
-  public plugins(chat: Chat, user: User, msg: any, match: any): string {
+  public plugins(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     let out = "<b>🔌 PLUGINS</b>\n";
     chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
-      out += `\n- ${plugin.name}`;
+      out += `\n- ${plugin.name} ${plugin.version}`;
     });
     return out;
   }
 
-  public removeTime(chat: Chat, user: User, msg: any, match: any): string {
+  public removeTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
 
     // Split string and ensure it contains at least 2 items.
-    const split = match.input.split(" ");
-    if (split.length < 3) {
+    const split = match.split(" ");
+    if (split.length < 2) {
       return "⚠️ Not enough arguments! Format: /removetime [hour] [minute]";
     }
 
     // Identify and verify arguments.
-    const hour = Number(split[1]);
-    const minute = Number(split[2]);
+    const hour = Number(split[0]);
+    const minute = Number(split[1]);
     if (isNaN(hour)) {
       return "⚠️ The hour must be a number!";
     }
@@ -194,8 +199,44 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     }
   }
 
-  public whatsNewMessage(chat: Chat, user: User, msg: any, match: any): string {
+  public whatsNewMessage(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
     return this.util.releaseLogToWhatsNewMessage(this.releaseLog);
+  }
+
+  public donate(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+    if (!msg.reply_to_message) {
+      return "✋  I only work when you reply to a message by the user you are trying to donate to";
+    }
+    if (msg.reply_to_message?.from?.id === user.id) {
+      return "✋  Donating to yourself? Weirdo";
+    }
+    if (msg.reply_to_message?.from?.is_bot) {
+      return "✋  Bots have no use for points, silly";
+    }
+    const recipientId = msg.reply_to_message?.from?.id;
+
+    if (!recipientId) {
+      return "⚠️  Failed to identify to whomst you're donating";
+    }
+    if (!match) {
+      return "✋  Not enough arguments! Format: /donate [amount]";
+    }
+    let amount = Number(match);
+
+    if (isNaN(amount) || (amount % 1 !== 0) || amount < 1 ) {
+      return "✋  The amount has to be a whole numeric value";
+    }
+    if (amount > user.score) {
+      return "✋  You can't give away more than you own";
+    }
+
+    const recipient: User = chat.getOrCreateUser(recipientId, msg.reply_to_message?.from?.username);
+    chat.alterUserScore(new AlterUserScoreArgs(user, -amount, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
+      AlterUserScoreArgs.DONATION_GIVEN_REASON));
+    amount = chat.alterUserScore(new AlterUserScoreArgs(recipient, amount,
+      AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME, AlterUserScoreArgs.DONATION_RECEIVED_REASON));
+
+    return `🎉 ${user.name} donated ${amount} internet points to ${recipient.name} 🎉`;
   }
 
   private doTimezoneSettingSideEffects(chat: Chat): void {

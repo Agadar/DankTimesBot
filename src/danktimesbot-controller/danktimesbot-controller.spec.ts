@@ -1,23 +1,30 @@
 import { assert } from "chai";
 import * as moment from "moment-timezone";
+import {instance, mock, when} from "ts-mockito";
 import { ChatRegistryMock } from "../chat-registry/chat-registry-mock";
 import { Chat } from "../chat/chat";
 import { DankTimeSchedulerMock } from "../dank-time-scheduler/dank-time-scheduler-mock";
+import { PluginHost } from "../plugin-host/plugin-host";
 import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { TelegramClientMock } from "../telegram-client/telegram-client-mock";
+import { FileIO } from "../util/file-io/file-io";
 import { DankTimesBotController } from "./danktimesbot-controller";
 
 let dankController: DankTimesBotController;
 let chatRegistry: ChatRegistryMock;
 let dankTimeScheduler: DankTimeSchedulerMock;
 let telegramClient: TelegramClientMock;
-const plugins = new Array<AbstractPlugin>();
+let pluginHost: PluginHost;
+let fileIO: FileIO;
 
 function initTestVariables() {
   chatRegistry = new ChatRegistryMock();
   dankTimeScheduler = new DankTimeSchedulerMock();
   telegramClient = new TelegramClientMock();
-  dankController = new DankTimesBotController(moment, chatRegistry, dankTimeScheduler, telegramClient, plugins);
+  pluginHost = mock(PluginHost);
+  fileIO = mock(FileIO);
+  when(pluginHost.plugins).thenReturn(new Array<AbstractPlugin>());
+  dankController = new DankTimesBotController(chatRegistry, dankTimeScheduler, telegramClient, instance(pluginHost), instance(fileIO));
 }
 
 class ChatMock {

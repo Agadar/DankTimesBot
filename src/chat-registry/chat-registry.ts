@@ -4,8 +4,9 @@ import { ChatSetting } from "../chat/settings/chat-setting";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { User } from "../chat/user/user";
 import { DankTime } from "../dank-time/dank-time";
+import { ChatInitialisationEventArguments } from "../plugin-host/plugin-events/event-arguments/chat-initialisation-event-arguments";
+import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
-import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { IUtil } from "../util/i-util";
 import { IChatRegistry } from "./i-chat-registry";
 import { IChatRegistryListener } from "./i-chat-registry-listener";
@@ -18,7 +19,6 @@ export class ChatRegistry implements IChatRegistry {
   private readonly listeners: IChatRegistryListener[] = [];
 
   constructor(
-    private readonly moment: any,
     private readonly util: IUtil,
     private readonly chatSettingsRegistry: ChatSettingsRegistry,
     private readonly pluginHost: PluginHost,
@@ -45,7 +45,7 @@ export class ChatRegistry implements IChatRegistry {
     }
 
     const settings = this.chatSettingsRegistry.getChatSettings();
-    const chat = new Chat(this.moment, this.util, id, this.pluginHost, settings);
+    const chat = new Chat(this.util, id, this.pluginHost, settings);
 
     // These default dank times should be moved to a configurable .json file at some point.
     chat.addDankTime(new DankTime(0, 0, ["0000"], () => 5));
@@ -58,7 +58,12 @@ export class ChatRegistry implements IChatRegistry {
 
     chat.generateRandomDankTimes();
     this.chats.set(id, chat);
+
+    // Inform both internal listeners and plugins of chat initialisation.
     this.listeners.forEach((listener) => listener.onChatCreated(chat));
+    const chatEventArgs = new ChatInitialisationEventArguments(chat);
+    this.pluginHost.triggerEvent(PluginEvent.ChatInitialisation, chatEventArgs);
+
     return chat;
   }
 
@@ -104,7 +109,7 @@ export class ChatRegistry implements IChatRegistry {
       }
     }
 
-    return new Chat(this.moment, this.util, literal.id,
+    return new Chat(this.util, literal.id,
       this.pluginHost, settings, literal.running,
       literal.lastHour, literal.lastMinute, users, dankTimes, [],
     );

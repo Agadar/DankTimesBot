@@ -1,5 +1,4 @@
-FROM node:16-alpine
-
+FROM node:14.17.6
 WORKDIR /src
 ADD . .
 RUN cd /src \

@@ -1,3 +1,5 @@
+import { CronJob } from "cron";
+import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
 import { DankTime } from "../dank-time/dank-time";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
@@ -18,9 +20,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   public randomDankTimeNotifications = new Array<ScheduledItem>();
   public dankTimeNotifications = new Array<ScheduledItem>();
 
-  constructor(
-    private readonly tgClient: ITelegramClient,
-    private readonly cronJob: any) { }
+  constructor(private readonly tgClient: ITelegramClient) { }
 
   /**
    * Schedules all normal and random dank times notifications of a chat.
@@ -101,7 +101,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
     this.dankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
+      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
         if (!chat || !chat.running) { return; }
         let promise;
         if (chat.normaltimesNotifications) {
@@ -121,7 +121,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
     this.randomDankTimeNotifications.push({
       chatId: chat.id,
-      cronJob: new this.cronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
+      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
         if (chat && chat.running) {
           const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
           const promise = this.sendAnnouncement(chat.id, messageText);
@@ -133,11 +133,11 @@ export class DankTimeScheduler implements IDankTimeScheduler {
     });
   }
 
-  private sendAnnouncement(chatId: number, messageText: string): Promise<any> {
+  private sendAnnouncement(chatId: number, messageText: string): Promise<void | TelegramBot.Message> {
     return this.tgClient.sendMessage(chatId, messageText, -1, false);
   }
 
-  private scheduleLeaderboardAndAnnouncementRemoval(chat: Chat, sendAnnouncementPromise?: Promise<any>) {
+  private scheduleLeaderboardAndAnnouncementRemoval(chat: Chat, sendAnnouncementPromise?: Promise<void | TelegramBot.Message>) {
     setTimeout((() => {
       if (!chat) { return; }
       if (chat.leaderboardChanged()) {
@@ -145,8 +145,8 @@ export class DankTimeScheduler implements IDankTimeScheduler {
           this.sendLeaderboard(chat);
         }
       } else if (sendAnnouncementPromise) {
-        sendAnnouncementPromise.then((res: any) => {
-          if (chat && res && res.message_id) {
+        sendAnnouncementPromise.then((res) => {
+          if (chat && res?.message_id) {
             this.removeAnnouncement(chat.id, res.message_id);
           }
         });

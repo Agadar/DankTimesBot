@@ -1,4 +1,4 @@
-import { Moment } from "moment-timezone";
+import moment from "moment";
 import { ChatSetting } from "./chat-setting";
 import { ChatSettingTemplate } from "./chat-setting-template";
 import { CoreSettingsNames } from "./core-settings-names";
@@ -9,42 +9,46 @@ export class ChatSettingsRegistry {
     private readonly templates = new Array<ChatSettingTemplate<any>>();
 
     /** Constructor. Initializes all core settings templates. */
-    constructor(private readonly moment: any) {
+    constructor() {
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.autoleaderboards,
-            "whether a leaderboard is auto-posted 1 minute after every dank time",
+            "if a leaderboard is auto-posted 1 minute after every dank time",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.firstNotifications,
-            "whether this chat announces the first user to score",
+            "if this chat announces the first user to score",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicapsEnabled,
-            "whether the users with the lowest scores earn more points",
+            "if the players with the lowest scores earn more points",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicapsBottomFraction,
-            "the bottom fraction of users considered handicapped",
+            "the bottom fraction of players considered handicapped",
             0.25, this.toNumber.bind(this), this.handicapsBottomFractionValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.handicapsMultiplier,
-            "the multiplier bonus given to handicapped users",
+            "the multiplier bonus given to handicapped players",
             1.5, this.toNumber.bind(this), this.multiplierValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.hardcoremodeEnabled,
-            "whether every day, users are punished if they haven't scored the previous day",
+            "if every day, players are punished if they haven't scored the previous day",
             false, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.hardcoremodePunishFraction,
-            "the fraction of a user's score subtracted when punished by hardcode mode",
+            "the fraction of a players's score subtracted when punished by hardcode mode",
             0.1, this.toNumber.bind(this), this.hardcorePunishFractionValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.firstMultiplier,
-            "the multiplier for the score of the first user to score",
+            "the multiplier for the score of the first players to score",
             2, this.toNumber.bind(this), this.multiplierValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.normaltimesNotifications,
-            "whether notifications of normal dank times are sent",
+            "if notifications of normal dank times are sent",
+            true, this.toBoolean.bind(this), this.noValidation.bind(this)));
+
+        this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.punishUntimelyDankTime,
+            "if players are punished for typing a dank time when it's not the right time",
             true, this.toBoolean.bind(this), this.noValidation.bind(this)));
 
         this.registerChatSetting(new ChatSettingTemplate(CoreSettingsNames.randomtimesFrequency,
@@ -102,7 +106,7 @@ export class ChatSettingsRegistry {
     }
 
     private toTimezoneString(original: string): string {
-        const momentTimezone = this.moment.tz.zone(original);
+        const momentTimezone = moment.tz.zone(original);
         if (momentTimezone === null) {
             throw new RangeError("Invalid timezone! Examples: 'Europe/Amsterdam', 'UTC'.");
         }
@@ -124,8 +128,8 @@ export class ChatSettingsRegistry {
     }
 
     private pointsPerRandomTimeValidation(value: number) {
-        if (value < 1 || value > 100 || value % 1 !== 0) {
-            throw new RangeError("The value must be a whole number between 1 and 100!");
+        if (value < 1 || value > 10000 || value % 1 !== 0) {
+            throw new RangeError("The value must be a whole number between 1 and 10000!");
         }
     }
 

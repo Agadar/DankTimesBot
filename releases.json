@@ -1,5 +1,16 @@
 [
   {
+    "version": "2.0.0",
+    "date": "2021-10-09",
+    "changes": [
+      "Made Donation plugin core",
+      "Added punishuntimelydanktime setting",
+      "Increased maximum points for a dank time to 10000",
+      "Removed persistanceRate setting as persistance is done on new hourly tick",
+      "Massive improvements to the code and support for plugins in particular"
+    ]
+  },
+  {
     "version": "1.7.0",
     "date": "2018-08-26",
     "changes": [

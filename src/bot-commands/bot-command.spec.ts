@@ -4,14 +4,14 @@ import { BotCommand } from "./bot-command";
 
 describe("BotCommand.getRegex()", () => {
 
-  const regex = new BotCommand("command", "command description",
+  const regex = new BotCommand(["command"], "command description",
     (msg, match) => "", false, false).getRegex("DankTimesBot");
 
   const tests = [
     { arg: "/command", expected: true },
 
     { arg: " /command", expected: false },
-    { arg: "/command ", expected: false },
+    { arg: "/command ", expected: true },
     { arg: " /command ", expected: false },
 
     { arg: "a/command", expected: false },
@@ -29,7 +29,7 @@ describe("BotCommand.getRegex()", () => {
     { arg: "/command@DankTimesBot", expected: true },
 
     { arg: " /command@DankTimesBot", expected: false },
-    { arg: "/command@DankTimesBot ", expected: false },
+    { arg: "/command@DankTimesBot ", expected: true },
     { arg: " /command@DankTimesBot ", expected: false },
 
     { arg: "a/command@DankTimesBot", expected: false },

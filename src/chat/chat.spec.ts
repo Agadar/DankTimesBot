@@ -1,8 +1,8 @@
 import { assert } from "chai";
 import "mocha";
-import * as moment from "moment-timezone";
+import moment from "moment-timezone";
+import TelegramBot from "node-telegram-bot-api";
 import { DankTime } from "../dank-time/dank-time";
-import * as momentMock from "../misc/moment-mock";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { Util } from "../util/util";
 import { Chat } from "./chat";
@@ -14,10 +14,10 @@ import { User } from "./user/user";
 const util = new Util();
 
 describe("Chat.hardcoreModeCheck", () => {
-  const now = moment().unix();
+  const now = moment.now() / 1000;
   const nowMinus24Hours = now - (24 * 60 * 60);
   const nowMinusAlmost24Hours = nowMinus24Hours + 1;
-  const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
+  const chatSettingRegistry = new ChatSettingsRegistry();
 
   it("should not punish a user if hardcore mode is disabled", () => {
 
@@ -28,7 +28,7 @@ describe("Chat.hardcoreModeCheck", () => {
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = false;
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -46,7 +46,7 @@ describe("Chat.hardcoreModeCheck", () => {
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -63,7 +63,7 @@ describe("Chat.hardcoreModeCheck", () => {
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -80,7 +80,7 @@ describe("Chat.hardcoreModeCheck", () => {
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -97,7 +97,7 @@ describe("Chat.hardcoreModeCheck", () => {
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -114,7 +114,7 @@ describe("Chat.hardcoreModeCheck", () => {
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -131,7 +131,7 @@ describe("Chat.hardcoreModeCheck", () => {
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -143,7 +143,7 @@ describe("Chat.hardcoreModeCheck", () => {
 
 describe("Chat.generateRandomDankTimes", () => {
 
-  const chatSettingRegistry = new ChatSettingsRegistry(momentMock);
+  const chatSettingRegistry = new ChatSettingsRegistry();
 
   it("should generate correct # of random dank times with correct hours, minutes, and texts", () => {
 
@@ -151,7 +151,7 @@ describe("Chat.generateRandomDankTimes", () => {
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.randomtimesFrequency) as ChatSetting<number>).value = 10;
     (settings.get(CoreSettingsNames.randomtimesPoints) as ChatSetting<number>).value = 10;
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
 
     // Act, Assert
     chat.generateRandomDankTimes().forEach((time) => {
@@ -177,7 +177,7 @@ describe("Chat.generateRandomDankTimes", () => {
       (settings.get(CoreSettingsNames.timezone) as ChatSetting<string>).value = "UTC";
       (settings.get(CoreSettingsNames.randomtimesFrequency) as ChatSetting<number>).value = 10;
       (settings.get(CoreSettingsNames.randomtimesPoints) as ChatSetting<number>).value = 10;
-      const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+      const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
       const now = moment.tz("UTC");
       now.minutes(0);
       chat.addDankTime(new DankTime(now.hours(), now.minutes(), ["irrelevant"], () => 10));
@@ -202,7 +202,7 @@ describe("Chat.generateRandomDankTimes", () => {
       global.Math = mockMath;
 
       const settings = chatSettingRegistry.getChatSettings();
-      const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+      const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
 
       // Act
       const randomDankTimes = chat.generateRandomDankTimes();
@@ -217,13 +217,13 @@ describe("Chat.generateRandomDankTimes", () => {
 
 describe("Chat.timezone", () => {
 
-  const chatSettingRegistry = new ChatSettingsRegistry(moment);
+  const chatSettingRegistry = new ChatSettingsRegistry();
 
   it("should correct a valid but (for the cron library) improperly capitalized timezone", () => {
 
     // Arrange
     const settings = chatSettingRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
 
     // Act
     chat.setSetting(CoreSettingsNames.timezone, "jaPaN");
@@ -236,7 +236,7 @@ describe("Chat.timezone", () => {
 
     // Arrange
     const settings = chatSettingRegistry.getChatSettings();
-    const chat = new Chat(moment, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
 
     // Act, Assert
     try {
@@ -252,16 +252,17 @@ describe("Chat.timezone", () => {
 
 describe("Chat.processMessage", () => {
 
-  const chatSettingRegistry = new ChatSettingsRegistry(moment);
+  const chatSettingRegistry = new ChatSettingsRegistry();
   let chat: Chat;
   const now = moment.tz("Europe/Amsterdam");
+  const nowTimeStamp = now.unix();
   const dankTimePoints = 5;
 
   beforeEach("Instantiate test variables", () => {
     const settings = chatSettingRegistry.getChatSettings();
-    chat = new Chat(momentMock, util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
     chat.dankTimes.splice(0);
-    chat.addDankTime(new DankTime(1, 13, ["0113"], () => dankTimePoints));
+    chat.addDankTime(new DankTime(now.hour(), now.minute(), ["0113"], () => dankTimePoints));
     chat.running = true;
 
     for (let i = 0; i < 4; i++) {
@@ -272,7 +273,7 @@ describe("Chat.processMessage", () => {
   it("should award handicap value if user that scores deserves it and was first", () => {
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
+    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", nowTimeStamp));
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");
@@ -286,7 +287,7 @@ describe("Chat.processMessage", () => {
   it("should NOT award handicap value if user that scores does not deserve it and was first", () => {
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix().toString()));
+    const res = chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", nowTimeStamp));
 
     // Assert
     assert.equal(res[0], "👏 user#3 was the first to score!");
@@ -300,10 +301,10 @@ describe("Chat.processMessage", () => {
   it("should award handicap value if user that scores deserves it and was NOT first", () => {
 
     // Arrange
-    chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix().toString()));
+    chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", nowTimeStamp));
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
+    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", nowTimeStamp));
 
     // Assert
     assert.isEmpty(res);
@@ -317,10 +318,10 @@ describe("Chat.processMessage", () => {
   it("should NOT award handicap value if user that scores does not deserve it and was NOT first", () => {
 
     // Arrange
-    chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
+    chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", nowTimeStamp));
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", now.unix().toString()));
+    const res = chat.processMessage(getTelegramMsgObject(3, "user#3", "0113", nowTimeStamp));
 
     // Assert
     assert.isEmpty(res);
@@ -337,7 +338,7 @@ describe("Chat.processMessage", () => {
     chat.setSetting(CoreSettingsNames.handicapsEnabled, "false");
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
+    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", nowTimeStamp));
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");
@@ -356,7 +357,7 @@ describe("Chat.processMessage", () => {
     chat.removeUser(3);
 
     // Act
-    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", now.unix().toString()));
+    const res = chat.processMessage(getTelegramMsgObject(0, "user#0", "0113", nowTimeStamp));
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");
@@ -367,15 +368,50 @@ describe("Chat.processMessage", () => {
     assert.equal(scorer.score, 10);
   });
 
+  it("should punish a player for calling out a dank time at the wrong time", () => {
+
+    // Arrange
+    chat.setSetting(CoreSettingsNames.punishUntimelyDankTime, "true");
+    chat.addDankTime(new DankTime(1, 14, ["0114"], () => dankTimePoints));
+
+    // Act
+    const res = chat.processMessage(getTelegramMsgObject(1, "user#1", "0114", nowTimeStamp));
+
+    // Assert
+    const user = chat.getOrCreateUser(1);
+    assert.equal(user.score, 5);
+  });
+
+  it("should NOT punish a player for calling out a dank time at the wrong time if configured not to", () => {
+
+    // Arrange
+    chat.setSetting(CoreSettingsNames.punishUntimelyDankTime, "false");
+    chat.addDankTime(new DankTime(1, 14, ["0114"], () => dankTimePoints));
+
+    // Act
+    const res = chat.processMessage(getTelegramMsgObject(1, "user#1", "0114", nowTimeStamp));
+
+    // Assert
+    const user = chat.getOrCreateUser(1);
+    assert.equal(user.score, 10);
+  });
+
 });
 
-function getTelegramMsgObject(fromId: number, fromName: string, usertext: string, timestamp: string) {
+function getTelegramMsgObject(fromId: number, fromName: string, usertext: string, timestamp: number): TelegramBot.Message {
   return {
+    chat: {
+      id: 0,
+      type: "private",
+    },
     date: timestamp,
     from: {
+      first_name: fromName,
       id: fromId,
+      is_bot: false,
       username: fromName,
     },
+    message_id: 0,
     text: usertext,
   };
 }

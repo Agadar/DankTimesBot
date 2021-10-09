@@ -1,17 +1,19 @@
 import { BotCommandRegistry } from "../bot-commands/bot-command-registry";
-import { Chat } from "../chat/chat";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
-import { ITelegramClient } from "../telegram-client/i-telegram-client";
+import { ChatInitialisationEventArguments } from "./plugin-events/event-arguments/chat-initialisation-event-arguments";
 import {
-  ChatMessagePluginEventArguments,
-} from "./plugin-events/event-arguments/chat-message-plugin-event-arguments";
+  ChatMessageEventArguments,
+} from "./plugin-events/event-arguments/chat-message-event-arguments";
+import { CustomEventArguments } from "./plugin-events/event-arguments/custom-event-arguments";
+import { EmptyEventArguments } from "./plugin-events/event-arguments/empty-event-arguments";
 import {
-  LeaderboardPostPluginEventArguments,
-} from "./plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
-import { NoArgumentsPluginEventArguments } from "./plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+  LeaderboardPostEventArguments,
+} from "./plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { PostUserScoreChangedEventArguments } from "./plugin-events/event-arguments/post-user-score-changed-event-arguments";
 import {
-  UserScoreChangedPluginEventArguments,
-} from "./plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+  PreUserScoreChangedEventArguments,
+} from "./plugin-events/event-arguments/pre-user-score-changed-event-arguments";
+import { PluginEventArguments } from "./plugin-events/plugin-event-arguments";
 import { PluginEvent } from "./plugin-events/plugin-event-types";
 import { AbstractPlugin } from "./plugin/plugin";
 
@@ -30,24 +32,24 @@ export class PluginHost {
   constructor(public readonly plugins: AbstractPlugin[]) { }
 
   /* Overload List */
-  public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessagePluginEventArguments): string[];
-  public triggerEvent(event: PluginEvent.UserScoreChange, input: UserScoreChangedPluginEventArguments): string[];
-  public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostPluginEventArguments): void;
-  public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown,
-                      input: NoArgumentsPluginEventArguments): void;
+  public triggerEvent(event: PluginEvent.ChatInitialisation, input: ChatInitialisationEventArguments): void;
+  public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessageEventArguments): void;
+  public triggerEvent(event: PluginEvent.PreUserScoreChange, input: PreUserScoreChangedEventArguments): void;
+  public triggerEvent(event: PluginEvent.PostUserScoreChange, input: PostUserScoreChangedEventArguments): void;
+  public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostEventArguments): void;
+  public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate | PluginEvent.HourlyTick,
+                      input: EmptyEventArguments): void;
+  public triggerEvent(event: PluginEvent.Custom, input: CustomEventArguments): void;
 
   /**
    * Trigger a certain event on this Plugin Host's plugins.
    * @param event Event to trigger.
    * @param input Data input.
    */
-  public triggerEvent(event: PluginEvent, input: any): string[] {
-    let out: string[] = [];
+  public triggerEvent(event: PluginEvent, input: PluginEventArguments): void {
     this.plugins.forEach((plugin) => {
-      const output: string[] = plugin.triggerEvent(event, input);
-      out = out.concat(output);
+      plugin.triggerEvent(event, input);
     });
-    return out;
   }
 
   /**

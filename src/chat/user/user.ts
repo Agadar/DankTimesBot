@@ -44,14 +44,12 @@ export class User implements BasicUser {
     public called = false,
     private myLastScoreChange = 0,
   ) {
-    if (this.myScore % 1 !== 0 || this.myScore < 0) {
-      throw new RangeError("The score should be a whole, positive number!");
-    }
-    if (this.myLastScoreTimestamp % 1 !== 0) {
-      throw new RangeError("The last score timestamp should be a whole number!");
-    }
-    if (this.myLastScoreChange % 1 !== 0) {
-      throw new RangeError("The last score change should be a whole number!");
+    this.myScore = Math.floor(this.myScore);
+    this.myLastScoreTimestamp = Math.floor(this.myLastScoreTimestamp);
+    this.myLastScoreChange = Math.floor(this.myLastScoreChange);
+
+    if (this.myScore < 0) {
+      throw new RangeError("The score should be a positive number!");
     }
   }
 
@@ -73,20 +71,26 @@ export class User implements BasicUser {
     return this.myLastScoreChange;
   }
 
-  /**
-   * Adds an amount to the user's DankTimes score.
-   */
-  public addToScore(amount: number, timestamp?: number): void {
-    if (amount % 1 !== 0) {
-      throw new RangeError("The amount should be a whole number!");
-    }
-    amount = Math.max(amount, -this.myScore);
+/**
+ * NOTE: Plugins should not use this directly, as using this directly means no
+ * user score events are fired for other plugins to listen to! Use the available
+ * methods in Chat instead.
+ *
+ * Adds an amount to the user's DankTimes score.
+ *
+ * @param amount The amount to change the score with.
+ * @param timestamp Optional timestamp of the score change. Used for hardmode punishment.
+ * @returns The actual number with which the user's score was altered after corrections.
+ */
+  public alterScore(amount: number, timestamp?: number): number {
+    amount = Math.max(Math.round(amount), -this.myScore);
     this.myScore += amount;
     this.myLastScoreChange += amount;
 
-    if (amount > 0 && timestamp) {
+    if (amount > 0 && timestamp && timestamp > this.myLastScoreTimestamp) {
       this.myLastScoreTimestamp = timestamp;
     }
+    return amount;
   }
 
   /**

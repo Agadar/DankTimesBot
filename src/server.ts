@@ -1,8 +1,9 @@
+import { CronJob } from "cron";
 import { Chat } from "./chat/chat";
 import { ContextRoot } from "./context-root";
 import {
-  NoArgumentsPluginEventArguments,
-} from "./plugin-host/plugin-events/event-arguments/no-arguments-plugin-event-arguments";
+  EmptyEventArguments,
+} from "./plugin-host/plugin-events/event-arguments/empty-event-arguments";
 import { PluginEvent } from "./plugin-host/plugin-events/plugin-event-types";
 
 /**
@@ -10,14 +11,15 @@ import { PluginEvent } from "./plugin-host/plugin-events/plugin-event-types";
  */
 export class Server {
 
-  private dailyUpdate = null;
+  private nightlyUpdateCronJob: CronJob | null = null;
+  private hourlyTickCronJob: CronJob | null = null;
 
   constructor(private readonly contextRoot: ContextRoot) { }
 
   public run(): void {
 
-    // Schedule to persist chats map to file every X minutes.
-    this.scheduleChatsPersistence();
+    // Schedule hourly ticks.
+    this.scheduleHourlyTick();
 
     // Schedule to persist chats map to file on program exit.
     this.ensureChatsPersistenceOnExit();
@@ -27,29 +29,30 @@ export class Server {
 
     // Generates random dank times daily for all chats and schedules notifications for them at every 00:00:00.
     // Also, punishes players that have not scored in the past 24 hours.
-    this.scheduleNightlyUpdates();
+    this.scheduleNightlyUpdate();
 
-    this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotStartup, new NoArgumentsPluginEventArguments());
+    this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotStartup, new EmptyEventArguments());
 
     // Send a release log message to all chats, assuming there are release logs.
     this.sendWhatsNewMessageIfApplicable();
 
     // Inform server.
-    console.info(`Bot is now running! Version: ${this.contextRoot.version}.`);
+    console.info(`Bot is now running! Version: ${this.contextRoot.version}`);
   }
 
-  private scheduleChatsPersistence(): void {
-    setInterval(() => {
-      this.contextRoot.fileIO.saveChatsToFile(this.contextRoot.chatRegistry.chats);
-      console.info("Persisted data to file.");
-    }, this.contextRoot.config.persistenceRate * 60 * 1000);
+  private scheduleHourlyTick(): void {
+    this.hourlyTickCronJob = new CronJob("0 0 * * * *", () => {
+      console.info("Doing hourly tick activities!");
+      this.contextRoot.fileIO.saveDataToFile(this.contextRoot.backupFile, this.contextRoot.chatRegistry.chats);
+      this.contextRoot.pluginHost.triggerEvent(PluginEvent.HourlyTick, new EmptyEventArguments());
+    }, undefined, true, "UTC");
   }
 
   private ensureChatsPersistenceOnExit(): void {
     this.contextRoot.nodeCleanup((exitCode: number | null, signal: string | null) => {
       console.info("Persisting data to file before exiting...");
-      this.contextRoot.fileIO.saveChatsToFile(this.contextRoot.chatRegistry.chats);
-      this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotShutdown, new NoArgumentsPluginEventArguments());
+      this.contextRoot.fileIO.saveDataToFile(this.contextRoot.backupFile, this.contextRoot.chatRegistry.chats);
+      this.contextRoot.pluginHost.triggerEvent(PluginEvent.BotShutdown, new EmptyEventArguments());
       return true;
     });
   }
@@ -61,11 +64,11 @@ export class Server {
     });
   }
 
-  private scheduleNightlyUpdates(): void {
-    this.dailyUpdate = new this.contextRoot.cronJob("0 0 0 * * *", () => {
+  private scheduleNightlyUpdate(): void {
+    this.nightlyUpdateCronJob = new CronJob("0 30 0 * * *", () => {
       console.info("Doing the nightly update!");
       this.contextRoot.danktimesbotController.doNightlyUpdate();
-    }, undefined, true);
+    }, undefined, true, "UTC");
   }
 
   private sendWhatsNewMessageIfApplicable(): void {

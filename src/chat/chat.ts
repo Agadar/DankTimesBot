@@ -1,18 +1,15 @@
-import { Moment } from "moment-timezone";
+import moment, { Moment } from "moment-timezone";
+import TelegramBot from "node-telegram-bot-api";
 import { BasicDankTime } from "../dank-time/basic-dank-time";
 import { DankTime } from "../dank-time/dank-time";
-import {
-  ChatMessagePluginEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/chat-message-plugin-event-arguments";
-import {
-  LeaderboardPostPluginEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/leaderboard-post-plugin-event-arguments";
-import {
-  UserScoreChangedPluginEventArguments,
-} from "../plugin-host/plugin-events/event-arguments/user-score-changed-plugin-event-arguments";
+import { ChatMessageEventArguments } from "../plugin-host/plugin-events/event-arguments/chat-message-event-arguments";
+import { LeaderboardPostEventArguments } from "../plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { PostUserScoreChangedEventArguments } from "../plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
+import { PreUserScoreChangedEventArguments } from "../plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { IUtil } from "../util/i-util";
+import { AlterUserScoreArgs } from "./alter-user-score-args";
 import { BasicChat } from "./basic-chat";
 import { Leaderboard } from "./leaderboard/leaderboard";
 import { ChatSetting } from "./settings/chat-setting";
@@ -29,7 +26,6 @@ export class Chat {
 
   /**
    * Creates a new Chat object.
-   * @param moment Reference to timezone import.
    * @param util Utility functions.
    * @param id The chat's unique Telegram id.
    * @param pluginhost This chat's plugin host.
@@ -42,7 +38,6 @@ export class Chat {
    * @param randomDankTimes The daily randomly generated dank times in this chat.
    */
   constructor(
-    private readonly moment: any,
     private readonly util: IUtil,
     id: number,
     pluginhost: PluginHost,
@@ -202,7 +197,7 @@ export class Chat {
     this.randomDankTimes = new Array<DankTime>();
 
     for (let i = 0; i < this.randomtimesFrequency; i++) {
-      const now = this.moment().tz(this.timezone);
+      const now = moment.tz(this.timezone);
 
       now.add(Math.floor(Math.random() * 23), "hours");
       now.minutes(Math.floor(Math.random() * 59));
@@ -210,7 +205,7 @@ export class Chat {
       if (!this.hourAndMinuteAlreadyRegistered(now.hours(), now.minutes())) {
         const text = this.util.padNumber(now.hours()) + this.util.padNumber(now.minutes());
         this.randomDankTimes.push(new DankTime(now.hours(), now.minutes(), [text],
-          this.getRandomtimesPoints.bind(this)));
+          this.getRandomtimesPoints.bind(this), true));
       }
     }
     return this.randomDankTimes;
@@ -252,26 +247,26 @@ export class Chat {
    * Processes a message, awarding or punishing points etc. where applicable.
    * @returns A reply, or nothing if no reply is suitable/needed.
    */
-  public processMessage(msg: any): string[] {
+  public processMessage(msg: TelegramBot.Message): string[] {
 
     let output: string[] = [];
-    const messageTimeout: boolean = this.moment.tz("UTC").unix() - msg.date >= 60;
+    const messageTimeout: boolean = moment.now() / 1000 - msg.date >= 60;
 
     // Ignore the message if it was sent more than 1 minute ago.
     if (messageTimeout) {
       return output;
     }
 
-    const user = this.getOrCreateUser(msg.from.id, msg.from.username);
+    const user = this.getOrCreateUser(msg.from?.id ?? -1, msg.from?.username ?? "");
     if (this.running) {
-      output = this.handleDankTimeInputMessage(user, msg.text, msg.date, this.moment.tz(this.timezone));
+      output = this.handleDankTimeInputMessage(user, msg.text ?? "", moment.tz(this.timezone));
     }
-    msg.text = this.util.cleanText(msg.text);
+    msg.text = this.util.cleanText(msg.text ?? "");
 
     // Chat message event
-    output = output.concat(this.pluginHost.triggerEvent(PluginEvent.ChatMessage,
-      new ChatMessagePluginEventArguments(this, user, msg, output)));
-    return output;
+    const eventArgs = new ChatMessageEventArguments(this, user, msg, output);
+    this.pluginHost.triggerEvent(PluginEvent.ChatMessage, eventArgs);
+    return eventArgs.botReplies;
   }
 
   /**
@@ -327,10 +322,9 @@ export class Chat {
     }
 
     // Allow plugins to change the leaderboard text.
-    const leaderboardRef = [leaderboard];
-    this.pluginHost.triggerEvent(PluginEvent.LeaderboardPost,
-      new LeaderboardPostPluginEventArguments(this, leaderboardRef));
-    return leaderboardRef[0];
+    const eventArgs = new LeaderboardPostEventArguments(this, leaderboard);
+    this.pluginHost.triggerEvent(PluginEvent.LeaderboardPost, eventArgs);
+    return eventArgs.leaderboardText;
   }
 
   /**
@@ -353,10 +347,32 @@ export class Chat {
         if (timestamp - user.lastScoreTimestamp >= day) {
           let punishBy = Math.round(user.score * this.hardcoremodePunishFraction);
           punishBy = Math.max(punishBy, 10);
-          user.addToScore(-punishBy, timestamp);
+          const alterUserScoreArgs = new AlterUserScoreArgs(user, -punishBy, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
+            AlterUserScoreArgs.HARDCOREMODE_PUNISHMENT_REASON, timestamp);
+          this.alterUserScore(alterUserScoreArgs);
         }
       });
     }
+  }
+
+/**
+ * Adds an amount to the user's DankTimes score. Fires user score change events which plugins can listen to.
+ *
+ * @param alterUserScoreArgs The required arguments.
+ * @returns The actual number with which the user's score was altered after corrections.
+ */
+  public alterUserScore(alterUserScoreArgs: AlterUserScoreArgs): number {
+    const preEvent = new PreUserScoreChangedEventArguments(this, alterUserScoreArgs.user, alterUserScoreArgs.amount,
+      alterUserScoreArgs.reason, alterUserScoreArgs.nameOfOriginPlugin);
+    this.pluginHost.triggerEvent(PluginEvent.PreUserScoreChange, preEvent);
+
+    const correctedAmount = alterUserScoreArgs.user.alterScore(preEvent.changeInScore, alterUserScoreArgs.timestamp);
+
+    const postEvent = new PostUserScoreChangedEventArguments(this, alterUserScoreArgs.user, correctedAmount,
+      alterUserScoreArgs.reason, alterUserScoreArgs.nameOfOriginPlugin);
+    this.pluginHost.triggerEvent(PluginEvent.PostUserScoreChange, postEvent);
+
+    return correctedAmount;
   }
 
   /**
@@ -415,6 +431,10 @@ export class Chat {
     return this.getSetting<number>(CoreSettingsNames.handicapsBottomFraction);
   }
 
+  private get punishUntimelyDankTime(): boolean {
+    return this.getSetting<boolean>(CoreSettingsNames.punishUntimelyDankTime);
+  }
+
   /**
    * Gets both normal and random dank times that have the specified text.
    */
@@ -459,8 +479,8 @@ export class Chat {
     return false;
   }
 
-  private handleDankTimeInputMessage(user: User, msgText: string, msgUnixTime: number, now: Moment): string[] {
-    let output: string[] = [];
+  private handleDankTimeInputMessage(user: User, msgText: string, now: Moment): string[] {
+    const output: string[] = [];
 
     // Gather dank times from the sent text, returning if none was found.
     const dankTimesByText = this.getDankTimesByText(msgText);
@@ -483,35 +503,36 @@ export class Chat {
           if (this.userDeservesHandicapBonus(user.id)) {
             score *= this.handicapsMultiplier;
           }
-          user.addToScore(Math.round(score), now.unix());
-          output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
-            new UserScoreChangedPluginEventArguments(this, user, Math.round(score))));
+
+          const alterUserScoreReason = dankTime.isRandom ? AlterUserScoreArgs.RANDOM_DANKTIME_REASON : AlterUserScoreArgs.NORMAL_DANKTIME_REASON;
+          const alterUserScoreArgs = new AlterUserScoreArgs(user, Math.round(score), AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
+            alterUserScoreReason, now.unix());
+          this.alterUserScore(alterUserScoreArgs);
           user.called = true;
 
           if (this.firstNotifications) {
             output.push("👏 " + user.name + " was the first to score!");
           }
-        } else if (user.called) { // Else if user already called this time, remove points.
-          user.addToScore(-dankTime.getPoints(), now.unix());
-          output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
-            new UserScoreChangedPluginEventArguments(this, user, -dankTime.getPoints())));
-        } else {  // Else, award point.
-          const score = Math.round(this.userDeservesHandicapBonus(user.id)
-            ? dankTime.getPoints() * this.handicapsMultiplier : dankTime.getPoints());
-          user.addToScore(score, now.unix());
-          output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
-            new UserScoreChangedPluginEventArguments(this, user, score)));
+        } else if (!user.called) { // Else if user did not already call this time, award points.
+          const score = Math.round(this.userDeservesHandicapBonus(user.id) ? dankTime.getPoints() * this.handicapsMultiplier : dankTime.getPoints());
+          const alterUserScoreReason = dankTime.isRandom ? AlterUserScoreArgs.RANDOM_DANKTIME_REASON : AlterUserScoreArgs.NORMAL_DANKTIME_REASON;
+          const alterUserScoreArgs = new AlterUserScoreArgs(user, score, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
+            alterUserScoreReason, now.unix());
+          this.alterUserScore(alterUserScoreArgs);
           user.called = true;
         }
         return output;
+
       } else if (dankTime.getPoints() > subtractBy) {
         subtractBy = dankTime.getPoints();
       }
     }
     // If no match was found, punish the user.
-    user.addToScore(-subtractBy, now.unix());
-    output = output.concat(this.pluginHost.triggerEvent(PluginEvent.UserScoreChange,
-      new UserScoreChangedPluginEventArguments(this, user, -subtractBy)));
+    if (this.punishUntimelyDankTime) {
+      const alterUserScoreArgs = new AlterUserScoreArgs(user, -subtractBy, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
+        AlterUserScoreArgs.UNTIMELY_DANKTIME_REASON, now.unix());
+      this.alterUserScore(alterUserScoreArgs);
+    }
     return output;
   }
 }
