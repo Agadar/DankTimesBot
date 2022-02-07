@@ -6,7 +6,12 @@ export class User implements BasicUser {
    * Returns a new User parsed from a literal.
    */
   public static fromJSON(literal: BasicUser): User {
-    return new User(literal.id, literal.name, literal.score, literal.lastScoreTimestamp);
+    return new User(literal.id,
+      literal.name,
+      literal.score,
+      literal.lastScoreTimestamp,
+      literal.currentAvatar ?? "",
+      literal.availableAvatars ?? []);
   }
 
   /**
@@ -33,6 +38,9 @@ export class User implements BasicUser {
    * @param id The unique Telegram user's id.
    * @param name The Telegram user's name.
    * @param myScore The user's DankTimes score.
+   * @param myLastScoreTimestamp Timestamp of last score change.
+   * @param currentAvatar Current avatar.
+   * @param availableAvatars User's available avatars.
    * @param called Whether the user called the last dank time already.
    * @param myLastScoreChange The last change to the user's score.
    */
@@ -41,6 +49,8 @@ export class User implements BasicUser {
     public name: string,
     private myScore = 0,
     private myLastScoreTimestamp = 0,
+    public currentAvatar: string = "",
+    public availableAvatars: string[] = [],
     public called = false,
     private myLastScoreChange = 0,
   ) {
@@ -114,7 +124,12 @@ export class User implements BasicUser {
    */
   public toJSON(): BasicUser {
     return {
-      id: this.id, lastScoreTimestamp: this.lastScoreTimestamp, name: this.name, score: this.myScore,
+      availableAvatars: this.availableAvatars,
+      currentAvatar: this.currentAvatar,
+      id: this.id,
+      lastScoreTimestamp: this.lastScoreTimestamp,
+      name: this.name,
+      score: this.myScore,
     };
   }
 }

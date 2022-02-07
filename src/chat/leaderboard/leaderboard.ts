@@ -58,7 +58,8 @@ export class Leaderboard {
       const arrowEmojis = Leaderboard.arrowEmojis(positionChange ? positionChange : 0);
       const scoreChange = entry.lastScoreChange > 0 ? `(+${entry.lastScoreChange})` : entry.lastScoreChange < 0
         ? `(${entry.lastScoreChange})` : "";
-      leaderboard += `\n<b>${(i + 1)}.</b>    ${entry.name}    ${entry.score} ${scoreChange}    ${arrowEmojis}`;
+      const avatar = entry.avatar ? `${entry.avatar}  ` : "";
+      leaderboard += `\n<b>${(i + 1)}.</b>    ${avatar}${entry.name}    ${entry.score} ${scoreChange}    ${arrowEmojis}`;
     }
     return leaderboard;
   }

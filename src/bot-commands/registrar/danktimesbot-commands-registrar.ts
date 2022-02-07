@@ -18,6 +18,9 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
   public async registerDankTimesBotCommands(): Promise<void> {
     await Promise.all([
 
+      this.botCommandRegistry.registerCommand(new BotCommand(["avatars"], "shows your available leaderboard avatars",
+        this.dankTimesBotCommands.avatars.bind(this.dankTimesBotCommands), true, false)),
+
       this.botCommandRegistry.registerCommand(new BotCommand(["addtime"],
         "adds a dank time. format: [hour] [minute] [points] [text1] [text2] etc.",
         this.dankTimesBotCommands.addTime.bind(this.dankTimesBotCommands), true, true)),
@@ -43,6 +46,12 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
 
       this.botCommandRegistry.registerCommand(new BotCommand(["reset"], "resets the leaderboard",
         this.dankTimesBotCommands.resetChat.bind(this.dankTimesBotCommands), true, true)),
+
+      this.botCommandRegistry.registerCommand(new BotCommand(["resetavatar"], "resets your leaderboard avatar",
+        this.dankTimesBotCommands.resetAvatar.bind(this.dankTimesBotCommands), true)),
+
+      this.botCommandRegistry.registerCommand(new BotCommand(["setavatar"], "sets your leaderboard avatar. format: [avatar]",
+        this.dankTimesBotCommands.setAvatar.bind(this.dankTimesBotCommands), true)),
 
       this.botCommandRegistry.registerCommand(new BotCommand(["settings"], "shows the current settings values",
         this.dankTimesBotCommands.settings.bind(this.dankTimesBotCommands))),

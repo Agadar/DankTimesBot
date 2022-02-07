@@ -6,7 +6,7 @@ describe("User.constructor", () => {
 
   it("supplying a negative score throws an error", () => {
     try {
-      const user = new User(0, "user0", -5, 0, false, 0);
+      const user = new User(0, "user0", -5, 0, "", [], false, 0);
       assert.fail(0, 1, "Expected RangeError!");
     } catch (err) {
       if (!(err instanceof RangeError)) {
@@ -16,7 +16,7 @@ describe("User.constructor", () => {
   });
 
   it("supplying correct values gives us a valid User object", () => {
-    const user = new User(0, "user0", 5, 0, false, 0);
+    const user = new User(0, "user0", 5, 0, "", [], false, 0);
   });
 });
 
@@ -25,7 +25,7 @@ describe("User.addToScore", () => {
   let user: User;
 
   beforeEach("reset test user object", () => {
-    user = new User(0, "user0", 5, 0, false, 0);
+    user = new User(0, "user0", 5, 0, "", [], false, 0);
   });
 
   it("supplying a non-whole score rounds it and adds it to the user's score", () => {

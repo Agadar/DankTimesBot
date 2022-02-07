@@ -239,6 +239,30 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return `🎉 ${user.name} donated ${amount} internet points to ${recipient.name} 🎉`;
   }
 
+  public avatars(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+    if (user.availableAvatars.length < 1) {
+      return "😔 You don't have any avatars...";
+    } else {
+      return "You have the following avatars available: " + user.availableAvatars.join(" ");
+    }
+  }
+
+  public resetAvatar(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+    user.currentAvatar = "";
+    return "Your avatar has been reset. How boring.";
+  }
+
+  public setAvatar(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+    if (!match) {
+      return "⚠️ You have to specify an avatar, smarty-pants.";
+    }
+    if (user.availableAvatars.indexOf(match) > -1) {
+      user.currentAvatar = match;
+      return `Updated your avatar to ${user.currentAvatar}!`;
+    }
+    return "😔 You don't have that avatar...";
+  }
+
   private doTimezoneSettingSideEffects(chat: Chat): void {
     this.scheduler.unscheduleAllOfChat(chat);
     this.scheduler.scheduleAllOfChat(chat);

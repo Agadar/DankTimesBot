@@ -23,12 +23,14 @@ export class LeaderboardEntry {
 
   public readonly id: number;
   public readonly name: string;
+  public readonly avatar: string;
   public readonly score: number;
   public readonly lastScoreChange: number;
 
   constructor(user: User) {
     this.id = user.id;
     this.name = user.name;
+    this.avatar = user.currentAvatar;
     this.score = user.score;
     this.lastScoreChange = user.lastScoreChange;
   }

@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.1.0-alpha",
+    "date": "2022-xx-xx",
+    "changes": [
+      "Added support for leaderboard avatars via new /avatars, /setavatar, and /resetavatar commands"
+    ]
+  },
+  {
     "version": "2.0.0",
     "date": "2021-10-09",
     "changes": [

@@ -23,7 +23,7 @@ describe("Chat.hardcoreModeCheck", () => {
 
     // Arrange
     const startingScore = 10;
-    const user = new User(0, "user0", startingScore, nowMinus24Hours, false, 0);
+    const user = new User(0, "user0", startingScore, nowMinus24Hours, "", [], false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
@@ -41,7 +41,7 @@ describe("Chat.hardcoreModeCheck", () => {
 
     // Arrange
     const startingScore = 10;
-    const user = new User(0, "user0", startingScore, nowMinusAlmost24Hours, false, 0);
+    const user = new User(0, "user0", startingScore, nowMinusAlmost24Hours, "", [], false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
@@ -58,7 +58,7 @@ describe("Chat.hardcoreModeCheck", () => {
   it("should punish a user if hardcore mode is enabled and he did not score in the last 24 hours", () => {
 
     // Arrange
-    const user = new User(0, "user0", 10, nowMinus24Hours, false, 0);
+    const user = new User(0, "user0", 10, nowMinus24Hours, "", [], false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
@@ -75,7 +75,7 @@ describe("Chat.hardcoreModeCheck", () => {
   it("punished player with score of which 10% > 10 should get 10% punishment", () => {
 
     // Arrange
-    const user = new User(0, "user0", 250, nowMinus24Hours, false, 0);
+    const user = new User(0, "user0", 250, nowMinus24Hours, "", [], false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
@@ -92,7 +92,7 @@ describe("Chat.hardcoreModeCheck", () => {
   it("punished player with score of which 10% <= 10 >= 10 should get 10 points punishment", () => {
 
     // Arrange
-    const user = new User(0, "user0", 50, nowMinus24Hours, false, 0);
+    const user = new User(0, "user0", 50, nowMinus24Hours, "", [], false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
@@ -109,7 +109,7 @@ describe("Chat.hardcoreModeCheck", () => {
   it("punished player with score < 10 should have score set to 0", () => {
 
     // Arrange
-    const user = new User(0, "user0", 5, nowMinus24Hours, false, 0);
+    const user = new User(0, "user0", 5, nowMinus24Hours, "", [], false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
@@ -126,7 +126,7 @@ describe("Chat.hardcoreModeCheck", () => {
   it("should NOT punish or otherwise alter a player's score if their score is 0", () => {
 
     // Arrange
-    const user = new User(0, "user0", 0, nowMinus24Hours, false, 0);
+    const user = new User(0, "user0", 0, nowMinus24Hours, "", [], false, 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
