@@ -114,7 +114,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
   }
 
   public addTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
-
+    if (!match) {
+      return "⚠️ Not enough arguments! Format: /addtime [hour] [minute] [points] [text1],[text2], etc.";
+    }
     const commaSplit: string[] = match.split(",").filter((part: string) => !!part);
     const spaceSplit: string[] = commaSplit[0].split(" ").filter((part: string) => !!part);
 
