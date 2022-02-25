@@ -1,3 +1,4 @@
+import * as nodeEmoji from "node-emoji";
 import TelegramBot from "node-telegram-bot-api";
 import { AlterUserScoreArgs } from "../../chat/alter-user-score-args";
 import { Chat } from "../../chat/chat";
@@ -258,7 +259,13 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     if (!match) {
       return "⚠️ You have to specify an avatar, smarty-pants.";
     }
-    if (user.availableAvatars.indexOf(match) > -1) {
+    const emojiMatch = nodeEmoji.find(match);
+
+    if (!emojiMatch) {
+      return "😔 That is not a valid avatar...";
+    }
+
+    if (user.availableAvatars.indexOf(emojiMatch.emoji) > -1) {
       user.currentAvatar = match;
       return `Updated your avatar to ${user.currentAvatar}!`;
     }
