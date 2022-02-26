@@ -321,13 +321,18 @@ export class Chat {
     }
   }
 
-/**
- * Adds an amount to the user's DankTimes score. Fires user score change events which plugins can listen to.
- *
- * @param alterUserScoreArgs The required arguments.
- * @returns The actual number with which the user's score was altered after corrections.
- */
+  /**
+   * Adds an amount to the user's DankTimes score. Fires user score change events which plugins can listen to.
+   *
+   * @param alterUserScoreArgs The required arguments.
+   * @returns The actual number with which the user's score was altered after corrections.
+   */
   public alterUserScore(alterUserScoreArgs: AlterUserScoreArgs): number {
+    
+    if (isNaN(alterUserScoreArgs.amount)) {
+      console.error(`Failed to change score by source '${alterUserScoreArgs.nameOfOriginPlugin}' for reason '${alterUserScoreArgs.reason}': not a number`);
+      return 0;
+    }
     const preEvent = new PreUserScoreChangedEventArguments(this, alterUserScoreArgs.user, alterUserScoreArgs.amount,
       alterUserScoreArgs.reason, alterUserScoreArgs.nameOfOriginPlugin);
     this.pluginHost.triggerEvent(PluginEvent.PreUserScoreChange, preEvent);

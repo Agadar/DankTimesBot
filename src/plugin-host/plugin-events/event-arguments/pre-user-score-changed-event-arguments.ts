@@ -19,7 +19,19 @@ export class PreUserScoreChangedEventArguments extends PluginEventArguments {
   /**
    * Change in score.
    */
-  public changeInScore: number;
+  public get changeInScore(): number {
+    return this.myChangeInScore;
+  }
+
+  public set changeInScore(newChangeInScore: number) {
+    if (isNaN(newChangeInScore)) {
+      console.error(`Failed to set new score change for source '${this.nameOfOriginPlugin}' for reason '${this.reason}': not a number`);
+    } else {
+      this.myChangeInScore = newChangeInScore;
+    }
+  }
+
+  private myChangeInScore: number = 0;
 
   /**
    * Constructor.
