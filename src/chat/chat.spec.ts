@@ -23,12 +23,12 @@ describe("Chat.hardcoreModeCheck", () => {
 
     // Arrange
     const startingScore = 10;
-    const user = new User(0, "user0", startingScore, nowMinus24Hours, "", [], false, 0);
+    const user = new User(0, "user0", startingScore, nowMinus24Hours, "", [], 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = false;
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -41,12 +41,12 @@ describe("Chat.hardcoreModeCheck", () => {
 
     // Arrange
     const startingScore = 10;
-    const user = new User(0, "user0", startingScore, nowMinusAlmost24Hours, "", [], false, 0);
+    const user = new User(0, "user0", startingScore, nowMinusAlmost24Hours, "", [], 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -58,12 +58,12 @@ describe("Chat.hardcoreModeCheck", () => {
   it("should punish a user if hardcore mode is enabled and he did not score in the last 24 hours", () => {
 
     // Arrange
-    const user = new User(0, "user0", 10, nowMinus24Hours, "", [], false, 0);
+    const user = new User(0, "user0", 10, nowMinus24Hours, "", [], 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -75,12 +75,12 @@ describe("Chat.hardcoreModeCheck", () => {
   it("punished player with score of which 10% > 10 should get 10% punishment", () => {
 
     // Arrange
-    const user = new User(0, "user0", 250, nowMinus24Hours, "", [], false, 0);
+    const user = new User(0, "user0", 250, nowMinus24Hours, "", [], 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -92,12 +92,12 @@ describe("Chat.hardcoreModeCheck", () => {
   it("punished player with score of which 10% <= 10 >= 10 should get 10 points punishment", () => {
 
     // Arrange
-    const user = new User(0, "user0", 50, nowMinus24Hours, "", [], false, 0);
+    const user = new User(0, "user0", 50, nowMinus24Hours, "", [], 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -109,12 +109,12 @@ describe("Chat.hardcoreModeCheck", () => {
   it("punished player with score < 10 should have score set to 0", () => {
 
     // Arrange
-    const user = new User(0, "user0", 5, nowMinus24Hours, "", [], false, 0);
+    const user = new User(0, "user0", 5, nowMinus24Hours, "", [], 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -126,12 +126,12 @@ describe("Chat.hardcoreModeCheck", () => {
   it("should NOT punish or otherwise alter a player's score if their score is 0", () => {
 
     // Arrange
-    const user = new User(0, "user0", 0, nowMinus24Hours, "", [], false, 0);
+    const user = new User(0, "user0", 0, nowMinus24Hours, "", [], 0);
     const users = new Map<number, User>();
     users.set(user.id, user);
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.hardcoremodeEnabled) as ChatSetting<boolean>).value = true;
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, users, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, users, [], []);
 
     // Act
     chat.hardcoreModeCheck(now);
@@ -151,7 +151,7 @@ describe("Chat.generateRandomDankTimes", () => {
     const settings = chatSettingRegistry.getChatSettings();
     (settings.get(CoreSettingsNames.randomtimesFrequency) as ChatSetting<number>).value = 10;
     (settings.get(CoreSettingsNames.randomtimesPoints) as ChatSetting<number>).value = 10;
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, undefined, [], []);
 
     // Act, Assert
     chat.generateRandomDankTimes().forEach((time) => {
@@ -177,7 +177,7 @@ describe("Chat.generateRandomDankTimes", () => {
       (settings.get(CoreSettingsNames.timezone) as ChatSetting<string>).value = "UTC";
       (settings.get(CoreSettingsNames.randomtimesFrequency) as ChatSetting<number>).value = 10;
       (settings.get(CoreSettingsNames.randomtimesPoints) as ChatSetting<number>).value = 10;
-      const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+      const chat = new Chat(util, 0, new PluginHost([]), settings, true, undefined, [], []);
       const now = moment.tz("UTC");
       now.minutes(0);
       chat.addDankTime(new DankTime(now.hours(), now.minutes(), ["irrelevant"], () => 10));
@@ -202,7 +202,7 @@ describe("Chat.generateRandomDankTimes", () => {
       global.Math = mockMath;
 
       const settings = chatSettingRegistry.getChatSettings();
-      const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+      const chat = new Chat(util, 0, new PluginHost([]), settings, true, undefined, [], []);
 
       // Act
       const randomDankTimes = chat.generateRandomDankTimes();
@@ -223,7 +223,7 @@ describe("Chat.timezone", () => {
 
     // Arrange
     const settings = chatSettingRegistry.getChatSettings();
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, undefined, [], []);
 
     // Act
     chat.setSetting(CoreSettingsNames.timezone, "jaPaN");
@@ -236,7 +236,7 @@ describe("Chat.timezone", () => {
 
     // Arrange
     const settings = chatSettingRegistry.getChatSettings();
-    const chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    const chat = new Chat(util, 0, new PluginHost([]), settings, true, undefined, [], []);
 
     // Act, Assert
     try {
@@ -260,7 +260,7 @@ describe("Chat.processMessage", () => {
 
   beforeEach("Instantiate test variables", () => {
     const settings = chatSettingRegistry.getChatSettings();
-    chat = new Chat(util, 0, new PluginHost([]), settings, true, 0, 10, undefined, [], []);
+    chat = new Chat(util, 0, new PluginHost([]), settings, true, undefined, [], []);
     chat.dankTimes.splice(0);
     chat.addDankTime(new DankTime(now.hour(), now.minute(), ["0113"], () => dankTimePoints));
     chat.running = true;
@@ -277,9 +277,7 @@ describe("Chat.processMessage", () => {
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");
-    const sortedUsers = chat.sortedUsers();
-
-    const scorer = sortedUsers[2];
+    const scorer = chat.lastDankTimeScorers[0];
     assert.equal(scorer.id, 0);
     assert.equal(scorer.score, 15);
   });
@@ -291,9 +289,7 @@ describe("Chat.processMessage", () => {
 
     // Assert
     assert.equal(res[0], "👏 user#3 was the first to score!");
-    const sortedUsers = chat.sortedUsers();
-
-    const scorer = sortedUsers[0];
+    const scorer = chat.lastDankTimeScorers[0];
     assert.equal(scorer.id, 3);
     assert.equal(scorer.score, 40);
   });
@@ -308,9 +304,7 @@ describe("Chat.processMessage", () => {
 
     // Assert
     assert.isEmpty(res);
-    const sortedUsers = chat.sortedUsers();
-
-    const scorer = sortedUsers[3];
+    const scorer = chat.lastDankTimeScorers[1];
     assert.equal(scorer.id, 0);
     assert.equal(scorer.score, 8);
   });
@@ -325,9 +319,7 @@ describe("Chat.processMessage", () => {
 
     // Assert
     assert.isEmpty(res);
-    const sortedUsers = chat.sortedUsers();
-
-    const scorer = sortedUsers[0];
+    const scorer = chat.lastDankTimeScorers[1];
     assert.equal(scorer.id, 3);
     assert.equal(scorer.score, 35);
   });
@@ -342,9 +334,7 @@ describe("Chat.processMessage", () => {
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");
-    const sortedUsers = chat.sortedUsers();
-
-    const scorer = sortedUsers[2];
+    const scorer = chat.lastDankTimeScorers[0];
     assert.equal(scorer.id, 0);
     assert.equal(scorer.score, 10);
   });
@@ -361,9 +351,7 @@ describe("Chat.processMessage", () => {
 
     // Assert
     assert.equal(res[0], "👏 user#0 was the first to score!");
-    const sortedUsers = chat.sortedUsers();
-
-    const scorer = sortedUsers[0];
+    const scorer = chat.lastDankTimeScorers[0];
     assert.equal(scorer.id, 0);
     assert.equal(scorer.score, 10);
   });

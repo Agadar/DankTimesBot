@@ -41,7 +41,6 @@ export class User implements BasicUser {
    * @param myLastScoreTimestamp Timestamp of last score change.
    * @param currentAvatar Current avatar.
    * @param availableAvatars User's available avatars.
-   * @param called Whether the user called the last dank time already.
    * @param myLastScoreChange The last change to the user's score.
    */
   constructor(
@@ -51,7 +50,6 @@ export class User implements BasicUser {
     private myLastScoreTimestamp = 0,
     public currentAvatar: string = "",
     public availableAvatars: string[] = [],
-    public called = false,
     private myLastScoreChange = 0,
   ) {
     this.myScore = Math.floor(this.myScore);
@@ -109,7 +107,6 @@ export class User implements BasicUser {
   public resetScore(): void {
     this.myScore = 0;
     this.myLastScoreChange = 0;
-    this.called = false;
   }
 
   /**

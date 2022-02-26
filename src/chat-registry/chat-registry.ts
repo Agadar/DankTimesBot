@@ -108,10 +108,6 @@ export class ChatRegistry implements IChatRegistry {
         }
       }
     }
-
-    return new Chat(this.util, literal.id,
-      this.pluginHost, settings, literal.running,
-      literal.lastHour, literal.lastMinute, users, dankTimes, [],
-    );
+    return new Chat(this.util, literal.id, this.pluginHost, settings, literal.running, users, dankTimes, []);
   }
 }

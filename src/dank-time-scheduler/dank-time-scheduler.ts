@@ -1,7 +1,12 @@
 import { CronJob } from "cron";
 import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
+import { User } from "../chat/user/user";
 import { DankTime } from "../dank-time/dank-time";
+import { PostDankTimeEventArguments } from "../plugin-host/plugin-events/event-arguments/post-dank-time-event-arguments";
+import { PreDankTimeEventArguments } from "../plugin-host/plugin-events/event-arguments/pre-dank-time-event-arguments";
+import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
+import { PluginHost } from "../plugin-host/plugin-host";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { IDankTimeScheduler } from "./i-dank-time-scheduler";
 
@@ -20,7 +25,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   public randomDankTimeNotifications = new Array<ScheduledItem>();
   public dankTimeNotifications = new Array<ScheduledItem>();
 
-  constructor(private readonly tgClient: ITelegramClient) { }
+  constructor(private readonly tgClient: ITelegramClient, private readonly pluginHost: PluginHost) { }
 
   /**
    * Schedules all normal and random dank times notifications of a chat.
@@ -108,7 +113,9 @@ export class DankTimeScheduler implements IDankTimeScheduler {
           const messageText = `⏰ It's dank o'clock! Type '${dankTime.texts[0]}' for points!`;
           promise = this.sendAnnouncement(chat.id, messageText);
         }
-        this.scheduleLeaderboardAndAnnouncementRemoval(chat, promise);
+        this.schedulePostDankTimeActions(chat, dankTime, promise);
+        const preDankTimeEventArgs = new PreDankTimeEventArguments(chat, dankTime);
+        this.pluginHost.triggerEvent(PluginEvent.PreDankTime, preDankTimeEventArgs);
       }).bind(this), undefined, true, chat.timezone),
       hour: dankTime.hour,
       minute: dankTime.minute,
@@ -122,11 +129,12 @@ export class DankTimeScheduler implements IDankTimeScheduler {
     this.randomDankTimeNotifications.push({
       chatId: chat.id,
       cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
-        if (chat && chat.running) {
-          const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
-          const promise = this.sendAnnouncement(chat.id, messageText);
-          this.scheduleLeaderboardAndAnnouncementRemoval(chat, promise);
-        }
+        if (!chat || !chat.running) { return; }
+        const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
+        const promise = this.sendAnnouncement(chat.id, messageText);
+        this.schedulePostDankTimeActions(chat, dankTime, promise);
+        const preDankTimeEventArgs = new PreDankTimeEventArguments(chat, dankTime);
+        this.pluginHost.triggerEvent(PluginEvent.PreDankTime, preDankTimeEventArgs);
       }).bind(this), undefined, true, chat.timezone),
       hour: dankTime.hour,
       minute: dankTime.minute,
@@ -137,13 +145,16 @@ export class DankTimeScheduler implements IDankTimeScheduler {
     return this.tgClient.sendMessage(chatId, messageText, -1, false);
   }
 
-  private scheduleLeaderboardAndAnnouncementRemoval(chat: Chat, sendAnnouncementPromise?: Promise<void | TelegramBot.Message>) {
+  private schedulePostDankTimeActions(chat: Chat, dankTime: DankTime, sendAnnouncementPromise?: Promise<void | TelegramBot.Message>) {
     setTimeout((() => {
-      if (!chat) { return; }
-      if (chat.leaderboardChanged()) {
-        if (chat.running && chat.autoleaderboards) {
+      if (!chat || !chat.running) { return; }
+      let lastDankTimeScorers = new Array<User>();
+
+      if (chat.lastDankTime === dankTime) {
+        if (chat.autoleaderboards) {
           this.sendLeaderboard(chat);
         }
+        lastDankTimeScorers = chat.lastDankTimeScorers;
       } else if (sendAnnouncementPromise) {
         sendAnnouncementPromise.then((res) => {
           if (chat && res?.message_id) {
@@ -151,7 +162,9 @@ export class DankTimeScheduler implements IDankTimeScheduler {
           }
         });
       }
-    }).bind(this), 60000);
+      const postDankTimeEventArgs = new PostDankTimeEventArguments(chat, dankTime, lastDankTimeScorers);
+      this.pluginHost.triggerEvent(PluginEvent.PostDankTime, postDankTimeEventArgs);
+    }).bind(this), 59000);
   }
 
   private sendLeaderboard(chat: Chat) {

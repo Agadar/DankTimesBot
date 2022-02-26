@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import "mocha";
+import { instance, mock } from "ts-mockito";
 import { Chat } from "../chat/chat";
 import { ChatSettingsRegistry } from "../chat/settings/chat-settings-registry";
 import { CoreSettingsNames } from "../chat/settings/core-settings-names";
@@ -11,6 +12,7 @@ import { DankTimeScheduler } from "./dank-time-scheduler";
 
 const util = new Util();
 const chatSettingsRegistry = new ChatSettingsRegistry();
+const pluginHostMock = mock(PluginHost);
 
 let scheduler: DankTimeScheduler;
 let chat: Chat;
@@ -19,7 +21,7 @@ describe("DankTimeScheduler.scheduleRandomDankTime(chat, dankTime)", () => {
   it("should schedule a random dank time", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
@@ -41,7 +43,7 @@ describe("DankTimeScheduler.scheduleDankTime(chat, dankTime)", () => {
   it("should schedule a normal dank time", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
@@ -63,7 +65,7 @@ describe("DankTimeScheduler.unscheduleRandomDankTime(chat, dankTime)", () => {
   it("should unschedule a random dank time", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
@@ -82,7 +84,7 @@ describe("DankTimeScheduler.unscheduleDankTime(chat, dankTime)", () => {
   it("should unschedule a normal dank time", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
@@ -101,7 +103,7 @@ describe("DankTimeScheduler.reset()", () => {
   it("should reset all scheduled notifications", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     const dankTime = new DankTime(12, 12, ["1212"], () => 5);
@@ -122,7 +124,7 @@ describe("DankTimeScheduler.unscheduleRandomDankTimesOfChat(chat)", () => {
   it("should unschedule all random dank times of a chat", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.generateRandomDankTimes();
@@ -140,7 +142,7 @@ describe("DankTimeScheduler.unscheduleDankTimesOfChat(chat)", () => {
   it("should unschedule all normal dank times of a chat", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.addDankTime(new DankTime(12, 12, ["1212"], () => 5));
@@ -159,7 +161,7 @@ describe("DankTimeScheduler.unscheduleAllOfChat(chat)", () => {
   it("should unschedule all notifications of a chat", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.addDankTime(new DankTime(12, 12, ["1212"], () => 5));
@@ -181,7 +183,7 @@ describe("DankTimeScheduler.scheduleRandomDankTimesOfChat(chat)", () => {
   it("should schedule all random dank times of a chat", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.setSetting(CoreSettingsNames.randomtimesFrequency, "5");
@@ -199,7 +201,7 @@ describe("DankTimeScheduler.scheduleDankTimesOfChat(chat)", () => {
   it("should schedule all normal dank times of a chat", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     const settings = chatSettingsRegistry.getChatSettings();
     chat = new Chat(util, 1234, new PluginHost([]), settings);
     chat.addDankTime(new DankTime(12, 12, ["1212"], () => 5));
@@ -228,7 +230,7 @@ describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
   it("should not schedule anything if the chat is not running", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     chat.running = false;
     chat.setSetting(CoreSettingsNames.normaltimesNotifications, "true");
 
@@ -245,7 +247,7 @@ describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
   it("should schedule everything", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     chat.running = true;
     chat.setSetting(CoreSettingsNames.normaltimesNotifications, "true");
 
@@ -262,7 +264,7 @@ describe("DankTimeScheduler.scheduleAllOfChat(chat)", () => {
   it("should schedule everything if everything is enabled", () => {
 
     // Prepare.
-    scheduler = new DankTimeScheduler(new TelegramClientMock());
+    scheduler = new DankTimeScheduler(new TelegramClientMock(), instance(pluginHostMock));
     chat.running = true;
     chat.setSetting(CoreSettingsNames.normaltimesNotifications, "true");
 

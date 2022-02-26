@@ -7,7 +7,9 @@ import { ChatMessageEventArguments } from "../plugin-events/event-arguments/chat
 import { CustomEventArguments } from "../plugin-events/event-arguments/custom-event-arguments";
 import { EmptyEventArguments } from "../plugin-events/event-arguments/empty-event-arguments";
 import { LeaderboardPostEventArguments } from "../plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { PostDankTimeEventArguments } from "../plugin-events/event-arguments/post-dank-time-event-arguments";
 import { PostUserScoreChangedEventArguments } from "../plugin-events/event-arguments/post-user-score-changed-event-arguments";
+import { PreDankTimeEventArguments } from "../plugin-events/event-arguments/pre-dank-time-event-arguments";
 import { PreUserScoreChangedEventArguments } from "../plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
 import { PluginEventSubscription } from "../plugin-events/plugin-event-subscription";
@@ -131,6 +133,10 @@ export abstract class AbstractPlugin {
                                    eventFn: (eventArgs: ChatInitialisationEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.ChatMessage,
                                    eventFn: (eventArgs: ChatMessageEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
+  protected subscribeToPluginEvent(event: PluginEvent.PreDankTime,
+                                   eventFn: (eventArgs: PreDankTimeEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
+  protected subscribeToPluginEvent(event: PluginEvent.PostDankTime,
+                                   eventFn: (eventArgs: PostDankTimeEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.PreUserScoreChange,
                                    eventFn: (eventArgs: PreUserScoreChangedEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
   protected subscribeToPluginEvent(event: PluginEvent.PostUserScoreChange,

@@ -19,10 +19,10 @@ import { User } from "./user/user";
 export class Chat {
 
   private myId: number;
-  private myLastHour: number;
-  private myLastMinute: number;
   private myLastLeaderboard?: Leaderboard = undefined;
   private pluginHost: PluginHost;
+  private myLastDankTime: DankTime | null = null;
+  private myLastDankTimeScorers = new Array<User>();
 
   /**
    * Creates a new Chat object.
@@ -31,8 +31,6 @@ export class Chat {
    * @param pluginhost This chat's plugin host.
    * @param settings This chat's settings.
    * @param running Whether this bot is running for this chat.
-   * @param lastHour The hour of the last valid dank time being proclaimed.
-   * @param lastMinute The minute of the last valid dank time being proclaimed.
    * @param users A map with the users, indexed by user id's.
    * @param dankTimes The dank times known in this chat.
    * @param randomDankTimes The daily randomly generated dank times in this chat.
@@ -43,15 +41,11 @@ export class Chat {
     pluginhost: PluginHost,
     private readonly settings: Map<string, ChatSetting<any>>,
     public running = false,
-    lastHour = 0,
-    lastMinute = 0,
     public readonly users = new Map<number, User>(),
     public readonly dankTimes = new Array<DankTime>(),
     public randomDankTimes = new Array<DankTime>()) {
 
     this.id = id;
-    this.lastHour = lastHour;
-    this.lastMinute = lastMinute;
     this.pluginHost = pluginhost;
   }
 
@@ -70,34 +64,24 @@ export class Chat {
     return this.getSetting<string>(CoreSettingsNames.timezone);
   }
 
-  public set lastHour(lastHour: number) {
-    if (lastHour < 0 || lastHour > 23 || lastHour % 1 !== 0) {
-      throw new RangeError("The hour must be a whole number between 0 and 23!");
-    }
-    this.myLastHour = lastHour;
-  }
-
-  public get lastHour(): number {
-    return this.myLastHour;
-  }
-
-  public set lastMinute(lastMinute: number) {
-    if (lastMinute < 0 || lastMinute > 59 || lastMinute % 1 !== 0) {
-      throw new RangeError("The minute must be a whole number between 0 and 59!");
-    }
-    this.myLastMinute = lastMinute;
-  }
-
-  public get lastMinute(): number {
-    return this.myLastMinute;
-  }
-
   public get randomtimesFrequency(): number {
     return this.getSetting<number>(CoreSettingsNames.randomtimesFrequency);
   }
 
   public get firstMultiplier(): number {
     return this.getSetting<number>(CoreSettingsNames.firstMultiplier);
+  }
+
+  public get pluginhost(): PluginHost {
+    return this.pluginHost;
+  }
+
+  public get lastDankTime(): DankTime | null {
+    return this.myLastDankTime;
+  }
+
+  public get lastDankTimeScorers(): User[] {
+    return [...this.myLastDankTimeScorers];
   }
 
   /**
@@ -107,10 +91,6 @@ export class Chat {
    */
   public getRandomtimesPoints(): number {
     return this.getSetting<number>(CoreSettingsNames.randomtimesPoints);
-  }
-
-  public get pluginhost(): PluginHost {
-    return this.pluginHost;
   }
 
   /**
@@ -235,8 +215,6 @@ export class Chat {
     return {
       dankTimes: basicDankTimes,
       id: this.myId,
-      lastHour: this.myLastHour,
-      lastMinute: this.myLastMinute,
       running: this.running,
       settings: basicSettings,
       users: this.sortedUsers(),
@@ -285,18 +263,6 @@ export class Chat {
     if (dankTime) {
       this.dankTimes.splice(this.dankTimes.indexOf(dankTime), 1);
       return true;
-    }
-    return false;
-  }
-
-  /**
-   * Returns whether the leaderboard has changed since the last time this.generateLeaderboard(...) was generated.
-   */
-  public leaderboardChanged(): boolean {
-    for (const user of this.users) {
-      if (user[1].lastScoreChange !== 0) {
-        return true;
-      }
     }
     return false;
   }
@@ -494,10 +460,9 @@ export class Chat {
       if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
 
         // If cache needs resetting, do so and award DOUBLE points to the calling user.
-        if (this.lastHour !== dankTime.hour || this.myLastMinute !== dankTime.minute) {
-          this.users.forEach((user0) => user0.called = false);
-          this.lastHour = dankTime.hour;
-          this.lastMinute = dankTime.minute;
+        if (dankTime !== this.myLastDankTime) {
+          this.myLastDankTimeScorers = [];
+          this.myLastDankTime = dankTime;
           let score = dankTime.getPoints() * this.firstMultiplier;
 
           if (this.userDeservesHandicapBonus(user.id)) {
@@ -508,18 +473,18 @@ export class Chat {
           const alterUserScoreArgs = new AlterUserScoreArgs(user, Math.round(score), AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
             alterUserScoreReason, now.unix());
           this.alterUserScore(alterUserScoreArgs);
-          user.called = true;
+          this.myLastDankTimeScorers.push(user);
 
           if (this.firstNotifications) {
             output.push("👏 " + user.name + " was the first to score!");
           }
-        } else if (!user.called) { // Else if user did not already call this time, award points.
+        } else if (!this.myLastDankTimeScorers.includes(user)) { // Else if user did not already call this time, award points.
           const score = Math.round(this.userDeservesHandicapBonus(user.id) ? dankTime.getPoints() * this.handicapsMultiplier : dankTime.getPoints());
           const alterUserScoreReason = dankTime.isRandom ? AlterUserScoreArgs.RANDOM_DANKTIME_REASON : AlterUserScoreArgs.NORMAL_DANKTIME_REASON;
           const alterUserScoreArgs = new AlterUserScoreArgs(user, score, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
             alterUserScoreReason, now.unix());
           this.alterUserScore(alterUserScoreArgs);
-          user.called = true;
+          this.myLastDankTimeScorers.push(user);
         }
         return output;
 

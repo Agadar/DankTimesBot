@@ -9,7 +9,9 @@ import { ChatMessageEventArguments } from "../../src/plugin-host/plugin-events/e
 import { CustomEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/custom-event-arguments";
 import { EmptyEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/empty-event-arguments";
 import { LeaderboardPostEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { PostDankTimeEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/post-dank-time-event-arguments";
 import { PostUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/post-user-score-changed-event-arguments";
+import { PreDankTimeEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-dank-time-event-arguments";
 import { PreUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
@@ -37,6 +39,14 @@ export class Plugin extends AbstractPlugin {
 
     this.subscribeToPluginEvent(PluginEvent.ChatInitialisation, (data: ChatInitialisationEventArguments) => {
       console.log("Example of chat initialisation event.");
+    });
+
+    this.subscribeToPluginEvent(PluginEvent.PreDankTime, (data: PreDankTimeEventArguments) => {
+      console.log(`Example of pre-danktime event. Time: ${data.dankTime.hour}:${data.dankTime.minute}`);
+    });
+
+    this.subscribeToPluginEvent(PluginEvent.PostDankTime, (data: PostDankTimeEventArguments) => {
+      console.log(`Example of post-danktime event. Time: ${data.dankTime.hour}:${data.dankTime.minute}, Scorers: ${data.users.map(user => user.name).join(", ")}`);
     });
 
     this.subscribeToPluginEvent(PluginEvent.PreUserScoreChange, (data: PreUserScoreChangedEventArguments) => {

@@ -9,7 +9,9 @@ import { EmptyEventArguments } from "./plugin-events/event-arguments/empty-event
 import {
   LeaderboardPostEventArguments,
 } from "./plugin-events/event-arguments/leaderboard-post-event-arguments";
+import { PostDankTimeEventArguments } from "./plugin-events/event-arguments/post-dank-time-event-arguments";
 import { PostUserScoreChangedEventArguments } from "./plugin-events/event-arguments/post-user-score-changed-event-arguments";
+import { PreDankTimeEventArguments } from "./plugin-events/event-arguments/pre-dank-time-event-arguments";
 import {
   PreUserScoreChangedEventArguments,
 } from "./plugin-events/event-arguments/pre-user-score-changed-event-arguments";
@@ -34,6 +36,8 @@ export class PluginHost {
   /* Overload List */
   public triggerEvent(event: PluginEvent.ChatInitialisation, input: ChatInitialisationEventArguments): void;
   public triggerEvent(event: PluginEvent.ChatMessage, input: ChatMessageEventArguments): void;
+  public triggerEvent(event: PluginEvent.PreDankTime, input: PreDankTimeEventArguments): void;
+  public triggerEvent(event: PluginEvent.PostDankTime, input: PostDankTimeEventArguments): void;
   public triggerEvent(event: PluginEvent.PreUserScoreChange, input: PreUserScoreChangedEventArguments): void;
   public triggerEvent(event: PluginEvent.PostUserScoreChange, input: PostUserScoreChangedEventArguments): void;
   public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostEventArguments): void;
