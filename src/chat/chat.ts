@@ -84,6 +84,11 @@ export class Chat {
     return [...this.myLastDankTimeScorers];
   }
 
+  public startDankTime(dankTime: DankTime): void {
+    this.myLastDankTime = dankTime;
+    this.myLastDankTimeScorers = [];
+  }
+
   /**
    * Gets the current random dank time points. This is a method instead of a getter, so that
    * random danktimes are automatically referring to the correct number of points when
@@ -328,7 +333,7 @@ export class Chat {
    * @returns The actual number with which the user's score was altered after corrections.
    */
   public alterUserScore(alterUserScoreArgs: AlterUserScoreArgs): number {
-    
+
     if (isNaN(alterUserScoreArgs.amount)) {
       console.error(`Failed to change score by source '${alterUserScoreArgs.nameOfOriginPlugin}' for reason '${alterUserScoreArgs.reason}': not a number`);
       return 0;
@@ -458,35 +463,25 @@ export class Chat {
     if (dankTimesByText.length < 1) {
       return output;
     }
-
     let subtractBy = 0;
 
     for (const dankTime of dankTimesByText) {
-      if (now.hours() === dankTime.hour && now.minutes() === dankTime.minute) {
+      if (dankTime === this.myLastDankTime && dankTime.hour === now.hour() && dankTime.minute === now.minute()) {
 
-        // If cache needs resetting, do so and award DOUBLE points to the calling user.
-        if (dankTime !== this.myLastDankTime) {
-          this.myLastDankTimeScorers = [];
-          this.myLastDankTime = dankTime;
-          let score = dankTime.getPoints() * this.firstMultiplier;
+        if (!this.myLastDankTimeScorers.includes(user)) {
+          let score = dankTime.getPoints();
 
+          if (this.myLastDankTimeScorers.length === 0) {
+            if (this.firstNotifications) {
+              output.push("👏 " + user.name + " was the first to score!");
+            }
+            score *= this.firstMultiplier;
+          }
           if (this.userDeservesHandicapBonus(user.id)) {
             score *= this.handicapsMultiplier;
           }
-
           const alterUserScoreReason = dankTime.isRandom ? AlterUserScoreArgs.RANDOM_DANKTIME_REASON : AlterUserScoreArgs.NORMAL_DANKTIME_REASON;
           const alterUserScoreArgs = new AlterUserScoreArgs(user, Math.round(score), AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
-            alterUserScoreReason, now.unix());
-          this.alterUserScore(alterUserScoreArgs);
-          this.myLastDankTimeScorers.push(user);
-
-          if (this.firstNotifications) {
-            output.push("👏 " + user.name + " was the first to score!");
-          }
-        } else if (!this.myLastDankTimeScorers.includes(user)) { // Else if user did not already call this time, award points.
-          const score = Math.round(this.userDeservesHandicapBonus(user.id) ? dankTime.getPoints() * this.handicapsMultiplier : dankTime.getPoints());
-          const alterUserScoreReason = dankTime.isRandom ? AlterUserScoreArgs.RANDOM_DANKTIME_REASON : AlterUserScoreArgs.NORMAL_DANKTIME_REASON;
-          const alterUserScoreArgs = new AlterUserScoreArgs(user, score, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
             alterUserScoreReason, now.unix());
           this.alterUserScore(alterUserScoreArgs);
           this.myLastDankTimeScorers.push(user);

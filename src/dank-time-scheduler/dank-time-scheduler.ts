@@ -18,7 +18,7 @@ interface ScheduledItem {
 }
 
 /**
- * Responsible for scheduling notification messages about dank times.
+ * Responsible for scheduling dank times.
  */
 export class DankTimeScheduler implements IDankTimeScheduler {
 
@@ -28,7 +28,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   constructor(private readonly tgClient: ITelegramClient, private readonly pluginHost: PluginHost) { }
 
   /**
-   * Schedules all normal and random dank times notifications of a chat.
+   * Schedules all normal and random dank timess of a chat.
    */
   public scheduleAllOfChat(chat: Chat): void {
     if (!chat.running) { return; }
@@ -37,7 +37,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Schedules all NORMAL dank time notifications of a chat.
+   * Schedules all NORMAL dank times of a chat.
    */
   public scheduleDankTimesOfChat(chat: Chat): void {
     chat.dankTimes.forEach((dankTime) => {
@@ -46,7 +46,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Schedules all RANDOM dank time notifications of a chat.
+   * Schedules all RANDOM dank times of a chat.
    */
   public scheduleRandomDankTimesOfChat(chat: Chat): void {
     chat.randomDankTimes.forEach((dankTime) => {
@@ -55,7 +55,7 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Unschedules all normal and random dank time notifications and auto-leaderboards of a chat.
+   * Unschedules all normal and random dank times and auto-leaderboards of a chat.
    */
   public unscheduleAllOfChat(chat: Chat): void {
     this.unscheduleDankTimesOfChat(chat);
@@ -63,14 +63,14 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Unschedules all NORMAL dank time notifications of a chat.
+   * Unschedules all NORMAL dank times of a chat.
    */
   public unscheduleDankTimesOfChat(chat: Chat): void {
     this.unscheduleCronJobsOfChat(chat, this.dankTimeNotifications);
   }
 
   /**
-   * Unschedules all RANDOM dank time notifications of a chat.
+   * Unschedules all RANDOM dank times of a chat.
    */
   public unscheduleRandomDankTimesOfChat(chat: Chat): void {
     this.unscheduleCronJobsOfChat(chat, this.randomDankTimeNotifications);
@@ -87,27 +87,28 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Unschedules a NORMAL dank time notification.
+   * Unschedules a NORMAL dank time.
    */
   public unscheduleDankTime(chat: Chat, dankTime: DankTime): void {
     this.unscheduleCronJob(chat, dankTime, this.dankTimeNotifications);
   }
 
   /**
-   * Unschedules a RANDOM dank time notification.
+   * Unschedules a RANDOM dank time.
    */
   public unscheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
     this.unscheduleCronJob(chat, dankTime, this.randomDankTimeNotifications);
   }
 
   /**
-   * Schedules a notification for a NORMAL dank time.
+   * Schedules a NORMAL dank time.
    */
   public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
     this.dankTimeNotifications.push({
       chatId: chat.id,
       cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
         if (!chat || !chat.running) { return; }
+        chat.startDankTime(dankTime);
         let promise;
         if (chat.normaltimesNotifications) {
           const messageText = `⏰ It's dank o'clock! Type '${dankTime.texts[0]}' for points!`;
@@ -123,13 +124,14 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   }
 
   /**
-   * Schedules a notification for a RANDOM dank time.
+   * Schedules a RANDOM dank time.
    */
   public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
     this.randomDankTimeNotifications.push({
       chatId: chat.id,
       cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
         if (!chat || !chat.running) { return; }
+        chat.startDankTime(dankTime);
         const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
         const promise = this.sendAnnouncement(chat.id, messageText);
         this.schedulePostDankTimeActions(chat, dankTime, promise);
@@ -148,13 +150,12 @@ export class DankTimeScheduler implements IDankTimeScheduler {
   private schedulePostDankTimeActions(chat: Chat, dankTime: DankTime, sendAnnouncementPromise?: Promise<void | TelegramBot.Message>) {
     setTimeout((() => {
       if (!chat || !chat.running) { return; }
-      let lastDankTimeScorers = new Array<User>();
+      const lastDankTimeScorers = chat.lastDankTimeScorers;
 
-      if (chat.lastDankTime === dankTime) {
+      if (chat.lastDankTime === dankTime && lastDankTimeScorers.length > 0) {
         if (chat.autoleaderboards) {
           this.sendLeaderboard(chat);
         }
-        lastDankTimeScorers = chat.lastDankTimeScorers;
       } else if (sendAnnouncementPromise) {
         sendAnnouncementPromise.then((res) => {
           if (chat && res?.message_id) {

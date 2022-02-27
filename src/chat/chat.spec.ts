@@ -256,13 +256,14 @@ describe("Chat.processMessage", () => {
   let chat: Chat;
   const now = moment.tz("Europe/Amsterdam");
   const nowTimeStamp = now.unix();
-  const dankTimePoints = 5;
+  const dankTime = new DankTime(now.hour(), now.minute(), ["0113"], () => 5);
 
   beforeEach("Instantiate test variables", () => {
     const settings = chatSettingRegistry.getChatSettings();
     chat = new Chat(util, 0, new PluginHost([]), settings, true, undefined, [], []);
     chat.dankTimes.splice(0);
-    chat.addDankTime(new DankTime(now.hour(), now.minute(), ["0113"], () => dankTimePoints));
+    chat.addDankTime(dankTime);
+    chat.startDankTime(dankTime);
     chat.running = true;
 
     for (let i = 0; i < 4; i++) {
@@ -360,7 +361,8 @@ describe("Chat.processMessage", () => {
 
     // Arrange
     chat.setSetting(CoreSettingsNames.punishUntimelyDankTime, "true");
-    chat.addDankTime(new DankTime(1, 14, ["0114"], () => dankTimePoints));
+    const newDankTime = new DankTime(1, 14, ["0114"], () => 5);
+    chat.addDankTime(newDankTime);
 
     // Act
     const res = chat.processMessage(getTelegramMsgObject(1, "user#1", "0114", nowTimeStamp));
@@ -374,7 +376,8 @@ describe("Chat.processMessage", () => {
 
     // Arrange
     chat.setSetting(CoreSettingsNames.punishUntimelyDankTime, "false");
-    chat.addDankTime(new DankTime(1, 14, ["0114"], () => dankTimePoints));
+    const newDankTime = new DankTime(1, 14, ["0114"], () => 5);
+    chat.addDankTime(newDankTime);
 
     // Act
     const res = chat.processMessage(getTelegramMsgObject(1, "user#1", "0114", nowTimeStamp));
