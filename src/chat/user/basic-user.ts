@@ -4,5 +4,6 @@ export interface BasicUser {
   score: number;
   currentAvatar: string;
   availableAvatars: string[];
+  broadcastOptin: boolean;
   readonly lastScoreTimestamp: number;
 }

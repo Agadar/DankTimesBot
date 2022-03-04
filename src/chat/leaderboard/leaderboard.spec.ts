@@ -84,10 +84,10 @@ describe("Leaderboard.toString", () => {
     // Arrange
     const oldLeaderboard = new Leaderboard(users);
     const newLeaderboard = new Leaderboard([
-      new User(0, "user0", 25, 100, "", [], 10),
-      new User(1, "user1", 5, 100, "", [], 0),
-      new User(2, "user2", 20, 100, "", [], 0),
-      new User(3, "user3", 22, 100, "", [], 12),
+      new User(0, "user0", 25, 100, "", [], false, 10),
+      new User(1, "user1", 5, 100, "", [], false, 0),
+      new User(2, "user2", 20, 100, "", [], false, 0),
+      new User(3, "user3", 22, 100, "", [], false, 12),
     ]);
     const expected = "\n<b>1.</b>    user0    25 (+10)    ⬆️\n<b>2.</b>    user3    22 (+12)    ⬆️\n"
       + "<b>3.</b>    user2    20     ⬇️⬇️\n<b>4.</b>    user1    5     ";
@@ -121,10 +121,10 @@ describe("Leaderboard.toString", () => {
 
       // Arrange
       const newLeaderboard = new Leaderboard([
-        new User(0, "user0", 25, 0, "👑", ["👑"], 0),
-        new User(1, "user1", 5, 0, "", [], 0),
-        new User(2, "user2", 20, 0, "🍆", ["🍆"], 0),
-        new User(3, "user3", 22, 0, "", [], 0),
+        new User(0, "user0", 25, 0, "👑", ["👑"], false, 0),
+        new User(1, "user1", 5, 0, "", [], false, 0),
+        new User(2, "user2", 20, 0, "🍆", ["🍆"], false, 0),
+        new User(3, "user3", 22, 0, "", [], false, 0),
       ]);
       const expected = "\n<b>1.</b>    👑  user0    25     \n<b>2.</b>    user3    22     \n<b>3.</b>    🍆  user2    20     \n<b>4.</b>    user1    5     ";
 

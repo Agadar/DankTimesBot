@@ -272,6 +272,21 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
     return "😔 You don't have that avatar...";
   }
 
+  public changeBroadcastSettings(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+      if (!match) {
+          return "⚠️ Usage: /everyone [opt-in|opt-out]";
+      }
+      if (/opt-in/i.test(msg.text ?? "")) {
+          user.broadcastOptin = true;
+          return "📢 Okay, you will now receive messages addressed to everyone.";
+      } else if (/opt-out/i.test(msg.text ?? "")) {
+          user.broadcastOptin = false;
+          return "🔇 Okay, you won't receive messages addressed to everyone anymore.";
+      } else {
+           return "⚠️ Usage: /everyone [opt-in|opt-out]";
+      }
+  }
+
   private doTimezoneSettingSideEffects(chat: Chat): void {
     this.scheduler.unscheduleAllOfChat(chat);
     this.scheduler.scheduleAllOfChat(chat);
