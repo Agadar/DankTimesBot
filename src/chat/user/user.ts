@@ -11,7 +11,8 @@ export class User implements BasicUser {
       literal.score,
       literal.lastScoreTimestamp,
       literal.currentAvatar ?? "",
-      literal.availableAvatars ?? []);
+      literal.availableAvatars ?? [],
+      literal.broadcastOptin);
   }
 
   /**
@@ -41,6 +42,7 @@ export class User implements BasicUser {
    * @param myLastScoreTimestamp Timestamp of last score change.
    * @param currentAvatar Current avatar.
    * @param availableAvatars User's available avatars.
+   * @param broadcastOptin Whether the user is included in messages addressed to @Everyone.
    * @param myLastScoreChange The last change to the user's score.
    */
   constructor(
@@ -50,6 +52,7 @@ export class User implements BasicUser {
     private myLastScoreTimestamp = 0,
     public currentAvatar: string = "",
     public availableAvatars: string[] = [],
+    public broadcastOptin: boolean = true,
     private myLastScoreChange = 0,
   ) {
     this.myScore = Math.floor(this.myScore);
@@ -122,6 +125,7 @@ export class User implements BasicUser {
   public toJSON(): BasicUser {
     return {
       availableAvatars: this.availableAvatars,
+      broadcastOptin: this.broadcastOptin,
       currentAvatar: this.currentAvatar,
       id: this.id,
       lastScoreTimestamp: this.lastScoreTimestamp,

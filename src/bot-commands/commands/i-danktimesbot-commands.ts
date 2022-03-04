@@ -177,4 +177,14 @@ export interface IDankTimesBotCommands {
    * @returns The response.
    */
   setAvatar(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
+
+  /**
+   * Sets the user their @Everyone settings
+   * @param chat The chat from which the command was called.
+   * @param user The user that called the command.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  changeBroadcastSettings(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 }

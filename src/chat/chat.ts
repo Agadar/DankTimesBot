@@ -249,6 +249,18 @@ export class Chat {
     // Chat message event
     const eventArgs = new ChatMessageEventArguments(this, user, msg, output);
     this.pluginHost.triggerEvent(PluginEvent.ChatMessage, eventArgs);
+
+    // Check if this is an @Everyone message to be broadcasted to all members of the chat
+    if (/@everyone/i.test(msg.text)) {
+        let allUserPrefix = "";
+        this.users.forEach((usr) => {
+            if (usr.broadcastOptin) {
+                allUserPrefix += `@${usr.name} `;
+            }
+        });
+
+        eventArgs.botReplies = [allUserPrefix].concat(eventArgs.botReplies);
+    }
     return eventArgs.botReplies;
   }
 
