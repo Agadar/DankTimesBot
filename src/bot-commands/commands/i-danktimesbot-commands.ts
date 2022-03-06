@@ -1,11 +1,10 @@
 import TelegramBot from "node-telegram-bot-api";
-import { Chat } from "../../chat/chat";
-import { User } from "../../chat/user/user";
-import { BotCommandConfirmationQuestion } from "../bot-command-confirmation-question";
+import {Chat} from "../../chat/chat";
+import {User} from "../../chat/user/user";
+import {BotCommandConfirmationQuestion} from "../bot-command-confirmation-question";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export interface IDankTimesBotCommands {
-
   /**
    * Starts the specified chat so that it records dank time texts.
    * Only prints a warning if the chat is already running.
@@ -187,4 +186,14 @@ export interface IDankTimesBotCommands {
    * @returns The response.
    */
   changeBroadcastSettings(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
+
+  /**
+   * Returns the amount of dank times points a user has
+   * @param chat The chat from which the command was called.
+   * @param user The user that called the command.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  checkPointsForUser(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 }

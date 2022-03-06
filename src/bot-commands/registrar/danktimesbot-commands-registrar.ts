@@ -76,6 +76,9 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
 
       this.botCommandRegistry.registerCommand(new BotCommand(["everyone"], "sets your @Everyone tag settings.",
         this.dankTimesBotCommands.changeBroadcastSettings.bind(this.dankTimesBotCommands))),
+
+      this.botCommandRegistry.registerCommand(new BotCommand(["points"], "check your current dank time points.",
+        this.dankTimesBotCommands.checkPointsForUser.bind(this.dankTimesBotCommands))),
     ]);
 
     this.telegramClient.setOnAnyText((msg) => this.onAnyText(msg));

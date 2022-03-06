@@ -287,6 +287,10 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
       }
   }
 
+  public checkPointsForUser(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+      return `💰 You have ${user?.score ?? "Unknown"} points.`;
+  }
+
   private doTimezoneSettingSideEffects(chat: Chat): void {
     this.scheduler.unscheduleAllOfChat(chat);
     this.scheduler.scheduleAllOfChat(chat);
