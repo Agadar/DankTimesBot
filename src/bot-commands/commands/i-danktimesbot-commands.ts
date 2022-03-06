@@ -1,7 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
-import {Chat} from "../../chat/chat";
-import {User} from "../../chat/user/user";
-import {BotCommandConfirmationQuestion} from "../bot-command-confirmation-question";
+import { Chat } from "../../chat/chat";
+import { User } from "../../chat/user/user";
+import { BotCommandConfirmationQuestion } from "../bot-command-confirmation-question";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export interface IDankTimesBotCommands {
