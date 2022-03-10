@@ -18,100 +18,100 @@ let pluginHost: PluginHost;
 let fileIO: FileIO;
 
 function initTestVariables() {
-  chatRegistry = new ChatRegistryMock();
-  dankTimeScheduler = new DankTimeSchedulerMock();
-  telegramClient = new TelegramClientMock();
-  pluginHost = mock(PluginHost);
-  fileIO = mock(FileIO);
-  when(pluginHost.plugins).thenReturn(new Array<AbstractPlugin>());
-  dankController = new DankTimesBotController(chatRegistry, dankTimeScheduler, telegramClient, instance(pluginHost), instance(fileIO));
+    chatRegistry = new ChatRegistryMock();
+    dankTimeScheduler = new DankTimeSchedulerMock();
+    telegramClient = new TelegramClientMock();
+    pluginHost = mock(PluginHost);
+    fileIO = mock(FileIO);
+    when(pluginHost.plugins).thenReturn(new Array<AbstractPlugin>());
+    dankController = new DankTimesBotController(chatRegistry, dankTimeScheduler, telegramClient, instance(pluginHost), instance(fileIO));
 }
 
 class ChatMock {
-  public running = true;
-  public generateRandomDankTimesCalled = false;
-  public hardcoreModeCheckCalled = false;
+    public running = true;
+    public generateRandomDankTimesCalled = false;
+    public hardcoreModeCheckCalled = false;
 
-  public generateRandomDankTimes() {
-    this.generateRandomDankTimesCalled = true;
-  }
+    public generateRandomDankTimes() {
+        this.generateRandomDankTimesCalled = true;
+    }
 
-  public hardcoreModeCheck(now: number) {
-    this.hardcoreModeCheckCalled = true;
-  }
+    public hardcoreModeCheck(now: number) {
+        this.hardcoreModeCheckCalled = true;
+    }
 }
 
 describe("DankTimesBotController.onErrorFromApi", () => {
 
-  beforeEach("setup test variables", () => initTestVariables());
+    beforeEach("setup test variables", () => initTestVariables());
 
-  it("Removes the chat from the registry and unschedules its times if the error code is 403", () => {
+    it("Removes the chat from the registry and unschedules its times if the error code is 403", () => {
 
-    // Arrange
-    const chat = {} as Chat;
-    chatRegistry.chats.set(1, chat);
+        // Arrange
+        const chat = {} as Chat;
+        chatRegistry.chats.set(1, chat);
 
-    // Act
-    dankController.onErrorFromApi(1, { response: { statusCode: 403 } });
+        // Act
+        dankController.onErrorFromApi(1, { response: { statusCode: 403 } });
 
-    // Assert
-    assert.equal(chatRegistry.removeChatCalledWithId, 1);
-    assert.equal(dankTimeScheduler.unscheduleAllOfChatCalledWith, chat);
-  });
+        // Assert
+        assert.equal(chatRegistry.removeChatCalledWithId, 1);
+        assert.equal(dankTimeScheduler.unscheduleAllOfChatCalledWith, chat);
+    });
 
-  it("Does not remove the chat from the registry if the error code is not 403", () => {
+    it("Does not remove the chat from the registry if the error code is not 403", () => {
 
-    // Arrange
-    const chat = {} as Chat;
-    chatRegistry.chats.set(1, chat);
+        // Arrange
+        const chat = {} as Chat;
+        chatRegistry.chats.set(1, chat);
 
-    // Act
-    dankController.onErrorFromApi(1, { response: { statusCode: 400 } });
+        // Act
+        dankController.onErrorFromApi(1, { response: { statusCode: 400 } });
 
-    // Assert
-    assert.equal(chatRegistry.removeChatCalledWithId, null);
-    assert.equal(dankTimeScheduler.unscheduleAllOfChatCalledWith, null);
-  });
+        // Assert
+        assert.equal(chatRegistry.removeChatCalledWithId, null);
+        assert.equal(dankTimeScheduler.unscheduleAllOfChatCalledWith, null);
+    });
 
 });
 
 describe("DankTimesBotController.onChatCreated", () => {
 
-  beforeEach("setup test variables", () => initTestVariables());
+    beforeEach("setup test variables", () => initTestVariables());
 
-  it("Schedules all the dank times of the chat", () => {
+    it("Schedules all the dank times of the chat", () => {
 
-    // Arrange
-    const chat = {} as Chat;
+        // Arrange
+        const chat = {} as Chat;
 
-    // Act
-    dankController.onChatCreated(chat);
+        // Act
+        dankController.onChatCreated(chat);
 
-    // Assert
-    assert.equal(dankTimeScheduler.scheduleAllOfChatCalledWith, chat);
-  });
+        // Assert
+        assert.equal(dankTimeScheduler.scheduleAllOfChatCalledWith, chat);
+    });
 
 });
 
 describe("DankTimesBotController.doNightlyUpdate", () => {
 
-  beforeEach("setup test variables", () => initTestVariables());
+    beforeEach("setup test variables", () => initTestVariables());
 
-  it("Does all the actions a nightly update should do", () => {
+    it("Does all the actions a nightly update should do", () => {
 
-    // Arrange
-    const chat = new ChatMock();
-    const chatCast = chat as any as Chat;
-    chatRegistry.chats.set(1, chatCast);
+        // Arrange
+        const chat = new ChatMock();
+        const chatCast = chat as any as Chat;
+        chatRegistry.chats.set(1, chatCast);
 
-    // Act
-    dankController.doNightlyUpdate();
+        // Act
+        dankController.doNightlyUpdate();
 
-    // Assert
-    assert.equal(dankTimeScheduler.resetCalled, true);
-    assert.equal(chat.generateRandomDankTimesCalled, true);
-    assert.equal(dankTimeScheduler.scheduleAllOfChatCalledWith, chatCast);
-    assert.equal(chat.hardcoreModeCheckCalled, true);
-  });
+        // Assert
+        assert.equal(dankTimeScheduler.resetCalled, true);
+        assert.equal(chat.generateRandomDankTimesCalled, true);
+        assert.equal(dankTimeScheduler.scheduleAllOfChatCalledWith, chatCast);
+        assert.equal(chat.hardcoreModeCheckCalled, true);
+    });
 
 });

@@ -22,187 +22,187 @@ interface ScheduledItem {
  */
 export class DankTimeScheduler implements IDankTimeScheduler {
 
-  public randomDankTimeNotifications = new Array<ScheduledItem>();
-  public dankTimeNotifications = new Array<ScheduledItem>();
+    public randomDankTimeNotifications = new Array<ScheduledItem>();
+    public dankTimeNotifications = new Array<ScheduledItem>();
 
-  constructor(private readonly tgClient: ITelegramClient, private readonly pluginHost: PluginHost) { }
+    constructor(private readonly tgClient: ITelegramClient, private readonly pluginHost: PluginHost) { }
 
-  /**
+    /**
    * Schedules all normal and random dank timess of a chat.
    */
-  public scheduleAllOfChat(chat: Chat): void {
-    if (!chat.running) { return; }
-    this.scheduleRandomDankTimesOfChat(chat);
-    this.scheduleDankTimesOfChat(chat);
-  }
+    public scheduleAllOfChat(chat: Chat): void {
+        if (!chat.running) { return; }
+        this.scheduleRandomDankTimesOfChat(chat);
+        this.scheduleDankTimesOfChat(chat);
+    }
 
-  /**
+    /**
    * Schedules all NORMAL dank times of a chat.
    */
-  public scheduleDankTimesOfChat(chat: Chat): void {
-    chat.dankTimes.forEach((dankTime) => {
-      this.scheduleDankTime(chat, dankTime);
-    });
-  }
+    public scheduleDankTimesOfChat(chat: Chat): void {
+        chat.dankTimes.forEach((dankTime) => {
+            this.scheduleDankTime(chat, dankTime);
+        });
+    }
 
-  /**
+    /**
    * Schedules all RANDOM dank times of a chat.
    */
-  public scheduleRandomDankTimesOfChat(chat: Chat): void {
-    chat.randomDankTimes.forEach((dankTime) => {
-      this.scheduleRandomDankTime(chat, dankTime);
-    });
-  }
+    public scheduleRandomDankTimesOfChat(chat: Chat): void {
+        chat.randomDankTimes.forEach((dankTime) => {
+            this.scheduleRandomDankTime(chat, dankTime);
+        });
+    }
 
-  /**
+    /**
    * Unschedules all normal and random dank times and auto-leaderboards of a chat.
    */
-  public unscheduleAllOfChat(chat: Chat): void {
-    this.unscheduleDankTimesOfChat(chat);
-    this.unscheduleRandomDankTimesOfChat(chat);
-  }
+    public unscheduleAllOfChat(chat: Chat): void {
+        this.unscheduleDankTimesOfChat(chat);
+        this.unscheduleRandomDankTimesOfChat(chat);
+    }
 
-  /**
+    /**
    * Unschedules all NORMAL dank times of a chat.
    */
-  public unscheduleDankTimesOfChat(chat: Chat): void {
-    this.unscheduleCronJobsOfChat(chat, this.dankTimeNotifications);
-  }
+    public unscheduleDankTimesOfChat(chat: Chat): void {
+        this.unscheduleCronJobsOfChat(chat, this.dankTimeNotifications);
+    }
 
-  /**
+    /**
    * Unschedules all RANDOM dank times of a chat.
    */
-  public unscheduleRandomDankTimesOfChat(chat: Chat): void {
-    this.unscheduleCronJobsOfChat(chat, this.randomDankTimeNotifications);
-  }
+    public unscheduleRandomDankTimesOfChat(chat: Chat): void {
+        this.unscheduleCronJobsOfChat(chat, this.randomDankTimeNotifications);
+    }
 
-  /**
+    /**
    * Resets this scheduler completely, unscheduling all jobs and emptying the job lists.
    */
-  public reset(): void {
-    this.dankTimeNotifications.forEach((job) => job.cronJob.stop());
-    this.dankTimeNotifications = [];
-    this.randomDankTimeNotifications.forEach((job) => job.cronJob.stop());
-    this.randomDankTimeNotifications = [];
-  }
+    public reset(): void {
+        this.dankTimeNotifications.forEach((job) => job.cronJob.stop());
+        this.dankTimeNotifications = [];
+        this.randomDankTimeNotifications.forEach((job) => job.cronJob.stop());
+        this.randomDankTimeNotifications = [];
+    }
 
-  /**
+    /**
    * Unschedules a NORMAL dank time.
    */
-  public unscheduleDankTime(chat: Chat, dankTime: DankTime): void {
-    this.unscheduleCronJob(chat, dankTime, this.dankTimeNotifications);
-  }
+    public unscheduleDankTime(chat: Chat, dankTime: DankTime): void {
+        this.unscheduleCronJob(chat, dankTime, this.dankTimeNotifications);
+    }
 
-  /**
+    /**
    * Unschedules a RANDOM dank time.
    */
-  public unscheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
-    this.unscheduleCronJob(chat, dankTime, this.randomDankTimeNotifications);
-  }
+    public unscheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
+        this.unscheduleCronJob(chat, dankTime, this.randomDankTimeNotifications);
+    }
 
-  /**
+    /**
    * Schedules a NORMAL dank time.
    */
-  public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
-    this.dankTimeNotifications.push({
-      chatId: chat.id,
-      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
-        if (!chat || !chat.running) { return; }
-        chat.startDankTime(dankTime);
-        let promise;
-        if (chat.normaltimesNotifications) {
-          const messageText = `⏰ It's dank o'clock! Type '${dankTime.texts[0]}' for points!`;
-          promise = this.sendAnnouncement(chat.id, messageText);
-        }
-        this.schedulePostDankTimeActions(chat, dankTime, promise);
-        const preDankTimeEventArgs = new PreDankTimeEventArguments(chat, dankTime);
-        this.pluginHost.triggerEvent(PluginEvent.PreDankTime, preDankTimeEventArgs);
-      }).bind(this), undefined, true, chat.timezone),
-      hour: dankTime.hour,
-      minute: dankTime.minute,
-    });
-  }
+    public scheduleDankTime(chat: Chat, dankTime: DankTime): void {
+        this.dankTimeNotifications.push({
+            chatId: chat.id,
+            cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
+                if (!chat || !chat.running) { return; }
+                chat.startDankTime(dankTime);
+                let promise;
+                if (chat.normaltimesNotifications) {
+                    const messageText = `⏰ It's dank o'clock! Type '${dankTime.texts[0]}' for points!`;
+                    promise = this.sendAnnouncement(chat.id, messageText);
+                }
+                this.schedulePostDankTimeActions(chat, dankTime, promise);
+                const preDankTimeEventArgs = new PreDankTimeEventArguments(chat, dankTime);
+                this.pluginHost.triggerEvent(PluginEvent.PreDankTime, preDankTimeEventArgs);
+            }).bind(this), undefined, true, chat.timezone),
+            hour: dankTime.hour,
+            minute: dankTime.minute,
+        });
+    }
 
-  /**
+    /**
    * Schedules a RANDOM dank time.
    */
-  public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
-    this.randomDankTimeNotifications.push({
-      chatId: chat.id,
-      cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
-        if (!chat || !chat.running) { return; }
-        chat.startDankTime(dankTime);
-        const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
-        const promise = this.sendAnnouncement(chat.id, messageText);
-        this.schedulePostDankTimeActions(chat, dankTime, promise);
-        const preDankTimeEventArgs = new PreDankTimeEventArguments(chat, dankTime);
-        this.pluginHost.triggerEvent(PluginEvent.PreDankTime, preDankTimeEventArgs);
-      }).bind(this), undefined, true, chat.timezone),
-      hour: dankTime.hour,
-      minute: dankTime.minute,
-    });
-  }
-
-  private sendAnnouncement(chatId: number, messageText: string): Promise<void | TelegramBot.Message> {
-    return this.tgClient.sendMessage(chatId, messageText, -1, false);
-  }
-
-  private schedulePostDankTimeActions(chat: Chat, dankTime: DankTime, sendAnnouncementPromise?: Promise<void | TelegramBot.Message>) {
-    setTimeout((() => {
-      if (!chat || !chat.running) { return; }
-      const lastDankTimeScorers = chat.lastDankTimeScorers;
-
-      if (chat.lastDankTime === dankTime && lastDankTimeScorers.length > 0) {
-        if (chat.autoleaderboards) {
-          this.sendLeaderboard(chat);
-        }
-      } else if (sendAnnouncementPromise) {
-        sendAnnouncementPromise.then((res) => {
-          if (chat && res?.message_id) {
-            this.removeAnnouncement(chat.id, res.message_id);
-          }
+    public scheduleRandomDankTime(chat: Chat, dankTime: DankTime): void {
+        this.randomDankTimeNotifications.push({
+            chatId: chat.id,
+            cronJob: new CronJob("0 " + dankTime.minute + " " + dankTime.hour + " * * *", (() => {
+                if (!chat || !chat.running) { return; }
+                chat.startDankTime(dankTime);
+                const messageText = `🙀 Surprise dank time! Type '${dankTime.texts[0]}' for points!`;
+                const promise = this.sendAnnouncement(chat.id, messageText);
+                this.schedulePostDankTimeActions(chat, dankTime, promise);
+                const preDankTimeEventArgs = new PreDankTimeEventArguments(chat, dankTime);
+                this.pluginHost.triggerEvent(PluginEvent.PreDankTime, preDankTimeEventArgs);
+            }).bind(this), undefined, true, chat.timezone),
+            hour: dankTime.hour,
+            minute: dankTime.minute,
         });
-      }
-      const postDankTimeEventArgs = new PostDankTimeEventArguments(chat, dankTime, lastDankTimeScorers);
-      this.pluginHost.triggerEvent(PluginEvent.PostDankTime, postDankTimeEventArgs);
-    }).bind(this), 59000);
-  }
+    }
 
-  private sendLeaderboard(chat: Chat) {
-    const leaderboard = chat.generateLeaderboard();
-    this.tgClient.sendMessage(chat.id, leaderboard, -1, false);
-  }
+    private sendAnnouncement(chatId: number, messageText: string): Promise<void | TelegramBot.Message> {
+        return this.tgClient.sendMessage(chatId, messageText, -1, false);
+    }
 
-  private removeAnnouncement(chatId: number, messageId: number) {
-    this.tgClient.deleteMessage(chatId, messageId);
-  }
+    private schedulePostDankTimeActions(chat: Chat, dankTime: DankTime, sendAnnouncementPromise?: Promise<void | TelegramBot.Message>) {
+        setTimeout((() => {
+            if (!chat || !chat.running) { return; }
+            const lastDankTimeScorers = chat.lastDankTimeScorers;
 
-  /**
+            if (chat.lastDankTime === dankTime && lastDankTimeScorers.length > 0) {
+                if (chat.autoleaderboards) {
+                    this.sendLeaderboard(chat);
+                }
+            } else if (sendAnnouncementPromise) {
+                sendAnnouncementPromise.then((res) => {
+                    if (chat && res?.message_id) {
+                        this.removeAnnouncement(chat.id, res.message_id);
+                    }
+                });
+            }
+            const postDankTimeEventArgs = new PostDankTimeEventArguments(chat, dankTime, lastDankTimeScorers);
+            this.pluginHost.triggerEvent(PluginEvent.PostDankTime, postDankTimeEventArgs);
+        }).bind(this), 59000);
+    }
+
+    private sendLeaderboard(chat: Chat) {
+        const leaderboard = chat.generateLeaderboard();
+        this.tgClient.sendMessage(chat.id, leaderboard, -1, false);
+    }
+
+    private removeAnnouncement(chatId: number, messageId: number) {
+        this.tgClient.deleteMessage(chatId, messageId);
+    }
+
+    /**
    * Unschedules all cron jobs in the supplied array belonging to the specified chat.
    */
-  private unscheduleCronJobsOfChat(chat: Chat, cronJobs: ScheduledItem[]): void {
-    let i = cronJobs.length;
-    while (i--) {
-      const job = cronJobs[i];
-      if (job.chatId === chat.id) {
-        job.cronJob.stop();
-        cronJobs.splice(i, 1);
-      }
+    private unscheduleCronJobsOfChat(chat: Chat, cronJobs: ScheduledItem[]): void {
+        let i = cronJobs.length;
+        while (i--) {
+            const job = cronJobs[i];
+            if (job.chatId === chat.id) {
+                job.cronJob.stop();
+                cronJobs.splice(i, 1);
+            }
+        }
     }
-  }
 
-  /**
+    /**
    * Unschedules and removes the cronjob from the supplied array that belongs to the specified Chat and DankTime.
    */
-  private unscheduleCronJob(chat: Chat, dankTime: DankTime, cronJobs: ScheduledItem[]): void {
-    let i = cronJobs.length;
-    while (i--) {
-      const job = cronJobs[i];
-      if (job.chatId === chat.id && job.hour === dankTime.hour && job.minute === dankTime.minute) {
-        job.cronJob.stop();
-        cronJobs.splice(i, 1);
-        return;
-      }
+    private unscheduleCronJob(chat: Chat, dankTime: DankTime, cronJobs: ScheduledItem[]): void {
+        let i = cronJobs.length;
+        while (i--) {
+            const job = cronJobs[i];
+            if (job.chatId === chat.id && job.hour === dankTime.hour && job.minute === dankTime.minute) {
+                job.cronJob.stop();
+                cronJobs.splice(i, 1);
+                return;
+            }
+        }
     }
-  }
 }

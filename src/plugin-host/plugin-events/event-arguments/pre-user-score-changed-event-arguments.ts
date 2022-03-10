@@ -8,32 +8,32 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  */
 export class PreUserScoreChangedEventArguments extends PluginEventArguments {
 
-  /**
+    /**
    * Chat in which the score change will take place.
    */
-  public readonly chat: Chat;
-  /**
+    public readonly chat: Chat;
+    /**
    * User that will change score.
    */
-  public readonly user: User;
-  /**
+    public readonly user: User;
+    /**
    * Change in score.
    */
-  public get changeInScore(): number {
-    return this.myChangeInScore;
-  }
-
-  public set changeInScore(newChangeInScore: number) {
-    if (isNaN(newChangeInScore)) {
-      console.error(`Failed to set new score change for source '${this.nameOfOriginPlugin}' for reason '${this.reason}': not a number`);
-    } else {
-      this.myChangeInScore = newChangeInScore;
+    public get changeInScore(): number {
+        return this.myChangeInScore;
     }
-  }
 
-  private myChangeInScore: number = 0;
+    public set changeInScore(newChangeInScore: number) {
+        if (isNaN(newChangeInScore)) {
+            console.error(`Failed to set new score change for source '${this.nameOfOriginPlugin}' for reason '${this.reason}': not a number`);
+        } else {
+            this.myChangeInScore = newChangeInScore;
+        }
+    }
 
-  /**
+    private myChangeInScore = 0;
+
+    /**
    * Constructor.
    * @param chat Chat in which the score change will take place.
    * @param user User that will change score.
@@ -42,10 +42,10 @@ export class PreUserScoreChangedEventArguments extends PluginEventArguments {
    * @param nameOfOriginPlugin The name of the plugin that is causing the score change, or empty if it is
    * not being caused by a plugin.
    */
-  constructor(chat: Chat, user: User, changeInScore: number, reason: string, nameOfOriginPlugin: string) {
-    super(nameOfOriginPlugin, reason);
-    this.chat = chat;
-    this.user = user;
-    this.changeInScore = changeInScore;
-  }
+    constructor(chat: Chat, user: User, changeInScore: number, reason: string, nameOfOriginPlugin: string) {
+        super(nameOfOriginPlugin, reason);
+        this.chat = chat;
+        this.user = user;
+        this.changeInScore = changeInScore;
+    }
 }

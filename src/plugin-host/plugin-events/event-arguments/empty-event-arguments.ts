@@ -6,10 +6,10 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  */
 export class EmptyEventArguments extends PluginEventArguments {
 
-  /**
+    /**
    * Constructor.
    */
-  constructor() {
-    super();
-  }
+    constructor() {
+        super();
+    }
 }
