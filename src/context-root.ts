@@ -27,59 +27,59 @@ import { Util } from "./util/util";
  */
 export class ContextRoot {
 
-  public readonly fileIO: FileIO;
-  public readonly config: Config;
-  public readonly chatSettingsRegistry: ChatSettingsRegistry;
-  public readonly pluginHost: PluginHost;
-  public readonly util: IUtil;
-  public readonly chatRegistry: IChatRegistry;
-  public readonly telegramClient: ITelegramClient;
-  public readonly dankTimeScheduler: IDankTimeScheduler;
-  public readonly version: string;
-  public readonly releaseLog: Release[];
-  public readonly danktimesbotController: IDankTimesBotController;
-  public readonly nodeCleanup: any;
+    public readonly fileIO: FileIO;
+    public readonly config: Config;
+    public readonly chatSettingsRegistry: ChatSettingsRegistry;
+    public readonly pluginHost: PluginHost;
+    public readonly util: IUtil;
+    public readonly chatRegistry: IChatRegistry;
+    public readonly telegramClient: ITelegramClient;
+    public readonly dankTimeScheduler: IDankTimeScheduler;
+    public readonly version: string;
+    public readonly releaseLog: Release[];
+    public readonly danktimesbotController: IDankTimesBotController;
+    public readonly nodeCleanup: any;
 
-  public readonly backupFile = "backup.json";
+    public readonly backupFile = "backup.json";
 
-  public constructor() {
+    public constructor() {
 
-    // Prepare file IO, and load configurations.
-    this.fileIO = new FileIO();
-    this.config = this.fileIO.loadConfigFromFile();
+        // Prepare file IO, and load configurations.
+        this.fileIO = new FileIO();
+        this.config = this.fileIO.loadConfigFromFile();
 
-    // Load and initialize plugins.
-    const availablePlugins = this.fileIO.GetAvailablePlugins(this.config.plugins);
-    this.chatSettingsRegistry = new ChatSettingsRegistry();
-    this.pluginHost = new PluginHost(availablePlugins);
-    this.pluginHost.registerPluginSettings(this.chatSettingsRegistry);
+        // Load and initialize plugins.
+        const availablePlugins = this.fileIO.GetAvailablePlugins(this.config.plugins);
+        this.chatSettingsRegistry = new ChatSettingsRegistry();
+        this.pluginHost = new PluginHost(availablePlugins);
+        this.pluginHost.registerPluginSettings(this.chatSettingsRegistry);
 
-    // Load and initialize chats.
-    this.util = new Util();
-    this.chatRegistry = new ChatRegistry(this.util, this.chatSettingsRegistry, this.pluginHost);
-    const initialChats = this.fileIO.loadDataFromFile<BasicChat[]>(this.backupFile) ?? [];
-    this.chatRegistry.loadFromJSON(initialChats);
+        // Load and initialize chats.
+        this.util = new Util();
+        this.chatRegistry = new ChatRegistry(this.util, this.chatSettingsRegistry, this.pluginHost);
+        const initialChats = this.fileIO.loadDataFromFile<BasicChat[]>(this.backupFile) ?? [];
+        this.chatRegistry.loadFromJSON(initialChats);
 
-    // Prepare Telegram client and scheduler for sending messages.
-    const telegramBot = new TelegramBot(this.config.apiKey, { polling: true });
-    this.telegramClient = new TelegramClient(telegramBot);
-    this.dankTimeScheduler = new DankTimeScheduler(this.telegramClient, this.pluginHost);
+        // Prepare Telegram client and scheduler for sending messages.
+        const telegramBot = new TelegramBot(this.config.apiKey, { polling: true });
+        this.telegramClient = new TelegramClient(telegramBot);
+        this.dankTimeScheduler = new DankTimeScheduler(this.telegramClient, this.pluginHost);
 
-    // Load and initialize commands.
-    // tslint:disable-next-line:no-var-requires
-    this.version = require("../package.json").version;
-    this.releaseLog = this.fileIO.loadReleaseLogFromFile();
-    const botCommandsRegistry = new BotCommandRegistry(this.telegramClient, this.chatRegistry);
-    const dankTimesBotCommands = new DankTimesBotCommands(
-      botCommandsRegistry, this.dankTimeScheduler, this.util, this.releaseLog);
-    const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(botCommandsRegistry, this.telegramClient,
-      this.chatRegistry, dankTimesBotCommands);
-    dankTimesBotCommandsRegistrar.registerDankTimesBotCommands();
-    this.pluginHost.registerPluginCommands(botCommandsRegistry);
+        // Load and initialize commands.
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        this.version = require("../package.json").version;
+        this.releaseLog = this.fileIO.loadReleaseLogFromFile();
+        const botCommandsRegistry = new BotCommandRegistry(this.telegramClient, this.chatRegistry);
+        const dankTimesBotCommands = new DankTimesBotCommands(
+            botCommandsRegistry, this.dankTimeScheduler, this.util, this.releaseLog);
+        const dankTimesBotCommandsRegistrar = new DankTimesBotCommandsRegistrar(botCommandsRegistry, this.telegramClient,
+            this.chatRegistry, dankTimesBotCommands);
+        dankTimesBotCommandsRegistrar.registerDankTimesBotCommands();
+        this.pluginHost.registerPluginCommands(botCommandsRegistry);
 
-    // Miscellaneous initializations and exports.
-    this.danktimesbotController = new DankTimesBotController(this.chatRegistry,
-      this.dankTimeScheduler, this.telegramClient, this.pluginHost, this.fileIO);
-    this.nodeCleanup = nodeCleanupImport;
-  }
+        // Miscellaneous initializations and exports.
+        this.danktimesbotController = new DankTimesBotController(this.chatRegistry,
+            this.dankTimeScheduler, this.telegramClient, this.pluginHost, this.fileIO);
+        this.nodeCleanup = nodeCleanupImport;
+    }
 }

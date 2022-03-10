@@ -8,36 +8,36 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  */
 export class ChatMessageEventArguments extends PluginEventArguments {
 
-  /**
+    /**
    * The chat in which the message is being posted.
    */
-  public readonly chat: Chat;
-  /**
+    public readonly chat: Chat;
+    /**
    * The user that posted the chat message.
    */
-  public readonly user: User;
-  /**
+    public readonly user: User;
+    /**
    * Raw message object going into / coming out of the Dank Times Bot process.
    */
-  public readonly msg: TelegramBot.Message;
+    public readonly msg: TelegramBot.Message;
 
-  /**
+    /**
    * The replies being prepared by the bot to send back. May be altered/added to by plugins.
    */
-  public botReplies: string[];
+    public botReplies: string[];
 
-  /**
+    /**
    * Constructor.
    * @param chat The chat in which the message is being posted.
    * @param user The user that posted the chat message.
    * @param msg Raw Telegram message object.
    * @param botReplies The replies being prepared by the bot to send back.
    */
-  constructor(chat: Chat, user: User, msg: TelegramBot.Message, botReplies: string[]) {
-    super();
-    this.chat = chat;
-    this.user = user;
-    this.msg = msg;
-    this.botReplies = botReplies;
-  }
+    constructor(chat: Chat, user: User, msg: TelegramBot.Message, botReplies: string[]) {
+        super();
+        this.chat = chat;
+        this.user = user;
+        this.msg = msg;
+        this.botReplies = botReplies;
+    }
 }

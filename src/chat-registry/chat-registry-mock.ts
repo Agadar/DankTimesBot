@@ -5,35 +5,35 @@ import { IChatRegistryListener } from "./i-chat-registry-listener";
 
 export class ChatRegistryMock implements IChatRegistry {
 
-  public removeChatCalledWithId: number | null = null;
+    public removeChatCalledWithId: number | null = null;
 
-  public chats = new Map<number, Chat>();
+    public chats = new Map<number, Chat>();
 
-  public setChatId(oldId: number, newId: number): void {
+    public setChatId(oldId: number, newId: number): void {
     /**/
-  }
-
-  public getOrCreateChat(id: number): Chat {
-    return this.chats.get(id) as Chat;
-  }
-
-  public removeChat(id: number): Chat | null {
-    this.removeChatCalledWithId = id;
-    const chatToRemove = this.chats.get(id);
-
-    if (chatToRemove) {
-      this.chats.delete(id);
-      return chatToRemove;
-    } else {
-      return null;
     }
-  }
 
-  public loadFromJSON(literals: BasicChat[]): void {
-    /**/
-  }
+    public getOrCreateChat(id: number): Chat {
+        return this.chats.get(id) as Chat;
+    }
 
-  public subscribe(subscriber: IChatRegistryListener): void {
+    public removeChat(id: number): Chat | null {
+        this.removeChatCalledWithId = id;
+        const chatToRemove = this.chats.get(id);
+
+        if (chatToRemove) {
+            this.chats.delete(id);
+            return chatToRemove;
+        } else {
+            return null;
+        }
+    }
+
+    public loadFromJSON(literals: BasicChat[]): void {
     /**/
-  }
+    }
+
+    public subscribe(subscriber: IChatRegistryListener): void {
+    /**/
+    }
 }

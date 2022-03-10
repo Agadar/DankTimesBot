@@ -6,17 +6,17 @@ import { PluginEventArguments } from "../plugin-event-arguments";
  */
 export class ChatInitialisationEventArguments extends PluginEventArguments {
 
-  /**
+    /**
    * The freshly initialised chat.
    */
-   public readonly chat: Chat;
+    public readonly chat: Chat;
 
-   /**
+    /**
     * Constructor.
     * @param chat The freshly initialised chat.
     */
-   constructor(chat: Chat) {
-     super();
-     this.chat = chat;
-   }
+    constructor(chat: Chat) {
+        super();
+        this.chat = chat;
+    }
 }

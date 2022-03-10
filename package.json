@@ -9,7 +9,7 @@
     "start": "node ./built/main.js",
     "pretest": "npm run clean && tsc",
     "test": "mocha ./built/**/*.spec.js",
-    "lint": "tslint -p tsconfig.json --fix"
+    "lint": "npx eslint . --fix"
   },
   "author": "Agadar",
   "license": "Apache-2.0",
@@ -22,7 +22,7 @@
     "moment-timezone": "^0.5.33",
     "node-cleanup": "^2.1.2",
     "node-emoji": "^1.11.0",
-    "node-telegram-bot-api": "^0.54.0"
+    "node-telegram-bot-api": "0.56.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
@@ -32,12 +32,14 @@
     "@types/node": "^14.17.6",
     "@types/node-cleanup": "^2.1.2",
     "@types/node-emoji": "^1.8.1",
-    "@types/node-telegram-bot-api": "^0.51.4",
+    "@types/node-telegram-bot-api": "0.56.0",
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@typescript-eslint/parser": "^5.14.0",
     "chai": "^4.3.4",
+    "eslint": "8.10.0",
     "mocha": "^9.2.1",
     "rimraf": "^3.0.2",
     "ts-mockito": "^2.6.1",
-    "tslint": "^5.20.1",
     "typescript": "^4.4.2"
   }
 }

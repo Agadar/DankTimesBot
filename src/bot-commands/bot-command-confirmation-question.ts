@@ -6,7 +6,7 @@ export class BotCommandConfirmationQuestion {
     /**
      * The confirmation question sent to the chat.
      */
-    public confirmationQuestionText: string = "🤔 Are you sure? Type 'yes' to confirm.";
+    public confirmationQuestionText = "🤔 Are you sure? Type 'yes' to confirm.";
 
     /**
      * The action to perform upon receiving confirmation.
