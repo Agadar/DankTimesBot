@@ -45,5 +45,4 @@ export class TelegramClientMock implements ITelegramClient {
             },
         }]);
     }
-
 }
