@@ -183,6 +183,16 @@ export abstract class AbstractPlugin {
     }
 
     /**
+     * Edits a message via the Telegram Bot API.
+     * @param chatId The id of the chat to edit a message in.
+     * @param messageId The id of the message to edit.
+     * @param newMessageText New message to place.
+     */
+    protected editMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message> {
+        return this.listener.onPluginWantsToEditChatMessage(chatId, messageId, newMessageText);
+    }
+
+    /**
    * Gets the chat with the specified Id.
    * @param chatId The id of the chat to get.
    */

@@ -43,6 +43,13 @@ export class TelegramClient implements ITelegramClient {
             });
     }
 
+    public editMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message> {
+        return this.bot.editMessageText(newMessageText, {message_id: messageId, chat_id: chatId})
+            .catch((reason: void | TelegramBot.Message) => {
+                this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
+            });
+    }
+
     public subscribe(subscriber: ITelegramClientListener): void {
         if (this.listeners.indexOf(subscriber) === -1) {
             this.listeners.push(subscriber);
