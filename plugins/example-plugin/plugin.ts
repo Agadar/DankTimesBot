@@ -26,10 +26,10 @@ export class Plugin extends AbstractPlugin {
     private static readonly PRINT_MONEY_REASON = "printmoney";
 
     /**
-   * A plugin should call its base constructor to
-   * provide it with an identifier, a version
-   * and some optional data.
-   */
+     * A plugin should call its base constructor to
+     * provide it with an identifier, a version
+     * and some optional data.
+     */
     constructor() {
         super("Example Plugin", "1.1.0");
 
@@ -54,12 +54,12 @@ export class Plugin extends AbstractPlugin {
             const oldChange = data.changeInScore;
             data.changeInScore += 5;
             this.sendMessage(data.chat.id, `Example of a pre user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
-        `, Reason: ${data.reason}, Player: ${data.user.name}, old score change: ${oldChange}, new score change: ${data.changeInScore}`);
+                `, Reason: ${data.reason}, Player: ${data.user.name}, old score change: ${oldChange}, new score change: ${data.changeInScore}`);
         }, this.name, Plugin.PRINT_MONEY_REASON);
 
         this.subscribeToPluginEvent(PluginEvent.PostUserScoreChange, (data: PostUserScoreChangedEventArguments) => {
             this.sendMessage(data.chat.id, `Example of a post user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
-        `, Reason: ${data.reason}, Player: ${data.user.name}, score change: ${data.changeInScore}`);
+                `, Reason: ${data.reason}, Player: ${data.user.name}, score change: ${data.changeInScore}`);
         }, this.name, Plugin.PRINT_MONEY_REASON);
 
         this.subscribeToPluginEvent(PluginEvent.ChatMessage, (data: ChatMessageEventArguments) => {
@@ -84,21 +84,21 @@ export class Plugin extends AbstractPlugin {
 
         this.subscribeToPluginEvent(PluginEvent.Custom, (data: CustomEventArguments) => {
             console.log(`Example of a custom plugin event. Origin plugin: ${data.nameOfOriginPlugin}, ` +
-        `reason: ${data.reason}, event data: ${data.eventData}`);
+                `reason: ${data.reason}, event data: ${data.eventData}`);
         });
     }
 
     /**
-   * @override
-   */
+     * @override
+     */
     public getPluginSpecificChatSettings(): Array<ChatSettingTemplate<any>> {
         return [new ChatSettingTemplate("example.pluginsetting", "example of a custom plugin setting", "some string value",
             (original) => original, (value) => null)];
     }
 
     /**
-   * @override
-   */
+     * @override
+     */
     public getPluginSpecificCommands(): BotCommand[] {
         const echoCommand = new BotCommand(["echo"], "echoes what a user sent", this.echo.bind(this));
         const printMoneyCommand = new BotCommand(["printmoney", "freemoney"], "gives the user 10 free points", this.printMoney.bind(this));
@@ -108,11 +108,14 @@ export class Plugin extends AbstractPlugin {
 
     private echo(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
         setTimeout(() => {
-            this.sendMessage(chat.id, "Example of sendMessage", msg?.message_id, true).then((res) => {
-                if (res) {
-                    setTimeout(() => this.deleteMessage(chat.id, res.message_id), 3000);
-                }
-            });
+            this.sendMessage(chat.id, "Example of sendMessage. This message will be edited in 3 seconds, and deleted after 6", msg?.message_id, false)
+                .then((res) => {
+                    if (res) {
+                        // Note: Do not use editMessage with forceReply = true. It will not work.
+                        setTimeout(() => this.editMessage(res.chat.id, res.message_id, "This message will be deleted in 3 seconds!"), 3000);
+                        setTimeout(() => this.deleteMessage(chat.id, res.message_id), 6000);
+                    }
+                });
         }, 3000);
         return `${user.name} said: '${match}'`;
     }

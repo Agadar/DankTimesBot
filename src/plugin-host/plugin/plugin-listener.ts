@@ -25,6 +25,14 @@ export interface IPluginListener {
     onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<void | boolean>;
 
     /**
+     * Fired when a plugin wants to edit a chat message.
+     * @param chatId The id of the chat to edit a message in.
+     * @param messageId The id of the message to edit.
+     * @param newMessageText New message.
+     */
+    onPluginWantsToEditChatMessage(chatId: number, messageId: number, newMessageText: string): Promise<void | boolean | TelegramBot.Message>;
+
+    /**
      * Fired when a plugin wants to get a chat.
      * @param chatId The id of the chat to get.
      */

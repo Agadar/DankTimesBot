@@ -18,11 +18,11 @@ export class DankTimesBotController implements IDankTimesBotController {
     private readonly groupChatUpgradedDescription = "Bad Request: group chat was upgraded to a supergroup chat";
 
     public constructor(
-    private readonly chatRegistry: IChatRegistry,
-    private readonly dankTimeScheduler: IDankTimeScheduler,
-    private readonly telegramClient: ITelegramClient,
-    private readonly pluginHost: PluginHost,
-    private readonly fileIO: FileIO,
+        private readonly chatRegistry: IChatRegistry,
+        private readonly dankTimeScheduler: IDankTimeScheduler,
+        private readonly telegramClient: ITelegramClient,
+        private readonly pluginHost: PluginHost,
+        private readonly fileIO: FileIO,
     ) {
         this.chatRegistry.subscribe(this);
         this.telegramClient.subscribe(this);
@@ -30,8 +30,8 @@ export class DankTimesBotController implements IDankTimesBotController {
     }
 
     /**
-   * From ITelegramClientListener.
-   */
+     * From ITelegramClientListener.
+     */
     public onErrorFromApi(chatId: number, error: any): void {
         if (this.errorResponseWarrantsChatRemoval(error)) {
             const chat = this.chatRegistry.removeChat(chatId);
@@ -46,58 +46,65 @@ export class DankTimesBotController implements IDankTimesBotController {
     }
 
     /**
-   * From IChatRegistryListener.
-   */
+     * From IChatRegistryListener.
+     */
     public onChatCreated(chat: Chat): void {
         this.dankTimeScheduler.scheduleAllOfChat(chat);
     }
 
     /**
-   * From IPluginListener.
-   */
+     * From IPluginListener.
+     */
     public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
         replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message> {
         return this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply);
     }
 
     /**
-   * From IPluginListener.
-   */
+     * From IPluginListener.
+     */
     public onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<void | boolean> {
         return this.telegramClient.deleteMessage(chatId, messageId);
     }
 
     /**
-   * From IPluginListener.
-   */
+     * From IPluginListener
+     */
+    onPluginWantsToEditChatMessage(chatId: number, messageId: number, newMessageText: string): Promise<void | boolean | TelegramBot.Message> {
+        return this.telegramClient.editMessage(chatId, messageId, newMessageText);
+    }
+
+    /**
+     * From IPluginListener.
+     */
     public onPluginWantsToGetChat(chatId: number): Chat | null {
         return this.chatRegistry.chats.get(chatId) ?? null;
     }
 
     /**
-   * From IPluginListener.
-   */
+     * From IPluginListener.
+     */
     public onPluginWantsToFireCustomEvent(event: CustomEventArguments): void {
         this.pluginHost.triggerEvent(PluginEvent.Custom, event);
     }
 
     /**
-   * From IPluginListener.
-   */
+     * From IPluginListener.
+     */
     public onPluginWantsToLoadData<T>(fileName: string): T | null {
         return this.fileIO.loadDataFromFile(fileName);
     }
 
     /**
-   * From IPluginListener.
-   */
+     * From IPluginListener.
+     */
     public onPluginWantsToLoadDataFromFileWithConverter<O, T>(fileName: string, converter: (parsed: O) => T): T | null {
         return this.fileIO.loadDataFromFileWithConverter(fileName, converter);
     }
 
     /**
-   * From IPluginListener.
-   */
+     * From IPluginListener.
+     */
     public onPluginWantsToSaveDataToFile<T>(fileName: string, data: T): void {
         this.fileIO.saveDataToFile(fileName, data);
     }
@@ -122,7 +129,7 @@ export class DankTimesBotController implements IDankTimesBotController {
 
     private errorResponseWarrantsChatRemoval(error: any): boolean {
         return error && error.response && (error.response.statusCode === this.forbiddenStatusCode
-      || (error.response.body && (error.response.body.description === this.requestNotFoundDescription ||
-        error.response.body.description === this.groupChatUpgradedDescription)));
+            || (error.response.body && (error.response.body.description === this.requestNotFoundDescription ||
+                error.response.body.description === this.groupChatUpgradedDescription)));
     }
 }

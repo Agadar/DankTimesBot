@@ -177,6 +177,10 @@ export class DankTimeScheduler implements IDankTimeScheduler {
         this.tgClient.deleteMessage(chatId, messageId);
     }
 
+    private editMessage(chatId: number, messageId: number, newMessageText: string) {
+        this.tgClient.editMessage(chatId, messageId, newMessageText);
+    }
+
     /**
    * Unschedules all cron jobs in the supplied array belonging to the specified chat.
    */

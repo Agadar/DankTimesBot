@@ -22,6 +22,10 @@ export class TelegramClientMock implements ITelegramClient {
         // Don't do anything, this is a mock.
     }
 
+    public async editMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message> {
+        // Don't do anything, this is a mock.
+    }
+
     public getBotUsername(): Promise<string> {
         return Promise.resolve("test");
     }

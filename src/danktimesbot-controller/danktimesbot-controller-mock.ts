@@ -4,7 +4,6 @@ import { CustomEventArguments } from "../plugin-host/plugin-events/event-argumen
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
 export class DankTimesBotControllerMock implements IDankTimesBotController {
-
     public doNightlyUpdateCalled = false;
     public onErrorFromApiCalledWith: { chatId: number, error: any } | null = null;
     public onChatCreatedCalledWith: Chat | null = null;
@@ -30,6 +29,10 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
     }
 
     public onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<void | boolean> {
+        return Promise.resolve();
+    }
+
+    onPluginWantsToEditChatMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message> {
         return Promise.resolve();
     }
 
