@@ -4,6 +4,8 @@ import { ITelegramClientListener } from "./i-telegram-client-listener";
 
 export class TelegramClient implements ITelegramClient {
 
+    private static readonly PARSE_MODE = "HTML";
+
     private cachedBotUsername = "";
     private botUsernamePromise: Promise<string> | null = null;
 
@@ -44,7 +46,7 @@ export class TelegramClient implements ITelegramClient {
     }
 
     public editMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message> {
-        return this.bot.editMessageText(newMessageText, {message_id: messageId, chat_id: chatId})
+        return this.bot.editMessageText(newMessageText, {message_id: messageId, chat_id: chatId, parse_mode: TelegramClient.PARSE_MODE})
             .catch((reason: void | TelegramBot.Message) => {
                 this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
             });
@@ -73,7 +75,7 @@ export class TelegramClient implements ITelegramClient {
 
     private getSendMessageParameters(replyToUserId?: number, forceReply = false): TelegramBot.SendMessageOptions {
         const options: TelegramBot.SendMessageOptions = {
-            parse_mode: "HTML",
+            parse_mode: TelegramClient.PARSE_MODE,
         };
 
         if (replyToUserId) {

@@ -108,11 +108,11 @@ export class Plugin extends AbstractPlugin {
 
     private echo(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
         setTimeout(() => {
-            this.sendMessage(chat.id, "Example of sendMessage. This message will be edited in 3 seconds, and deleted after 6", msg?.message_id, false)
+            this.sendMessage(chat.id, "Example of sendMessage. This message will be edited in <b>3</b> seconds, and deleted after <b>6</b>", msg?.message_id, false)
                 .then((res) => {
                     if (res) {
                         // Note: Do not use editMessage with forceReply = true. It will not work.
-                        setTimeout(() => this.editMessage(res.chat.id, res.message_id, "This message will be deleted in 3 seconds!"), 3000);
+                        setTimeout(() => this.editMessage(res.chat.id, res.message_id, "This message will be deleted in <b>3</b> seconds!"), 3000);
                         setTimeout(() => this.deleteMessage(chat.id, res.message_id), 6000);
                     }
                 });
