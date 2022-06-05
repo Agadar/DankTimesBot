@@ -3,6 +3,8 @@ import { IUtil } from "./i-util";
 
 export class Util implements IUtil {
 
+    private readonly numberRegex = new RegExp('^(-?[0-9.]+)(k|m)?$', 'i');
+
     /**
      * Removes from the text the characters with unicodes 65039 and 8419.
      * Makes it so the emoji versions of numbers are parsed to just normal numbers.
@@ -47,5 +49,28 @@ export class Util implements IUtil {
             return releaseLog[0].getWhatsNewMessage();
         }
         return "⚠️ Release notes are unavailable!";
+    }
+
+    public parseScoreInput(input: string): number | null {
+        const match = this.numberRegex.exec(input);
+
+        if (!match) {
+            return null;
+        }
+        let score = Number(match[1]);
+
+        if (isNaN(score)) {
+            return null;
+        }
+        if (match.length < 3) {
+            return score;
+        }
+        if (match[2]?.toLowerCase() === 'k') {
+            return score * 1000;
+        }
+        if (match[2]?.toLowerCase() === 'm') {
+            return score * 1000 * 1000;
+        }
+        return score;
     }
 }

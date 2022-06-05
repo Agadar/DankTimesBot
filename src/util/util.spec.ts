@@ -56,3 +56,67 @@ describe("util.releaseLogToWhatsNewMessage", () => {
     });
 
 });
+
+describe("util.parseScoreInput", () => {
+
+    let util: Util;
+
+    beforeEach(() => {
+        util = new Util();
+    });
+
+    it("Parses positive numerical input", () => {
+        const result = util.parseScoreInput("5");
+        assert.equal(result, 5);
+    });
+
+    it("Parses negative numerical input", () => {
+        const result = util.parseScoreInput("-5");
+        assert.equal(result, -5);
+    });
+
+    it("Parses broken numerical input", () => {
+        const result = util.parseScoreInput("5.5");
+        assert.equal(result, 5.5);
+    });
+
+    it("Parses numerical input appended with a 'k'", () => {
+        const result = util.parseScoreInput("5k");
+        assert.equal(result, 5000);
+    });
+
+    it("Parses broken numerical input appended with a 'k'", () => {
+        const result = util.parseScoreInput("5.5k");
+        assert.equal(result, 5500);
+    });
+
+    it("Parses numerical input appended with a 'm'", () => {
+        const result = util.parseScoreInput("5m");
+        assert.equal(result, 5000000);
+    });
+
+    it("Parses numerical input appended with a 'K'", () => {
+        const result = util.parseScoreInput("5K");
+        assert.equal(result, 5000);
+    });
+
+    it("Parses numerical input appended with a 'M'", () => {
+        const result = util.parseScoreInput("5M");
+        assert.equal(result, 5000000);
+    });
+
+    it("Gives 'null' for numerical input appended with an invalid letter", () => {
+        const result = util.parseScoreInput("5a");
+        assert.isNull(result);
+    });
+
+    it("Gives 'null' for non-numerical input", () => {
+        const result = util.parseScoreInput("abc");
+        assert.isNull(result);
+    });
+
+    it("Gives 'null' for mixed numerical and non-numerical input", () => {
+        const result = util.parseScoreInput("a1b2c");
+        assert.isNull(result);
+    });
+});

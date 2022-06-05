@@ -8,6 +8,7 @@ import { PluginHost } from "../plugin-host/plugin-host";
 import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { TelegramClientMock } from "../telegram-client/telegram-client-mock";
 import { FileIO } from "../util/file-io/file-io";
+import { Util } from "../util/util";
 import { DankTimesBotController } from "./danktimesbot-controller";
 
 let dankController: DankTimesBotController;
@@ -16,6 +17,7 @@ let dankTimeScheduler: DankTimeSchedulerMock;
 let telegramClient: TelegramClientMock;
 let pluginHost: PluginHost;
 let fileIO: FileIO;
+let util: Util;
 
 function initTestVariables() {
     chatRegistry = new ChatRegistryMock();
@@ -23,8 +25,10 @@ function initTestVariables() {
     telegramClient = new TelegramClientMock();
     pluginHost = mock(PluginHost);
     fileIO = mock(FileIO);
+    util = mock(Util);
     when(pluginHost.plugins).thenReturn(new Array<AbstractPlugin>());
-    dankController = new DankTimesBotController(chatRegistry, dankTimeScheduler, telegramClient, instance(pluginHost), instance(fileIO));
+    dankController = new DankTimesBotController(chatRegistry, dankTimeScheduler, telegramClient, instance(pluginHost),
+        instance(fileIO), instance(util));
 }
 
 class ChatMock {

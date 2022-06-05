@@ -30,4 +30,11 @@ export interface IUtil {
    * If the array is empty, returns a default error message.
    */
   releaseLogToWhatsNewMessage(releaseLog: Release[]): string;
+
+  /**
+   * Parses the score input, returning a number if a number could be determined,
+   * otherwise returns null.
+   * @param input The string input to cleanse to a number.
+   */
+  parseScoreInput(input: string): number | null;
 }

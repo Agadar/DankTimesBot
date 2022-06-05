@@ -4,6 +4,7 @@ import { CustomEventArguments } from "../plugin-host/plugin-events/event-argumen
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
 export class DankTimesBotControllerMock implements IDankTimesBotController {
+
     public doNightlyUpdateCalled = false;
     public onErrorFromApiCalledWith: { chatId: number, error: any } | null = null;
     public onChatCreatedCalledWith: Chat | null = null;
@@ -41,7 +42,7 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
     }
 
     public onPluginWantsToFireCustomEvent(event: CustomEventArguments): void {
-    // Do nothing.
+        // Do nothing.
     }
 
     public onPluginWantsToLoadData<T>(fileName: string): T | null {
@@ -53,6 +54,10 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
     }
 
     public onPluginWantsToSaveDataToFile<T>(fileName: string, data: T): void {
-    // Do nothing.
+        // Do nothing.
+    }
+
+    public onPluginWantsToParseScoreInput(input: string): number | null {
+        return null;
     }
 }

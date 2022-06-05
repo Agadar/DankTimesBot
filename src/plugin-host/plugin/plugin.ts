@@ -200,6 +200,15 @@ export abstract class AbstractPlugin {
         return this.listener.onPluginWantsToGetChat(chatId);
     }
 
+   /**
+    * Parses the score input, returning a number if a number could be determined,
+    * otherwise returns null.
+    * @param input The string input to cleanse to a number.
+    */
+    protected parseScoreInput(input: string): number | null {
+        return this.listener.onPluginWantsToParseScoreInput(input);
+    }
+
     /**
    * Fires a custom plugin event to which other plugins can listen to.
    * @param reason The reason for the event.

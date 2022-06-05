@@ -9,6 +9,7 @@ import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { FileIO } from "../util/file-io/file-io";
+import { IUtil } from "../util/i-util";
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
 export class DankTimesBotController implements IDankTimesBotController {
@@ -23,6 +24,7 @@ export class DankTimesBotController implements IDankTimesBotController {
         private readonly telegramClient: ITelegramClient,
         private readonly pluginHost: PluginHost,
         private readonly fileIO: FileIO,
+        private readonly util: IUtil
     ) {
         this.chatRegistry.subscribe(this);
         this.telegramClient.subscribe(this);
@@ -107,6 +109,13 @@ export class DankTimesBotController implements IDankTimesBotController {
      */
     public onPluginWantsToSaveDataToFile<T>(fileName: string, data: T): void {
         this.fileIO.saveDataToFile(fileName, data);
+    }
+
+    /**
+     * From IPluginListener.
+     */
+     public onPluginWantsToParseScoreInput(input: string): number | null {
+        return this.util.parseScoreInput(input);
     }
 
     public doNightlyUpdate(): void {

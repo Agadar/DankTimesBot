@@ -129,7 +129,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         // Identify and verify arguments.
         const hour = Number(spaceSplit[0]);
         const minute = Number(spaceSplit[1]);
-        const points = Number(spaceSplit[2]);
+        const points = this.util.parseScoreInput(spaceSplit[2]);
 
         if (isNaN(hour)) {
             return "⚠️ The hour must be a number!";
@@ -137,7 +137,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         if (isNaN(minute)) {
             return "⚠️ The minute must be a number!";
         }
-        if (isNaN(points)) {
+        if (points === null) {
             return "⚠️ The points must be a number!";
         }
 
@@ -224,9 +224,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         if (!match) {
             return "✋  Not enough arguments! Format: /donate [amount]";
         }
-        let amount = Number(match);
+        let amount = this.util.parseScoreInput(match);
 
-        if (isNaN(amount) || (amount % 1 !== 0) || amount < 1) {
+        if (amount === null || (amount % 1 !== 0) || amount < 1) {
             return "✋  The amount has to be a whole numeric value";
         }
         if (amount > user.score) {

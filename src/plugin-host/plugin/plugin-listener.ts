@@ -58,4 +58,9 @@ export interface IPluginListener {
      * See FileIO.saveDataToFile
      */
     onPluginWantsToSaveDataToFile<T>(fileName: string, data: T): void;
+
+    /**
+     * See Util.parseScoreInput
+     */
+    onPluginWantsToParseScoreInput(input: string): number | null;
 }
