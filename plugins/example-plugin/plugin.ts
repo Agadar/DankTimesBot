@@ -103,7 +103,8 @@ export class Plugin extends AbstractPlugin {
         const echoCommand = new BotCommand(["echo"], "echoes what a user sent", this.echo.bind(this));
         const printMoneyCommand = new BotCommand(["printmoney", "freemoney"], "gives the user 10 free points", this.printMoney.bind(this));
         const firePluginEvent = new BotCommand(["fire_event"], "fires a custom plugin event", this.firePluginEvent.bind(this));
-        return [echoCommand, printMoneyCommand, firePluginEvent];
+        const otherPluginsEvent = new BotCommand(["otherplugins"], "prints the other active plugins", this.otherPlugins.bind(this));
+        return [echoCommand, printMoneyCommand, firePluginEvent, otherPluginsEvent];
     }
 
     private echo(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
@@ -129,5 +130,9 @@ export class Plugin extends AbstractPlugin {
     private firePluginEvent(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
         this.fireCustomEvent("testing", ["One", "Two", "Three"]);
         return "";
+    }
+
+    private otherPlugins(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+        return this.getOtherPlugins().map((plugin) => plugin.name + " " + plugin.version).join("\n");
     }
 }

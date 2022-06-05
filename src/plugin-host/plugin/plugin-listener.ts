@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../../chat/chat";
 import { CustomEventArguments } from "../plugin-events/event-arguments/custom-event-arguments";
+import { AbstractPlugin } from "./plugin";
 
 /**
  * Listens to events fired by plugins.
@@ -63,4 +64,9 @@ export interface IPluginListener {
      * See Util.parseScoreInput
      */
     onPluginWantsToParseScoreInput(input: string): number | null;
+
+    /**
+     * Gets all plugins that are active and running except for the supplied one.
+     */
+    onPluginWantsToGetOtherPlugins(callingPlugin: AbstractPlugin): AbstractPlugin[];
 }

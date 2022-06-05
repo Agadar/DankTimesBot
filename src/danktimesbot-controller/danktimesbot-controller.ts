@@ -7,6 +7,7 @@ import { CustomEventArguments } from "../plugin-host/plugin-events/event-argumen
 import { EmptyEventArguments } from "../plugin-host/plugin-events/event-arguments/empty-event-arguments";
 import { PluginEvent } from "../plugin-host/plugin-events/plugin-event-types";
 import { PluginHost } from "../plugin-host/plugin-host";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { ITelegramClient } from "../telegram-client/i-telegram-client";
 import { FileIO } from "../util/file-io/file-io";
 import { IUtil } from "../util/i-util";
@@ -116,6 +117,13 @@ export class DankTimesBotController implements IDankTimesBotController {
      */
      public onPluginWantsToParseScoreInput(input: string): number | null {
         return this.util.parseScoreInput(input);
+    }
+
+    /**
+     * From IPluginListener.
+     */
+    public onPluginWantsToGetOtherPlugins(callingPlugin: AbstractPlugin): AbstractPlugin[] {
+        return this.pluginHost.plugins.filter((plugin) => plugin !== callingPlugin);
     }
 
     public doNightlyUpdate(): void {

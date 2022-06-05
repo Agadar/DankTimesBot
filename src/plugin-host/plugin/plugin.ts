@@ -210,6 +210,13 @@ export abstract class AbstractPlugin {
     }
 
     /**
+     * Gets all other plugins that are active and running.
+     */
+    protected getOtherPlugins(): AbstractPlugin[] {
+        return this.listener.onPluginWantsToGetOtherPlugins(this);
+    }
+
+    /**
    * Fires a custom plugin event to which other plugins can listen to.
    * @param reason The reason for the event.
    * @param eventData Any relevant event data. Consumers of these arguments will have

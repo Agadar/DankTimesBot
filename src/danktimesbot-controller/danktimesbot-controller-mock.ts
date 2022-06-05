@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
 import { CustomEventArguments } from "../plugin-host/plugin-events/event-arguments/custom-event-arguments";
+import { AbstractPlugin } from "../plugin-host/plugin/plugin";
 import { IDankTimesBotController } from "./i-danktimesbot-controller";
 
 export class DankTimesBotControllerMock implements IDankTimesBotController {
@@ -59,5 +60,9 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
 
     public onPluginWantsToParseScoreInput(input: string): number | null {
         return null;
+    }
+
+    public onPluginWantsToGetOtherPlugins(callingPlugin: AbstractPlugin): AbstractPlugin[] {
+        return [];
     }
 }
