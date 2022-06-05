@@ -48,8 +48,11 @@ export class BotCommandRegistry {
      * @param command The command to register.
      */
     public async registerCommand(command: BotCommand): Promise<void> {
-        const existingCommandName = this.commands.flatMap((existingCommand) => existingCommand.names)
-            .find((existingCommName) => command.names.includes(existingCommName));
+        const commandNamesLowerCased = command.names.map((name) => name.toLowerCase());
+        const existingCommandName = this.commands
+            .flatMap((existingCommand) => existingCommand.names)
+            .map((existingCommName) => existingCommName.toLowerCase())
+            .find((existingCommName) => commandNamesLowerCased.includes(existingCommName));
 
         if (existingCommandName) {
             throw new Error(`A command with the name '${existingCommandName}' already exists!`);

@@ -1,7 +1,6 @@
 import * as chai from "chai";
-const assert = chai.assert;
+import chaiAsPromised from "chai-as-promised";
 import "mocha";
-
 import * as moment from "moment-timezone";
 import TelegramBot from "node-telegram-bot-api";
 import { ChatRegistryMock } from "../chat-registry/chat-registry-mock";
@@ -13,7 +12,10 @@ import { TelegramClientMock } from "../telegram-client/telegram-client-mock";
 import { BotCommand } from "./bot-command";
 import { BotCommandRegistry } from "./bot-command-registry";
 
-describe("BotCommandRegistry #executeCommand", () => {
+chai.use(chaiAsPromised);
+const assert = chai.assert;
+
+describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
 
     const expectedCommandCalledText = "Called!";
 
@@ -83,7 +85,42 @@ describe("BotCommandRegistry #executeCommand", () => {
         botCommandRegistry = new BotCommandRegistry(telegramClientMock, chatRegistry);
     });
 
-    it("should execute a non-admin-only command as a non-admin", async () => {
+    it("#registerCommand should register a command", async () => {
+        // Act
+        await botCommandRegistry.registerCommand(nonAdminCommand);
+    });
+
+    it("#registerCommand should throw an error if a command already exists with the same name(s)", async () => {
+        // Arrange
+        const otherCommand = new BotCommand(["testcommand"], "description",
+            nonAdmincommandObject.commandFunction, true, false);
+
+        // Act & Assert
+        await botCommandRegistry.registerCommand(nonAdminCommand);
+        await chai.assert.isRejected(botCommandRegistry.registerCommand(otherCommand));
+    });
+
+    it("#registerCommand should throw an error if a command already exists with the same name(s) case-insensitively (1)", async () => {
+        // Arrange
+        const otherCommand = new BotCommand(["TestCommand"], "description",
+            nonAdmincommandObject.commandFunction, true, false);
+
+        // Act & Assert
+        await botCommandRegistry.registerCommand(nonAdminCommand);
+        await chai.assert.isRejected(botCommandRegistry.registerCommand(otherCommand));
+    });
+
+    it("#registerCommand should throw an error if a command already exists with the same name(s) case-insensitively (2)", async () => {
+        // Arrange
+        const otherCommand = new BotCommand(["TestCommand"], "description",
+            nonAdmincommandObject.commandFunction, true, false);
+
+        // Act & Assert
+        await botCommandRegistry.registerCommand(otherCommand);
+        await chai.assert.isRejected(botCommandRegistry.registerCommand(nonAdminCommand));
+    });
+
+    it("#executeCommand should execute a non-admin-only command as a non-admin", async () => {
         // Arrange
         (msg.from as TelegramBot.User).id = 1;
 
@@ -95,7 +132,7 @@ describe("BotCommandRegistry #executeCommand", () => {
         assert.isTrue(nonAdminCommandCalled);
     });
 
-    it("should execute a non-admin-only command as an admin", async () => {
+    it("#executeCommand should execute a non-admin-only command as an admin", async () => {
         // Arrange
         (msg.from as TelegramBot.User).id = 0;
 
@@ -107,7 +144,7 @@ describe("BotCommandRegistry #executeCommand", () => {
         assert.isTrue(nonAdminCommandCalled);
     });
 
-    it("should NOT execute an admin-only command as a non-admin", async () => {
+    it("#executeCommand should NOT execute an admin-only command as a non-admin", async () => {
         // Arrange
         (msg.from as TelegramBot.User).id = 1;
 
@@ -119,7 +156,7 @@ describe("BotCommandRegistry #executeCommand", () => {
         assert.isFalse(adminCommandCalled);
     });
 
-    it("should execute an admin-only command as an admin", async () => {
+    it("#executeCommand should execute an admin-only command as an admin", async () => {
         // Arrange
         (msg.from as TelegramBot.User).id = 0;
 
@@ -131,7 +168,7 @@ describe("BotCommandRegistry #executeCommand", () => {
         assert.isTrue(adminCommandCalled);
     });
 
-    it("should execute an admin-only command as a non-admin in a private chat", async () => {
+    it("#executeCommand should execute an admin-only command as a non-admin in a private chat", async () => {
         // Arrange
         (msg.from as TelegramBot.User).id = 1;
         msg.chat.type = "private";
@@ -144,7 +181,7 @@ describe("BotCommandRegistry #executeCommand", () => {
         assert.isTrue(adminCommandCalled);
     });
 
-    it("should execute an admin-only command as a non-admin that is the developer", async () => {
+    it("#executeCommand should execute an admin-only command as a non-admin that is the developer", async () => {
         // Arrange
         (msg.from as TelegramBot.User).id = 100805902;
 

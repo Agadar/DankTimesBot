@@ -9,6 +9,8 @@ describe("BotCommand.getRegex()", () => {
 
     const tests = [
         { arg: "/command", expected: true },
+        { arg: "/Command", expected: true },
+        { arg: "/COMMAND", expected: true },
 
         { arg: " /command", expected: false },
         { arg: "/command ", expected: true },

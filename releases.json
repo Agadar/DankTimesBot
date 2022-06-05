@@ -5,7 +5,8 @@
     "changes": [
       "Added support for leaderboard avatars via new /avatars, /setavatar, and /resetavatar commands",
       "Added support for @everyone tag (as well as opting in or out via /everyone command)",
-      "Added /points command"
+      "Added /points command",
+      "Made commands case-insensitive"
     ]
   },
   {
