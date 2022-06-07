@@ -153,7 +153,7 @@ export class Chat {
         }
         const user = this.users.get(userId) as User;
 
-        if (user.name !== userName) {
+        if (userName !== "anonymous" && user.name !== userName) {
             user.name = userName;
         }
         return user;
