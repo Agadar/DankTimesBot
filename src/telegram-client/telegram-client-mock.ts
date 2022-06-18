@@ -1,4 +1,4 @@
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot, { File } from "node-telegram-bot-api";
 import { ITelegramClient } from "./i-telegram-client";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
@@ -44,5 +44,13 @@ export class TelegramClientMock implements ITelegramClient {
                 is_bot: false,
             },
         }]);
+    }
+
+    public async retrieveFile(chatId: number, fileId: string): Promise<string | void> {
+        // Don't do anything, this is a mock.
+    }
+
+    public async sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<TelegramBot.Message | void> {
+        // Don't do anything, this is a mock
     }
 }

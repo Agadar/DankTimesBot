@@ -1,4 +1,4 @@
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot, { File, PhotoSize } from "node-telegram-bot-api";
 import { BotCommand } from "../../bot-commands/bot-command";
 import { Chat } from "../../chat/chat";
 import { ChatSettingTemplate } from "../../chat/settings/chat-setting-template";
@@ -174,12 +174,32 @@ export abstract class AbstractPlugin {
     }
 
     /**
+     * Sends a file to the Telegram Bot API.
+     * @param chatId The id of the chat to send a message to.
+     * @param filePath The path to the file we want to send.
+     * @param replyToMessageId The (optional) id of the message to reply to.
+     * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
+     */
+    protected sendFile(chatId: number, filePath: string, replyToMessageId = -1, forceReply = false): Promise<void | TelegramBot.Message> {
+        return this.listener.onPluginWantsToSendFile(chatId, filePath, replyToMessageId, forceReply);
+    }
+
+    /**
    * Deletes a message via the Telegram Bot API.
    * @param chatId The id of the chat to delete a message in.
    * @param messageId The id of the message to delete.
    */
     protected deleteMessage(chatId: number, messageId: number): Promise<boolean | void> {
         return this.listener.onPluginWantsToDeleteChatMessage(chatId, messageId);
+    }
+
+    /**
+     * Retrieves a file from the Telegram Bot API.
+     * @param chatId The id of the chat to retrieve a file from.
+     * @param fileId Id of the file to retrieve.
+     */
+    protected retrieveFile(chatId: number, fileId: string): Promise<string | void> {
+        return this.listener.onPluginWantsToRetrieveFile(chatId, fileId);
     }
 
     /**
@@ -200,7 +220,7 @@ export abstract class AbstractPlugin {
         return this.listener.onPluginWantsToGetChat(chatId);
     }
 
-   /**
+    /**
     * Parses the score input, returning a number if a number could be determined,
     * otherwise returns null.
     * @param input The string input to cleanse to a number.

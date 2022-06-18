@@ -1,4 +1,4 @@
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot, { File } from "node-telegram-bot-api";
 import { Chat } from "../chat/chat";
 import { CustomEventArguments } from "../plugin-host/plugin-events/event-arguments/custom-event-arguments";
 import { AbstractPlugin } from "../plugin-host/plugin/plugin";
@@ -64,5 +64,13 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
 
     public onPluginWantsToGetOtherPlugins(callingPlugin: AbstractPlugin): AbstractPlugin[] {
         return [];
+    }
+
+    onPluginWantsToRetrieveFile(chatId: number, fileId: string): Promise<string | void> {
+        return Promise.resolve();
+    }
+
+    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message> {
+        return Promise.resolve();
     }
 }
