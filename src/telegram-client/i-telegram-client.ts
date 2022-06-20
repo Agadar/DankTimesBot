@@ -1,4 +1,4 @@
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot, { File } from "node-telegram-bot-api";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
 /**
@@ -61,4 +61,20 @@ export interface ITelegramClient {
      * @return The administrators of the specified chat.
      */
     getChatAdministrators(chatId: number): Promise<TelegramBot.ChatMember[]>;
+
+    /**
+     * retrieves a file with given id from a chat.
+     * @param chatId Id of the chat to retrieve the file from.
+     * @param fileId Id of the file.
+     */
+    retrieveFile(chatId: number, fileId: string): Promise<string | void>;
+
+    /**
+     * Send a file or photo to a chat.
+     * @param chatId Id of the chat to send the file to.
+     * @param filePath Local path to the file on disk.
+     * @param replyToMessageId The (optional) id of the message to reply to.
+     * @param forceReply Whether to force the replied-to or tagged user to reply to this message. False by default.
+     */
+    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<TelegramBot.Message | void>;
 }

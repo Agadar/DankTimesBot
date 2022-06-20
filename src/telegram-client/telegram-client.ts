@@ -1,4 +1,5 @@
-import TelegramBot from "node-telegram-bot-api";
+import fs from "fs";
+import TelegramBot, { File, PhotoSize } from "node-telegram-bot-api";
 import { ITelegramClient } from "./i-telegram-client";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
@@ -50,6 +51,31 @@ export class TelegramClient implements ITelegramClient {
             .catch((reason: void | TelegramBot.Message) => {
                 this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
             });
+    }
+
+    public retrieveFile(chatId: number, fileId: string): Promise<string | void> {
+        if (!fs.existsSync("./tmp/dtb")) {
+            fs.mkdir("./tmp/dtb", {recursive: true}, err => {
+                this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, "Could not create file location"));
+            });
+        }
+        return this.bot.downloadFile(fileId, "./tmp/dtb")
+            .catch((reason: void | TelegramBot.Message) => {
+                this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
+            });
+    }
+
+    public sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<TelegramBot.Message | void> {
+        if (!fs.existsSync(filePath)) {
+            this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, "File does not exist!"));
+            return new Promise(() => {
+                return;
+            });
+        } else {
+            return this.bot.sendPhoto(chatId, filePath, {
+                reply_to_message_id: replyToMessageId,
+            }).catch((reason: void | TelegramBot.Message) => { this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason)); });
+        }
     }
 
     public subscribe(subscriber: ITelegramClientListener): void {

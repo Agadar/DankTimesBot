@@ -1,5 +1,5 @@
 import moment from "moment";
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot, { File } from "node-telegram-bot-api";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
@@ -115,8 +115,22 @@ export class DankTimesBotController implements IDankTimesBotController {
     /**
      * From IPluginListener.
      */
-     public onPluginWantsToParseScoreInput(input: string): number | null {
+    public onPluginWantsToParseScoreInput(input: string): number | null {
         return this.util.parseScoreInput(input);
+    }
+
+    /**
+     * From IPluginListener.
+     */
+    onPluginWantsToRetrieveFile(chatId: number, fileId: string): Promise<string | void> {
+        return this.telegramClient.retrieveFile(chatId, fileId);
+    }
+
+    /**
+     * From IPluginListener.
+     */
+    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message> {
+        return this.telegramClient.sendFile(chatId, filePath, replyToMessageId, forceReply);
     }
 
     /**
