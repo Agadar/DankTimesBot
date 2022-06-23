@@ -75,6 +75,7 @@ export interface ITelegramClient {
      * @param filePath Local path to the file on disk.
      * @param replyToMessageId The (optional) id of the message to reply to.
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message. False by default.
+     * @param caption Optional caption to add.
      */
-    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<TelegramBot.Message | void>;
+    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string): Promise<TelegramBot.Message | void>;
 }
