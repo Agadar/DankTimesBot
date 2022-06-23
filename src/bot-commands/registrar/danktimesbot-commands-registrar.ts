@@ -96,7 +96,7 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
                 return [`${removedUser.name} left! Their final score was ${removedUser.score}!`];
             }
 
-        } else if (msg.text) { // Let the appropriate chat process the message.
+        } else if (msg.text || msg.dice) { // Let the appropriate chat process the message.
             const chat = this.chatRegistry.getOrCreateChat(msg.chat.id);
             let output = chat.processMessage(msg);
             output = output.filter((filteredmsg) => filteredmsg.length > 0);
