@@ -6,5 +6,5 @@ RUN cd /src \
     && npm install -g typescript \
     && npm run prestart \
     && rm -rf ./data/* ./plugins/*
-RUN apt-get update && apt-get install nano -y
+RUN apt-get update && apt-get install nano webp -y
 ENTRYPOINT ["node", "/src/built/main.js"]
