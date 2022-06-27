@@ -25,8 +25,9 @@ export interface IPluginListener {
      * @param replyToMessageId Message to respond to
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message
      * @param caption Optional caption
+     * @param type Type of file to send
      */
-    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string):
+    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video"):
         Promise<void | TelegramBot.Message>;
 
     /**

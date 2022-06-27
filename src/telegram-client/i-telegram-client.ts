@@ -76,6 +76,7 @@ export interface ITelegramClient {
      * @param replyToMessageId The (optional) id of the message to reply to.
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message. False by default.
      * @param caption Optional caption to add.
+     * @param type Type of file to send
      */
-    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string): Promise<TelegramBot.Message | void>;
+    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video"): Promise<TelegramBot.Message | void>;
 }

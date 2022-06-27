@@ -77,17 +77,25 @@ export class TelegramClient implements ITelegramClient {
             });
     }
 
-    public sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption = ""): Promise<TelegramBot.Message | void> {
+    public sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption = "", type: "photo" | "video" = "photo"): Promise<TelegramBot.Message | void> {
         if (!fs.existsSync(filePath)) {
             this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, "File does not exist!"));
             return new Promise(() => {
                 return;
             });
         } else {
-            return this.bot.sendPhoto(chatId, filePath, {
-                reply_to_message_id: replyToMessageId,
-                caption: caption
-            }).catch((reason: void | TelegramBot.Message) => { this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason)); });
+            switch(type) {
+                case "photo": 
+                    return this.bot.sendPhoto(chatId, filePath, {
+                        reply_to_message_id: replyToMessageId,
+                        caption: caption
+                    }).catch((reason: void | TelegramBot.Message) => { this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason)); });
+                case "video":
+                    return this.bot.sendAnimation(chatId, filePath, {
+                        reply_to_message_id: replyToMessageId,
+                        caption: caption
+                    }).catch((reason: void | TelegramBot.Message) => { this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason)); });
+            }
         }
     }
 
