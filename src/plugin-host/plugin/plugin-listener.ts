@@ -16,7 +16,7 @@ export interface IPluginListener {
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
      */
     onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-                                   replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message>;
+                                   replyToMessageId: number, forceReply: boolean, disableWebPagePreview: boolean): Promise<void | TelegramBot.Message>;
 
     /**
      * Fired when a plugin wants to send a file / photo to a chat.
