@@ -32,7 +32,7 @@ export interface ITelegramClient {
      * @param replyToMessageId The (optional) id of the message to reply to.
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message. False by default.
      */
-    sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply?: boolean): Promise<void | TelegramBot.Message>;
+    sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply?: boolean, disableWebPagePreview?: boolean): Promise<void | TelegramBot.Message>;
 
     /**
      * Deletes a message via the Telegram Bot API.

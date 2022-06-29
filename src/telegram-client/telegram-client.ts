@@ -33,8 +33,8 @@ export class TelegramClient implements ITelegramClient {
         return this.bot.getChatAdministrators(chatId);
     }
 
-    public sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply = false): Promise<void | TelegramBot.Message> {
-        const parameters = this.getSendMessageParameters(replyToMessageId, forceReply);
+    public sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply = false, disableWebPagePreview = false): Promise<void | TelegramBot.Message> {
+        const parameters = this.getSendMessageParameters(replyToMessageId, forceReply, disableWebPagePreview);
         return this.bot.sendMessage(chatId, htmlMessage, parameters)
             .catch((reason: any) => {
                 this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
@@ -120,9 +120,10 @@ export class TelegramClient implements ITelegramClient {
             });
     }
 
-    private getSendMessageParameters(replyToUserId?: number, forceReply = false): TelegramBot.SendMessageOptions {
+    private getSendMessageParameters(replyToUserId?: number, forceReply = false, disableWebPagePreview = false): TelegramBot.SendMessageOptions {
         const options: TelegramBot.SendMessageOptions = {
             parse_mode: TelegramClient.PARSE_MODE,
+            disable_web_page_preview: disableWebPagePreview
         };
 
         if (replyToUserId) {

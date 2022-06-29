@@ -169,8 +169,8 @@ export abstract class AbstractPlugin {
    * @param replyToMessageId The (optional) id of the message to reply to.
    * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
    */
-    protected sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false): Promise<void | TelegramBot.Message> {
-        return this.listener.onPluginWantsToSendChatMessage(chatId, htmlMessage, replyToMessageId, forceReply);
+    protected sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false, disableWebPagePreview = false): Promise<void | TelegramBot.Message> {
+        return this.listener.onPluginWantsToSendChatMessage(chatId, htmlMessage, replyToMessageId, forceReply, disableWebPagePreview);
     }
 
     /**

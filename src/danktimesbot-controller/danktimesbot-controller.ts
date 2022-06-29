@@ -59,8 +59,8 @@ export class DankTimesBotController implements IDankTimesBotController {
      * From IPluginListener.
      */
     public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-        replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message> {
-        return this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply);
+        replyToMessageId: number, forceReply: boolean, disableWebPagePreview: boolean): Promise<void | TelegramBot.Message> {
+        return this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply, disableWebPagePreview);
     }
 
     /**
