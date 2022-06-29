@@ -70,7 +70,7 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
         return Promise.resolve();
     }
 
-    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message> {
+    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, type: "photo" | "video"): Promise<void | TelegramBot.Message> {
         return Promise.resolve();
     }
 }

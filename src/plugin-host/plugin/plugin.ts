@@ -179,9 +179,11 @@ export abstract class AbstractPlugin {
      * @param filePath The path to the file we want to send.
      * @param replyToMessageId The (optional) id of the message to reply to.
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
+     * @param caption Optional caption
+     * @param type Type of file to send
      */
-    protected sendFile(chatId: number, filePath: string, replyToMessageId = -1, forceReply = false): Promise<void | TelegramBot.Message> {
-        return this.listener.onPluginWantsToSendFile(chatId, filePath, replyToMessageId, forceReply);
+    protected sendFile(chatId: number, filePath: string, replyToMessageId = -1, forceReply = false, caption = "", type: "photo" | "video" = "photo"): Promise<void | TelegramBot.Message> {
+        return this.listener.onPluginWantsToSendFile(chatId, filePath, replyToMessageId, forceReply, caption, type);
     }
 
     /**
