@@ -16,7 +16,7 @@ export interface IPluginListener {
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message.
      */
     onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-                                   replyToMessageId: number, forceReply: boolean, disableWebPagePreview: boolean): Promise<void | TelegramBot.Message>;
+        replyToMessageId: number, forceReply: boolean, disableWebPagePreview: boolean): Promise<void | TelegramBot.Message>;
 
     /**
      * Fired when a plugin wants to send a file / photo to a chat.
@@ -24,8 +24,11 @@ export interface IPluginListener {
      * @param filePath Path to the file on disk to send
      * @param replyToMessageId Message to respond to
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message
+     * @param caption Optional caption
+     * @param type Type of file to send
      */
-    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<void | TelegramBot.Message>;
+    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video"):
+        Promise<void | TelegramBot.Message>;
 
     /**
      * Fired when a plugin wants to delete a chat message.
