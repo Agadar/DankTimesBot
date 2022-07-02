@@ -187,6 +187,17 @@ export abstract class AbstractPlugin {
     }
 
     /**
+     * Send a dice type animated emoji to a chat.
+     * @param chatId Id of the chat to send the file to.
+     * @param emoji Emoji to send.
+     * @param replyToMessageId The (optional) id of the message to reply to.
+     * @param forceReply Whether to force the replied-to or tagged user to reply to this message. False by default.
+     */
+     protected sendDice(chatId: number, emoji: string, replyToMessageId?: number, forceReply = false): Promise<TelegramBot.Message | void> {
+        return this.listener.onPluginWantsToSendDice(chatId, emoji, replyToMessageId, forceReply);
+     }
+
+    /**
    * Deletes a message via the Telegram Bot API.
    * @param chatId The id of the chat to delete a message in.
    * @param messageId The id of the message to delete.

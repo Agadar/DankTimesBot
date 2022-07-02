@@ -79,4 +79,13 @@ export interface ITelegramClient {
      * @param type Type of file to send
      */
     sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video"): Promise<TelegramBot.Message | void>;
+
+    /**
+     * Send a dice type animated emoji to a chat.
+     * @param chatId Id of the chat to send the file to.
+     * @param emoji Emoji to send.
+     * @param replyToMessageId The (optional) id of the message to reply to.
+     * @param forceReply Whether to force the replied-to or tagged user to reply to this message. False by default.
+     */
+    sendDice(chatId: number, emoji: string, replyToMessageId?: number, forceReply?: boolean): Promise<TelegramBot.Message | void>;
 }

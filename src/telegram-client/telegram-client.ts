@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import fs from "fs";
-import TelegramBot, { File, PhotoSize } from "node-telegram-bot-api";
+import TelegramBot from "node-telegram-bot-api";
 import { ITelegramClient } from "./i-telegram-client";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
@@ -99,6 +99,23 @@ export class TelegramClient implements ITelegramClient {
         }
     }
 
+    public sendDice(chatId: number, emoji: string, replyToMessageId?: number, forceReply = false): Promise<TelegramBot.Message | void> {
+        const options: TelegramBot.SendDiceOptions = { emoji: emoji };
+        if (replyToMessageId) {
+            options.reply_to_message_id = replyToMessageId;
+        }
+        if (forceReply) {
+            options.reply_markup = {
+                force_reply: true,
+                selective: true,
+            };
+        }
+        return this.bot.sendDice(chatId, options)
+            .catch((reason: any) => {
+                this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
+            });
+    }
+
     public subscribe(subscriber: ITelegramClientListener): void {
         if (this.listeners.indexOf(subscriber) === -1) {
             this.listeners.push(subscriber);
@@ -120,14 +137,14 @@ export class TelegramClient implements ITelegramClient {
             });
     }
 
-    private getSendMessageParameters(replyToUserId?: number, forceReply = false, disableWebPagePreview = false): TelegramBot.SendMessageOptions {
+    private getSendMessageParameters(replyToMessageId?: number, forceReply = false, disableWebPagePreview = false): TelegramBot.SendMessageOptions {
         const options: TelegramBot.SendMessageOptions = {
             parse_mode: TelegramClient.PARSE_MODE,
             disable_web_page_preview: disableWebPagePreview
         };
 
-        if (replyToUserId) {
-            options.reply_to_message_id = replyToUserId;
+        if (replyToMessageId) {
+            options.reply_to_message_id = replyToMessageId;
         }
 
         if (forceReply) {

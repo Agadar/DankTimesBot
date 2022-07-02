@@ -73,4 +73,8 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
     onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, type: "photo" | "video"): Promise<void | TelegramBot.Message> {
         return Promise.resolve();
     }
+
+    onPluginWantsToSendDice(chatId: number, emoji: string, replyToMessageId?: number | undefined, forceReply?: boolean | undefined): Promise<void | TelegramBot.Message> {
+        return Promise.resolve();
+    }
 }

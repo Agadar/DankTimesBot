@@ -53,4 +53,8 @@ export class TelegramClientMock implements ITelegramClient {
     public async sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean): Promise<TelegramBot.Message | void> {
         // Don't do anything, this is a mock
     }
+
+    public async sendDice(chatId: number, emoji: string, replyToMessageId?: number | undefined, forceReply?: boolean | undefined): Promise<void | TelegramBot.Message> {
+        // Don't do anything, this is a mock
+    }
 }
