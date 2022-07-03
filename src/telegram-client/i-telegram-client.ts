@@ -1,4 +1,4 @@
-import TelegramBot, { File } from "node-telegram-bot-api";
+import TelegramBot from "node-telegram-bot-api";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
 /**
@@ -32,7 +32,8 @@ export interface ITelegramClient {
      * @param replyToMessageId The (optional) id of the message to reply to.
      * @param forceReply Whether to force the replied-to or tagged user to reply to this message. False by default.
      */
-    sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply?: boolean, disableWebPagePreview?: boolean): Promise<void | TelegramBot.Message>;
+    sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply?: boolean, disableWebPagePreview?: boolean)
+        : Promise<void | TelegramBot.Message>;
 
     /**
      * Deletes a message via the Telegram Bot API.
@@ -40,14 +41,6 @@ export interface ITelegramClient {
      * @param messageId The id of the message to delete.
      */
     deleteMessage(chatId: number, messageId: number): Promise<boolean | void>;
-
-    /**
-     * Edits a message via the Telegram Bot API.
-     * @param chatId The id of the chat to edit a message in.
-     * @param messageId The id of the message to edit.
-     * @param newMessageText New message
-     */
-    editMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message>;
 
     /**
      * Subsribes the supplied listener to events fired by this client.
@@ -78,5 +71,6 @@ export interface ITelegramClient {
      * @param caption Optional caption to add.
      * @param type Type of file to send
      */
-    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video"): Promise<TelegramBot.Message | void>;
+    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video")
+        : Promise<TelegramBot.Message | void>;
 }

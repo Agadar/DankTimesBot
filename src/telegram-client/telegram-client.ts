@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import fs from "fs";
-import TelegramBot, { File, PhotoSize } from "node-telegram-bot-api";
+import TelegramBot from "node-telegram-bot-api";
 import { ITelegramClient } from "./i-telegram-client";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
@@ -33,7 +33,8 @@ export class TelegramClient implements ITelegramClient {
         return this.bot.getChatAdministrators(chatId);
     }
 
-    public sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply = false, disableWebPagePreview = false): Promise<void | TelegramBot.Message> {
+    public sendMessage(chatId: number, htmlMessage: string, replyToMessageId?: number, forceReply = false, disableWebPagePreview = false)
+        : Promise<void | TelegramBot.Message> {
         const parameters = this.getSendMessageParameters(replyToMessageId, forceReply, disableWebPagePreview);
         return this.bot.sendMessage(chatId, htmlMessage, parameters)
             .catch((reason: any) => {
@@ -43,13 +44,6 @@ export class TelegramClient implements ITelegramClient {
 
     public deleteMessage(chatId: number, messageId: number): Promise<boolean | void> {
         return this.bot.deleteMessage(chatId, messageId.toString())
-            .catch((reason: void | TelegramBot.Message) => {
-                this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
-            });
-    }
-
-    public editMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message> {
-        return this.bot.editMessageText(newMessageText, {message_id: messageId, chat_id: chatId, parse_mode: TelegramClient.PARSE_MODE})
             .catch((reason: void | TelegramBot.Message) => {
                 this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
             });
@@ -77,7 +71,8 @@ export class TelegramClient implements ITelegramClient {
             });
     }
 
-    public sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption = "", type: "photo" | "video" = "photo"): Promise<TelegramBot.Message | void> {
+    public sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption = "", type: "photo" | "video" = "photo")
+        : Promise<TelegramBot.Message | void> {
         if (!fs.existsSync(filePath)) {
             this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, "File does not exist!"));
             return new Promise(() => {
@@ -85,16 +80,16 @@ export class TelegramClient implements ITelegramClient {
             });
         } else {
             switch(type) {
-                case "photo": 
-                    return this.bot.sendPhoto(chatId, filePath, {
-                        reply_to_message_id: replyToMessageId,
-                        caption: caption
-                    }).catch((reason: void | TelegramBot.Message) => { this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason)); });
-                case "video":
-                    return this.bot.sendAnimation(chatId, filePath, {
-                        reply_to_message_id: replyToMessageId,
-                        caption: caption
-                    }).catch((reason: void | TelegramBot.Message) => { this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason)); });
+            case "photo": 
+                return this.bot.sendPhoto(chatId, filePath, {
+                    reply_to_message_id: replyToMessageId,
+                    caption: caption
+                }).catch((reason: void | TelegramBot.Message) => { this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason)); });
+            case "video":
+                return this.bot.sendAnimation(chatId, filePath, {
+                    reply_to_message_id: replyToMessageId,
+                    caption: caption
+                }).catch((reason: void | TelegramBot.Message) => { this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason)); });
             }
         }
     }

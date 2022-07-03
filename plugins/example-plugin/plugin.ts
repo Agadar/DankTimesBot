@@ -53,12 +53,12 @@ export class Plugin extends AbstractPlugin {
         this.subscribeToPluginEvent(PluginEvent.PreUserScoreChange, (data: PreUserScoreChangedEventArguments) => {
             const oldChange = data.changeInScore;
             data.changeInScore += 5;
-            this.sendMessage(data.chat.id, `Example of a pre user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
+            this.telegramBotClient.sendMessage(data.chat.id, `Example of a pre user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
                 `, Reason: ${data.reason}, Player: ${data.user.name}, old score change: ${oldChange}, new score change: ${data.changeInScore}`);
         }, this.name, Plugin.PRINT_MONEY_REASON);
 
         this.subscribeToPluginEvent(PluginEvent.PostUserScoreChange, (data: PostUserScoreChangedEventArguments) => {
-            this.sendMessage(data.chat.id, `Example of a post user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
+            this.telegramBotClient.sendMessage(data.chat.id, `Example of a post user score change event. Origin plugin: ${data.nameOfOriginPlugin}` +
                 `, Reason: ${data.reason}, Player: ${data.user.name}, score change: ${data.changeInScore}`);
         }, this.name, Plugin.PRINT_MONEY_REASON);
 
@@ -109,7 +109,8 @@ export class Plugin extends AbstractPlugin {
 
     private echo(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
         setTimeout(() => {
-            this.sendMessage(chat.id, "Example of sendMessage. This message will be edited in <b>3</b> seconds, and deleted after <b>6</b>", msg?.message_id, false)
+            this.sendMessage(chat.id, "Example of sendMessage. This message will be edited in <b>3</b> seconds, and deleted after <b>6</b>",
+                msg?.message_id, false)
                 .then((res) => {
                     if (res) {
                         // Note: Do not use editMessage with forceReply = true. It will not work.

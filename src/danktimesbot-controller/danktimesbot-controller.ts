@@ -1,5 +1,5 @@
 import moment from "moment";
-import TelegramBot, { File } from "node-telegram-bot-api";
+import TelegramBot from "node-telegram-bot-api";
 import { IChatRegistry } from "../chat-registry/i-chat-registry";
 import { Chat } from "../chat/chat";
 import { IDankTimeScheduler } from "../dank-time-scheduler/i-dank-time-scheduler";
@@ -58,28 +58,6 @@ export class DankTimesBotController implements IDankTimesBotController {
     /**
      * From IPluginListener.
      */
-    public onPluginWantsToSendChatMessage(chatId: number, htmlMessage: string,
-        replyToMessageId: number, forceReply: boolean, disableWebPagePreview: boolean): Promise<void | TelegramBot.Message> {
-        return this.telegramClient.sendMessage(chatId, htmlMessage, replyToMessageId, forceReply, disableWebPagePreview);
-    }
-
-    /**
-     * From IPluginListener.
-     */
-    public onPluginWantsToDeleteChatMessage(chatId: number, messageId: number): Promise<void | boolean> {
-        return this.telegramClient.deleteMessage(chatId, messageId);
-    }
-
-    /**
-     * From IPluginListener
-     */
-    onPluginWantsToEditChatMessage(chatId: number, messageId: number, newMessageText: string): Promise<void | boolean | TelegramBot.Message> {
-        return this.telegramClient.editMessage(chatId, messageId, newMessageText);
-    }
-
-    /**
-     * From IPluginListener.
-     */
     public onPluginWantsToGetChat(chatId: number): Chat | null {
         return this.chatRegistry.chats.get(chatId) ?? null;
     }
@@ -122,15 +100,15 @@ export class DankTimesBotController implements IDankTimesBotController {
     /**
      * From IPluginListener.
      */
-    onPluginWantsToRetrieveFile(chatId: number, fileId: string): Promise<string | void> {
+    public onPluginWantsToRetrieveFile(chatId: number, fileId: string): Promise<string | void> {
         return this.telegramClient.retrieveFile(chatId, fileId);
     }
 
     /**
      * From IPluginListener.
      */
-    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption = "", type: "photo" | "video" = "photo"):
-        Promise<void | TelegramBot.Message> {
+    public onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number,
+        forceReply: boolean, caption = "", type: "photo" | "video" = "photo"): Promise<void | TelegramBot.Message> {
         return this.telegramClient.sendFile(chatId, filePath, replyToMessageId, forceReply, caption, type);
     }
 

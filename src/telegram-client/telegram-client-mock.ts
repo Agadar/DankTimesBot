@@ -1,4 +1,4 @@
-import TelegramBot, { File } from "node-telegram-bot-api";
+import TelegramBot from "node-telegram-bot-api";
 import { ITelegramClient } from "./i-telegram-client";
 import { ITelegramClientListener } from "./i-telegram-client-listener";
 
@@ -19,10 +19,6 @@ export class TelegramClientMock implements ITelegramClient {
     }
 
     public async deleteMessage(chatId: number, messageId: number): Promise<boolean | void> {
-        // Don't do anything, this is a mock.
-    }
-
-    public async editMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message> {
         // Don't do anything, this is a mock.
     }
 

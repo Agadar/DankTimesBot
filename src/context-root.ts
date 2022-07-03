@@ -1,5 +1,5 @@
 import nodeCleanupImport from "node-cleanup";
-import TelegramBot = require("node-telegram-bot-api");
+import TelegramBot from "node-telegram-bot-api";
 
 import { BotCommandRegistry } from "./bot-commands/bot-command-registry";
 import { DankTimesBotCommands } from "./bot-commands/commands/danktimesbot-commands";
@@ -48,10 +48,15 @@ export class ContextRoot {
         this.fileIO = new FileIO();
         this.config = this.fileIO.loadConfigFromFile();
 
+        // Initialise Telegram Bot API client
+        const telegramBot = new TelegramBot(this.config.apiKey, { polling: true });
+        this.telegramClient = new TelegramClient(telegramBot);
+
         // Load and initialize plugins.
         const availablePlugins = this.fileIO.GetAvailablePlugins(this.config.plugins);
-        this.chatSettingsRegistry = new ChatSettingsRegistry();
+        availablePlugins.forEach((plugin) => plugin.setTelegramBotClient(telegramBot));
         this.pluginHost = new PluginHost(availablePlugins);
+        this.chatSettingsRegistry = new ChatSettingsRegistry();
         this.pluginHost.registerPluginSettings(this.chatSettingsRegistry);
 
         // Load and initialize chats.
@@ -60,9 +65,7 @@ export class ContextRoot {
         const initialChats = this.fileIO.loadDataFromFile<BasicChat[]>(this.backupFile) ?? [];
         this.chatRegistry.loadFromJSON(initialChats);
 
-        // Prepare Telegram client and scheduler for sending messages.
-        const telegramBot = new TelegramBot(this.config.apiKey, { polling: true });
-        this.telegramClient = new TelegramClient(telegramBot);
+        // Prepare scheduler for sending messages.
         this.dankTimeScheduler = new DankTimeScheduler(this.telegramClient, this.pluginHost);
 
         // Load and initialize commands.

@@ -23,9 +23,9 @@ export class FileIO {
     }
 
     /**
-   * Parses the JSON data in the file to a Config object. If the file does not exist,
-   * then a new one with default values is created.
-   */
+     * Parses the JSON data in the file to a Config object. If the file does not exist,
+     * then a new one with default values is created.
+     */
     public loadConfigFromFile(): Config {
 
         // Create the data folder if it doesn't exist yet.
@@ -82,11 +82,11 @@ export class FileIO {
     }
 
     /**
-   * Loads data from a file in the data folder. Data is expected
-   * to be a simple struct or array/map thereof, as a simple JSON parse is used.
-   * @param fileName Name of the file in the data folder.
-   * @returns The loaded data, or null if no data found.
-   */
+     * Loads data from a file in the data folder. Data is expected
+     * to be a simple struct or array/map thereof, as a simple JSON parse is used.
+     * @param fileName Name of the file in the data folder.
+     * @returns The loaded data, or null if no data found.
+     */
     public loadDataFromFile<T>(fileName: string): T | null {
         if (!fs.existsSync(this.dataFolder)) {
             fs.mkdirSync(this.dataFolder);
@@ -99,13 +99,13 @@ export class FileIO {
     }
 
     /**
-   * Loads data from a file in the data folder. Same functionality as
-   * loadDataFromFile but allows supplying a converter to convert the
-   * parsed data to a more complex type.
-   * @param fileName Name of the file in the data folder.
-   * @param converter Converter for raw structs to complex types.
-   * @returns The loaded data, or null if no data found.
-   */
+     * Loads data from a file in the data folder. Same functionality as
+     * loadDataFromFile but allows supplying a converter to convert the
+     * parsed data to a more complex type.
+     * @param fileName Name of the file in the data folder.
+     * @param converter Converter for raw structs to complex types.
+     * @returns The loaded data, or null if no data found.
+     */
     public loadDataFromFileWithConverter<O, T>(fileName: string, converter: (parsed: O) => T): T | null {
         const dataFromFile = this.loadDataFromFile<O>(fileName);
         if (dataFromFile) {
@@ -115,11 +115,11 @@ export class FileIO {
     }
 
     /**
-   * Saves data to a file in the data folder. Data is expected to be a simple
-   * struct (or array/map thereof) or have a public toJSON() function which will be used for stringifying.
-   * @param fileName Name of the file in the data folder.
-   * @param data The data to save to file.
-   */
+     * Saves data to a file in the data folder. Data is expected to be a simple
+     * struct (or array/map thereof) or have a public toJSON() function which will be used for stringifying.
+     * @param fileName Name of the file in the data folder.
+     * @param data The data to save to file.
+     */
     public saveDataToFile<T>(fileName: string, data: T): void {
         if (!fs.existsSync(this.dataFolder)) {
             fs.mkdirSync(this.dataFolder);
@@ -129,9 +129,9 @@ export class FileIO {
     }
 
     /**
-   * Loads the releases from the Release.json file. If at all possible.
-   * @returns {Release[]}
-   */
+     * Loads the releases from the Release.json file. If at all possible.
+     * @returns {Release[]}
+     */
     public loadReleaseLogFromFile(): Release[] {
         const releasePath = path.resolve(`./${this.releasesFile}`);
         console.log(`Attempting to load release log file from ${releasePath} ...`);
@@ -150,13 +150,13 @@ export class FileIO {
     }
 
     /**
-   * Discover, Compile and load external plugins
-   * from the plugins/ directory.
-   *
-   * Returns 0..n plugins.
-   */
+     * Discover, Compile and load external plugins
+     * from the plugins/ directory.
+     *
+     * Returns 0..n plugins.
+     */
     public GetAvailablePlugins(pluginsToActivate: string[]): AbstractPlugin[] {
-    // Directory in which to find plugins.
+        // Directory in which to find plugins.
         const DIRECTORY: string = path.resolve("./plugins/");
         console.log(`Attempting to load plugins from ${DIRECTORY} ...`);
 
@@ -189,10 +189,7 @@ export class FileIO {
                 }
             }))()]))
             .filter((unfiltered) => unfiltered[1])
-            .map((pluginMap) => {
-                pluginMap[1].pID = () => pluginMap[0];
-                return pluginMap[1];
-            }); /* So Sorry */
+            .map((pluginMap) => pluginMap[1] as AbstractPlugin);
 
         // Print plugins to console
         if (plugins.length === 0) {
@@ -205,9 +202,9 @@ export class FileIO {
     }
 
     /**
-   * Used by JSON.stringify(...) for parsing maps to arrays, because
-   * it can't handle maps.
-   */
+     * Used by JSON.stringify(...) for parsing maps to arrays, because
+     * it can't handle maps.
+     */
     private mapReplacer(key: any, value: any): any[] {
         if (value instanceof Map) {
             const array = [];

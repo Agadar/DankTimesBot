@@ -43,6 +43,6 @@ export class BotCommand {
             regex += `|${this.names[i]}`;
         }
         regex += `)(?:@${botname})?(?: )?(?:(?<= )(.*))?$`;
-        return RegExp(regex, 'i');
+        return RegExp(regex, "i");
     }
 }
