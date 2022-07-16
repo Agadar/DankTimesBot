@@ -42,7 +42,7 @@ export class BotCommand {
         for (let i = 1; i < this.names.length; i++) {
             regex += `|${this.names[i]}`;
         }
-        regex += `)(?:@${botname})?(?: )?(?:(?<= )(.*))?$`;
+        regex += `)(?:@${botname})?(?: )?(?:(?<= )([\\s\\S]*))?$`;
         return RegExp(regex, "i");
     }
 }
