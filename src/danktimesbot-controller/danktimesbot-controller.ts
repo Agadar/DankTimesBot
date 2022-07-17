@@ -93,8 +93,8 @@ export class DankTimesBotController implements IDankTimesBotController {
     /**
      * From IPluginListener.
      */
-    public onPluginWantsToParseScoreInput(input: string): number | null {
-        return this.util.parseScoreInput(input);
+    public onPluginWantsToParseScoreInput(input: string, userScore: number | undefined = undefined): number | null {
+        return this.util.parseScoreInput(input, userScore);
     }
 
     /**

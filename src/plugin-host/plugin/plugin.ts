@@ -246,9 +246,10 @@ export abstract class AbstractPlugin {
      * Parses the score input, returning a number if a number could be determined,
      * otherwise returns null.
      * @param input The string input to cleanse to a number.
+     * @param userScore Optional user score. When supplied, this function can return values for texts such as 'all-in'.
      */
-    protected parseScoreInput(input: string): number | null {
-        return this.listener.onPluginWantsToParseScoreInput(input);
+    protected parseScoreInput(input: string, userScore: number | undefined = undefined): number | null {
+        return this.listener.onPluginWantsToParseScoreInput(input, userScore);
     }
 
     /**

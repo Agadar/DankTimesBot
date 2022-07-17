@@ -105,6 +105,16 @@ describe("util.parseScoreInput", () => {
         assert.equal(result, 5000000);
     });
 
+    it("Parses 'all' text", () => {
+        const result = util.parseScoreInput("all", 100);
+        assert.equal(result, 100);
+    });
+
+    it("Parses 'half' text", () => {
+        const result = util.parseScoreInput("half", 100);
+        assert.equal(result, 50);
+    });
+
     it("Gives 'null' for numerical input appended with an invalid letter", () => {
         const result = util.parseScoreInput("5a");
         assert.isNull(result);

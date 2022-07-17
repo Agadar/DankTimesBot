@@ -57,7 +57,7 @@ export interface IPluginListener {
     /**
      * See Util.parseScoreInput
      */
-    onPluginWantsToParseScoreInput(input: string): number | null;
+    onPluginWantsToParseScoreInput(input: string, userScore: number | undefined): number | null;
 
     /**
      * Gets all plugins that are active and running except for the supplied one.

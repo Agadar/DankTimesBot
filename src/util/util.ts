@@ -3,7 +3,9 @@ import { IUtil } from "./i-util";
 
 export class Util implements IUtil {
 
-    private readonly numberRegex = new RegExp("^(-?[0-9.]+)(k|m)?$", "i");
+    private static readonly numberRegex = new RegExp("^(-?[0-9.]+)(k|m)?$", "i");
+    private static readonly ALL_IN_TEXTS = ["all", "allin", "all-in", "all in"];
+    private static readonly HALF_TEXT = "half";
 
     /**
      * Removes from the text the characters with unicodes 65039 and 8419.
@@ -51,10 +53,16 @@ export class Util implements IUtil {
         return "⚠️ Release notes are unavailable!";
     }
 
-    public parseScoreInput(input: string): number | null {
-        const match = this.numberRegex.exec(input);
+    public parseScoreInput(input: string, userScore: number | undefined = undefined): number | null {
+        const match = Util.numberRegex.exec(input);
 
         if (!match) {
+            if (userScore !== undefined && Util.ALL_IN_TEXTS.includes(input)) {
+                return Math.round(userScore);
+            }
+            if (userScore !== undefined && Util.HALF_TEXT === input) {
+                return Math.round(userScore / 2);
+            }
             return null;
         }
         const score = Number(match[1]);
@@ -63,14 +71,14 @@ export class Util implements IUtil {
             return null;
         }
         if (match.length < 3) {
-            return score;
+            return Math.round(score);
         }
         if (match[2]?.toLowerCase() === "k") {
-            return score * 1000;
+            return Math.round(score * 1000);
         }
         if (match[2]?.toLowerCase() === "m") {
-            return score * 1000 * 1000;
+            return Math.round(score * 1000 * 1000);
         }
-        return score;
+        return Math.round(score);
     }
 }
