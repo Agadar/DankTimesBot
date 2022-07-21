@@ -135,13 +135,6 @@ export class DankTimesBotController implements IDankTimesBotController {
     }
 
     /**
-     * From IPluginListener
-     */
-    onPluginWantsToSendDice(chatId: number, emoji: string, replyToMessageId?: number, forceReply = false): Promise<TelegramBot.Message | void> {
-        return this.telegramClient.sendDice(chatId, emoji, replyToMessageId, forceReply);
-    }
-
-    /**
      * From IPluginListener.
      */
     public onPluginWantsToGetOtherPlugins(callingPlugin: AbstractPlugin): AbstractPlugin[] {
