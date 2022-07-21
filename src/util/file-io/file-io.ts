@@ -124,6 +124,16 @@ export class FileIO {
         if (!fs.existsSync(this.dataFolder)) {
             fs.mkdirSync(this.dataFolder);
         }
+        const dirs = fileName.split("/");
+        if (dirs.length > 1) {
+            let path = this.dataFolder;
+            for (const dir of dirs.slice(0, dirs.length - 1)) {
+                path += `/${dir}`;
+                if (!fs.existsSync(path)) {
+                    fs.mkdirSync(path);
+                }
+            }
+        }
         const filePath = `${this.dataFolder}/${fileName}`;
         fs.writeFileSync(filePath, JSON.stringify(data, this.mapReplacer, this.jsonIndentation));
     }

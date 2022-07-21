@@ -4,7 +4,7 @@ plugins/
 !plugins/example-plugin
 
 # Files that are specific per installation, and thus need to be ignored.
-data/*.json
+data/**/*
 
 # Logs
 logs
