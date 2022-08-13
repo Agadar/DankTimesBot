@@ -254,7 +254,7 @@ export class Chat {
         if (/@everyone/i.test(msg.text)) {
             let allUserPrefix = "";
             this.users.forEach((usr) => {
-                if (usr.broadcastOptin) {
+                if (usr.broadcastOptin && usr.id !== user.id) {
                     allUserPrefix += `@${usr.name} `;
                 }
             });
