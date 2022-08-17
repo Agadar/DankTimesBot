@@ -255,7 +255,7 @@ export class Chat {
             let allUserPrefix = "";
             this.users.forEach((usr) => {
                 if (usr.broadcastOptin && usr.id !== user.id && usr.name !== "anonymous") {
-                    allUserPrefix += `@${usr.name} `;
+                    allUserPrefix += `@${usr.name}\n`;
                 }
             });
 
