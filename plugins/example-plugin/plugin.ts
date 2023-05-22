@@ -15,6 +15,7 @@ import { PreDankTimeEventArguments } from "../../src/plugin-host/plugin-events/e
 import { PreUserScoreChangedEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/pre-user-score-changed-event-arguments";
 import { PluginEvent } from "../../src/plugin-host/plugin-events/plugin-event-types";
 import { AbstractPlugin } from "../../src/plugin-host/plugin/plugin";
+import { ChatResetEventArguments } from "../../src/plugin-host/plugin-events/event-arguments/chat-reset-event-arguments";
 
 /**
  * Example of the simplest DankTimesBot
@@ -68,6 +69,10 @@ export class Plugin extends AbstractPlugin {
 
         this.subscribeToPluginEvent(PluginEvent.LeaderboardPost, (data: LeaderboardPostEventArguments) => {
             data.leaderboardText = data.leaderboardText + "\n\n Example of a leaderboard post event.";
+        });
+
+        this.subscribeToPluginEvent(PluginEvent.ChatReset, (data: ChatResetEventArguments) => {
+            console.log("Example of chat reset event.");
         });
 
         this.subscribeToPluginEvent(PluginEvent.BotShutdown, (data: EmptyEventArguments) => {

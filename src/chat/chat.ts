@@ -15,6 +15,7 @@ import { Leaderboard } from "./leaderboard/leaderboard";
 import { ChatSetting } from "./settings/chat-setting";
 import { CoreSettingsNames } from "./settings/core-settings-names";
 import { User } from "./user/user";
+import { ChatResetEventArguments } from "../plugin-host/plugin-events/event-arguments/chat-reset-event-arguments";
 
 export class Chat {
 
@@ -269,6 +270,7 @@ export class Chat {
      */
     public resetScores(): void {
         this.users.forEach((user) => user.resetScore());
+        this.pluginHost.triggerEvent(PluginEvent.ChatReset, new ChatResetEventArguments(this));
     }
 
     /**

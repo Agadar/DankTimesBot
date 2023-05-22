@@ -7,6 +7,7 @@ export enum PluginEvent {
   PreUserScoreChange,
   PostUserScoreChange,
   LeaderboardPost,
+  ChatReset,
   HourlyTick,
   NightlyUpdate,
   BotShutdown,

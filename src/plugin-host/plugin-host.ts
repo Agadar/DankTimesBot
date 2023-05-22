@@ -4,6 +4,7 @@ import { ChatInitialisationEventArguments } from "./plugin-events/event-argument
 import {
     ChatMessageEventArguments,
 } from "./plugin-events/event-arguments/chat-message-event-arguments";
+import { ChatResetEventArguments } from "./plugin-events/event-arguments/chat-reset-event-arguments";
 import { CustomEventArguments } from "./plugin-events/event-arguments/custom-event-arguments";
 import { EmptyEventArguments } from "./plugin-events/event-arguments/empty-event-arguments";
 import {
@@ -41,6 +42,7 @@ export class PluginHost {
     public triggerEvent(event: PluginEvent.PreUserScoreChange, input: PreUserScoreChangedEventArguments): void;
     public triggerEvent(event: PluginEvent.PostUserScoreChange, input: PostUserScoreChangedEventArguments): void;
     public triggerEvent(event: PluginEvent.LeaderboardPost, input: LeaderboardPostEventArguments): void;
+    public triggerEvent(event: PluginEvent.ChatReset, input: ChatResetEventArguments) : void;
     public triggerEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate | PluginEvent.HourlyTick,
                       input: EmptyEventArguments): void;
     public triggerEvent(event: PluginEvent.Custom, input: CustomEventArguments): void;

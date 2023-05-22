@@ -15,6 +15,7 @@ import { PluginEventArguments } from "../plugin-events/plugin-event-arguments";
 import { PluginEventSubscription } from "../plugin-events/plugin-event-subscription";
 import { PluginEvent } from "../plugin-events/plugin-event-types";
 import { IPluginListener } from "./plugin-listener";
+import { ChatResetEventArguments } from "../plugin-events/event-arguments/chat-reset-event-arguments";
 
 /**
  * Class defining the interface every plugin should adhere to.
@@ -157,6 +158,8 @@ export abstract class AbstractPlugin {
         eventFn: (eventArgs: PostUserScoreChangedEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
     protected subscribeToPluginEvent(event: PluginEvent.LeaderboardPost,
         eventFn: (eventArgs: LeaderboardPostEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
+    protected subscribeToPluginEvent(event: PluginEvent.ChatReset,
+        eventFn: (eventArgs: ChatResetEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
     protected subscribeToPluginEvent(event: PluginEvent.BotStartup | PluginEvent.BotShutdown | PluginEvent.NightlyUpdate
         | PluginEvent.HourlyTick, eventFn: (eventArgs: EmptyEventArguments) => void, nameOfOriginPlugin?: string, reason?: string): void;
     protected subscribeToPluginEvent(event: PluginEvent.Custom,
