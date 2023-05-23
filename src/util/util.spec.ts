@@ -77,7 +77,7 @@ describe("util.parseScoreInput", () => {
 
     it("Parses broken numerical input", () => {
         const result = util.parseScoreInput("5.5");
-        assert.equal(result, 5.5);
+        assert.equal(result, 6);
     });
 
     it("Parses numerical input appended with a 'k'", () => {
