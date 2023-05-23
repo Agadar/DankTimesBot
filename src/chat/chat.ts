@@ -269,7 +269,11 @@ export class Chat {
      * Resets the scores of all the users.
      */
     public resetScores(): void {
-        this.users.forEach((user) => user.resetScore());
+        this.users.forEach((user) => {
+            user.resetScore();
+            user.currentAvatar = "";
+            user.availableAvatars = [];
+        });
         this.pluginHost.triggerEvent(PluginEvent.ChatReset, new ChatResetEventArguments(this));
     }
 
