@@ -71,6 +71,6 @@ export interface ITelegramClient {
      * @param caption Optional caption to add.
      * @param type Type of file to send
      */
-    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video")
+    sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video" | "audio" | "voice")
         : Promise<TelegramBot.Message | void>;
 }

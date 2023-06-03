@@ -108,7 +108,7 @@ export class DankTimesBotController implements IDankTimesBotController {
      * From IPluginListener.
      */
     public onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number,
-        forceReply: boolean, caption = "", type: "photo" | "video" = "photo"): Promise<void | TelegramBot.Message> {
+        forceReply: boolean, caption = "", type: "photo" | "video" | "audio" | "voice" = "photo"): Promise<void | TelegramBot.Message> {
         return this.telegramClient.sendFile(chatId, filePath, replyToMessageId, forceReply, caption, type);
     }
 
