@@ -169,11 +169,11 @@ export class Chat {
     /**
      * Gets an array of the users, sorted by scores.
      */
-    public sortedUsers(): User[] {
+    public sortedUsers(includeUsersWithZeroScore = true): User[] {
         const usersArr = new Array<User>();
         this.users.forEach((user) => usersArr.push(user));
         usersArr.sort(User.compare);
-        return usersArr;
+        return usersArr.filter((user) => user.score > 0 || includeUsersWithZeroScore);
     }
 
     /**
@@ -461,17 +461,15 @@ export class Chat {
         if (!this.handicapsEnabled || this.users.size < 2) {
             return false;
         }
-        const sortedUsers = this.sortedUsers();
+        const sortedUsers = this.sortedUsers(false);
+
+        if (!sortedUsers.some((user) => user.id === userId)) {
+            return true;
+        }
         let noOfHandicapped = sortedUsers.length * this.handicapsBottomFraction;
         noOfHandicapped = Math.round(noOfHandicapped);
         const handicapped = sortedUsers.slice(-noOfHandicapped);
-
-        for (const entry of handicapped) {
-            if (entry.id === userId) {
-                return true;
-            }
-        }
-        return false;
+        return handicapped.some((user) => user.id === userId);
     }
 
     private handleDankTimeInputMessage(user: User, msgText: string, now: Moment): string[] {
