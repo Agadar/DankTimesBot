@@ -17,7 +17,7 @@ export interface IPluginListener {
      * @param caption Optional caption
      * @param type Type of file to send
      */
-    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video"):
+    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video" | "audio" | "voice"):
         Promise<void | TelegramBot.Message>;
 
     /**
