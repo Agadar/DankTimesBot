@@ -17,8 +17,8 @@ export interface IPluginListener {
      * @param caption Optional caption
      * @param type Type of file to send
      */
-    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string, type: "photo" | "video" | "audio" | "voice"):
-        Promise<void | TelegramBot.Message>;
+    onPluginWantsToSendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption: string,
+        type: "photo" | "video" | "audio" | "voice"): Promise<void | TelegramBot.Message>;
 
     /**
      * Fired when a plugin wants to delete a file. This is likely to be a photo.

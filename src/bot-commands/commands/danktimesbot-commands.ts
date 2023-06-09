@@ -17,10 +17,10 @@ import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
 export class DankTimesBotCommands implements IDankTimesBotCommands {
 
     constructor(
-    private readonly commandsRegistry: BotCommandRegistry,
-    private readonly scheduler: IDankTimeScheduler,
-    private readonly util: IUtil,
-    private readonly releaseLog: Release[],
+        private readonly commandsRegistry: BotCommandRegistry,
+        private readonly scheduler: IDankTimeScheduler,
+        private readonly util: IUtil,
+        private readonly releaseLog: Release[],
     ) { }
 
     public startChat(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
@@ -93,8 +93,8 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         let dankTimes = "<b>⏰ DANK TIMES</b>\n";
         for (const time of chat.dankTimes) {
             dankTimes +=
-        `\ntime: ${this.util.padNumber(time.hour)}:`
-        + `${this.util.padNumber(time.minute)}:00    points: ${time.getPoints()}    texts: `;
+                `\ntime: ${this.util.padNumber(time.hour)}:`
+                + `${this.util.padNumber(time.minute)}:00    points: ${time.getPoints()}    texts: `;
             for (const text of time.texts) {
                 dankTimes += `${text}, `;
             }
@@ -165,12 +165,41 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         }
     }
 
-    public plugins(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
-        let out = "<b>🔌 PLUGINS</b>\n";
-        chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
-            out += `\n- ${plugin.name} ${plugin.version}`;
-        });
-        return out;
+    public editTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+
+        // Split string and ensure it contains at least 3 items.
+        const split = match.split(" ");
+        if (split.length < 3) {
+            return "⚠️ Not enough arguments! Format: /edittime [hour] [minute] [points]";
+        }
+
+        // Identify and verify arguments.
+        const hour = Number(split[0]);
+        const minute = Number(split[1]);
+        const points = this.util.parseScoreInput(split[2], undefined);
+
+        if (isNaN(hour)) {
+            return "⚠️ The hour must be a number!";
+        }
+        if (isNaN(minute)) {
+            return "⚠️ The minute must be a number!";
+        }
+        if (points === null) {
+            return "⚠️ The points must be a number!";
+        }
+
+        // Update dank time if it exists, otherwise just send an info message.
+        const dankTime = chat.getDankTime(hour, minute);
+
+        if (dankTime === null) {
+            return "⚠️ No dank time known with that hour and minute!";
+        }
+        try {
+            dankTime.setPoints(() => points);
+            return "💾 Updated the time!";
+        } catch (err) {
+            return "⚠️ " + err.message;
+        }
     }
 
     public removeTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
@@ -200,6 +229,14 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         } else {
             return "⚠️ No dank time known with that hour and minute!";
         }
+    }
+
+    public plugins(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+        let out = "<b>🔌 PLUGINS</b>\n";
+        chat.pluginhost.plugins.forEach((plugin: AbstractPlugin) => {
+            out += `\n- ${plugin.name} ${plugin.version}`;
+        });
+        return out;
     }
 
     public whatsNewMessage(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {

@@ -108,14 +108,9 @@ export interface IDankTimesBotCommands {
   addTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
-   * Interacts with the plugin subsystem.
-   * @param chat The chat from which the command was called.
-   * @param user The user that called the command.
-   * @param msg The message object from the Telegram api.
-   * @param match The regex matched object from the Telegram api.
-   * @returns The response.
+   * Edits a dank time.
    */
-  plugins(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
+  editTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Removes a dank time from the chat.
@@ -126,6 +121,16 @@ export interface IDankTimesBotCommands {
    * @returns The response.
    */
   removeTime(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
+
+  /**
+   * Interacts with the plugin subsystem.
+   * @param chat The chat from which the command was called.
+   * @param user The user that called the command.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  plugins(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 
   /**
    * Gets the release notes of the current version.

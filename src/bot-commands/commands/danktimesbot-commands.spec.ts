@@ -12,7 +12,7 @@ import { Util } from "../../util/util";
 import { BotCommandRegistry } from "../bot-command-registry";
 import { DankTimesBotCommands } from "./danktimesbot-commands";
 
-describe("DankTimesBotCommands.addTime", () => {
+describe("DankTimesBotCommands.addTime and editTime", () => {
 
     let dankTimesBotCommands: DankTimesBotCommands;
     const scheduler = new DankTimeSchedulerMock();
@@ -36,21 +36,33 @@ describe("DankTimesBotCommands.addTime", () => {
         chat.dankTimes.splice(0);
     });
 
-    it("Should create a dank time with as text a single word", () => {
+    it("Should create a dank time with as text a single word and then update it", () => {
 
         // Arrange
         match += " one";
 
         // Act
-        const res = dankTimesBotCommands.addTime(chat, {} as User, msg, match);
+        let res = dankTimesBotCommands.addTime(chat, {} as User, msg, match);
 
         // Assert
         assert.equal(res, "⏰ Added the new time!");
         assert.equal(chat.dankTimes.length, 1);
-        const dankTime = chat.dankTimes[0];
+        let dankTime = chat.dankTimes[0];
         assert.equal(dankTime.hour, 22);
         assert.equal(dankTime.minute, 33);
         assert.deepEqual(dankTime.texts, ["one"]);
+
+        // Act
+        res = dankTimesBotCommands.editTime(chat, {} as User, msg, "22 33 10");
+
+        // Assert
+        assert.equal(res, "💾 Updated the time!");
+        assert.equal(chat.dankTimes.length, 1);
+        dankTime = chat.dankTimes[0];
+        assert.equal(dankTime.hour, 22);
+        assert.equal(dankTime.minute, 33);
+        assert.deepEqual(dankTime.texts, ["one"]);
+        assert.equal(dankTime.getPoints(), 10);
     });
 
     it("Should create a dank time with as text a single sentence", () => {

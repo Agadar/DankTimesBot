@@ -31,6 +31,13 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
             this.botCommandRegistry.registerCommand(new BotCommand(["donate"], "donates points to another user",
                 this.dankTimesBotCommands.donate.bind(this.dankTimesBotCommands))),
 
+            this.botCommandRegistry.registerCommand(new BotCommand(["edittime", "updatetime", "settime"],
+                "edits a dank time. format: [hour] [minute] [points]",
+                this.dankTimesBotCommands.editTime.bind(this.dankTimesBotCommands), true, true)),
+
+            this.botCommandRegistry.registerCommand(new BotCommand(["everyone"], "sets your @Everyone tag settings.",
+                this.dankTimesBotCommands.changeBroadcastSettings.bind(this.dankTimesBotCommands))),
+
             this.botCommandRegistry.registerCommand(new BotCommand(["help"], "shows the available commands",
                 this.dankTimesBotCommands.help.bind(this.dankTimesBotCommands))),
 
@@ -39,6 +46,9 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
 
             this.botCommandRegistry.registerCommand(new BotCommand(["plugins"], "shows the currently active plugins",
                 this.dankTimesBotCommands.plugins.bind(this.dankTimesBotCommands))),
+
+            this.botCommandRegistry.registerCommand(new BotCommand(["points"], "check your current dank time points.",
+                this.dankTimesBotCommands.checkPointsForUser.bind(this.dankTimesBotCommands))),
 
             this.botCommandRegistry.registerCommand(new BotCommand(["removetime"],
                 "removes a dank time. format: [hour] [minute]",
@@ -73,12 +83,6 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
             this.botCommandRegistry.registerCommand(new BotCommand(["whatsnew"],
                 "shows the release notes of the current version",
                 this.dankTimesBotCommands.whatsNewMessage.bind(this.dankTimesBotCommands))),
-
-            this.botCommandRegistry.registerCommand(new BotCommand(["everyone"], "sets your @Everyone tag settings.",
-                this.dankTimesBotCommands.changeBroadcastSettings.bind(this.dankTimesBotCommands))),
-
-            this.botCommandRegistry.registerCommand(new BotCommand(["points"], "check your current dank time points.",
-                this.dankTimesBotCommands.checkPointsForUser.bind(this.dankTimesBotCommands))),
         ]);
 
         this.telegramClient.setOnAnyText((msg) => this.onAnyText(msg));
