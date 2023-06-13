@@ -25,13 +25,15 @@ export class BotCommand {
    * @param action The function which this command calls.
    * @param showInHelp Whether to list this command in the help output.
    * @param adminOnly Whether only admins can execute this command.
+   * @param developerOnly Whether only developers can execute this command. Overrides adminOnly.
    */
     constructor(
     public readonly names: string[],
     public readonly description: string,
     public readonly action: ((chat: Chat, user: User, msg: TelegramBot.Message, params: string) => string | BotCommandConfirmationQuestion),
     public readonly showInHelp = true,
-    public readonly adminOnly = false) { }
+    public readonly adminOnly = false,
+    public readonly developerOnly = false) { }
 
     /**
    * Gets this command's regex, which is based on its names and the supplied bot name.
