@@ -92,7 +92,7 @@ export class BotCommandRegistry {
         }
 
         if (!userIsAllowedToExecuteCommand) {
-            return "🚫 This option is unavailable to you!";
+            return "🚫 This option is only available to admins!";
         }
         if (!msg.from) {
             return "⚠️ Couldn't identify sender!";
@@ -126,18 +126,16 @@ export class BotCommandRegistry {
     }
 
     private async userIsAllowedToExecuteCommand(msg: TelegramBot.Message, botCommand: BotCommand): Promise<boolean> {
-        if (botCommand.developerOnly) {
-            return msg.from !== undefined && this.developerUserIds.includes(msg.from.id);
-        }
-        if (msg.chat.type === "private") {
+        if (!botCommand.adminOnly || msg.chat.type === "private" || (msg.from && this.developerUserIds.includes(msg.from.id))) {
             return true;
         }
-        if (msg.from?.id === undefined) {
-            return false;
-        }
-        if (botCommand.adminOnly) {
-            const admins = await this.telegramClient.getChatAdministrators(msg.chat.id);
-            return admins.some((admin) => admin.user.id === msg.from?.id);
+
+        const admins = await this.telegramClient.getChatAdministrators(msg.chat.id);
+
+        for (const admin of admins) {
+            if (admin.user.id === msg.from?.id) {
+                return true;
+            }
         }
         return false;
     }

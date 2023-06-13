@@ -83,10 +83,6 @@ export class DankTimesBotCommandsRegistrar implements IDankTimesBotCommandsRegis
             this.botCommandRegistry.registerCommand(new BotCommand(["whatsnew"],
                 "shows the release notes of the current version",
                 this.dankTimesBotCommands.whatsNewMessage.bind(this.dankTimesBotCommands))),
-
-            this.botCommandRegistry.registerCommand(new BotCommand(["shutdown"],
-                "shuts down the bot with the expectation its container restarts the bot",
-                this.dankTimesBotCommands.shutdown.bind(this.dankTimesBotCommands), false, true, true)),
         ]);
 
         this.telegramClient.setOnAnyText((msg) => this.onAnyText(msg));
