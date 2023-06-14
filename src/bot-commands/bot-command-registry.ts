@@ -136,7 +136,7 @@ export class BotCommandRegistry {
             return false;
         }
         if (botCommand.adminOnly) {
-            if (this.developerUserIds.includes(msg.from.id)) {
+            if (this.developerUserIds.includes(msg.from?.id)) {
                 return true;
             }
             const admins = await this.telegramClient.getChatAdministrators(msg.chat.id);
