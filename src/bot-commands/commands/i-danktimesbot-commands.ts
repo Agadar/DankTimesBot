@@ -210,5 +210,15 @@ export interface IDankTimesBotCommands {
    * @param match The regex matched object from the Telegram api.
    * @returns The response.
    */
-    shutdown(chat: Chat, user: User, msg: TelegramBot.Message, match: string): BotCommandConfirmationQuestion;
+  shutdown(chat: Chat, user: User, msg: TelegramBot.Message, match: string): BotCommandConfirmationQuestion;
+
+  /**
+   * Updates a user's points by a specified amount.
+   * @param chat The chat from which the command was called.
+   * @param user The user that called the command.
+   * @param msg The message object from the Telegram api.
+   * @param match The regex matched object from the Telegram api.
+   * @returns The response.
+   */
+  updateUserPoints(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string;
 }

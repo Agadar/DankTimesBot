@@ -334,6 +334,33 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         return confirmationQuestion;
     }
 
+    public updateUserPoints(chat: Chat, user: User, msg: TelegramBot.Message, match: string): string {
+        if (!msg.reply_to_message) {
+            return "✋  I only work when you reply to a message by the user you are trying to update the points of";
+        }
+        if (msg.reply_to_message?.from?.is_bot) {
+            return "✋  Bots have no use for points, silly";
+        }
+        const recipientId = msg.reply_to_message?.from?.id;
+
+        if (!recipientId) {
+            return "⚠️  Failed to identify whomst's points you're updating";
+        }
+        if (!match) {
+            return "✋  Not enough arguments! Format: /updateuserpoints [amount]";
+        }
+        let amount = this.util.parseScoreInput(match, undefined);
+
+        if (amount === null || (amount % 1 !== 0)) {
+            return "✋  The amount has to be a whole numeric value";
+        }
+        const recipient: User = chat.getOrCreateUser(recipientId, msg.reply_to_message?.from?.username);
+        amount = chat.alterUserScore(new AlterUserScoreArgs(recipient, amount,
+            AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME, AlterUserScoreArgs.UPDATE_USER_POINTS_GIVEN_REASON));
+
+        return `🎉 ${user.name} updated @${recipient.name}'s points by ${amount} 🎉`;
+    }
+
     private doTimezoneSettingSideEffects(chat: Chat): void {
         this.scheduler.unscheduleAllOfChat(chat);
         this.scheduler.scheduleAllOfChat(chat);

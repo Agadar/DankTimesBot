@@ -11,6 +11,7 @@ export class AlterUserScoreArgs {
     public static readonly HARDCOREMODE_PUNISHMENT_REASON: string = "hardcoremode.punishment";
     public static readonly DONATION_GIVEN_REASON: string = "donation.given";
     public static readonly DONATION_RECEIVED_REASON: string = "donation.received";
+    public static readonly UPDATE_USER_POINTS_GIVEN_REASON: string = "update.user.points.given";
 
     public static readonly DANKTIMESBOT_ORIGIN_NAME: string = "";
 
