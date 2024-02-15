@@ -26,7 +26,7 @@ export class PreUserScoreChangedEventArguments extends PluginEventArguments {
     public set changeInScore(newChangeInScore: number) {
         if (isNaN(newChangeInScore)) {
             console.error(`Failed to set new score change for source '${this.nameOfOriginPlugin}' for reason '${this.reason}': not a number`);
-        } else {
+        } else if (!this.immutable) {
             this.myChangeInScore = newChangeInScore;
         }
     }
@@ -41,8 +41,9 @@ export class PreUserScoreChangedEventArguments extends PluginEventArguments {
    * @param reason The reason for the score change, e.g. 'random.danktime' or 'hardcoremode.punishment'.
    * @param nameOfOriginPlugin The name of the plugin that is causing the score change, or empty if it is
    * not being caused by a plugin.
+   * @param immutable Disallows the score delta to be changed.
    */
-    constructor(chat: Chat, user: User, changeInScore: number, reason: string, nameOfOriginPlugin: string) {
+    constructor(chat: Chat, user: User, changeInScore: number, reason: string, nameOfOriginPlugin: string, private immutable: boolean) {
         super(nameOfOriginPlugin, reason);
         this.chat = chat;
         this.user = user;

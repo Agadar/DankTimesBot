@@ -358,7 +358,7 @@ export class Chat {
             return 0;
         }
         const preEvent = new PreUserScoreChangedEventArguments(this, alterUserScoreArgs.user, alterUserScoreArgs.amount,
-            alterUserScoreArgs.reason, alterUserScoreArgs.nameOfOriginPlugin);
+            alterUserScoreArgs.reason, alterUserScoreArgs.nameOfOriginPlugin, alterUserScoreArgs.immutable);
         this.pluginHost.triggerEvent(PluginEvent.PreUserScoreChange, preEvent);
 
         const correctedAmount = alterUserScoreArgs.user.alterScore(preEvent.changeInScore, alterUserScoreArgs.timestamp);

@@ -24,6 +24,7 @@ export class AlterUserScoreArgs {
      * not being caused by a plugin.
      * @param reason The reason for the score change, e.g. 'random.danktime' or 'hardcoremode.punishment'.
      * @param timestamp Optional timestamp of the score change. Used for hardmode punishment.
+     * @param immutable Disallows the score to be changed by a plugin. Default is false.
      */
     constructor(
         public readonly user: User,
@@ -31,5 +32,6 @@ export class AlterUserScoreArgs {
         public readonly nameOfOriginPlugin: string,
         public readonly reason: string,
         public readonly timestamp?: number,
+        public readonly immutable = false,
     ) {}
 }
