@@ -57,7 +57,7 @@ export class PreUserScoreChangedEventArguments extends PluginEventArguments {
         super(nameOfOriginPlugin, reason);
         this.chat = chat;
         this.user = user;
-        this.myChangeInScore = changeInScore;
+        this.changeInScore = changeInScore;
         this.isImmutable = immutable;
     }
 }
