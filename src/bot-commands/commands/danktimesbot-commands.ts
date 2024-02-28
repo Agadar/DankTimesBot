@@ -272,9 +272,9 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
 
         const recipient: User = chat.getOrCreateUser(recipientId, msg.reply_to_message?.from?.username);
         chat.alterUserScore(new AlterUserScoreArgs(user, -amount, AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
-            AlterUserScoreArgs.DONATION_GIVEN_REASON));
+            AlterUserScoreArgs.DONATION_GIVEN_REASON, undefined, true));
         amount = chat.alterUserScore(new AlterUserScoreArgs(recipient, amount,
-            AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME, AlterUserScoreArgs.DONATION_RECEIVED_REASON));
+            AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME, AlterUserScoreArgs.DONATION_RECEIVED_REASON, undefined, true));
 
         return `🎉 ${user.name} donated ${amount} internet points to ${recipient.name} 🎉`;
     }
