@@ -252,7 +252,7 @@ export class Chat {
         this.pluginHost.triggerEvent(PluginEvent.ChatMessage, eventArgs);
 
         // Check if this is an @Everyone message to be broadcasted to all members of the chat
-        if (/@everyone/i.test(msg.text)) {
+        if (/@everyone(\s|$)/i.test(msg.text)) {
             let allUserPrefix = "";
             this.users.forEach((usr) => {
                 if (usr.broadcastOptin && usr.id !== user.id && usr.name !== "anonymous") {
