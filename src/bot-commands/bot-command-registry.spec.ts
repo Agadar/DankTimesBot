@@ -36,7 +36,7 @@ describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
         nonAdmincommandObject.commandFunction, true, false);
     const adminCommand = new BotCommand(["testcommand"], "description",
         admincommandObject.commandFunction, true, true);
-    const expectedAdminOnlyWarning = "🚫 This option is only available to admins!";
+    const expectedAdminOnlyWarning = "🚫 This option is unavailable to you!";
 
     const chatMock = {
         getOrCreateUser: (userId: number, userName = "anonymous"): User => {
