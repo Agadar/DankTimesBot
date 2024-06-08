@@ -189,7 +189,7 @@ export abstract class AbstractPlugin {
      * @param type Type of file to send
      */
     protected sendFile(chatId: number, filePath: string, replyToMessageId = -1, forceReply = false, caption = "",
-        type: "photo" | "video" | "audio" | "voice" = "photo") : Promise<void | TelegramBot.Message> {
+        type: "photo" | "video" | "audio" | "voice" = "photo"): Promise<void | TelegramBot.Message> {
         return this.listener.onPluginWantsToSendFile(chatId, filePath, replyToMessageId, forceReply, caption, type);
     }
 
@@ -250,9 +250,11 @@ export abstract class AbstractPlugin {
      * otherwise returns null.
      * @param input The string input to cleanse to a number.
      * @param userScore Optional user score. When supplied, this function can return values for texts such as 'all-in'.
+     * @param previousInput Optional previous score input. When supplied, this function can return values for texts such as 'previous'.
      */
-    protected parseScoreInput(input: string, userScore: number | undefined = undefined): number | null {
-        return this.listener.onPluginWantsToParseScoreInput(input, userScore);
+    protected parseScoreInput(input: string, userScore: number | undefined = undefined,
+        previousInput: number | undefined = undefined): number | null {
+        return this.listener.onPluginWantsToParseScoreInput(input, userScore, previousInput);
     }
 
     /**

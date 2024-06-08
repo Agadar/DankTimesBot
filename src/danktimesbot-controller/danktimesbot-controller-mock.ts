@@ -45,7 +45,8 @@ export class DankTimesBotControllerMock implements IDankTimesBotController {
         // Do nothing.
     }
 
-    public onPluginWantsToParseScoreInput(input: string, userScore: number | undefined = undefined): number | null {
+    public onPluginWantsToParseScoreInput(input: string, userScore: number | undefined = undefined,
+        previousInput: number | undefined = undefined): number | null {
         return null;
     }
 

@@ -129,4 +129,14 @@ describe("util.parseScoreInput", () => {
         const result = util.parseScoreInput("a1b2c");
         assert.isNull(result);
     });
+
+    it("Parses 'previous' text", () => {
+        const result = util.parseScoreInput("previous", undefined, 50);
+        assert.equal(result, 50);
+    });
+
+    it("Parses 'double' text", () => {
+        const result = util.parseScoreInput("double", undefined, 50);
+        assert.equal(result, 100);
+    });
 });

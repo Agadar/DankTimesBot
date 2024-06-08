@@ -6,6 +6,8 @@ export class Util implements IUtil {
     private static readonly numberRegex = new RegExp("^(-?[0-9.]+)(k|m)?$", "i");
     private static readonly ALL_IN_TEXTS = ["all", "allin", "all-in", "all in"];
     private static readonly HALF_TEXT = "half";
+    private static readonly PREVIOUS_TEXTS = ["previous", "prev", "last"];
+    private static readonly DOUBLE_PREVIOUS_TEXTS = ["double"];
 
     /**
      * Removes from the text the characters with unicodes 65039 and 8419.
@@ -53,7 +55,9 @@ export class Util implements IUtil {
         return "⚠️ Release notes are unavailable!";
     }
 
-    public parseScoreInput(input: string, userScore: number | undefined = undefined): number | null {
+    public parseScoreInput(input: string, userScore: number | undefined = undefined,
+        previousInput: number | undefined = undefined): number | null {
+
         const match = Util.numberRegex.exec(input);
 
         if (!match) {
@@ -62,6 +66,12 @@ export class Util implements IUtil {
             }
             if (userScore !== undefined && Util.HALF_TEXT === input) {
                 return Math.round(userScore / 2);
+            }
+            if (previousInput !== undefined && Util.PREVIOUS_TEXTS.includes(input)) {
+                return Math.round(previousInput);
+            }
+            if (previousInput !== undefined && Util.DOUBLE_PREVIOUS_TEXTS.includes(input)) {
+                return Math.round(previousInput * 2);
             }
             return null;
         }
