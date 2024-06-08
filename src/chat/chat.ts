@@ -163,7 +163,7 @@ export class Chat {
     public removeUser(userId: number): User | null {
         const userToRemove = this.users.get(userId);
         this.users.delete(userId);
-        return userToRemove ? userToRemove:null;
+        return userToRemove ? userToRemove : null;
     }
 
     /**
@@ -252,7 +252,7 @@ export class Chat {
         this.pluginHost.triggerEvent(PluginEvent.ChatMessage, eventArgs);
 
         // Check if this is an @Everyone message to be broadcasted to all members of the chat
-        if (/@everyone(\s|$)/i.test(msg.text)) {
+        if (/@everyone/i.test(msg.text)) {
             let allUserPrefix = "";
             this.users.forEach((usr) => {
                 if (usr.broadcastOptin && usr.id !== user.id && usr.name !== "anonymous") {
@@ -299,7 +299,7 @@ export class Chat {
         // Construct string to return.
         const oldLeaderboard = this.myLastLeaderboard;
         this.myLastLeaderboard = new Leaderboard(Array.from(this.users.values()));
-        let leaderboard = "<b>🏆 " + (final ? "FINAL ":"") + "LEADERBOARD</b>\n";
+        let leaderboard = "<b>🏆 " + (final ? "FINAL " : "") + "LEADERBOARD</b>\n";
         leaderboard += this.myLastLeaderboard.toString(oldLeaderboard);
 
         // Reset last score change values of all users.
@@ -497,7 +497,7 @@ export class Chat {
                     if (this.userDeservesHandicapBonus(user.id)) {
                         score *= this.handicapsMultiplier;
                     }
-                    const alterUserScoreReason = dankTime.isRandom ? AlterUserScoreArgs.RANDOM_DANKTIME_REASON:AlterUserScoreArgs.NORMAL_DANKTIME_REASON;
+                    const alterUserScoreReason = dankTime.isRandom ? AlterUserScoreArgs.RANDOM_DANKTIME_REASON : AlterUserScoreArgs.NORMAL_DANKTIME_REASON;
                     const alterUserScoreArgs = new AlterUserScoreArgs(user, Math.round(score), AlterUserScoreArgs.DANKTIMESBOT_ORIGIN_NAME,
                         alterUserScoreReason, now.unix());
                     this.alterUserScore(alterUserScoreArgs);
