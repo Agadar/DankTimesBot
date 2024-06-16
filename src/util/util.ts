@@ -6,7 +6,7 @@ export class Util implements IUtil {
     private static readonly numberRegex = new RegExp("^(-?[0-9.]+)(k|m)?$", "i");
     private static readonly ALL_IN_TEXTS = ["all", "allin", "all-in", "all in"];
     private static readonly HALF_TEXT = "half";
-    private static readonly PREVIOUS_TEXTS = ["previous", "prev", "last"];
+    private static readonly PREVIOUS_TEXTS = ["previous", "prev", "last", "same", "again"];
     private static readonly DOUBLE_PREVIOUS_TEXTS = ["double"];
 
     /**
