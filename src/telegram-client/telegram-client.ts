@@ -43,7 +43,7 @@ export class TelegramClient implements ITelegramClient {
     }
 
     public deleteMessage(chatId: number, messageId: number): Promise<boolean | void> {
-        return this.bot.deleteMessage(chatId, messageId.toString())
+        return this.bot.deleteMessage(chatId, messageId)
             .catch((reason: void | TelegramBot.Message) => {
                 this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
             });

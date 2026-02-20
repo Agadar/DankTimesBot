@@ -18,30 +18,27 @@
     "url": "git://github.com/Agadar/DankTimesBot.git"
   },
   "dependencies": {
-    "cron": "^1.8.2",
-    "moment-timezone": "^0.5.48",
+    "cron": "^4.4.0",
+    "moment-timezone": "^0.6.0",
     "node-cleanup": "^2.1.2",
-    "node-emoji": "^1.11.0",
-    "node-telegram-bot-api": "0.56.0"
+    "node-emoji": "^2.2.0",
+    "node-telegram-bot-api": "0.67.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.20",
-    "@types/chai-as-promised": "^7.1.8",
-    "@types/cron": "^1.7.3",
-    "@types/mocha": "^9.1.1",
-    "@types/moment-timezone": "^0.5.13",
+    "@types/chai": "^5.2.3",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^14.18.63",
     "@types/node-cleanup": "^2.1.5",
-    "@types/node-emoji": "^1.8.2",
-    "@types/node-telegram-bot-api": "0.56.0",
+    "@types/node-telegram-bot-api": "0.64.13",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "chai": "^4.5.0",
-    "chai-as-promised": "^7.1.2",
+    "chai": "^5.2.3",
+    "chai-as-promised": "^8.0.2",
     "eslint": "8.10.0",
-    "mocha": "^9.2.2",
-    "rimraf": "^3.0.2",
+    "mocha": "^10.0.10",
+    "rimraf": "^6.1.3",
     "ts-mockito": "^2.6.1",
-    "typescript": "^4.9.5"
+    "typescript": "^5.9.3"
   }
 }

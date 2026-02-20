@@ -234,7 +234,7 @@ export abstract class AbstractPlugin {
      * @deprecated Use this.telegramBotClient.deleteMessage instead.
      */
     protected deleteMessage(chatId: number, messageId: number): Promise<boolean | void> {
-        return this.telegramBotClient.deleteMessage(chatId, messageId.toString());
+        return this.telegramBotClient.deleteMessage(chatId, messageId);
     }
 
     /**
