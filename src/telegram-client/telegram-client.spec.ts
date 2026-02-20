@@ -1,5 +1,4 @@
 import * as chai from "chai";
-const assert = chai.assert;
 import "mocha";
 import moment from "moment";
 import TelegramBot from "node-telegram-bot-api";
@@ -7,6 +6,8 @@ import { anyNumber, anyString, anything, instance, mock, when } from "ts-mockito
 
 import { DankTimesBotControllerMock } from "../danktimesbot-controller/danktimesbot-controller-mock";
 import { TelegramClient } from "./telegram-client";
+
+const expect = chai.expect;
 
 describe("TelegramClient #sendMessage", () => {
 
@@ -51,15 +52,15 @@ describe("TelegramClient #sendMessage", () => {
         when(telegramBotMock.sendMessage).thenReturn(() => Promise.resolve(message));
 
         await telegramClient.sendMessage(1, "some html");
-        assert.isNull(dankController.onErrorFromApiCalledWith);
+        expect(dankController.onErrorFromApiCalledWith).is.null;
     });
 
     it("Should inform listeners if the Telegram API returned an error", async () => {
         when(telegramBotMock.sendMessage(anyNumber(), anyString(), anything())).thenReject(new Error());
 
         await telegramClient.sendMessage(-1, "some html");
-        assert.isDefined(dankController.onErrorFromApiCalledWith);
-        assert.isNotNull(dankController.onErrorFromApiCalledWith);
+        expect(dankController.onErrorFromApiCalledWith).is.not.undefined;
+        expect(dankController.onErrorFromApiCalledWith).is.not.null;
     });
 
 });

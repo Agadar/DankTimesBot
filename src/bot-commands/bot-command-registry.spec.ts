@@ -14,6 +14,7 @@ import { BotCommandRegistry } from "./bot-command-registry";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
+const expect = chai.expect;
 
 describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
 
@@ -129,7 +130,7 @@ describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
-        assert.isTrue(nonAdminCommandCalled);
+        expect(nonAdminCommandCalled).is.true;
     });
 
     it("#executeCommand should execute a non-admin-only command as an admin", async () => {
@@ -141,7 +142,7 @@ describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
-        assert.isTrue(nonAdminCommandCalled);
+        expect(nonAdminCommandCalled).is.true;
     });
 
     it("#executeCommand should NOT execute an admin-only command as a non-admin", async () => {
@@ -153,7 +154,7 @@ describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
 
         // Assert
         assert.equal(reply, expectedAdminOnlyWarning);
-        assert.isFalse(adminCommandCalled);
+        expect(adminCommandCalled).is.false;
     });
 
     it("#executeCommand should execute an admin-only command as an admin", async () => {
@@ -165,7 +166,7 @@ describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
-        assert.isTrue(adminCommandCalled);
+        expect(adminCommandCalled).is.true;
     });
 
     it("#executeCommand should execute an admin-only command as a non-admin in a private chat", async () => {
@@ -178,7 +179,7 @@ describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
-        assert.isTrue(adminCommandCalled);
+        expect(adminCommandCalled).is.true;
     });
 
     it("#executeCommand should execute an admin-only command as a non-admin that is the developer", async () => {
@@ -190,6 +191,6 @@ describe("BotCommandRegistry #executeCommand and #registerCommand", () => {
 
         // Assert
         assert.equal(reply, expectedCommandCalledText);
-        assert.isTrue(adminCommandCalled);
+        expect(adminCommandCalled).is.true;
     });
 });
