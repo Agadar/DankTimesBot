@@ -240,12 +240,12 @@ export class Chat {
         if (messageTimeout) {
             return output;
         }
-
         const user = this.getOrCreateUser(msg.from?.id ?? -1, msg.from?.username ?? "");
+        msg.text = msg.text ?? "";
+
         if (this.running) {
-            output = this.handleDankTimeInputMessage(user, msg.text ?? "", moment.tz(this.timezone));
-        }
-        msg.text = this.util.cleanText(msg.text ?? "");
+            output = this.handleDankTimeInputMessage(user, msg.text, moment.tz(this.timezone));
+        }    
 
         // Chat message event
         const eventArgs = new ChatMessageEventArguments(this, user, msg, output);

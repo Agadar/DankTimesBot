@@ -3,14 +3,6 @@ import { Release } from "../misc/release";
 export interface IUtil {
 
   /**
-   * Removes from the text the characters with unicodes 65039 and 8419.
-   * Makes it so the emoji versions of numbers are parsed to just normal numbers.
-   * @param text The text to clean.
-   * @return The cleaned text.
-   */
-  cleanText(text: string): string;
-
-  /**
    * Converts a map to a sorted array, using the specified comparator.
    */
   mapToSortedArray<T>(map: Map<any, T>, comparator: ((a: T, b: T) => number)): T[];
