@@ -1,4 +1,3 @@
-import * as emojilib from "emojilib";
 import TelegramBot from "node-telegram-bot-api";
 import { AlterUserScoreArgs } from "../../chat/alter-user-score-args";
 import { Chat } from "../../chat/chat";
@@ -12,6 +11,7 @@ import { IUtil } from "../../util/i-util";
 import { BotCommandConfirmationQuestion } from "../bot-command-confirmation-question";
 import { BotCommandRegistry } from "../bot-command-registry";
 import { IDankTimesBotCommands } from "./i-danktimesbot-commands";
+import { ALL_EMOJIS } from "../../util/emojis";
 
 /** Holds functions that take a 'msg' and a 'match' parameter, and return string messages. */
 export class DankTimesBotCommands implements IDankTimesBotCommands {
@@ -296,7 +296,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         if (!match) {
             return "⚠️ You have to specify an avatar, smarty-pants.";
         }
-        const emojiMatch = Object.entries(emojilib).map(([emoji, names]) => emoji).find((e) => e.includes(match));
+        const emojiMatch = ALL_EMOJIS.find((e) => e.includes(match));
 
         if (!emojiMatch) {
             return "😔 That is not a valid avatar...";
