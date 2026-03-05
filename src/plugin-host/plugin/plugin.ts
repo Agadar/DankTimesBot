@@ -203,7 +203,7 @@ export abstract class AbstractPlugin {
     }
 
     /**
-     * @deprecated Use this.telegramBotClient.sendMessage instead.
+     * Use this.telegramBotClient.sendMessage for more control over sending a message.
      */
     protected sendMessage(chatId: number, htmlMessage: string, replyToMessageId = -1, forceReply = false, disableWebPagePreview = false)
         : Promise<void | TelegramBot.Message> {
@@ -224,14 +224,14 @@ export abstract class AbstractPlugin {
     }
 
     /**
-     * @deprecated Use this.telegramBotClient.editMessageText instead.
+     * Use this.telegramBotClient.editMessageText for more control over editing a message.
      */
     protected editMessage(chatId: number, messageId: number, newMessageText: string): Promise<boolean | void | TelegramBot.Message> {
         return this.telegramBotClient.editMessageText(newMessageText, { message_id: messageId, chat_id: chatId, parse_mode: "HTML" });
     }
 
     /**
-     * @deprecated Use this.telegramBotClient.deleteMessage instead.
+     * Use this.telegramBotClient.deleteMessage for more control over deleting a message.
      */
     protected deleteMessage(chatId: number, messageId: number): Promise<boolean | void> {
         return this.telegramBotClient.deleteMessage(chatId, messageId);
