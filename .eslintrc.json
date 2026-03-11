@@ -48,7 +48,7 @@
         // from existing tslint config
         "max-len": [
             "error",
-            { "code": 160 }
+            { "code": 200 }
         ]
 
     }
