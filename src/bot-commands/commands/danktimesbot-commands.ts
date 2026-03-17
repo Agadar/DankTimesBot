@@ -129,7 +129,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         // Identify and verify arguments.
         const hour = Number(spaceSplit[0]);
         const minute = Number(spaceSplit[1]);
-        const points = this.util.parseScoreInput(spaceSplit[2], undefined, undefined);
+        const points = this.util.parseScoreInput(spaceSplit[2], undefined, undefined, undefined);
 
         if (isNaN(hour)) {
             return "⚠️ The hour must be a number!";
@@ -176,7 +176,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         // Identify and verify arguments.
         const hour = Number(split[0]);
         const minute = Number(split[1]);
-        const points = this.util.parseScoreInput(split[2], undefined, undefined);
+        const points = this.util.parseScoreInput(split[2], undefined, undefined, undefined);
 
         if (isNaN(hour)) {
             return "⚠️ The hour must be a number!";
@@ -261,7 +261,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         if (!match) {
             return "✋  Not enough arguments! Format: /donate [amount]";
         }
-        let amount = this.util.parseScoreInput(match, user.score, undefined);
+        let amount = this.util.parseScoreInput(match, user.score, undefined, undefined);
 
         if (amount === null || (amount % 1 !== 0) || amount < 1) {
             return "✋  The amount has to be a whole numeric value";
@@ -348,7 +348,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         if (!match) {
             return "✋  Not enough arguments! Format: /updateuserpoints [amount]";
         }
-        let amount = this.util.parseScoreInput(match, undefined, undefined);
+        let amount = this.util.parseScoreInput(match, undefined, undefined, undefined);
 
         if (amount === null || (amount % 1 !== 0)) {
             return "✋  The amount has to be a whole numeric value";

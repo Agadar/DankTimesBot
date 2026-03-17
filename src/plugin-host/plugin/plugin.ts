@@ -251,10 +251,11 @@ export abstract class AbstractPlugin {
      * @param input The string input to cleanse to a number.
      * @param userScore Optional user score. When supplied, this function can return values for texts such as 'all-in'.
      * @param previousInput Optional previous score input. When supplied, this function can return values for texts such as 'previous'.
+     * @param previousWin Optional previous win. When supplied, this function can return values for texts such as 'winnings'.
      */
     protected parseScoreInput(input: string, userScore: number | undefined = undefined,
-        previousInput: number | undefined = undefined): number | null {
-        return this.listener.onPluginWantsToParseScoreInput(input, userScore, previousInput);
+        previousInput: number | undefined = undefined, previousWin: number | undefined = undefined): number | null {
+        return this.listener.onPluginWantsToParseScoreInput(input, userScore, previousInput, previousWin);
     }
 
     /**

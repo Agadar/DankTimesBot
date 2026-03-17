@@ -8,6 +8,7 @@ export class Util implements IUtil {
     private static readonly HALF_TEXT = "half";
     private static readonly PREVIOUS_TEXTS = ["previous", "prev", "last", "same", "again"];
     private static readonly DOUBLE_PREVIOUS_TEXTS = ["double"];
+    private static readonly PREVIOUS_WIN_TEXTS = ["winnings", "win"];
 
     /**
      * Converts a map to a sorted array, using the specified comparator.
@@ -39,7 +40,7 @@ export class Util implements IUtil {
     }
 
     public parseScoreInput(input: string, userScore: number | undefined = undefined,
-        previousInput: number | undefined = undefined): number | null {
+        previousInput: number | undefined = undefined, previousWin: number | undefined = undefined): number | null {
 
         const match = Util.numberRegex.exec(input);
 
@@ -55,6 +56,9 @@ export class Util implements IUtil {
             }
             if (previousInput !== undefined && Util.DOUBLE_PREVIOUS_TEXTS.includes(input)) {
                 return Math.round(previousInput * 2);
+            }
+            if (previousWin !== undefined && Util.PREVIOUS_WIN_TEXTS.includes(input)) {
+                return Math.round(previousWin);
             }
             return null;
         }

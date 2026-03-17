@@ -139,4 +139,9 @@ describe("util.parseScoreInput", () => {
         const result = util.parseScoreInput("double", undefined, 50);
         assert.equal(result, 100);
     });
+
+    it("Parses 'winnings' text", () => {
+        const result = util.parseScoreInput("winnings", undefined, undefined, 100);
+        assert.equal(result, 100);
+    });
 });

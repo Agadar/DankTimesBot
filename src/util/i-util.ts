@@ -29,6 +29,7 @@ export interface IUtil {
    * @param input The string input to cleanse to a number.
    * @param userScore Optional user score. When supplied, this function can return values for texts such as 'all-in'.
    * @param previousInput Optional previous score input. When supplied, this function can return values for texts such as 'previous'.
+   * @param previousWin Optional previous win. When supplied, this function can return values for texts such as 'winnings'.
    */
-  parseScoreInput(input: string, userScore: number | undefined, previousInput: number | undefined): number | null;
+  parseScoreInput(input: string, userScore: number | undefined, previousInput: number | undefined, previousWin: number | undefined): number | null;
 }
