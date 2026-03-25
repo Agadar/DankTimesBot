@@ -189,7 +189,7 @@ export abstract class AbstractPlugin {
      * @param type Type of file to send
      */
     protected sendFile(chatId: number, filePath: string, replyToMessageId = -1, forceReply = false, caption = "",
-        type: "photo" | "video" | "audio" | "voice" = "photo"): Promise<void | TelegramBot.Message> {
+                       type: "photo" | "video" | "audio" | "voice" | "document" = "photo"): Promise<void | TelegramBot.Message> {
         return this.listener.onPluginWantsToSendFile(chatId, filePath, replyToMessageId, forceReply, caption, type);
     }
 

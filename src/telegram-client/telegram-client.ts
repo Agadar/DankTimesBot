@@ -72,14 +72,21 @@ export class TelegramClient implements ITelegramClient {
     }
 
     public sendFile(chatId: number, filePath: string, replyToMessageId: number, forceReply: boolean, caption = "",
-        type: "photo" | "video" | "audio" | "voice" = "photo") : Promise<TelegramBot.Message | void> {
+                    type: "photo" | "video" | "audio" | "voice" | "document" = "photo"): Promise<TelegramBot.Message | void> {
         if (!fs.existsSync(filePath)) {
             this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, "File does not exist!"));
             return new Promise(() => {
                 return;
             });
         } else {
-            switch(type) {
+            switch (type) {
+            case "document":
+                return this.bot.sendDocument(chatId, filePath, {
+                    reply_to_message_id: replyToMessageId,
+                    caption: caption,
+                }).catch((reason: void | TelegramBot.Message) => {
+                    this.listeners.forEach((listener) => listener.onErrorFromApi(chatId, reason));
+                });
             case "photo":
                 return this.bot.sendPhoto(chatId, filePath, {
                     reply_to_message_id: replyToMessageId,
