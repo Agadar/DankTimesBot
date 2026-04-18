@@ -19,10 +19,10 @@ jobs:
       - name: Get branch name
         run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - name: Node 16
+      - name: Node 25
         uses: actions/setup-node@v1
         with:
-          node-version: 16.x
+          node-version: 25.x
 
       - name: Build
         run: |
