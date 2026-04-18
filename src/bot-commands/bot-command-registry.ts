@@ -34,7 +34,7 @@ export class BotCommandRegistry {
             if (upperCased === "Y" || upperCased === "YES") {
                 try {
                     return [data.question.actionOnConfirm()];
-                } catch (ex) {
+                } catch (ex: any) {
                     console.error(ex);
                     return [`⚠️ ${ex.message}`];
                 }
@@ -105,7 +105,7 @@ export class BotCommandRegistry {
 
         try {
             commandResult = botCommand.action(chat, user, msg, params);
-        } catch (ex) {
+        } catch (ex: any) {
             console.error(ex);
             return `⚠️ ${ex.message}`;
         }

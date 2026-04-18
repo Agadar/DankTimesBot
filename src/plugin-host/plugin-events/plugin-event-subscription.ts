@@ -4,7 +4,7 @@ import { PluginEvent } from "./plugin-event-types";
 /**
  * Contains all fields necessary for a plugin to subscribe to a plugin event.
  */
-export class PluginEventSubscription {
+export class PluginEventSubscription<T extends PluginEventArguments> {
 
     public static readonly ANY_SOURCE_OR_REASON = "*";
 
@@ -12,7 +12,7 @@ export class PluginEventSubscription {
         /**
          * Function that handles the event when received.
          */
-        public readonly handler: (eventArgs: PluginEventArguments) => void,
+        public readonly handler: (eventArgs: T) => void,
 
         /**
          * The type of event to filter on.

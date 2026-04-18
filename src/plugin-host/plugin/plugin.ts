@@ -35,18 +35,18 @@ export abstract class AbstractPlugin {
      * Plugins are trusted not to override any of the listening/subscription behavior of DankTimesBot's core flow and to
      * properly take care of errors thrown by this client.
      */
-    protected telegramBotClient: TelegramBot;
+    protected telegramBotClient!: TelegramBot;
 
     /**
      * Event subcriptions. Plugins can hook functions to certain Plugin Events.
      * These plugin events are defined in the PLUGIN_EVENT enumeration.
      */
-    private pluginEventSubscriptions: PluginEventSubscription[] = [];
+    private pluginEventSubscriptions: PluginEventSubscription<any>[] = [];
     /**
      * Listener to events fired by this plugin. Not to be confused with the
      * events this plugin listens to itself (i.e. the above pluginEventSubscriptions).
      */
-    private listener: IPluginListener;
+    private listener!: IPluginListener;
 
     /**
      * Create a new Plugin instance.
@@ -173,7 +173,7 @@ export abstract class AbstractPlugin {
      * or star (*) to accept these events from any source. Star by default.
      * @param reason The reason to accept these events for, or star (*) to accept these events for any reason. Star by default.
      */
-    protected subscribeToPluginEvent<ArgumentsType extends PluginEventArguments>(event: PluginEvent, eventFn: (eventArgs: ArgumentsType) => void,
+    protected subscribeToPluginEvent<T extends PluginEventArguments>(event: PluginEvent, eventFn: (eventArgs: T) => void,
         nameOfOriginPlugin?: string, reason?: string): void {
         const subscription = new PluginEventSubscription(eventFn, event, nameOfOriginPlugin, reason);
         this.pluginEventSubscriptions.push(subscription);

@@ -19,7 +19,7 @@ import { ChatResetEventArguments } from "../plugin-host/plugin-events/event-argu
 
 export class Chat {
 
-    private myId: number;
+    private myId!: number;
     private myLastLeaderboard?: Leaderboard = undefined;
     private pluginHost: PluginHost;
     private myLastDankTime: DankTime | null = null;

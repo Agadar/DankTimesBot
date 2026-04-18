@@ -29,7 +29,7 @@ export class DankTime {
     }
 
     public readonly texts = new Array<string>();
-    private myPoints: () => number;
+    private myPoints!: () => number;
 
     /**
    * Creates a new dank time object.

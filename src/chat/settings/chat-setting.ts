@@ -3,7 +3,7 @@ import { ChatSettingTemplate } from "./chat-setting-template";
 /** A chat setting. */
 export class ChatSetting<T> {
 
-    private myvalue: T;
+    private myvalue!: T;
 
     /**
      * Constructor.

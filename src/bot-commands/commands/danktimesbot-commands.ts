@@ -84,7 +84,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
             }
 
             return "🎉 Updated the setting!";
-        } catch (err) {
+        } catch (err: any) {
             return "⚠️ " + err.message;
         }
     }
@@ -160,7 +160,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
                 }
             }
             return "⏰ Added the new time!";
-        } catch (err) {
+        } catch (err: any) {
             return "⚠️ " + err.message;
         }
     }
@@ -197,7 +197,7 @@ export class DankTimesBotCommands implements IDankTimesBotCommands {
         try {
             dankTime.setPoints(() => points);
             return "💾 Updated the time!";
-        } catch (err) {
+        } catch (err: any) {
             return "⚠️ " + err.message;
         }
     }

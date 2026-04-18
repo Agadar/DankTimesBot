@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./built",
+    "rootDir": "./src",
     "allowJs": false,
     "target": "es2020",
     "lib": ["es2020"],
@@ -12,10 +13,9 @@
     "alwaysStrict": true,
     "pretty": true,
     "removeComments": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "experimentalDecorators": true,
-    "module": "commonjs",
-    "baseUrl": "types",
+    "module": "nodenext",
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
