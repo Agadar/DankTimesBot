@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.2.0",
+    "date": "2026-04-18",
+    "changes": [
+      "Numerous minor updates, additions, and fixes"
+    ]
+  },
+  {
     "version": "2.1.0",
     "date": "2022-06-20",
     "changes": [

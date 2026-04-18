@@ -1,6 +1,6 @@
 {
   "name": "dank-times-bot",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "This Telegram bot keeps track of 'dank' times such as 13:37 and 04:20, and awards points to users who call them out.",
   "main": "built/main.js",
   "scripts": {
@@ -19,24 +19,24 @@
   },
   "dependencies": {
     "cron": "^4.4.0",
-    "moment-timezone": "^0.6.0",
+    "emojilib": "^4.0.3",
+    "moment-timezone": "^0.6.1",
     "node-cleanup": "^2.1.2",
-    "emojilib": "^4.0.2",
-    "node-telegram-bot-api": "0.67.0"
+    "node-telegram-bot-api": "^0.67.0"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.3.0",
+    "@types/node": "^25.6.0",
     "@types/node-cleanup": "^2.1.5",
-    "@types/node-telegram-bot-api": "0.64.13",
-    "@typescript-eslint/eslint-plugin": "^8.56.0",
-    "@typescript-eslint/parser": "^8.56.0",
-    "chai": "^5.2.3",
+    "@types/node-telegram-bot-api": "^0.64.14",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
+    "chai": "^5.3.3",
     "chai-as-promised": "^8.0.2",
-    "eslint": "8.57.0",
-    "mocha": "^10.0.10",
+    "eslint": "^8.57.1",
+    "mocha": "^10.8.2",
     "rimraf": "^6.1.3",
     "ts-mockito": "^2.6.1",
     "typescript": "^5.9.3"
